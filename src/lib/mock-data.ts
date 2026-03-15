@@ -67,5 +67,5 @@ export const mockProxyProtect = (text: string) => {
     protectedText = protectedText.slice(0, d.start) + token + protectedText.slice(d.end);
   }
 
-  return { protectedText, detections, tokenMap };
+  return { protectedText, detections, tokenMap, auditLogId: null, requestId: null };
 };
