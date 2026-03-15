@@ -11,6 +11,7 @@ import LegalPage from "./pages/use-cases/Legal";
 import FintechPage from "./pages/use-cases/Fintech";
 import HealthPage from "./pages/use-cases/Health";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import AppLayout from "./components/app/AppLayout";
 import Chat from "./pages/app/Chat";
 import Dashboard from "./pages/app/Dashboard";
@@ -71,6 +72,7 @@ const App = () => (
 
               {/* Auth */}
               <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
               {/* App (protected) */}
               <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
