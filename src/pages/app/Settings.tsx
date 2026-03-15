@@ -22,11 +22,12 @@ const Settings = () => {
     queryKey: ["org-details", profile?.org_id],
     enabled: !!profile?.org_id,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("organizations")
         .select("name, slug, plan, data_region, gdpr_dpo_email, max_pipelines")
         .eq("id", profile!.org_id)
-        .single();
+        .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });
