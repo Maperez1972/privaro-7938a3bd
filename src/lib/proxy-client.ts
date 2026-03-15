@@ -68,5 +68,7 @@ export const proxyProtect = async (text: string, pipelineId?: string) => {
     protectedText: data.protected_prompt,
     detections: data.detections,
     tokenMap: {} as Record<string, string>,
+    auditLogId: data.audit_log_id || null,
+    requestId: data.request_id || null,
   };
 };

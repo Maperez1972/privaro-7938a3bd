@@ -106,13 +106,27 @@ const Sandbox = () => {
     }
   };
 
+  const enrichDetections = (detections: any[], sourceText: string) => {
+    return detections.map((d: any) => ({
+      ...d,
+      value: (d.start !== null && d.start !== undefined && d.end !== null && d.end !== undefined)
+        ? sourceText.substring(d.start, d.end)
+        : d.token || '[protected]',
+      category: d.type === 'iban' || d.type === 'credit_card'
+        ? 'financial'
+        : d.type === 'health_record'
+        ? 'special'
+        : 'personal',
+    }));
+  };
+
   const handleAnalyze = async () => {
     setIsProcessing(true);
     const startMs = performance.now();
     try {
       if (mode === "detect") {
         const d = await proxyDetect(text);
-        setDetections(d);
+        setDetections(enrichDetections(d, text));
         setResult(null);
 
         // Only insert audit_logs from client in mock mode
@@ -122,20 +136,45 @@ const Sandbox = () => {
       } else {
         const r = await proxyProtect(text);
         setResult(r);
-        setDetections(r.detections);
+        setDetections(enrichDetections(r.detections, text));
 
         // Only insert audit_logs from client in mock mode
         if (!isProxyReal) {
           await insertClientAuditLogs("pii_masked", "tokenised", r.detections, startMs);
         }
 
-        // In real proxy mode, use audit_log_id from response for iBS status
-        if (isProxyReal && (r as any).audit_log_id) {
+        // In real proxy mode, use auditLogId from response for iBS status
+        if (isProxyReal && r.auditLogId) {
           const { data: logData } = await supabase
             .from("audit_logs")
             .select("id, event_type, entity_type, entity_category, action_taken, severity, ibs_status, processing_ms, created_at")
-            .eq("id", (r as any).audit_log_id);
-          if (logData) setAuditLogs(logData as AuditLogEntry[]);
+            .eq("id", r.auditLogId)
+            .single();
+          if (logData) setAuditLogs([logData as AuditLogEntry]);
+
+          // Subscribe to realtime updates for this specific audit log
+          const channel = supabase
+            .channel('proxy-ibs-' + r.auditLogId)
+            .on('postgres_changes', {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'audit_logs',
+              filter: `id=eq.${r.auditLogId}`,
+            }, (payload) => {
+              const updated = payload.new as AuditLogEntry;
+              setAuditLogs(prev => prev.map(l =>
+                l.id === updated.id ? { ...l, ibs_status: updated.ibs_status } : l
+              ));
+              if (updated.ibs_status === "certified") {
+                toast.success(`iBS certified: ${updated.entity_type}`, {
+                  description: "Blockchain evidence recorded",
+                });
+              }
+            })
+            .subscribe();
+
+          // Cleanup channel after 60s
+          setTimeout(() => supabase.removeChannel(channel), 60000);
         }
       }
     } catch (err) {
