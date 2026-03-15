@@ -1,12 +1,37 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import UrgencySection from "@/components/UrgencySection";
+import ProblemSection from "@/components/ProblemSection";
+import RiskGapSection from "@/components/RiskGapSection";
+import SolutionSection from "@/components/SolutionSection";
+import DashboardMockupSection from "@/components/DashboardMockupSection";
+import HowItWorksSection from "@/components/HowItWorksSection";
+import ComparisonSection from "@/components/ComparisonSection";
+import SecuritySection from "@/components/SecuritySection";
+import BlockchainSection from "@/components/BlockchainSection";
+import UseCasesSection from "@/components/UseCasesSection";
+import TechBriefSection from "@/components/TechBriefSection";
+import BetaSection from "@/components/BetaSection";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background text-foreground">
+      <Navbar />
+      <HeroSection />
+      <UrgencySection />
+      <ProblemSection />
+      <RiskGapSection />
+      <SolutionSection />
+      <DashboardMockupSection />
+      <HowItWorksSection />
+      <ComparisonSection />
+      <SecuritySection />
+      <BlockchainSection />
+      <UseCasesSection />
+      <TechBriefSection />
+      <BetaSection />
+      <Footer />
     </div>
   );
 };
