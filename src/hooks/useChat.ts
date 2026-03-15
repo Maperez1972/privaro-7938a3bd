@@ -171,6 +171,10 @@ export function useChat() {
     setArchivedConversations((data as unknown as Conversation[]) ?? []);
   }, [user]);
 
+  useEffect(() => {
+    fetchArchivedConversations();
+  }, [fetchArchivedConversations]);
+
   const archiveConversation = useCallback(async (id: string) => {
     await supabase.from("conversations").update({ is_archived: true }).eq("id", id);
     if (activeConversationId === id) {
