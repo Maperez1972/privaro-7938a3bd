@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Eye, EyeOff } from "lucide-react";
 import logoPrivaro from "@/assets/logo-privaro.png";
+import { useLanguage } from "@/context/LanguageContext";
 
 const Auth = () => {
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
@@ -19,6 +20,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +51,7 @@ const Auth = () => {
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Account created", description: "Check your email to verify your account, then sign in." });
+      toast({ title: t("auth.accountCreated"), description: t("auth.checkEmail") });
       setMode("login");
     }
   };
@@ -64,15 +66,15 @@ const Auth = () => {
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Email sent", description: "Check your inbox for a password reset link." });
+      toast({ title: t("auth.emailSent"), description: t("auth.checkInbox") });
       setMode("login");
     }
   };
 
   const titles = {
-    login: { title: "Sign in", desc: "Access your privacy dashboard" },
-    signup: { title: "Create account", desc: "Set up your organization" },
-    forgot: { title: "Reset password", desc: "We'll send you a reset link" },
+    login: { title: t("auth.signin"), desc: t("auth.signin.desc") },
+    signup: { title: t("auth.signup"), desc: t("auth.signup.desc") },
+    forgot: { title: t("auth.forgot"), desc: t("auth.forgot.desc") },
   };
 
   return (
@@ -93,14 +95,14 @@ const Auth = () => {
             {mode === "forgot" ? (
               <form onSubmit={handleForgotPassword} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("auth.email")}</Label>
                   <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" required />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Sending..." : "Send reset link"}
+                  {loading ? t("auth.sending") : t("auth.sendReset")}
                 </Button>
                 <div className="text-center text-sm text-muted-foreground">
-                  <button onClick={() => setMode("login")} className="text-primary hover:underline">Back to sign in</button>
+                  <button onClick={() => setMode("login")} className="text-primary hover:underline">{t("auth.backToSignin")}</button>
                 </div>
               </form>
             ) : (
@@ -109,24 +111,24 @@ const Auth = () => {
                   {mode === "signup" && (
                     <>
                       <div className="space-y-2">
-                        <Label htmlFor="orgName">Organization name</Label>
+                        <Label htmlFor="orgName">{t("auth.orgName")}</Label>
                         <Input id="orgName" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="Acme Corp" required />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="fullName">Full name</Label>
+                        <Label htmlFor="fullName">{t("auth.fullName")}</Label>
                         <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Jane Doe" required />
                       </div>
                     </>
                   )}
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t("auth.email")}</Label>
                     <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" required />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="password">Password</Label>
+                      <Label htmlFor="password">{t("auth.password")}</Label>
                       {mode === "login" && (
-                        <button type="button" onClick={() => setMode("forgot")} className="text-xs text-primary hover:underline">Forgot password?</button>
+                        <button type="button" onClick={() => setMode("forgot")} className="text-xs text-primary hover:underline">{t("auth.forgotLink")}</button>
                       )}
                     </div>
                     <div className="relative">
@@ -137,13 +139,13 @@ const Auth = () => {
                     </div>
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Loading..." : mode === "login" ? "Sign in" : "Create account"}
+                    {loading ? t("auth.loading") : mode === "login" ? t("auth.signin") : t("auth.signup")}
                   </Button>
                 </form>
                 <div className="mt-4 text-center text-sm text-muted-foreground">
-                  {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
+                  {mode === "login" ? t("auth.noAccount") : t("auth.hasAccount")}{" "}
                   <button onClick={() => setMode(mode === "login" ? "signup" : "login")} className="text-primary hover:underline">
-                    {mode === "login" ? "Sign up" : "Sign in"}
+                    {mode === "login" ? t("auth.signup") : t("auth.signin")}
                   </button>
                 </div>
               </>
