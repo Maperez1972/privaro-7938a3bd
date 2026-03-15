@@ -97,52 +97,27 @@ const AdminUsers = () => {
     mutationFn: async () => {
       if (!orgId || !inviteEmail) throw new Error("Missing data");
 
-      // 1. Create user via signUp with a temporary password
-      const tempPassword = crypto.randomUUID().slice(0, 16) + "!A1";
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: inviteEmail,
-        password: tempPassword,
-        options: {
-          data: {
-            full_name: inviteEmail.split("@")[0],
-            organization_name: "",
-          },
+      const { data, error } = await supabase.functions.invoke("invite-user", {
+        body: {
+          email: inviteEmail,
+          role: inviteRole,
+          full_name: inviteEmail.split("@")[0],
         },
       });
-      if (signUpError) throw signUpError;
-      if (!signUpData.user) throw new Error("User creation failed");
 
-      const newUserId = signUpData.user.id;
-
-      // 2. Assign profile to this org
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({ org_id: orgId })
-        .eq("id", newUserId);
-      if (profileError) throw profileError;
-
-      // 3. Assign role
-      const { error: roleError } = await supabase.from("user_roles").insert({
-        user_id: newUserId,
-        org_id: orgId,
-        role: inviteRole as "admin" | "dpo" | "developer" | "viewer",
-      });
-      if (roleError) throw roleError;
-
-      // 4. Send password reset so the user can set their own password
-      await supabase.auth.resetPasswordForEmail(inviteEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users", orgId] });
-      toast.success(`Invitación enviada a ${inviteEmail}. Recibirá un email para establecer su contraseña.`);
+      toast.success(`Invitación enviada a ${inviteEmail}. Recibirá un email para acceder.`);
       setInviteOpen(false);
       setInviteEmail("");
       setInviteRole("viewer");
     },
     onError: (e: Error) => {
-      if (e.message?.includes("already registered")) {
+      if (e.message?.includes("ya está registrado") || e.message?.includes("already registered")) {
         toast.error("Este email ya está registrado");
       } else {
         toast.error(e.message || "Error al invitar usuario");
