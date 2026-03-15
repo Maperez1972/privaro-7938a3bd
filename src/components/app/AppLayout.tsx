@@ -25,10 +25,11 @@ const adminOnlyItems = [
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
-  const { user, profile, roles, signOut } = useAuth();
-  const isAdmin = roles.includes("admin");
-  const isDpo = roles.includes("dpo");
+  const { user, profile, roles, role, signOut } = useAuth();
+  const isAdmin = role === "admin";
+  const isDpo = role === "dpo";
   const showAdminSection = isAdmin || isDpo;
+  console.log("[AppLayout] role:", role, "roles:", roles, "showAdminSection:", showAdminSection);
 
   const renderNavItem = (item: { label: string; icon: any; href: string }) => {
     const isActive = item.href === "/app" ? location.pathname === "/app" : location.pathname.startsWith(item.href);
