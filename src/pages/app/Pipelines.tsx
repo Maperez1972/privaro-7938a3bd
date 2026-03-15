@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Settings2, Trash2 } from "lucide-react";
+import { Plus, Settings2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Pipelines = () => {
@@ -19,9 +19,10 @@ const Pipelines = () => {
       .then(({ data }) => { setPipelines(data || []); setLoading(false); });
   }, [profile?.org_id]);
 
-  const toggleActive = async (id: string, current: boolean) => {
-    const { error } = await supabase.from("pipelines").update({ is_active: !current }).eq("id", id);
-    if (!error) setPipelines(ps => ps.map(p => p.id === id ? { ...p, is_active: !current } : p));
+  const toggleStatus = async (id: string, current: string) => {
+    const newStatus = current === "active" ? "inactive" : "active";
+    const { error } = await supabase.from("pipelines").update({ status: newStatus }).eq("id", id);
+    if (!error) setPipelines(ps => ps.map(p => p.id === id ? { ...p, status: newStatus } : p));
     else toast({ title: "Error", description: error.message, variant: "destructive" });
   };
 
@@ -42,14 +43,14 @@ const Pipelines = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="font-semibold">{p.name}</h3>
-                  <p className="text-sm text-muted-foreground">{p.provider} / {p.model}</p>
+                  <p className="text-sm text-muted-foreground">{p.llm_provider} / {p.llm_model}</p>
                 </div>
-                <Badge variant={p.is_active ? "default" : "secondary"}>{p.is_active ? "Active" : "Inactive"}</Badge>
+                <Badge variant={p.status === "active" ? "default" : "secondary"}>{p.status}</Badge>
               </div>
-              {p.description && <p className="text-sm text-muted-foreground">{p.description}</p>}
+              <p className="text-xs text-muted-foreground">Sector: {p.sector} · Requests: {p.total_requests}</p>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => toggleActive(p.id, p.is_active)}>
-                  <Settings2 className="h-3 w-3 mr-1" />{p.is_active ? "Disable" : "Enable"}
+                <Button variant="outline" size="sm" onClick={() => toggleStatus(p.id, p.status)}>
+                  <Settings2 className="h-3 w-3 mr-1" />{p.status === "active" ? "Disable" : "Enable"}
                 </Button>
               </div>
             </Card>

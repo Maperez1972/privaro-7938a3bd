@@ -13,7 +13,7 @@ const Policies = () => {
 
   useEffect(() => {
     if (!profile?.org_id) return;
-    supabase.from("policies").select("*").eq("org_id", profile.org_id).order("created_at", { ascending: false })
+    supabase.from("policy_rules").select("*").eq("org_id", profile.org_id).order("priority", { ascending: true })
       .then(({ data }) => { setPolicies(data || []); setLoading(false); });
   }, [profile?.org_id]);
 
@@ -24,21 +24,21 @@ const Policies = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <ShieldCheck className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold">Policies</h1>
+          <h1 className="text-2xl font-bold">Policy Rules</h1>
         </div>
-        <Button><Plus className="h-4 w-4 mr-2" />New Policy</Button>
+        <Button><Plus className="h-4 w-4 mr-2" />New Rule</Button>
       </div>
       {policies.length === 0 ? (
-        <Card className="p-12 text-center text-muted-foreground">No policies configured. Create privacy policies to control PII handling.</Card>
+        <Card className="p-12 text-center text-muted-foreground">No policy rules configured. Create rules to control PII handling.</Card>
       ) : (
         <div className="space-y-4">
           {policies.map(p => (
             <Card key={p.id} className="p-5 flex items-center justify-between">
               <div>
-                <h3 className="font-semibold">{p.name}</h3>
-                <p className="text-sm text-muted-foreground">Type: {p.type}</p>
+                <h3 className="font-semibold">{p.entity_type}</h3>
+                <p className="text-sm text-muted-foreground">Category: {p.category} · Action: {p.action} · Priority: {p.priority}</p>
               </div>
-              <Badge variant={p.is_active ? "default" : "secondary"}>{p.is_active ? "Active" : "Inactive"}</Badge>
+              <Badge variant={p.is_enabled ? "default" : "secondary"}>{p.is_enabled ? "Enabled" : "Disabled"}</Badge>
             </Card>
           ))}
         </div>
