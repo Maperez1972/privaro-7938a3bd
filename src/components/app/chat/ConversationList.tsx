@@ -122,6 +122,11 @@ function ConvItem({
   return (
     <>
       <div
+        draggable
+        onDragStart={(e) => {
+          e.dataTransfer.setData("conv-id", conv.id);
+          e.dataTransfer.effectAllowed = "move";
+        }}
         onClick={() => onSelect(conv.id)}
         className={cn(
           "flex items-start gap-2 px-3 py-2.5 cursor-pointer transition-colors border-l-2 group",
