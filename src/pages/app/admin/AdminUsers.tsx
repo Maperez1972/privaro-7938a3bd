@@ -186,7 +186,7 @@ const AdminUsers = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleInvite} disabled={!inviteEmail} className="w-full">
+              <Button onClick={() => inviteUser.mutate()} disabled={!inviteEmail || inviteUser.isPending} className="w-full">
                 Send Invitation
               </Button>
             </div>
