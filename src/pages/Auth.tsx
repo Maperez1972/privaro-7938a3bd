@@ -79,7 +79,13 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
+      <button
+        onClick={() => setLang(lang === "en" ? "es" : "en")}
+        className="absolute top-4 right-4 px-3 py-1.5 text-sm font-medium rounded-md border border-border bg-card text-foreground hover:bg-accent transition-colors"
+      >
+        {lang === "en" ? "🇪🇸 Español" : "🇬🇧 English"}
+      </button>
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <img src={logoPrivaro} alt="Privaro" className="h-20" />
