@@ -28,7 +28,24 @@ const Chat = () => {
 
   return (
     <div className="flex h-[calc(100vh)] overflow-hidden">
-      <ConversationList conversations={chat.conversations} activeId={chat.activeConversationId} onSelect={chat.setActiveConversationId} onNew={chat.createConversation} onArchive={chat.archiveConversation} loading={chat.loadingConversations} />
+      <ConversationList
+        conversations={chat.conversations}
+        activeId={chat.activeConversationId}
+        onSelect={chat.setActiveConversationId}
+        onNew={chat.createConversation}
+        onArchive={chat.archiveConversation}
+        onDelete={chat.deleteConversation}
+        onRename={chat.renameConversation}
+        onTogglePin={chat.togglePin}
+        onMoveToFolder={chat.moveToFolder}
+        onDuplicate={chat.duplicateConversation}
+        loading={chat.loadingConversations}
+        folders={chat.folders}
+        onCreateFolder={chat.createFolder}
+        onRenameFolder={chat.renameFolder}
+        onChangeFolderColor={chat.changeFolderColor}
+        onDeleteFolder={chat.deleteFolder}
+      />
       <ChatArea messages={chat.messages} sending={chat.sending} loading={chat.loadingMessages} activeConversationId={chat.activeConversationId} activePipeline={chat.pipelines.find((p) => p.id === chat.activePipelineId)} isProxyActive={chat.isProxyActive} input={input} setInput={setInput} textareaRef={textareaRef} onSend={handleSend} onKeyDown={handleKeyDown} messagesEndRef={chat.messagesEndRef} attachment={attachment} onAttachFile={attachFile} onRemoveAttachment={removeAttachment} />
       <PipelineSelector pipelines={chat.pipelines} activePipelineId={chat.activePipelineId} onSelect={chat.setActivePipelineId} />
     </div>
