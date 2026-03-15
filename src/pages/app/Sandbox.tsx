@@ -74,90 +74,75 @@ const Sandbox = () => {
     };
   }, [profile?.org_id]);
 
+  const isProxyReal = !!import.meta.env.VITE_PROXY_URL;
+
+  const insertClientAuditLogs = async (eventType: string, actionTaken: string, dets: any[], startMs: number) => {
+    if (!profile?.org_id || dets.length === 0) return;
+    const processingMs = Math.round(performance.now() - startMs);
+    const rows = dets.map((det: any) => ({
+      org_id: profile.org_id,
+      event_type: eventType,
+      entity_type: det.type,
+      entity_category: det.category,
+      action_taken: actionTaken,
+      severity: det.severity,
+      pipeline_stage: "sandbox",
+      ibs_status: "pending",
+      processing_ms: processingMs,
+      metadata: { source: "sandbox", mode: eventType === "pii_detected" ? "detect" : "protect" },
+    }));
+
+    const { data: inserted, error } = await supabase
+      .from("audit_logs")
+      .insert(rows)
+      .select("id, event_type, entity_type, entity_category, action_taken, severity, ibs_status, processing_ms, created_at");
+
+    if (error) {
+      toast.error("Error saving audit logs");
+      console.error(error);
+    } else if (inserted) {
+      setAuditLogs(inserted as AuditLogEntry[]);
+      simulateIbsCertification(inserted.map((l: any) => l.id));
+    }
+  };
+
   const handleAnalyze = async () => {
     setIsProcessing(true);
     const startMs = performance.now();
     try {
+      if (mode === "detect") {
+        const d = await proxyDetect(text);
+        setDetections(d);
+        setResult(null);
 
-    if (mode === "detect") {
-      const d = await proxyDetect(text);
-      setDetections(d);
-      setResult(null);
-
-      // Insert audit logs for each detection
-      if (profile?.org_id && d.length > 0) {
-        setIsProcessing(true);
-        const processingMs = Math.round(performance.now() - startMs);
-        const rows = d.map((det: any) => ({
-          org_id: profile.org_id,
-          event_type: "pii_detected",
-          entity_type: det.type,
-          entity_category: det.category,
-          action_taken: "detected",
-          severity: det.severity,
-          pipeline_stage: "sandbox",
-          ibs_status: "pending",
-          processing_ms: processingMs,
-          metadata: { source: "sandbox", mode: "detect" },
-        }));
-
-        const { data: inserted, error } = await supabase
-          .from("audit_logs")
-          .insert(rows)
-          .select("id, event_type, entity_type, entity_category, action_taken, severity, ibs_status, processing_ms, created_at");
-
-        if (error) {
-          toast.error("Error saving audit logs");
-          console.error(error);
-        } else if (inserted) {
-          setAuditLogs(inserted as AuditLogEntry[]);
-          simulateIbsCertification(inserted.map((l: any) => l.id));
+        // Only insert audit_logs from client in mock mode
+        if (!isProxyReal) {
+          await insertClientAuditLogs("pii_detected", "detected", d, startMs);
         }
-        setIsProcessing(false);
-      }
-    } else {
-      const r = await proxyProtect(text);
-      setResult(r);
-      setDetections(r.detections);
+      } else {
+        const r = await proxyProtect(text);
+        setResult(r);
+        setDetections(r.detections);
 
-      // Insert audit logs for protect mode
-      if (profile?.org_id && r.detections.length > 0) {
-        setIsProcessing(true);
-        const processingMs = Math.round(performance.now() - startMs);
-        const rows = r.detections.map((det: any) => ({
-          org_id: profile.org_id,
-          event_type: "pii_masked",
-          entity_type: det.type,
-          entity_category: det.category,
-          action_taken: "tokenised",
-          severity: det.severity,
-          pipeline_stage: "sandbox",
-          ibs_status: "pending",
-          processing_ms: processingMs,
-          metadata: { source: "sandbox", mode: "protect" },
-        }));
-
-        const { data: inserted, error } = await supabase
-          .from("audit_logs")
-          .insert(rows)
-          .select("id, event_type, entity_type, entity_category, action_taken, severity, ibs_status, processing_ms, created_at");
-
-        if (error) {
-          toast.error("Error saving audit logs");
-          console.error(error);
-        } else if (inserted) {
-          setAuditLogs(inserted as AuditLogEntry[]);
-          simulateIbsCertification(inserted.map((l: any) => l.id));
+        // Only insert audit_logs from client in mock mode
+        if (!isProxyReal) {
+          await insertClientAuditLogs("pii_masked", "tokenised", r.detections, startMs);
         }
-        setIsProcessing(false);
+
+        // In real proxy mode, use audit_log_id from response for iBS status
+        if (isProxyReal && (r as any).audit_log_id) {
+          const { data: logData } = await supabase
+            .from("audit_logs")
+            .select("id, event_type, entity_type, entity_category, action_taken, severity, ibs_status, processing_ms, created_at")
+            .eq("id", (r as any).audit_log_id);
+          if (logData) setAuditLogs(logData as AuditLogEntry[]);
+        }
       }
-    }
     } catch (err) {
       console.error("Proxy error:", err);
       toast.error("Error connecting to proxy. Using mock data instead.", {
         description: "Check CORS configuration on your Railway proxy.",
       });
-      // Fallback to mock data
       const { mockProxyDetect, mockProxyProtect } = await import("@/lib/mock-data");
       if (mode === "detect") {
         const d = mockProxyDetect(text);
