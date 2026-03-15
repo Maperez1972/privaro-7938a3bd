@@ -126,8 +126,8 @@ const AdminApiKeys = () => {
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1.5">
-                    {(k.permissions && Array.isArray(k.permissions) ? k.permissions : ["detect", "protect"]).map((p: string) => (
-                      <Badge key={p} variant="secondary" className="text-xs">{p}</Badge>
+                    {(k.display_permissions && Array.isArray(k.display_permissions) ? k.display_permissions : ["detect", "protect"]).map((p: string) => (
+                      <Badge key={p} variant="outline" className="text-xs">{p}</Badge>
                     ))}
                   </div>
                 </TableCell>
