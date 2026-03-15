@@ -40,16 +40,16 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { roles, loading } = useAuth();
+  const { hasRole, loading } = useAuth();
   if (loading) return null;
-  if (!roles.includes("admin")) return <Navigate to="/app" replace />;
+  if (!hasRole("admin")) return <Navigate to="/app" replace />;
   return <>{children}</>;
 };
 
 const AdminDpoRoute = ({ children }: { children: React.ReactNode }) => {
-  const { roles, loading } = useAuth();
+  const { hasRole, loading } = useAuth();
   if (loading) return null;
-  if (!roles.includes("admin") && !roles.includes("dpo")) return <Navigate to="/app" replace />;
+  if (!hasRole("admin") && !hasRole("dpo")) return <Navigate to="/app" replace />;
   return <>{children}</>;
 };
 
