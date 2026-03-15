@@ -427,6 +427,7 @@ export function useChat() {
 
   return {
     conversations,
+    archivedConversations,
     activeConversationId,
     setActiveConversationId,
     messages,
@@ -440,6 +441,7 @@ export function useChat() {
     isProxyActive,
     createConversation,
     archiveConversation,
+    unarchiveConversation,
     deleteConversation,
     renameConversation,
     togglePin,
