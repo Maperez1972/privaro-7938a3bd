@@ -6,15 +6,18 @@ import type { FileAttachment } from "@/components/app/chat/FileAttachment";
 
 const PROXY_URL = import.meta.env.VITE_PROXY_URL;
 
-interface Conversation {
+export interface Conversation {
   id: string;
   title: string;
+  custom_title: string | null;
   pipeline_id: string;
   total_messages: number;
   total_pii_detected: number;
   total_pii_protected: number;
   last_message_at: string | null;
   created_at: string;
+  is_pinned: boolean;
+  folder_id: string | null;
 }
 
 interface Message {
@@ -41,6 +44,18 @@ interface Pipeline {
   status: string;
 }
 
+export interface ConversationFolder {
+  id: string;
+  org_id: string;
+  user_id: string;
+  name: string;
+  color: string;
+  icon: string;
+  position: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export function useChat() {
   const { user, profile } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -51,6 +66,7 @@ export function useChat() {
   const [sending, setSending] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [folders, setFolders] = useState<ConversationFolder[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const isProxyActive = !!PROXY_URL;
@@ -71,6 +87,21 @@ export function useChat() {
       });
   }, [profile?.org_id]);
 
+  // Fetch folders
+  const fetchFolders = useCallback(async () => {
+    if (!user) return;
+    const { data } = await (supabase as any)
+      .from("conversation_folders")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("position", { ascending: true });
+    setFolders((data as ConversationFolder[]) ?? []);
+  }, [user]);
+
+  useEffect(() => {
+    fetchFolders();
+  }, [fetchFolders]);
+
   const fetchConversations = useCallback(async () => {
     if (!user) return;
     setLoadingConversations(true);
@@ -79,7 +110,7 @@ export function useChat() {
       .select("*")
       .eq("is_archived", false)
       .order("last_message_at", { ascending: false, nullsFirst: false });
-    setConversations((data as Conversation[]) ?? []);
+    setConversations((data as unknown as Conversation[]) ?? []);
     setLoadingConversations(false);
   }, [user]);
 
@@ -137,6 +168,90 @@ export function useChat() {
     }
     await fetchConversations();
   }, [activeConversationId, fetchConversations]);
+
+  const deleteConversation = useCallback(async (id: string) => {
+    await supabase.from("conversation_messages").delete().eq("conversation_id", id);
+    await supabase.from("conversations").delete().eq("id", id);
+    if (activeConversationId === id) {
+      setActiveConversationId(null);
+      setMessages([]);
+    }
+    await fetchConversations();
+  }, [activeConversationId, fetchConversations]);
+
+  const renameConversation = useCallback(async (id: string, newTitle: string) => {
+    await (supabase as any).from("conversations").update({ custom_title: newTitle }).eq("id", id);
+    setConversations(prev => prev.map(c => c.id === id ? { ...c, custom_title: newTitle } : c));
+  }, []);
+
+  const togglePin = useCallback(async (id: string) => {
+    const conv = conversations.find(c => c.id === id);
+    if (!conv) return;
+    const newVal = !conv.is_pinned;
+    await (supabase as any).from("conversations").update({ is_pinned: newVal }).eq("id", id);
+    setConversations(prev => prev.map(c => c.id === id ? { ...c, is_pinned: newVal } : c));
+  }, [conversations]);
+
+  const moveToFolder = useCallback(async (convId: string, folderId: string | null) => {
+    await (supabase as any).from("conversations").update({ folder_id: folderId }).eq("id", convId);
+    setConversations(prev => prev.map(c => c.id === convId ? { ...c, folder_id: folderId } : c));
+  }, []);
+
+  const duplicateConversation = useCallback(async (id: string) => {
+    if (!user || !profile?.org_id) return;
+    const conv = conversations.find(c => c.id === id);
+    if (!conv) return;
+    const displayTitle = conv.custom_title || conv.title || "New Conversation";
+    const { data, error } = await (supabase as any)
+      .from("conversations")
+      .insert({
+        org_id: profile.org_id,
+        user_id: user.id,
+        pipeline_id: conv.pipeline_id,
+        title: `Copy of ${displayTitle}`,
+        custom_title: `Copy of ${displayTitle}`,
+        folder_id: conv.folder_id,
+      })
+      .select()
+      .single();
+    if (!error && data) {
+      setActiveConversationId(data.id);
+      await fetchConversations();
+    }
+  }, [user, profile?.org_id, conversations, fetchConversations]);
+
+  // Folder CRUD
+  const createFolder = useCallback(async (name: string, color: string, icon: string) => {
+    if (!user || !profile?.org_id) return;
+    const position = folders.length;
+    await (supabase as any).from("conversation_folders").insert({
+      org_id: profile.org_id,
+      user_id: user.id,
+      name,
+      color,
+      icon,
+      position,
+    });
+    await fetchFolders();
+  }, [user, profile?.org_id, folders.length, fetchFolders]);
+
+  const renameFolder = useCallback(async (id: string, name: string) => {
+    await (supabase as any).from("conversation_folders").update({ name }).eq("id", id);
+    setFolders(prev => prev.map(f => f.id === id ? { ...f, name } : f));
+  }, []);
+
+  const changeFolderColor = useCallback(async (id: string, color: string) => {
+    await (supabase as any).from("conversation_folders").update({ color }).eq("id", id);
+    setFolders(prev => prev.map(f => f.id === id ? { ...f, color } : f));
+  }, []);
+
+  const deleteFolder = useCallback(async (id: string) => {
+    // Move conversations out of folder first
+    await (supabase as any).from("conversations").update({ folder_id: null }).eq("folder_id", id);
+    await (supabase as any).from("conversation_folders").delete().eq("id", id);
+    setConversations(prev => prev.map(c => c.folder_id === id ? { ...c, folder_id: null } : c));
+    await fetchFolders();
+  }, [fetchFolders]);
 
   const generateMockResponse = (protectedText: string, detections: any[], hasFile: boolean): string => {
     const hasFinancial = detections.some((d: any) => ["iban", "dni", "ssn"].includes(d.type));
@@ -303,6 +418,16 @@ export function useChat() {
     isProxyActive,
     createConversation,
     archiveConversation,
+    deleteConversation,
+    renameConversation,
+    togglePin,
+    moveToFolder,
+    duplicateConversation,
     sendMessage,
+    folders,
+    createFolder,
+    renameFolder,
+    changeFolderColor,
+    deleteFolder,
   };
 }
