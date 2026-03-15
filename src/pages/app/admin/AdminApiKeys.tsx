@@ -4,7 +4,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Key, Plus, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Key, Plus, Trash2, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const AdminApiKeys = () => {
@@ -12,12 +14,53 @@ const AdminApiKeys = () => {
   const { toast } = useToast();
   const [keys, setKeys] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [keyName, setKeyName] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [generatedKey, setGeneratedKey] = useState("");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!profile?.org_id) return;
     supabase.from("api_keys").select("*").eq("org_id", profile.org_id).order("created_at", { ascending: false })
       .then(({ data }) => { setKeys(data || []); setLoading(false); });
   }, [profile?.org_id]);
+
+  const generateKey = async () => {
+    if (!keyName.trim() || !profile?.org_id) return;
+    setGenerating(true);
+    try {
+      const rawKey = `pk_${crypto.randomUUID().replace(/-/g, "")}`;
+      const keyPrefix = rawKey.slice(0, 8);
+      const { data, error } = await supabase.from("api_keys").insert({
+        name: keyName.trim(),
+        key_hash: rawKey,
+        key_prefix: keyPrefix,
+        org_id: profile.org_id,
+        is_active: true,
+      }).select().single();
+      if (error) throw error;
+      setGeneratedKey(rawKey);
+      setKeys(prev => [data, ...prev]);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setKeyName("");
+    setGeneratedKey("");
+    setCopied(false);
+  };
+
+  const copyKey = async () => {
+    await navigator.clipboard.writeText(generatedKey);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const revokeKey = async (id: string) => {
     const { error } = await supabase.from("api_keys").update({ is_active: false }).eq("id", id);
@@ -34,11 +77,11 @@ const AdminApiKeys = () => {
           <Key className="h-6 w-6 text-primary" />
           <h1 className="text-2xl font-bold">API Keys</h1>
         </div>
-        <Button><Plus className="h-4 w-4 mr-2" />Generate Key</Button>
+        <Button onClick={() => setDialogOpen(true)}><Plus className="h-4 w-4 mr-2" />Generate Key</Button>
       </div>
       <div className="space-y-4">
         {keys.length === 0 ? (
-          <Card className="p-12 text-center text-muted-foreground">No API keys generated yet.</Card>
+          <Card className="p-12 text-center text-muted-foreground">No API keys yet</Card>
         ) : keys.map(k => (
           <Card key={k.id} className="p-5 flex items-center justify-between">
             <div>
@@ -52,6 +95,41 @@ const AdminApiKeys = () => {
           </Card>
         ))}
       </div>
+
+      <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) handleCloseDialog(); else setDialogOpen(true); }}>
+        <DialogContent className="max-w-md bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">{generatedKey ? "API Key Created" : "Create API Key"}</DialogTitle>
+          </DialogHeader>
+          {generatedKey ? (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">Copy your API key now. You won't be able to see it again.</p>
+              <div className="flex gap-2">
+                <Input readOnly value={generatedKey} className="font-mono text-sm bg-surface border-border text-foreground" />
+                <Button variant="outline" size="icon" onClick={copyKey}>
+                  {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+              <Button className="w-full" onClick={handleCloseDialog}>Done</Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-muted-foreground mb-1.5">Key Name</label>
+                <Input
+                  placeholder="e.g. Production API"
+                  value={keyName}
+                  onChange={(e) => setKeyName(e.target.value)}
+                  className="bg-surface border-border text-foreground"
+                />
+              </div>
+              <Button className="w-full" onClick={generateKey} disabled={!keyName.trim() || generating}>
+                {generating ? "Generating..." : "Generate Key"}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
