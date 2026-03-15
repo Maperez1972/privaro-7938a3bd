@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Shield, Eye, EyeOff } from "lucide-react";
 import logoPrivaro from "@/assets/logo-privaro.png";
 import { useLanguage } from "@/context/LanguageContext";
+import type { Language } from "@/context/LanguageContext";
 
 const Auth = () => {
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
@@ -20,7 +21,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, lang, setLang } = useLanguage();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +79,13 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
+      <button
+        onClick={() => setLang(lang === "en" ? "es" : "en")}
+        className="absolute top-4 right-4 px-3 py-1.5 text-sm font-medium rounded-md border border-border bg-card text-foreground hover:bg-accent transition-colors"
+      >
+        {lang === "en" ? "🇪🇸 Español" : "🇬🇧 English"}
+      </button>
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <img src={logoPrivaro} alt="Privaro" className="h-20" />
