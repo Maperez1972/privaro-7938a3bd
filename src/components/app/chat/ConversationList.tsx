@@ -439,7 +439,7 @@ function NewFolderDialog({ open, onOpenChange, onCreate }: {
 
 // Main component
 export function ConversationList({
-  conversations, activeId, onSelect, onNew, onArchive, onDelete,
+  conversations, archivedConversations, activeId, onSelect, onNew, onArchive, onUnarchive, onDelete,
   onRename, onTogglePin, onMoveToFolder, onDuplicate, loading,
   folders, onCreateFolder, onRenameFolder, onChangeFolderColor, onDeleteFolder,
 }: Props) {
