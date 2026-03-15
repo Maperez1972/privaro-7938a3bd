@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Eye, EyeOff } from "lucide-react";
 import logoPrivaro from "@/assets/logo-privaro.png";
+import { useLanguage } from "@/context/LanguageContext";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -18,15 +19,14 @@ const ResetPassword = () => {
   const [ready, setReady] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   useEffect(() => {
-    // Check for recovery event
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
         setReady(true);
       }
     });
-    // Also check hash for type=recovery
     const hash = window.location.hash;
     if (hash.includes("type=recovery")) {
       setReady(true);
@@ -37,7 +37,7 @@ const ResetPassword = () => {
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast({ title: "Error", description: "Passwords do not match", variant: "destructive" });
+      toast({ title: "Error", description: t("reset.noMatch"), variant: "destructive" });
       return;
     }
     setLoading(true);
@@ -46,7 +46,7 @@ const ResetPassword = () => {
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Password updated", description: "You can now sign in with your new password." });
+      toast({ title: t("reset.success"), description: t("reset.successDesc") });
       navigate("/auth");
     }
   };
@@ -62,16 +62,16 @@ const ResetPassword = () => {
             <div className="flex justify-center mb-2">
               <Shield className="w-8 h-8 text-primary" />
             </div>
-            <CardTitle className="text-xl">Reset your password</CardTitle>
-            <CardDescription>Enter your new password below</CardDescription>
+            <CardTitle className="text-xl">{t("reset.title")}</CardTitle>
+            <CardDescription>{t("reset.desc")}</CardDescription>
           </CardHeader>
           <CardContent>
             {!ready ? (
-              <p className="text-center text-muted-foreground text-sm">Verifying reset link…</p>
+              <p className="text-center text-muted-foreground text-sm">{t("reset.verifying")}</p>
             ) : (
               <form onSubmit={handleReset} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="new-password">New password</Label>
+                  <Label htmlFor="new-password">{t("reset.newPassword")}</Label>
                   <div className="relative">
                     <Input id="new-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} className="pr-10" />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
@@ -80,7 +80,7 @@ const ResetPassword = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirm password</Label>
+                  <Label htmlFor="confirm-password">{t("reset.confirmPassword")}</Label>
                   <div className="relative">
                     <Input id="confirm-password" type={showConfirm ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" required minLength={6} className="pr-10" />
                     <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
@@ -89,7 +89,7 @@ const ResetPassword = () => {
                   </div>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Updating..." : "Update password"}
+                  {loading ? t("reset.updating") : t("reset.update")}
                 </Button>
               </form>
             )}
