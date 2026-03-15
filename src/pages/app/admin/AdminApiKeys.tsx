@@ -32,9 +32,11 @@ const AdminApiKeys = () => {
     if (!keyName.trim() || !profile?.org_id) return;
     setGenerating(true);
     try {
-      const rawKey = `pk_${crypto.randomUUID().replace(/-/g, "")}`;
-      const keyPrefix = rawKey.slice(0, 8);
-      const selectedPerms = Object.entries(permissions).filter(([, v]) => v).map(([k]) => k);
+      const rawKey = `prvr_${crypto.randomUUID().replace(/-/g, '').slice(0, 32)}`;
+      const keyPrefix = rawKey.slice(0, 12);
+      const permMap: Record<string, string> = { detect: 'proxy:read', protect: 'proxy:write' };
+      const selectedPerms = Object.entries(permissions).filter(([, v]) => v).map(([k]) => permMap[k]);
+      const displayPerms = Object.entries(permissions).filter(([, v]) => v).map(([k]) => k);
       const { data, error } = await supabase.from("api_keys").insert({
         name: keyName.trim(),
         key_hash: rawKey,
@@ -42,6 +44,7 @@ const AdminApiKeys = () => {
         org_id: profile.org_id,
         is_active: true,
         permissions: selectedPerms,
+        display_permissions: displayPerms,
       } as any).select().single();
       if (error) throw error;
       setGeneratedKey(rawKey);
@@ -123,8 +126,8 @@ const AdminApiKeys = () => {
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1.5">
-                    {(k.permissions && Array.isArray(k.permissions) ? k.permissions : ["detect", "protect"]).map((p: string) => (
-                      <Badge key={p} variant="secondary" className="text-xs">{p}</Badge>
+                    {(k.display_permissions && Array.isArray(k.display_permissions) ? k.display_permissions : ["detect", "protect"]).map((p: string) => (
+                      <Badge key={p} variant="outline" className="text-xs">{p}</Badge>
                     ))}
                   </div>
                 </TableCell>
