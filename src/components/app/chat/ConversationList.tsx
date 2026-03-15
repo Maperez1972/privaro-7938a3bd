@@ -516,8 +516,13 @@ export function ConversationList({
               </div>
             )}
 
-            {/* All / Unfoldered */}
-            <div>
+            {/* All / Unfoldered — drop target to remove from folder */}
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragOverAll(true); }}
+              onDragLeave={() => setDragOverAll(false)}
+              onDrop={handleDropAll}
+              className={cn(dragOverAll && "bg-primary/10 rounded")}
+            >
               <p className="text-[10px] uppercase font-semibold text-muted-foreground px-3 pt-3 pb-1 tracking-wider">
                 {hasFolders || pinned.length > 0 ? "All" : "Recent"}
               </p>
