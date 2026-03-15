@@ -5,7 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import {
   Plus, MessageSquare, MoreHorizontal, Archive, Pin, PinOff,
   Pencil, FolderPlus, Folder, Copy, Trash2, ChevronRight,
-  Briefcase, Heart, Star, Code, Shield, Palette, Check
+  Briefcase, Heart, Star, Code, Shield, Palette, Check,
+  ArchiveRestore
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
