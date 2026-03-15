@@ -67,6 +67,7 @@ export function useChat() {
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [folders, setFolders] = useState<ConversationFolder[]>([]);
+  const [archivedConversations, setArchivedConversations] = useState<Conversation[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const isProxyActive = !!PROXY_URL;
