@@ -187,7 +187,8 @@ const AdminUsers = () => {
                 </Select>
               </div>
               <Button onClick={() => inviteUser.mutate()} disabled={!inviteEmail || inviteUser.isPending} className="w-full">
-                Send Invitation
+                {inviteUser.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                {inviteUser.isPending ? "Sending…" : "Send Invitation"}
               </Button>
             </div>
           </DialogContent>
