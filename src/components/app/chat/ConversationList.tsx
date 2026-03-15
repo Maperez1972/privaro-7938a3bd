@@ -255,11 +255,27 @@ function FolderSection({
   const [expanded, setExpanded] = useState(false);
   const [renamingFolder, setRenamingFolder] = useState(false);
   const [deleteFolderOpen, setDeleteFolderOpen] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const folderConvs = conversations.filter(c => c.folder_id === folder.id);
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const convId = e.dataTransfer.getData("conv-id");
+    if (convId) onMoveToFolder(convId, folder.id);
+  };
 
   return (
     <div>
-      <div className="flex items-center gap-1 px-3 py-1.5 hover:bg-secondary/30 transition-colors group">
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={handleDrop}
+        className={cn(
+          "flex items-center gap-1 px-3 py-1.5 transition-colors group",
+          dragOver ? "bg-primary/20 ring-1 ring-primary/40 rounded" : "hover:bg-secondary/30"
+        )}
+      >
         <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-2 flex-1 min-w-0">
           <ChevronRight className={cn("w-3 h-3 text-muted-foreground transition-transform", expanded && "rotate-90")} />
           {getFolderIcon(folder.icon, folder.color)}
