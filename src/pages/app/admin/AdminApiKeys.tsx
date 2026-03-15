@@ -183,7 +183,26 @@ const AdminApiKeys = () => {
                   onChange={(e) => setKeyName(e.target.value)}
                 />
               </div>
-              <Button className="w-full" onClick={generateKey} disabled={!keyName.trim() || generating}>
+              <div>
+                <label className="block text-sm text-muted-foreground mb-2">Permissions</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={permissions.detect}
+                      onCheckedChange={(v) => setPermissions(p => ({ ...p, detect: !!v }))}
+                    />
+                    <span className="text-sm">detect</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={permissions.protect}
+                      onCheckedChange={(v) => setPermissions(p => ({ ...p, protect: !!v }))}
+                    />
+                    <span className="text-sm">protect</span>
+                  </label>
+                </div>
+              </div>
+              <Button className="w-full" onClick={generateKey} disabled={!keyName.trim() || generating || (!permissions.detect && !permissions.protect)}>
                 {generating ? "Generating..." : "Generate Key"}
               </Button>
             </div>
