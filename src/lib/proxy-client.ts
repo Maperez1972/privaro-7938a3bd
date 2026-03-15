@@ -21,7 +21,7 @@ export const tokenizePii = (text: string): { sanitized: string; detected: string
   return { sanitized, detected };
 };
 
-export const proxyDetect = async (text: string) => {
+export const proxyDetect = async (text: string, pipelineId?: string) => {
   if (!PROXY_URL) {
     const { mockProxyDetect } = await import("@/lib/mock-data");
     return mockProxyDetect(text);
@@ -32,7 +32,11 @@ export const proxyDetect = async (text: string) => {
       "Content-Type": "application/json",
       "X-Privaro-Key": import.meta.env.VITE_PROXY_API_KEY || "",
     },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({
+      pipeline_id: pipelineId || "",
+      prompt: text,
+      options: { mode: "tokenise", include_detections: true },
+    }),
   });
   if (!res.ok) throw new Error("Proxy detect failed");
   const data = await res.json();
