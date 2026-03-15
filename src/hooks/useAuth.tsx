@@ -2,12 +2,15 @@ import { useState, useEffect, createContext, useContext, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
+type AppRole = "admin" | "dpo" | "developer" | "viewer";
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
   profile: { id: string; org_id: string; full_name: string } | null;
-  roles: string[];
+  role: AppRole | null;
+  roles: string[]; // kept for backward compat
   signOut: () => Promise<void>;
   hasRole: (role: string) => boolean;
 }
@@ -17,6 +20,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   loading: true,
   profile: null,
+  role: null,
   roles: [],
   signOut: async () => {},
   hasRole: () => false,
@@ -27,7 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<AuthContextType["profile"]>(null);
-  const [roles, setRoles] = useState<string[]>([]);
+  const [role, setRole] = useState<AppRole | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -44,15 +48,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               .single();
             setProfile(profileData);
 
-            const { data: rolesData } = await supabase
+            const { data: roleData } = await supabase
               .from("user_roles")
               .select("role")
-              .eq("user_id", session.user.id);
-            setRoles(rolesData?.map((r) => r.role) ?? []);
+              .eq("user_id", session.user.id)
+              .maybeSingle();
+            setRole((roleData?.role as AppRole) ?? null);
           }, 0);
         } else {
           setProfile(null);
-          setRoles([]);
+          setRole(null);
         }
         setLoading(false);
       }
@@ -69,10 +74,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut();
   };
 
-  const hasRole = (role: string) => roles.includes(role);
+  const roles = role ? [role] : [];
+  const hasRoleFn = (r: string) => role === r;
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, profile, roles, signOut, hasRole }}>
+    <AuthContext.Provider value={{ user, session, loading, profile, role, roles, signOut, hasRole: hasRoleFn }}>
       {children}
     </AuthContext.Provider>
   );
