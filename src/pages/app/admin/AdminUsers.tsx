@@ -93,12 +93,62 @@ const AdminUsers = () => {
     onError: () => toast.error("Failed to update user"),
   });
 
-  const handleInvite = () => {
-    toast.success("Invitación pendiente — el flujo completo de invitación se gestionará via Auth");
-    setInviteOpen(false);
-    setInviteEmail("");
-    setInviteRole("viewer");
-  };
+  const inviteUser = useMutation({
+    mutationFn: async () => {
+      if (!orgId || !inviteEmail) throw new Error("Missing data");
+
+      // 1. Create user via signUp with a temporary password
+      const tempPassword = crypto.randomUUID().slice(0, 16) + "!A1";
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: inviteEmail,
+        password: tempPassword,
+        options: {
+          data: {
+            full_name: inviteEmail.split("@")[0],
+            organization_name: "",
+          },
+        },
+      });
+      if (signUpError) throw signUpError;
+      if (!signUpData.user) throw new Error("User creation failed");
+
+      const newUserId = signUpData.user.id;
+
+      // 2. Assign profile to this org
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ org_id: orgId })
+        .eq("id", newUserId);
+      if (profileError) throw profileError;
+
+      // 3. Assign role
+      const { error: roleError } = await supabase.from("user_roles").insert({
+        user_id: newUserId,
+        org_id: orgId,
+        role: inviteRole as "admin" | "dpo" | "developer" | "viewer",
+      });
+      if (roleError) throw roleError;
+
+      // 4. Send password reset so the user can set their own password
+      await supabase.auth.resetPasswordForEmail(inviteEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users", orgId] });
+      toast.success(`Invitación enviada a ${inviteEmail}. Recibirá un email para establecer su contraseña.`);
+      setInviteOpen(false);
+      setInviteEmail("");
+      setInviteRole("viewer");
+    },
+    onError: (e: Error) => {
+      if (e.message?.includes("already registered")) {
+        toast.error("Este email ya está registrado");
+      } else {
+        toast.error(e.message || "Error al invitar usuario");
+      }
+    },
+  });
 
   return (
     <div className="p-6 space-y-6">
@@ -136,8 +186,9 @@ const AdminUsers = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleInvite} disabled={!inviteEmail} className="w-full">
-                Send Invitation
+              <Button onClick={() => inviteUser.mutate()} disabled={!inviteEmail || inviteUser.isPending} className="w-full">
+                {inviteUser.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                {inviteUser.isPending ? "Sending…" : "Send Invitation"}
               </Button>
             </div>
           </DialogContent>
