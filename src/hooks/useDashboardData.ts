@@ -38,6 +38,7 @@ export function useDashboardStats() {
   const orgId = profile?.org_id;
   const queryClient = useQueryClient();
 
+  // Realtime: refresh when pipelines change
   useEffect(() => {
     if (!orgId) return;
     const channel = supabase
@@ -127,8 +128,10 @@ export function useDashboardTimeSeries() {
         .gte("created_at", since.toISOString())
         .order("created_at", { ascending: true });
 
+      // Group by day
       const dayMap = new Map<string, { requests: number; detected: number; protected: number }>();
 
+      // Initialize all 14 days
       for (let i = 0; i < 14; i++) {
         const d = new Date();
         d.setDate(d.getDate() - (13 - i));
