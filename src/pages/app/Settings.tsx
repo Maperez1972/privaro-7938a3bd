@@ -18,15 +18,16 @@ const Settings = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   // Fetch org details
-  const { data: org } = useQuery({
+  const { data: org, isLoading: orgLoading } = useQuery({
     queryKey: ["org-details", profile?.org_id],
     enabled: !!profile?.org_id,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("organizations")
         .select("name, slug, plan, data_region, gdpr_dpo_email, max_pipelines")
         .eq("id", profile!.org_id)
-        .single();
+        .maybeSingle();
+      if (error) throw error;
       return data;
     },
   });
@@ -155,8 +156,12 @@ const Settings = () => {
                 </div>
               )}
             </div>
-          ) : (
+          ) : orgLoading ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Organization not found. Check RLS policies on the <code className="text-xs bg-muted px-1 py-0.5 rounded">organizations</code> table.
+            </p>
           )}
         </CardContent>
       </Card>
