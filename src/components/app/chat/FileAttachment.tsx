@@ -6,7 +6,7 @@ import { mockProxyDetect } from "@/lib/mock-data";
 import * as pdfjsLib from "pdfjs-dist";
 import mammoth from "mammoth";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export interface FileAttachment {
   file: File;
