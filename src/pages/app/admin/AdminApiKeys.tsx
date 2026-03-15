@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Key, Plus, Trash2, Copy, Check } from "lucide-react";
@@ -20,7 +21,7 @@ const AdminApiKeys = () => {
   const [generating, setGenerating] = useState(false);
   const [generatedKey, setGeneratedKey] = useState("");
   const [copied, setCopied] = useState(false);
-
+  const [permissions, setPermissions] = useState({ detect: true, protect: true });
   useEffect(() => {
     if (!profile?.org_id) return;
     supabase.from("api_keys").select("*").eq("org_id", profile.org_id).order("created_at", { ascending: false })
@@ -33,13 +34,15 @@ const AdminApiKeys = () => {
     try {
       const rawKey = `pk_${crypto.randomUUID().replace(/-/g, "")}`;
       const keyPrefix = rawKey.slice(0, 8);
+      const selectedPerms = Object.entries(permissions).filter(([, v]) => v).map(([k]) => k);
       const { data, error } = await supabase.from("api_keys").insert({
         name: keyName.trim(),
         key_hash: rawKey,
         key_prefix: keyPrefix,
         org_id: profile.org_id,
         is_active: true,
-      }).select().single();
+        permissions: selectedPerms,
+      } as any).select().single();
       if (error) throw error;
       setGeneratedKey(rawKey);
       setKeys(prev => [data, ...prev]);
@@ -55,6 +58,7 @@ const AdminApiKeys = () => {
     setKeyName("");
     setGeneratedKey("");
     setCopied(false);
+    setPermissions({ detect: true, protect: true });
   };
 
   const copyKey = async () => {
@@ -119,8 +123,9 @@ const AdminApiKeys = () => {
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1.5">
-                    <Badge variant="secondary" className="text-xs">detect</Badge>
-                    <Badge variant="secondary" className="text-xs">protect</Badge>
+                    {(k.permissions && Array.isArray(k.permissions) ? k.permissions : ["detect", "protect"]).map((p: string) => (
+                      <Badge key={p} variant="secondary" className="text-xs">{p}</Badge>
+                    ))}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -178,7 +183,26 @@ const AdminApiKeys = () => {
                   onChange={(e) => setKeyName(e.target.value)}
                 />
               </div>
-              <Button className="w-full" onClick={generateKey} disabled={!keyName.trim() || generating}>
+              <div>
+                <label className="block text-sm text-muted-foreground mb-2">Permissions</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={permissions.detect}
+                      onCheckedChange={(v) => setPermissions(p => ({ ...p, detect: !!v }))}
+                    />
+                    <span className="text-sm">detect</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={permissions.protect}
+                      onCheckedChange={(v) => setPermissions(p => ({ ...p, protect: !!v }))}
+                    />
+                    <span className="text-sm">protect</span>
+                  </label>
+                </div>
+              </div>
+              <Button className="w-full" onClick={generateKey} disabled={!keyName.trim() || generating || (!permissions.detect && !permissions.protect)}>
                 {generating ? "Generating..." : "Generate Key"}
               </Button>
             </div>
