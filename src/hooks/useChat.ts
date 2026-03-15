@@ -117,7 +117,8 @@ export function useChat() {
 
   useEffect(() => {
     fetchConversations();
-  }, [fetchConversations]);
+    fetchArchivedConversations();
+  }, [fetchConversations, fetchArchivedConversations]);
 
   useEffect(() => {
     if (!activeConversationId) {
