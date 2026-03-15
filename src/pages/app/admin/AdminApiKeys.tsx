@@ -34,13 +34,15 @@ const AdminApiKeys = () => {
     try {
       const rawKey = `pk_${crypto.randomUUID().replace(/-/g, "")}`;
       const keyPrefix = rawKey.slice(0, 8);
+      const selectedPerms = Object.entries(permissions).filter(([, v]) => v).map(([k]) => k);
       const { data, error } = await supabase.from("api_keys").insert({
         name: keyName.trim(),
         key_hash: rawKey,
         key_prefix: keyPrefix,
         org_id: profile.org_id,
         is_active: true,
-      }).select().single();
+        permissions: selectedPerms,
+      } as any).select().single();
       if (error) throw error;
       setGeneratedKey(rawKey);
       setKeys(prev => [data, ...prev]);
