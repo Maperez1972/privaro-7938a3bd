@@ -156,14 +156,12 @@ const Settings = () => {
                 </div>
               )}
             </div>
-          ) : (
-          {orgLoading ? (
+          ) : orgLoading ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Organization not found. Please check RLS policies on the <code>organizations</code> table — authenticated users need SELECT access for their own org.
+              Organization not found. Check RLS policies on the <code className="text-xs bg-muted px-1 py-0.5 rounded">organizations</code> table.
             </p>
-          )}
           )}
         </CardContent>
       </Card>
