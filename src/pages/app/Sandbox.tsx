@@ -75,7 +75,9 @@ const Sandbox = () => {
   }, [profile?.org_id]);
 
   const handleAnalyze = async () => {
+    setIsProcessing(true);
     const startMs = performance.now();
+    try {
 
     if (mode === "detect") {
       const d = await proxyDetect(text);
