@@ -152,6 +152,25 @@ const Sandbox = () => {
         setIsProcessing(false);
       }
     }
+    } catch (err) {
+      console.error("Proxy error:", err);
+      toast.error("Error connecting to proxy. Using mock data instead.", {
+        description: "Check CORS configuration on your Railway proxy.",
+      });
+      // Fallback to mock data
+      const { mockProxyDetect, mockProxyProtect } = await import("@/lib/mock-data");
+      if (mode === "detect") {
+        const d = mockProxyDetect(text);
+        setDetections(d);
+        setResult(null);
+      } else {
+        const r = mockProxyProtect(text);
+        setResult(r);
+        setDetections(r.detections);
+      }
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const simulateIbsCertification = (logIds: string[]) => {
