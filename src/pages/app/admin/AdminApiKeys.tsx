@@ -107,7 +107,7 @@ const AdminApiKeys = () => {
               <div className="flex gap-2">
                 <Input readOnly value={generatedKey} className="font-mono text-sm bg-surface border-border text-foreground" />
                 <Button variant="outline" size="icon" onClick={copyKey}>
-                  {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                  {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
                 </Button>
               </div>
               <Button className="w-full" onClick={handleCloseDialog}>Done</Button>
