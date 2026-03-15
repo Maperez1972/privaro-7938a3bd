@@ -21,7 +21,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, lang, setLang } = useLanguage();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
