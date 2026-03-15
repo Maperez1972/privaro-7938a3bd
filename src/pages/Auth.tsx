@@ -34,14 +34,21 @@ const Auth = () => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { data, error } = await supabase.functions.invoke("create-account", {
-      body: { orgName, fullName, email, password },
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          organization_name: orgName,
+          full_name: fullName,
+        },
+      },
     });
     setLoading(false);
-    if (error || data?.error) {
-      toast({ title: "Error", description: data?.error || error?.message || "Something went wrong", variant: "destructive" });
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Account created", description: "Please check your email to verify your account before signing in." });
+      toast({ title: "Account created", description: "Check your email to verify your account, then sign in." });
       setIsLogin(true);
     }
   };
