@@ -48,7 +48,7 @@ serve(async (req) => {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'Privaro <onboarding@resend.dev>',
+        from: 'Privaro <hello@icommunity.io>',
         to: ['hello@icommunity.io'],
         subject: 'Solicitud de demo - Privaro',
         text: body,
