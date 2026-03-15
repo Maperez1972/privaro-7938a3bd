@@ -27,7 +27,7 @@ export interface PolicyFormData {
   custom_pattern: string;
 }
 
-export const SECTOR_PRESETS: Record<string, Omit<PolicyFormData, "custom_pattern">[]> = {
+export const SECTOR_PRESETS: Record<string, (Omit<PolicyFormData, "custom_pattern"> & { custom_pattern?: string })[]> = {
   legal: [
     { entity_type: "full_name", category: "personal", action: "tokenise", regulation_ref: "GDPR Art.5", priority: 10 },
     { entity_type: "dni", category: "personal", action: "tokenise", regulation_ref: "GDPR Art.9", priority: 5 },
