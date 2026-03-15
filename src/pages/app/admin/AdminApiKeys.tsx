@@ -58,6 +58,7 @@ const AdminApiKeys = () => {
     setKeyName("");
     setGeneratedKey("");
     setCopied(false);
+    setPermissions({ detect: true, protect: true });
   };
 
   const copyKey = async () => {
