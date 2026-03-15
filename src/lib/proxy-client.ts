@@ -21,6 +21,8 @@ export const tokenizePii = (text: string): { sanitized: string; detected: string
   return { sanitized, detected };
 };
 
+const DEFAULT_PIPELINE_ID = "c93aed87-b440-4de0-bb21-54a938e475f2";
+
 export const proxyDetect = async (text: string, pipelineId?: string) => {
   if (!PROXY_URL) {
     const { mockProxyDetect } = await import("@/lib/mock-data");
@@ -33,7 +35,7 @@ export const proxyDetect = async (text: string, pipelineId?: string) => {
       "X-Privaro-Key": import.meta.env.VITE_PROXY_API_KEY || "",
     },
     body: JSON.stringify({
-      pipeline_id: pipelineId || "",
+      pipeline_id: pipelineId || DEFAULT_PIPELINE_ID,
       prompt: text,
       options: { mode: "tokenise", include_detections: true },
     }),
@@ -56,7 +58,7 @@ export const proxyProtect = async (text: string, pipelineId?: string) => {
     },
     body: JSON.stringify({
       prompt: text,
-      pipeline_id: pipelineId,
+      pipeline_id: pipelineId || DEFAULT_PIPELINE_ID,
       options: { mode: "tokenise", include_detections: true, reversible: true },
     }),
   });
