@@ -2,12 +2,15 @@ import { useState, useEffect, createContext, useContext, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
+type AppRole = "admin" | "dpo" | "developer" | "viewer";
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
   profile: { id: string; org_id: string; full_name: string } | null;
-  roles: string[];
+  role: AppRole | null;
+  roles: string[]; // kept for backward compat
   signOut: () => Promise<void>;
   hasRole: (role: string) => boolean;
 }
