@@ -122,6 +122,11 @@ function ConvItem({
   return (
     <>
       <div
+        draggable
+        onDragStart={(e) => {
+          e.dataTransfer.setData("conv-id", conv.id);
+          e.dataTransfer.effectAllowed = "move";
+        }}
         onClick={() => onSelect(conv.id)}
         className={cn(
           "flex items-start gap-2 px-3 py-2.5 cursor-pointer transition-colors border-l-2 group",
@@ -250,11 +255,27 @@ function FolderSection({
   const [expanded, setExpanded] = useState(false);
   const [renamingFolder, setRenamingFolder] = useState(false);
   const [deleteFolderOpen, setDeleteFolderOpen] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const folderConvs = conversations.filter(c => c.folder_id === folder.id);
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const convId = e.dataTransfer.getData("conv-id");
+    if (convId) onMoveToFolder(convId, folder.id);
+  };
 
   return (
     <div>
-      <div className="flex items-center gap-1 px-3 py-1.5 hover:bg-secondary/30 transition-colors group">
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={handleDrop}
+        className={cn(
+          "flex items-center gap-1 px-3 py-1.5 transition-colors group",
+          dragOver ? "bg-primary/20 ring-1 ring-primary/40 rounded" : "hover:bg-secondary/30"
+        )}
+      >
         <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-2 flex-1 min-w-0">
           <ChevronRight className={cn("w-3 h-3 text-muted-foreground transition-transform", expanded && "rotate-90")} />
           {getFolderIcon(folder.icon, folder.color)}
@@ -421,9 +442,18 @@ export function ConversationList({
 }: Props) {
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
 
+  const [dragOverAll, setDragOverAll] = useState(false);
+
   const pinned = conversations.filter(c => c.is_pinned && !c.folder_id);
   const unfolderedUnpinned = conversations.filter(c => !c.is_pinned && !c.folder_id);
   const hasFolders = folders.length > 0;
+
+  const handleDropAll = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOverAll(false);
+    const convId = e.dataTransfer.getData("conv-id");
+    if (convId) onMoveToFolder(convId, null);
+  };
 
   return (
     <div className="w-60 flex-shrink-0 border-r border-border flex flex-col bg-card/50">
@@ -486,8 +516,13 @@ export function ConversationList({
               </div>
             )}
 
-            {/* All / Unfoldered */}
-            <div>
+            {/* All / Unfoldered — drop target to remove from folder */}
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragOverAll(true); }}
+              onDragLeave={() => setDragOverAll(false)}
+              onDrop={handleDropAll}
+              className={cn(dragOverAll && "bg-primary/10 rounded")}
+            >
               <p className="text-[10px] uppercase font-semibold text-muted-foreground px-3 pt-3 pb-1 tracking-wider">
                 {hasFolders || pinned.length > 0 ? "All" : "Recent"}
               </p>
