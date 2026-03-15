@@ -101,37 +101,72 @@ const Policies = () => {
   };
 
   const handleEdit = async (form: PolicyFormData) => {
-    if (!editRule) return;
+    if (!editRule || !profile?.org_id || !user?.id) return;
+
     setSaving(true);
-    const { error } = await supabase.from("policy_rules").update({
-      entity_type: form.entity_type,
-      category: form.category,
-      action: form.action,
-      regulation_ref: form.regulation_ref || null,
-      priority: form.priority,
-      custom_pattern: form.custom_pattern || null,
-      updated_by: user?.id,
-    }).eq("id", editRule.id);
+    const { data: updatedRule, error } = await supabase
+      .from("policy_rules")
+      .update({
+        entity_type: form.entity_type,
+        category: form.category,
+        action: form.action,
+        regulation_ref: form.regulation_ref || null,
+        priority: form.priority,
+        custom_pattern: form.custom_pattern || null,
+        updated_by: user.id,
+      })
+      .eq("id", editRule.id)
+      .eq("org_id", profile.org_id)
+      .select("id")
+      .maybeSingle();
+
     setSaving(false);
+
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Rule updated" });
-      setEditRule(null);
-      fetchRules();
+      return;
     }
+
+    if (!updatedRule) {
+      toast({
+        title: "Update blocked",
+        description: "No tienes permisos UPDATE para esta regla (RLS).",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({ title: "Rule updated" });
+    setEditRule(null);
+    fetchRules();
   };
 
   const handleToggle = async (rule: PolicyRule) => {
-    const { error } = await supabase
+    if (!profile?.org_id || !user?.id) return;
+
+    const { data: updatedRule, error } = await supabase
       .from("policy_rules")
-      .update({ is_enabled: !rule.is_enabled, updated_by: user?.id })
-      .eq("id", rule.id);
+      .update({ is_enabled: !rule.is_enabled, updated_by: user.id })
+      .eq("id", rule.id)
+      .eq("org_id", profile.org_id)
+      .select("id")
+      .maybeSingle();
+
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      setRules((prev) => prev.map((r) => r.id === rule.id ? { ...r, is_enabled: !r.is_enabled } : r));
+      return;
     }
+
+    if (!updatedRule) {
+      toast({
+        title: "Update blocked",
+        description: "No tienes permisos UPDATE para esta regla (RLS).",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setRules((prev) => prev.map((r) => r.id === rule.id ? { ...r, is_enabled: !r.is_enabled } : r));
   };
 
   const handleDelete = async () => {
