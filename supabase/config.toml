@@ -1,2 +1,8 @@
 [functions.invite-user]
 verify_jwt = false
+
+[functions.send-demo-request]
+verify_jwt = false
+
+[functions.send-techbrief-request]
+verify_jwt = false
