@@ -72,6 +72,7 @@ const App = () => (
 
               {/* Auth */}
               <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
               {/* App (protected) */}
               <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
