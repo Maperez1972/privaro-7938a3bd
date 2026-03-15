@@ -34,7 +34,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [role, setRole] = useState<AppRole | null>(null);
 
   const fetchUserData = async (userId: string) => {
-    const [{ data: profileData }, { data: roleData }] = await Promise.all([
+    console.log("[useAuth] fetchUserData called for userId:", userId);
+    const [profileResult, roleResult] = await Promise.all([
       supabase
         .from("profiles")
         .select("id, org_id, full_name")
@@ -46,9 +47,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq("user_id", userId)
         .maybeSingle(),
     ]);
-    console.log("[useAuth] profile:", profileData, "role:", roleData);
-    setProfile(profileData);
-    setRole((roleData?.role as AppRole) ?? null);
+    console.log("[useAuth] profile result:", profileResult.data, "error:", profileResult.error);
+    console.log("[useAuth] role result:", roleResult.data, "error:", roleResult.error);
+    setProfile(profileResult.data);
+    const resolvedRole = (roleResult.data?.role as AppRole) ?? null;
+    console.log("[useAuth] resolvedRole:", resolvedRole);
+    setRole(resolvedRole);
     setLoading(false);
   };
 
