@@ -40,21 +40,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          setTimeout(async () => {
-            const { data: profileData } = await supabase
+          const [{ data: profileData }, { data: roleData }] = await Promise.all([
+            supabase
               .from("profiles")
               .select("id, org_id, full_name")
               .eq("id", session.user.id)
-              .single();
-            setProfile(profileData);
-
-            const { data: roleData } = await supabase
+              .maybeSingle(),
+            supabase
               .from("user_roles")
               .select("role")
               .eq("user_id", session.user.id)
-              .maybeSingle();
-            setRole((roleData?.role as AppRole) ?? null);
-          }, 0);
+              .maybeSingle(),
+          ]);
+          setProfile(profileData);
+          setRole((roleData?.role as AppRole) ?? null);
         } else {
           setProfile(null);
           setRole(null);
