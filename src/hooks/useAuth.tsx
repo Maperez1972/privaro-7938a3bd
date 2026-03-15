@@ -33,38 +33,51 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<AuthContextType["profile"]>(null);
   const [role, setRole] = useState<AppRole | null>(null);
 
+  const fetchUserData = async (userId: string) => {
+    const [{ data: profileData }, { data: roleData }] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id, org_id, full_name")
+        .eq("id", userId)
+        .maybeSingle(),
+      supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .maybeSingle(),
+    ]);
+    console.log("[useAuth] profile:", profileData, "role:", roleData);
+    setProfile(profileData);
+    setRole((roleData?.role as AppRole) ?? null);
+    setLoading(false);
+  };
+
   useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchUserData(session.user.id);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-
         if (session?.user) {
-          const [{ data: profileData }, { data: roleData }] = await Promise.all([
-            supabase
-              .from("profiles")
-              .select("id, org_id, full_name")
-              .eq("id", session.user.id)
-              .maybeSingle(),
-            supabase
-              .from("user_roles")
-              .select("role")
-              .eq("user_id", session.user.id)
-              .maybeSingle(),
-          ]);
-          setProfile(profileData);
-          setRole((roleData?.role as AppRole) ?? null);
+          fetchUserData(session.user.id);
         } else {
           setProfile(null);
           setRole(null);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) setLoading(false);
-    });
 
     return () => subscription.unsubscribe();
   }, []);
