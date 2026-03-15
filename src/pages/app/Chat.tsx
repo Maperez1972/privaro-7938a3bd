@@ -35,6 +35,7 @@ const Chat = () => {
         onSelect={chat.setActiveConversationId}
         onNew={chat.createConversation}
         onArchive={chat.archiveConversation}
+        onUnarchive={chat.unarchiveConversation}
         onDelete={chat.deleteConversation}
         onRename={chat.renameConversation}
         onTogglePin={chat.togglePin}
