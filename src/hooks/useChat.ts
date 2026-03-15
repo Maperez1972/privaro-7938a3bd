@@ -67,6 +67,7 @@ export function useChat() {
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [folders, setFolders] = useState<ConversationFolder[]>([]);
+  const [archivedConversations, setArchivedConversations] = useState<Conversation[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const isProxyActive = !!PROXY_URL;
@@ -160,6 +161,20 @@ export function useChat() {
     return data.id;
   }, [user, profile?.org_id, activePipelineId, fetchConversations]);
 
+  const fetchArchivedConversations = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("conversations")
+      .select("*")
+      .eq("is_archived", true)
+      .order("last_message_at", { ascending: false, nullsFirst: false });
+    setArchivedConversations((data as unknown as Conversation[]) ?? []);
+  }, [user]);
+
+  useEffect(() => {
+    fetchArchivedConversations();
+  }, [fetchArchivedConversations]);
+
   const archiveConversation = useCallback(async (id: string) => {
     await supabase.from("conversations").update({ is_archived: true }).eq("id", id);
     if (activeConversationId === id) {
@@ -167,7 +182,14 @@ export function useChat() {
       setMessages([]);
     }
     await fetchConversations();
-  }, [activeConversationId, fetchConversations]);
+    await fetchArchivedConversations();
+  }, [activeConversationId, fetchConversations, fetchArchivedConversations]);
+
+  const unarchiveConversation = useCallback(async (id: string) => {
+    await supabase.from("conversations").update({ is_archived: false }).eq("id", id);
+    await fetchConversations();
+    await fetchArchivedConversations();
+  }, [fetchConversations, fetchArchivedConversations]);
 
   const deleteConversation = useCallback(async (id: string) => {
     await supabase.from("conversation_messages").delete().eq("conversation_id", id);
@@ -405,6 +427,7 @@ export function useChat() {
 
   return {
     conversations,
+    archivedConversations,
     activeConversationId,
     setActiveConversationId,
     messages,
@@ -418,6 +441,7 @@ export function useChat() {
     isProxyActive,
     createConversation,
     archiveConversation,
+    unarchiveConversation,
     deleteConversation,
     renameConversation,
     togglePin,

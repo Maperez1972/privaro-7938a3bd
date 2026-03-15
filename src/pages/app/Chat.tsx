@@ -30,10 +30,12 @@ const Chat = () => {
     <div className="flex h-[calc(100vh)] overflow-hidden">
       <ConversationList
         conversations={chat.conversations}
+        archivedConversations={chat.archivedConversations}
         activeId={chat.activeConversationId}
         onSelect={chat.setActiveConversationId}
         onNew={chat.createConversation}
         onArchive={chat.archiveConversation}
+        onUnarchive={chat.unarchiveConversation}
         onDelete={chat.deleteConversation}
         onRename={chat.renameConversation}
         onTogglePin={chat.togglePin}

@@ -5,7 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import {
   Plus, MessageSquare, MoreHorizontal, Archive, Pin, PinOff,
   Pencil, FolderPlus, Folder, Copy, Trash2, ChevronRight,
-  Briefcase, Heart, Star, Code, Shield, Palette, Check
+  Briefcase, Heart, Star, Code, Shield, Palette, Check,
+  ArchiveRestore
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
@@ -54,10 +55,12 @@ function getDisplayTitle(conv: Conversation) {
 
 interface Props {
   conversations: Conversation[];
+  archivedConversations: Conversation[];
   activeId: string | null;
   onSelect: (id: string) => void;
   onNew: () => void;
   onArchive: (id: string) => void;
+  onUnarchive: (id: string) => void;
   onDelete: (id: string) => void;
   onRename: (id: string, title: string) => void;
   onTogglePin: (id: string) => void;
@@ -436,12 +439,12 @@ function NewFolderDialog({ open, onOpenChange, onCreate }: {
 
 // Main component
 export function ConversationList({
-  conversations, activeId, onSelect, onNew, onArchive, onDelete,
+  conversations, archivedConversations, activeId, onSelect, onNew, onArchive, onUnarchive, onDelete,
   onRename, onTogglePin, onMoveToFolder, onDuplicate, loading,
   folders, onCreateFolder, onRenameFolder, onChangeFolderColor, onDeleteFolder,
 }: Props) {
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
-
+  const [showArchived, setShowArchived] = useState(false);
   const [dragOverAll, setDragOverAll] = useState(false);
 
   const pinned = conversations.filter(c => c.is_pinned && !c.folder_id);
@@ -535,6 +538,61 @@ export function ConversationList({
                 />
               ))}
             </div>
+
+            {/* Archived section */}
+            {archivedConversations.length > 0 && (
+              <div>
+                <button
+                  onClick={() => setShowArchived(!showArchived)}
+                  className="flex items-center gap-2 w-full px-3 pt-3 pb-1 hover:bg-secondary/30 transition-colors"
+                >
+                  <ChevronRight className={cn("w-3 h-3 text-muted-foreground transition-transform", showArchived && "rotate-90")} />
+                  <Archive className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-[10px] uppercase font-semibold text-muted-foreground tracking-wider">
+                    Archived
+                  </span>
+                  <span className="text-[10px] text-muted-foreground ml-auto">{archivedConversations.length}</span>
+                </button>
+                {showArchived && archivedConversations.map(conv => (
+                  <div
+                    key={conv.id}
+                    onClick={() => onSelect(conv.id)}
+                    className={cn(
+                      "flex items-start gap-2 px-3 py-2.5 cursor-pointer transition-colors border-l-2 group opacity-60 hover:opacity-100",
+                      activeId === conv.id ? "bg-primary/10 border-l-primary" : "border-l-transparent hover:bg-secondary/50"
+                    )}
+                  >
+                    <div className="w-7 h-7 rounded-full bg-muted/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Archive className="w-3 h-3 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium truncate">{getDisplayTitle(conv)}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {conv.last_message_at
+                          ? formatDistanceToNow(new Date(conv.last_message_at), { addSuffix: true })
+                          : formatDistanceToNow(new Date(conv.created_at), { addSuffix: true })}
+                      </p>
+                    </div>
+                    <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        className="p-1 rounded hover:bg-secondary text-muted-foreground"
+                        onClick={(e) => { e.stopPropagation(); onUnarchive(conv.id); }}
+                        title="Unarchive"
+                      >
+                        <ArchiveRestore className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        className="p-1 rounded hover:bg-secondary text-destructive"
+                        onClick={(e) => { e.stopPropagation(); onDelete(conv.id); }}
+                        title="Delete permanently"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </>
         )}
       </div>
