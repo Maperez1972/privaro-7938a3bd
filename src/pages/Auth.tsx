@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Shield, Eye, EyeOff } from "lucide-react";
 import logoPrivaro from "@/assets/logo-privaro.png";
 import { useLanguage } from "@/context/LanguageContext";
+import type { Language } from "@/context/LanguageContext";
 
 const Auth = () => {
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
