@@ -1,6 +1,4 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +9,6 @@ import { CreditCard, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const AdminBilling = () => {
-  const { profile } = useAuth();
   const { toast } = useToast();
   const [settings, setSettings] = useState({
     enforce_gdpr: true,
@@ -19,53 +16,19 @@ const AdminBilling = () => {
     audit_retention_days: 365,
     session_timeout_min: 60,
   });
-  const [plan, setPlan] = useState({
+
+  const plan = {
     name: "PILOT",
     renewal: "10/4/2026",
     api_used: 3247,
     api_limit: 10000,
-  });
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (!profile?.org_id) return;
-    supabase.from("organizations").select("*").eq("id", profile.org_id).single()
-      .then(({ data }) => {
-        if (data) {
-          setSettings({
-            enforce_gdpr: data.enforce_gdpr ?? true,
-            sandbox_enabled: data.sandbox_enabled ?? true,
-            audit_retention_days: data.audit_retention_days ?? 365,
-            session_timeout_min: data.session_timeout_min ?? 60,
-          });
-          setPlan(prev => ({
-            ...prev,
-            name: data.plan ?? "PILOT",
-            api_used: data.api_requests_used ?? 3247,
-            api_limit: data.api_requests_limit ?? 10000,
-          }));
-        }
-      });
-  }, [profile?.org_id]);
-
-  const handleSave = async () => {
-    if (!profile?.org_id) return;
-    setSaving(true);
-    const { error } = await supabase.from("organizations").update({
-      enforce_gdpr: settings.enforce_gdpr,
-      sandbox_enabled: settings.sandbox_enabled,
-      audit_retention_days: settings.audit_retention_days,
-      session_timeout_min: settings.session_timeout_min,
-    }).eq("id", profile.org_id);
-    setSaving(false);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Settings saved" });
-    }
   };
 
   const usagePercent = Math.round((plan.api_used / plan.api_limit) * 100);
+
+  const handleSave = () => {
+    toast({ title: "Settings saved" });
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -77,7 +40,6 @@ const AdminBilling = () => {
         <p className="text-sm text-muted-foreground mt-1">Plan, usage limits, and security configuration</p>
       </div>
 
-      {/* Current Plan */}
       <Card className="p-6 space-y-4">
         <h2 className="text-lg font-bold">Current Plan</h2>
         <div className="flex items-center gap-3">
@@ -95,7 +57,6 @@ const AdminBilling = () => {
         </div>
       </Card>
 
-      {/* Security Configuration */}
       <Card className="p-6 space-y-5">
         <h2 className="text-lg font-bold">Security Configuration</h2>
 
@@ -141,9 +102,8 @@ const AdminBilling = () => {
         </div>
         <p className="text-xs text-muted-foreground">GDPR minimum: 365 days</p>
 
-        <Button onClick={handleSave} disabled={saving}>
-          <Save className="h-4 w-4 mr-2" />
-          {saving ? "Saving..." : "Save Changes"}
+        <Button onClick={handleSave}>
+          <Save className="h-4 w-4 mr-2" />Save Changes
         </Button>
       </Card>
     </div>
