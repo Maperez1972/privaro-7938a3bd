@@ -18,7 +18,7 @@ const Settings = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   // Fetch org details
-  const { data: org } = useQuery({
+  const { data: org, isLoading: orgLoading } = useQuery({
     queryKey: ["org-details", profile?.org_id],
     enabled: !!profile?.org_id,
     queryFn: async () => {
