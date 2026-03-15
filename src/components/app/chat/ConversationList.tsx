@@ -444,7 +444,7 @@ export function ConversationList({
   folders, onCreateFolder, onRenameFolder, onChangeFolderColor, onDeleteFolder,
 }: Props) {
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
-
+  const [showArchived, setShowArchived] = useState(false);
   const [dragOverAll, setDragOverAll] = useState(false);
 
   const pinned = conversations.filter(c => c.is_pinned && !c.folder_id);
