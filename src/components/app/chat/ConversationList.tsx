@@ -442,9 +442,18 @@ export function ConversationList({
 }: Props) {
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
 
+  const [dragOverAll, setDragOverAll] = useState(false);
+
   const pinned = conversations.filter(c => c.is_pinned && !c.folder_id);
   const unfolderedUnpinned = conversations.filter(c => !c.is_pinned && !c.folder_id);
   const hasFolders = folders.length > 0;
+
+  const handleDropAll = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOverAll(false);
+    const convId = e.dataTransfer.getData("conv-id");
+    if (convId) onMoveToFolder(convId, null);
+  };
 
   return (
     <div className="w-60 flex-shrink-0 border-r border-border flex flex-col bg-card/50">
