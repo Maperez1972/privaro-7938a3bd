@@ -55,10 +55,12 @@ function getDisplayTitle(conv: Conversation) {
 
 interface Props {
   conversations: Conversation[];
+  archivedConversations: Conversation[];
   activeId: string | null;
   onSelect: (id: string) => void;
   onNew: () => void;
   onArchive: (id: string) => void;
+  onUnarchive: (id: string) => void;
   onDelete: (id: string) => void;
   onRename: (id: string, title: string) => void;
   onTogglePin: (id: string) => void;
