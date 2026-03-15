@@ -58,7 +58,7 @@ export const proxyProtect = async (text: string, pipelineId?: string) => {
     },
     body: JSON.stringify({
       prompt: text,
-      pipeline_id: pipelineId,
+      pipeline_id: pipelineId || DEFAULT_PIPELINE_ID,
       options: { mode: "tokenise", include_detections: true, reversible: true },
     }),
   });
