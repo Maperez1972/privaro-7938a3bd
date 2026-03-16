@@ -33,6 +33,7 @@ interface AccessLogEntry {
   user_id: string;
   token_id: string;
   ip_address: string | null;
+  user_name?: string;
 }
 
 const entityColors: Record<string, string> = {
@@ -109,7 +110,18 @@ const AdminVault = () => {
     if (error) {
       toast({ title: "Error loading access log", description: error.message, variant: "destructive" });
     } else {
-      setAccessLog((data as any) ?? []);
+      const entries = (data as AccessLogEntry[]) ?? [];
+      // Resolve user names
+      const uniqueUserIds = [...new Set(entries.map((e) => e.user_id))];
+      if (uniqueUserIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, full_name")
+          .in("id", uniqueUserIds);
+        const nameMap = new Map(profiles?.map((p) => [p.id, p.full_name]) ?? []);
+        entries.forEach((e) => { e.user_name = nameMap.get(e.user_id) || undefined; });
+      }
+      setAccessLog(entries);
     }
     setLoadingLog(false);
   };
@@ -279,7 +291,7 @@ const AdminVault = () => {
                           </Badge>
                         </TableCell>
                         <TableCell className="font-mono text-xs text-muted-foreground truncate max-w-[120px]">{entry.token_id}</TableCell>
-                        <TableCell className="font-mono text-xs text-muted-foreground truncate max-w-[120px]">{entry.user_id}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{entry.user_name || entry.user_id.slice(0, 8) + "…"}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{entry.ip_address || "—"}</TableCell>
                       </TableRow>
                     ))}
