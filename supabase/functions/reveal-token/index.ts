@@ -24,26 +24,17 @@ serve(async (req) => {
       });
     }
 
-    const token = authHeader.replace("Bearer ", "");
+    const jwt = authHeader.replace("Bearer ", "");
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const userId = claimsData.claims.sub as string;
-    const userEmail = claimsData.claims.email as string;
-
-    // We still need getUser for signInWithPassword, so get the user object
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    // Validate user with getUser (works with ES256 tokens)
+    const { data: { user }, error: authError } = await supabase.auth.getUser(jwt);
     if (authError || !user) {
+      console.error("Auth error:", authError);
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -60,7 +51,7 @@ serve(async (req) => {
       });
     }
 
-    // Check role
+    // Check role with admin client
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -78,20 +69,20 @@ serve(async (req) => {
       });
     }
 
-    // Get token
-    const { data: token, error: tokenError } = await supabaseAdmin
+    // Get token from vault
+    const { data: vaultToken, error: tokenError } = await supabaseAdmin
       .from("tokens_vault")
       .select("encrypted_original, org_id, entity_type, token_value, is_reversible, reversal_count")
       .eq("id", token_id)
       .single();
 
-    if (tokenError || !token) {
+    if (tokenError || !vaultToken) {
       return new Response(JSON.stringify({ error: "Token not found" }), {
         status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    if (!token.is_reversible) {
+    if (!vaultToken.is_reversible) {
       return new Response(JSON.stringify({ error: "Token is not reversible" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -100,7 +91,7 @@ serve(async (req) => {
     // Decrypt
     const ENCRYPTION_KEY = Deno.env.get("ENCRYPTION_KEY") || "";
     const keyBytes = hexToBytes(ENCRYPTION_KEY);
-    const encryptedBytes = base64ToBytes(token.encrypted_original);
+    const encryptedBytes = base64ToBytes(vaultToken.encrypted_original);
 
     const nonce = encryptedBytes.slice(0, 12);
     const ciphertext = encryptedBytes.slice(12);
@@ -119,7 +110,7 @@ serve(async (req) => {
     await supabaseAdmin
       .from("tokens_vault")
       .update({
-        reversal_count: (token.reversal_count || 0) + 1,
+        reversal_count: (vaultToken.reversal_count || 0) + 1,
         last_reversed_by: user.id,
         last_reversed_at: new Date().toISOString(),
       })
@@ -129,14 +120,14 @@ serve(async (req) => {
     await supabaseAdmin
       .from("vault_access_log")
       .insert({
-        org_id: token.org_id,
+        org_id: vaultToken.org_id,
         token_id,
         user_id: user.id,
         action: "reveal",
         ip_address: req.headers.get("x-forwarded-for") || "unknown",
       });
 
-    return new Response(JSON.stringify({ value, entity_type: token.entity_type }), {
+    return new Response(JSON.stringify({ value, entity_type: vaultToken.entity_type }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
