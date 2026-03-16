@@ -186,7 +186,20 @@ const Policies = () => {
     const preset = SECTOR_PRESETS[sector];
     if (!preset) return;
 
-    const rows = preset.map((p) => ({
+    // Filter out rules that already exist (same entity_type + action)
+    const existingKeys = new Set(
+      rules.map((r) => `${r.entity_type}::${r.action}`)
+    );
+    const newPresets = preset.filter(
+      (p) => !existingKeys.has(`${p.entity_type}::${p.action}`)
+    );
+
+    if (newPresets.length === 0) {
+      toast({ title: "All rules already exist", description: `The ${sector} preset is already loaded.` });
+      return;
+    }
+
+    const rows = newPresets.map((p) => ({
       org_id: profile.org_id,
       entity_type: p.entity_type,
       category: p.category,
@@ -201,7 +214,11 @@ const Policies = () => {
     if (error) {
       toast({ title: "Error loading preset", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: `${sector} preset loaded (${preset.length} rules)` });
+      const skipped = preset.length - newPresets.length;
+      const msg = skipped > 0
+        ? `${newPresets.length} added, ${skipped} skipped (already exist)`
+        : `${newPresets.length} rules added`;
+      toast({ title: `${sector} preset loaded`, description: msg });
       fetchRules();
     }
   };
