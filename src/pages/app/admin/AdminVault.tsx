@@ -83,7 +83,7 @@ const AdminVault = () => {
   const fetchTokens = async () => {
     if (!profile?.org_id) return;
     setLoadingTokens(true);
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("tokens_vault")
       .select("id, entity_type, token_value, encryption_key_id, is_reversible, access_roles, reversal_count, last_reversed_at, last_reversed_by, expires_at, created_at")
       .eq("org_id", profile.org_id)
