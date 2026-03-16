@@ -100,7 +100,7 @@ const AdminVault = () => {
   const fetchAccessLog = async () => {
     if (!profile?.org_id) return;
     setLoadingLog(true);
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("vault_access_log")
       .select("id, action, created_at, user_id, token_id, ip_address")
       .eq("org_id", profile.org_id)
