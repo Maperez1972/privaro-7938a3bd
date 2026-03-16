@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, User, Cpu, Users, Key, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings } from "lucide-react";
+import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logoPrivaro from "@/assets/logo-privaro.png";
 
