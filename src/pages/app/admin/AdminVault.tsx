@@ -160,7 +160,7 @@ const AdminVault = () => {
   const handleRevoke = async () => {
     if (!revokeToken) return;
     setRevoking(true);
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("tokens_vault")
       .delete()
       .eq("id", revokeToken.id);

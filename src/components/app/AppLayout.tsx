@@ -17,6 +17,7 @@ const adminDpoItems = [{ label: "Audit Logs", icon: FileText, href: "/app/admin/
 const adminOnlyItems = [
   { label: "LLM Providers", icon: Cpu, href: "/app/admin/providers" },
   { label: "Users", icon: Users, href: "/app/admin/users" },
+  { label: "Tokens Vault", icon: KeyRound, href: "/app/admin/vault" },
   { label: "API Keys", icon: Key, href: "/app/admin/api-keys" },
   { label: "Billing", icon: CreditCard, href: "/app/admin/billing" },
   { label: "Admin Settings", icon: Settings2, href: "/app/admin/settings" },
