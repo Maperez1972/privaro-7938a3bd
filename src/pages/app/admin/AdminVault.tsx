@@ -291,7 +291,7 @@ const AdminVault = () => {
                           </Badge>
                         </TableCell>
                         <TableCell className="font-mono text-xs text-muted-foreground truncate max-w-[120px]">{entry.token_id}</TableCell>
-                        <TableCell className="font-mono text-xs text-muted-foreground truncate max-w-[120px]">{entry.user_id}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{entry.user_name || entry.user_id.slice(0, 8) + "…"}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{entry.ip_address || "—"}</TableCell>
                       </TableRow>
                     ))}
