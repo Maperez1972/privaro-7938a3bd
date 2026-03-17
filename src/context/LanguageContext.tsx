@@ -288,7 +288,12 @@ const translations: Record<Language, Record<string, string>> = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [lang, setLang] = useState<Language>("en");
+  const [lang, setLangState] = useState<Language>(detectInitialLang);
+
+  const setLang = (l: Language) => {
+    setLangState(l);
+    localStorage.setItem("privaro-lang", l);
+  };
 
   const t = (key: string): string => {
     return translations[lang][key] ?? translations["en"][key] ?? key;
