@@ -2,6 +2,13 @@ import { createContext, useContext, useState, ReactNode } from "react";
 
 export type Language = "en" | "es";
 
+function detectInitialLang(): Language {
+  const saved = localStorage.getItem("privaro-lang");
+  if (saved === "es" || saved === "en") return saved;
+  const browserLang = navigator.language || "";
+  return browserLang.startsWith("es") ? "es" : "en";
+}
+
 interface LanguageContextType {
   lang: Language;
   setLang: (l: Language) => void;
