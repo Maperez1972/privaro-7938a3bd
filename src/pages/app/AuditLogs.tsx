@@ -42,6 +42,7 @@ const AuditLogs = () => {
   const [search, setSearch] = useState("");
   const [severity, setSeverity] = useState<string>("all");
   const [ibsStatus, setIbsStatus] = useState<string>("all");
+  const [riskFilter, setRiskFilter] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(0);
 
