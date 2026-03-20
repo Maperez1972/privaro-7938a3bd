@@ -101,9 +101,9 @@ const AuditLogs = () => {
     if (!orgId) return;
     setExporting(true);
     try {
-      let query = supabase
+      let query = (supabase
         .from("audit_logs")
-        .select("id, created_at, event_type, entity_type, entity_category, action_taken, severity, risk_score, pipeline_stage, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, processing_ms, pipelines(name, sector, llm_provider)")
+        .select("id, created_at, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, processing_ms, pipelines(name, sector, llm_provider)") as any)
         .eq("org_id", orgId)
         .order("created_at", { ascending: false })
         .limit(10000);
