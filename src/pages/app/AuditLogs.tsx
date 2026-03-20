@@ -307,6 +307,7 @@ const AuditLogs = () => {
                     <th className="p-4 font-medium">Category</th>
                     <th className="p-4 font-medium">Action</th>
                     <th className="p-4 font-medium">Severity</th>
+                    <th className="p-4 font-medium">Risk Score</th>
                     <th className="p-4 font-medium">Stage</th>
                     <th className="p-4 font-medium">Blockchain</th>
                     <th className="p-4 font-medium">Latency</th>
