@@ -9,8 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Cpu, Plus, Loader2, AlertTriangle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { Cpu, Plus, Loader2, AlertTriangle, Globe, Shield, FileText, HeartPulse, Bot } from "lucide-react";
 import { toast } from "sonner";
 
 const regionColors: Record<string, string> = {
@@ -18,6 +21,12 @@ const regionColors: Record<string, string> = {
   US: "bg-amber-500/15 text-amber-400 border-amber-500/30",
   CN: "bg-red-500/15 text-red-400 border-red-500/30",
   AU: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+};
+
+const riskLevelConfig: Record<string, { label: string; className: string }> = {
+  low: { label: "Low Risk", className: "bg-success/15 text-success border-success/30" },
+  medium: { label: "Medium", className: "bg-amber-500/15 text-amber-400 border-amber-500/30" },
+  high: { label: "High Risk", className: "bg-destructive/15 text-destructive border-destructive/30" },
 };
 
 interface LlmProvider {
@@ -32,9 +41,46 @@ interface LlmProvider {
   available_models: string[];
   data_region: string;
   gdpr_compliant: boolean;
+  provider_risk_level: string;
+  model_class: string;
+  eu_residency: boolean;
+  training_disabled: boolean;
+  enterprise_agreement: boolean;
+  approved_special_categories: boolean;
+  approved_for_agents: boolean;
   created_at: string;
   updated_at: string;
 }
+
+const TRUST_POSTURE_ITEMS = [
+  { key: "eu_residency" as const, icon: Globe, label: "EU Data Residency", desc: "Data processed and stored within EU" },
+  { key: "training_disabled" as const, icon: Shield, label: "Training Disabled", desc: "Contractual: data not used for training" },
+  { key: "enterprise_agreement" as const, icon: FileText, label: "Enterprise Agreement", desc: "DPA signed, enterprise tier active" },
+  { key: "approved_special_categories" as const, icon: HeartPulse, label: "Approved for Special Categories", desc: "GDPR Art.9 — health, biometric, genetic" },
+  { key: "approved_for_agents" as const, icon: Bot, label: "Approved for Agent Pipelines", desc: "Safe for autonomous agent workflows" },
+] as const;
+
+const TrustPostureIcons = ({ provider }: { provider: LlmProvider }) => (
+  <TooltipProvider delayDuration={200}>
+    <div className="flex items-center gap-1">
+      {TRUST_POSTURE_ITEMS.map(({ key, icon: Icon, label }) => {
+        const active = provider[key];
+        return (
+          <Tooltip key={key}>
+            <TooltipTrigger asChild>
+              <span>
+                <Icon className={`w-3.5 h-3.5 ${active ? "text-success" : "text-muted-foreground/30"}`} />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="text-xs">
+              {label}: {active ? "Yes" : "No"}
+            </TooltipContent>
+          </Tooltip>
+        );
+      })}
+    </div>
+  </TooltipProvider>
+);
 
 const AdminProviders = () => {
   const { profile } = useAuth();
@@ -46,6 +92,15 @@ const AdminProviders = () => {
   const [gdprChecked, setGdprChecked] = useState(false);
   const [newModels, setNewModels] = useState("");
 
+  // Trust posture form state
+  const [formRiskLevel, setFormRiskLevel] = useState("medium");
+  const [formModelClass, setFormModelClass] = useState("public_api");
+  const [formEuResidency, setFormEuResidency] = useState(false);
+  const [formTrainingDisabled, setFormTrainingDisabled] = useState(false);
+  const [formEnterpriseAgreement, setFormEnterpriseAgreement] = useState(false);
+  const [formApprovedSpecial, setFormApprovedSpecial] = useState(false);
+  const [formApprovedAgents, setFormApprovedAgents] = useState(false);
+
   // Custom provider form
   const [showCustomForm, setShowCustomForm] = useState(false);
   const [customName, setCustomName] = useState("");
@@ -56,9 +111,9 @@ const AdminProviders = () => {
     queryKey: ["llm-providers", orgId],
     enabled: !!orgId,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase
         .from("llm_providers")
-        .select("*")
+        .select("id, org_id, provider, display_name, is_active, api_key_encrypted, api_key_hint, base_url, available_models, data_region, gdpr_compliant, provider_risk_level, model_class, eu_residency, training_disabled, enterprise_agreement, approved_special_categories, approved_for_agents, created_at, updated_at") as any)
         .eq("org_id", orgId!)
         .order("provider");
       if (error) throw error;
@@ -86,9 +141,16 @@ const AdminProviders = () => {
       if (!selectedProvider) return;
       const updates: Record<string, unknown> = {
         gdpr_compliant: gdprChecked,
+        provider_risk_level: formRiskLevel,
+        model_class: formModelClass,
+        eu_residency: formEuResidency,
+        training_disabled: formTrainingDisabled,
+        enterprise_agreement: formEnterpriseAgreement,
+        approved_special_categories: formApprovedSpecial,
+        approved_for_agents: formApprovedAgents,
       };
       if (apiKey) {
-        updates.api_key_encrypted = apiKey; // Mock — real encryption via Proxy API
+        updates.api_key_encrypted = apiKey;
         updates.api_key_hint = `...${apiKey.slice(-4)}`;
       }
       if (newModels.trim()) {
@@ -102,7 +164,7 @@ const AdminProviders = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["llm-providers", orgId] });
-      toast.success("La API key se almacenará cifrada. Integración con Proxy API pendiente.");
+      toast.success("Provider saved");
       setSheetOpen(false);
       setApiKey("");
     },
@@ -138,6 +200,13 @@ const AdminProviders = () => {
     setGdprChecked(p.gdpr_compliant);
     setNewModels(p.available_models.join(", "));
     setApiKey("");
+    setFormRiskLevel(p.provider_risk_level || "medium");
+    setFormModelClass(p.model_class || "public_api");
+    setFormEuResidency(p.eu_residency ?? false);
+    setFormTrainingDisabled(p.training_disabled ?? false);
+    setFormEnterpriseAgreement(p.enterprise_agreement ?? false);
+    setFormApprovedSpecial(p.approved_special_categories ?? false);
+    setFormApprovedAgents(p.approved_for_agents ?? false);
     setSheetOpen(true);
   };
 
@@ -170,46 +239,55 @@ const AdminProviders = () => {
         <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {providers?.map((p) => (
-            <Card
-              key={p.id}
-              className="border-border bg-card cursor-pointer hover:border-primary/30 transition-colors"
-              onClick={() => openSheet(p)}
-            >
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">{p.display_name}</CardTitle>
-                  <Switch
-                    checked={p.is_active}
-                    onCheckedChange={(v) => {
-                      toggleActive.mutate({ id: p.id, is_active: v });
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline" className={regionColors[p.data_region] || ""}>
-                    {p.data_region}
-                  </Badge>
-                  <Badge variant="outline" className={p.gdpr_compliant ? "bg-green-500/15 text-green-400 border-green-500/30" : "bg-amber-500/15 text-amber-400 border-amber-500/30"}>
-                    {p.gdpr_compliant ? "✅ GDPR" : "⚠️ No verificado"}
-                  </Badge>
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {p.available_models.length} model{p.available_models.length !== 1 ? "s" : ""}
-                  {p.api_key_hint && <span className="ml-2">Key: {p.api_key_hint}</span>}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {providers?.map((p) => {
+            const risk = riskLevelConfig[p.provider_risk_level] || riskLevelConfig.medium;
+            return (
+              <Card
+                key={p.id}
+                className="border-border bg-card cursor-pointer hover:border-primary/30 transition-colors"
+                onClick={() => openSheet(p)}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base">{p.display_name}</CardTitle>
+                    <Switch
+                      checked={p.is_active}
+                      onCheckedChange={(v) => {
+                        toggleActive.mutate({ id: p.id, is_active: v });
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="outline" className={regionColors[p.data_region] || ""}>
+                      {p.data_region}
+                    </Badge>
+                    <Badge variant="outline" className={risk.className}>
+                      {risk.label}
+                    </Badge>
+                    <Badge variant="outline" className={p.gdpr_compliant ? "bg-success/15 text-success border-success/30" : "bg-amber-500/15 text-amber-400 border-amber-500/30"}>
+                      {p.gdpr_compliant ? "✅ GDPR" : "⚠️ No verificado"}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-muted-foreground">
+                      {p.available_models.length} model{p.available_models.length !== 1 ? "s" : ""}
+                      {p.api_key_hint && <span className="ml-2">Key: {p.api_key_hint}</span>}
+                    </div>
+                    <TrustPostureIcons provider={p} />
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
 
       {/* Provider Detail Sheet */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent className="bg-card border-border">
+        <SheetContent className="bg-card border-border overflow-y-auto">
           <SheetHeader>
             <SheetTitle>{selectedProvider?.display_name}</SheetTitle>
           </SheetHeader>
@@ -234,6 +312,62 @@ const AdminProviders = () => {
               <Label>Available Models (comma separated)</Label>
               <Input value={newModels} onChange={(e) => setNewModels(e.target.value)} />
             </div>
+
+            <Separator />
+
+            {/* Trust Posture Section */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold">Trust Posture</h3>
+
+              <div className="space-y-2">
+                <Label className="text-xs">Provider Risk Level</Label>
+                <Select value={formRiskLevel} onValueChange={setFormRiskLevel}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs">Model Class</Label>
+                <Select value={formModelClass} onValueChange={setFormModelClass}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="public_api">Public API</SelectItem>
+                    <SelectItem value="enterprise">Enterprise</SelectItem>
+                    <SelectItem value="private">Private</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {TRUST_POSTURE_ITEMS.map(({ key, label, desc }) => {
+                const stateMap: Record<string, [boolean, (v: boolean) => void]> = {
+                  eu_residency: [formEuResidency, setFormEuResidency],
+                  training_disabled: [formTrainingDisabled, setFormTrainingDisabled],
+                  enterprise_agreement: [formEnterpriseAgreement, setFormEnterpriseAgreement],
+                  approved_special_categories: [formApprovedSpecial, setFormApprovedSpecial],
+                  approved_for_agents: [formApprovedAgents, setFormApprovedAgents],
+                };
+                const [checked, setChecked] = stateMap[key];
+                return (
+                  <div key={key} className="flex items-start gap-2">
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={(v) => setChecked(v === true)}
+                      className="mt-0.5"
+                    />
+                    <div>
+                      <Label className="text-sm">{label}</Label>
+                      <p className="text-xs text-muted-foreground">{desc}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
             <Button onClick={() => saveProvider.mutate()} disabled={saveProvider.isPending} className="w-full">
               {saveProvider.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Save Provider

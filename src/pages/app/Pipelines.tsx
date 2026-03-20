@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { mockPipelines } from "@/lib/mock-data";
 import { StatusBadge } from "@/components/app/StatusBadge";
+import { Badge } from "@/components/ui/badge";
 import PipelineDialog, { PipelineFormData } from "@/components/app/PipelineDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -78,6 +79,23 @@ const Pipelines = () => {
         result[id] = v.sum / v.count;
       }
       return result;
+    },
+  });
+
+  // Fetch providers for trust posture badges on pipeline cards
+  const { data: llmProviders } = useQuery({
+    queryKey: ["llm-providers-lookup", profile?.org_id],
+    enabled: !!profile?.org_id,
+    queryFn: async () => {
+      const { data } = await (supabase
+        .from("llm_providers")
+        .select("provider, provider_risk_level, eu_residency, training_disabled") as any)
+        .eq("org_id", profile!.org_id);
+      const map: Record<string, { provider_risk_level: string; eu_residency: boolean; training_disabled: boolean }> = {};
+      for (const row of data ?? []) {
+        map[row.provider] = row;
+      }
+      return map;
     },
   });
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -246,6 +264,20 @@ const Pipelines = () => {
                           <span className="text-xs text-muted-foreground">
                             {pipe.llm_provider}/{pipe.llm_model}
                           </span>
+                          {(() => {
+                            const prov = llmProviders?.[pipe.llm_provider];
+                            if (!prov) return null;
+                            if (prov.provider_risk_level === "high") {
+                              return <Badge variant="outline" className="bg-destructive/15 text-destructive border-destructive/30 text-[10px] px-1.5 py-0">⚠ High Risk Provider</Badge>;
+                            }
+                            if (prov.provider_risk_level === "medium" && !prov.eu_residency) {
+                              return <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-[10px] px-1.5 py-0">Non-EU Provider</Badge>;
+                            }
+                            if (prov.eu_residency && prov.training_disabled) {
+                              return <Badge variant="outline" className="bg-success/15 text-success border-success/30 text-[10px] px-1.5 py-0">EU · Training Disabled</Badge>;
+                            }
+                            return null;
+                          })()}
                         </div>
                       </div>
                     </div>
