@@ -50,6 +50,7 @@ const MODELS: Record<string, string[]> = {
 };
 
 const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: PipelineDialogProps) => {
+  const { profile } = useAuth();
   const [form, setForm] = useState<PipelineFormData>({
     name: "",
     sector: "general",
@@ -58,6 +59,27 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
     llm_endpoint_url: "",
     policy_set_id: null,
   });
+
+  // Fetch org providers to check risk level
+  const { data: providerRiskMap } = useQuery({
+    queryKey: ["llm-providers-risk", profile?.org_id],
+    enabled: !!profile?.org_id && open,
+    queryFn: async () => {
+      const { data } = await (supabase
+        .from("llm_providers")
+        .select("provider, provider_risk_level, eu_residency") as any)
+        .eq("org_id", profile!.org_id);
+      const map: Record<string, { risk: string; eu: boolean }> = {};
+      for (const row of data ?? []) {
+        map[row.provider] = { risk: row.provider_risk_level, eu: row.eu_residency };
+      }
+      return map;
+    },
+  });
+
+  const selectedProviderInfo = providerRiskMap?.[form.llm_provider];
+  const isHighRisk = selectedProviderInfo?.risk === "high";
+  const isMediumNonEu = selectedProviderInfo?.risk === "medium" && !selectedProviderInfo?.eu;
 
   useEffect(() => {
     if (initialData) {
