@@ -44,9 +44,9 @@ const AuditLogs = () => {
       let query = supabase
         .from("audit_logs")
         .select(
-          "id, event_type, entity_type, entity_category, action_taken, severity, risk_score, pipeline_stage, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, processing_ms, created_at, pipeline_id, pipelines(name, sector, llm_provider), organizations(name, gdpr_dpo_email)",
+          "id, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, processing_ms, created_at, pipeline_id, pipelines(name, sector, llm_provider), organizations(name, gdpr_dpo_email)",
           { count: "exact" }
-        )
+        ) as any
         .eq("org_id", orgId!)
         .order("created_at", { ascending: sortOrder === "asc" })
         .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
