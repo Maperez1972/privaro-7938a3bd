@@ -81,6 +81,23 @@ const Pipelines = () => {
       return result;
     },
   });
+
+  // Fetch providers for trust posture badges on pipeline cards
+  const { data: llmProviders } = useQuery({
+    queryKey: ["llm-providers-lookup", profile?.org_id],
+    enabled: !!profile?.org_id,
+    queryFn: async () => {
+      const { data } = await (supabase
+        .from("llm_providers")
+        .select("provider, provider_risk_level, eu_residency, training_disabled") as any)
+        .eq("org_id", profile!.org_id);
+      const map: Record<string, { provider_risk_level: string; eu_residency: boolean; training_disabled: boolean }> = {};
+      for (const row of data ?? []) {
+        map[row.provider] = row;
+      }
+      return map;
+    },
+  });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editPipeline, setEditPipeline] = useState<Pipeline | null>(null);
   const [saving, setSaving] = useState(false);
