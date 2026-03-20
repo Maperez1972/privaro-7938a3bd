@@ -119,7 +119,7 @@ const AuditLogs = () => {
       if (error) throw error;
       if (!rows?.length) { toast.info("No logs to export"); return; }
 
-      const headers = ["id", "timestamp", "event_type", "entity_type", "entity_category", "action_taken", "severity", "pipeline_name", "sector", "llm_provider", "pipeline_stage", "processing_ms", "ibs_status", "ibs_evidence_id", "ibs_certification_hash", "ibs_network", "ibs_certified_at", "blockchain_checker_url"];
+      const headers = ["id", "timestamp", "event_type", "entity_type", "entity_category", "action_taken", "severity", "risk_score", "pipeline_name", "sector", "llm_provider", "pipeline_stage", "processing_ms", "ibs_status", "ibs_evidence_id", "ibs_certification_hash", "ibs_network", "ibs_certified_at", "blockchain_checker_url"];
       const csv = [headers.join(","), ...rows.map((row: any) => {
         const pipeline = row.pipelines as any;
         const values: Record<string, unknown> = {
