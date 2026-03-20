@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { mockPipelines } from "@/lib/mock-data";
 import { StatusBadge } from "@/components/app/StatusBadge";
+import { Badge } from "@/components/ui/badge";
 import PipelineDialog, { PipelineFormData } from "@/components/app/PipelineDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
