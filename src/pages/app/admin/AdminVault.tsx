@@ -181,8 +181,17 @@ const AdminVault = () => {
     if (error) {
       toast({ title: "Revoke failed", description: error.message, variant: "destructive" });
     } else {
+      // Log deletion in vault_access_log (triggers iBS certification via DB trigger)
+      await (supabase as any)
+        .from("vault_access_log")
+        .insert({
+          org_id: profile?.org_id,
+          token_id: tokenId,
+          user_id: profile?.id,
+          action: "deleted",
+          ip_address: null,
+        });
       toast({ title: "Token revoked" });
-      // Optimistically remove from local state immediately
       setTokens((prev) => prev.filter((t) => t.id !== tokenId));
     }
     setRevoking(false);
@@ -199,7 +208,7 @@ const AdminVault = () => {
       <Tabs defaultValue="tokens" onValueChange={(v) => v === "log" && fetchAccessLog()}>
         <TabsList>
           <TabsTrigger value="tokens">Active Tokens</TabsTrigger>
-          <TabsTrigger value="log">Access Log</TabsTrigger>
+          <TabsTrigger value="log">Tokens Log</TabsTrigger>
         </TabsList>
 
         {/* TAB 1: Active Tokens */}
@@ -262,7 +271,7 @@ const AdminVault = () => {
         {/* TAB 2: Access Log */}
         <TabsContent value="log">
           <Card>
-            <CardHeader><CardTitle className="text-lg">Vault Access Log</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-lg">Tokens Log</CardTitle></CardHeader>
             <CardContent>
               {loadingLog ? (
                 <div className="flex items-center justify-center py-12 text-muted-foreground">
@@ -290,7 +299,7 @@ const AdminVault = () => {
                       <TableRow key={entry.id}>
                         <TableCell className="text-sm">{formatDate(entry.created_at)}</TableCell>
                         <TableCell>
-                          <Badge variant="outline" className={entry.action === "reveal" ? "bg-blue-500/15 text-blue-400 border-blue-500/30" : "bg-red-500/15 text-red-400 border-red-500/30"}>
+                          <Badge variant="outline" className={entry.action === "reveal" ? "bg-blue-500/15 text-blue-400 border-blue-500/30" : entry.action === "deleted" ? "bg-red-500/15 text-red-400 border-red-500/30" : "bg-muted text-muted-foreground border-border"}>
                             {entry.action}
                           </Badge>
                         </TableCell>
