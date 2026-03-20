@@ -181,8 +181,17 @@ const AdminVault = () => {
     if (error) {
       toast({ title: "Revoke failed", description: error.message, variant: "destructive" });
     } else {
+      // Log deletion in vault_access_log (triggers iBS certification via DB trigger)
+      await (supabase as any)
+        .from("vault_access_log")
+        .insert({
+          org_id: profile?.org_id,
+          token_id: tokenId,
+          user_id: profile?.id,
+          action: "deleted",
+          ip_address: null,
+        });
       toast({ title: "Token revoked" });
-      // Optimistically remove from local state immediately
       setTokens((prev) => prev.filter((t) => t.id !== tokenId));
     }
     setRevoking(false);
