@@ -1,4 +1,4 @@
-import { Shield, Activity, AlertTriangle, Link2, Zap, TrendingUp, Info } from "lucide-react";
+import { Shield, Activity, AlertTriangle, Link2, Zap, TrendingUp, Info, Gauge, ShieldAlert } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -13,6 +13,8 @@ const kpiDefs = [
   { key: "piiLeaked" as const, label: "Incidents", icon: AlertTriangle, color: "text-destructive", format: (v: number) => v.toLocaleString(), tooltip: "PII entities that leaked to the LLM provider." },
   { key: "avgLatencyMs" as const, label: "Avg Latency", icon: Zap, color: "text-primary", format: (v: number) => `${v}ms`, tooltip: "Average processing latency." },
   { key: "blockchainCertified" as const, label: "Blockchain Certified", icon: Link2, color: "text-success", format: (v: number) => `${v}%`, tooltip: "Percentage of audit logs certified on iBS blockchain." },
+  { key: "avgRiskScore" as const, label: "Avg Risk", icon: Gauge, color: "text-warning", format: (v: number) => `${(v * 100).toFixed(0)}%`, tooltip: "Average risk score across all evaluated events." },
+  { key: "highRiskEvents" as const, label: "High Risk", icon: ShieldAlert, color: "text-destructive", format: (v: number) => v.toLocaleString(), tooltip: "Events with risk score ≥ 70%." },
 ];
 
 const KpiSkeleton = () => (<Card className="border-border bg-card"><CardContent className="p-4"><div className="flex items-center gap-2 mb-3"><Skeleton className="w-4 h-4 rounded" /><Skeleton className="h-3 w-20" /></div><Skeleton className="h-8 w-16" /></CardContent></Card>);
