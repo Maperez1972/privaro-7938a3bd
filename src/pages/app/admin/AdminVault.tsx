@@ -71,7 +71,7 @@ const AdminVault = () => {
   // Reveal state
   const [revealOpen, setRevealOpen] = useState(false);
   const [selectedToken, setSelectedToken] = useState<VaultToken | null>(null);
-  const [confirmPassword, setConfirmPassword] = useState("");
+  // password removed — reveal calls edge function directly
   const [revealedValue, setRevealedValue] = useState<string | null>(null);
   const [revealing, setRevealing] = useState(false);
   const [copied, setCopied] = useState(false);
