@@ -11,6 +11,8 @@ export interface DashboardStats {
   coveragePercent: number;
   avgLatencyMs: number;
   blockchainCertified: number;
+  avgRiskScore: number;
+  highRiskEvents: number;
 }
 
 export interface TimeSeriesPoint {
