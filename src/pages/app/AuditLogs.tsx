@@ -326,6 +326,19 @@ const AuditLogs = () => {
                       <td className="p-4 text-xs capitalize">{log.entity_category}</td>
                       <td className="p-4 text-xs">{log.action_taken}</td>
                       <td className="p-4"><SeverityBadge severity={log.severity} /></td>
+                      <td className="p-4">
+                        {log.risk_score != null ? (
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+                            log.risk_score >= 0.7 ? "bg-destructive/15 text-destructive" :
+                            log.risk_score >= 0.4 ? "bg-amber-500/15 text-amber-400" :
+                            "bg-green-500/15 text-green-400"
+                          }`}>
+                            {log.risk_score >= 0.7 ? "High Risk" : log.risk_score >= 0.4 ? "Medium" : "Low"} ({(log.risk_score * 100).toFixed(0)}%)
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-muted text-muted-foreground">—</span>
+                        )}
+                      </td>
                       <td className="p-4 text-xs text-muted-foreground">{log.pipeline_stage}</td>
                       <td className="p-4">
                         <div className="flex items-center gap-2">
