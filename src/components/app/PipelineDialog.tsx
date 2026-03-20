@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 
 export interface PipelineFormData {
   name: string;
@@ -47,6 +50,7 @@ const MODELS: Record<string, string[]> = {
 };
 
 const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: PipelineDialogProps) => {
+  const { profile } = useAuth();
   const [form, setForm] = useState<PipelineFormData>({
     name: "",
     sector: "general",
@@ -55,6 +59,27 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
     llm_endpoint_url: "",
     policy_set_id: null,
   });
+
+  // Fetch org providers to check risk level
+  const { data: providerRiskMap } = useQuery({
+    queryKey: ["llm-providers-risk", profile?.org_id],
+    enabled: !!profile?.org_id && open,
+    queryFn: async () => {
+      const { data } = await (supabase
+        .from("llm_providers")
+        .select("provider, provider_risk_level, eu_residency") as any)
+        .eq("org_id", profile!.org_id);
+      const map: Record<string, { risk: string; eu: boolean }> = {};
+      for (const row of data ?? []) {
+        map[row.provider] = { risk: row.provider_risk_level, eu: row.eu_residency };
+      }
+      return map;
+    },
+  });
+
+  const selectedProviderInfo = providerRiskMap?.[form.llm_provider];
+  const isHighRisk = selectedProviderInfo?.risk === "high";
+  const isMediumNonEu = selectedProviderInfo?.risk === "medium" && !selectedProviderInfo?.eu;
 
   useEffect(() => {
     if (initialData) {
@@ -105,6 +130,18 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
                 ))}
               </SelectContent>
             </Select>
+            {isHighRisk && (
+              <div className="flex items-start gap-2 p-2.5 rounded-md bg-destructive/10 border border-destructive/20 text-xs text-destructive">
+                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span><strong>High Risk Provider.</strong> This provider has not been verified for GDPR compliance. PII data may be exposed. Review the provider's Trust Posture in Admin → Providers.</span>
+              </div>
+            )}
+            {isMediumNonEu && !isHighRisk && (
+              <div className="flex items-start gap-2 p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400">
+                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span><strong>Non-EU Provider.</strong> Data may be processed outside the EU. Consider enabling EU Data Residency in the provider settings.</span>
+              </div>
+            )}
           </div>
           <div className="space-y-2">
             <Label>Model</Label>
