@@ -66,6 +66,15 @@ const AuditLogs = () => {
       if (ibsStatus !== "all") {
         query = query.eq("ibs_status", ibsStatus);
       }
+      if (riskFilter === "high") {
+        query = query.gte("risk_score", 0.7);
+      } else if (riskFilter === "medium") {
+        query = query.gte("risk_score", 0.4).lt("risk_score", 0.7);
+      } else if (riskFilter === "low") {
+        query = query.lt("risk_score", 0.4).not("risk_score", "is", null);
+      } else if (riskFilter === "none") {
+        query = query.is("risk_score", null);
+      }
       if (search.trim()) {
         const s = search.trim().toLowerCase();
         query = query.or(
