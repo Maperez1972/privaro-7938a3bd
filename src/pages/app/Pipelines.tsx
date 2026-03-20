@@ -47,6 +47,40 @@ const Pipelines = () => {
   const { toast } = useToast();
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Avg risk scores per pipeline (last 30 days)
+  const thirtyDaysAgo = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString();
+  }, []);
+
+  const { data: riskScores } = useQuery({
+    queryKey: ["pipeline-risk-scores", profile?.org_id, thirtyDaysAgo],
+    enabled: !!profile?.org_id,
+    queryFn: async () => {
+      const { data } = await (supabase
+        .from("audit_logs")
+        .select("pipeline_id, risk_score") as any)
+        .eq("org_id", profile!.org_id)
+        .not("risk_score", "is", null)
+        .gte("created_at", thirtyDaysAgo);
+
+      const map: Record<string, { sum: number; count: number }> = {};
+      for (const row of data ?? []) {
+        if (!row.pipeline_id) continue;
+        if (!map[row.pipeline_id]) map[row.pipeline_id] = { sum: 0, count: 0 };
+        map[row.pipeline_id].sum += row.risk_score;
+        map[row.pipeline_id].count++;
+      }
+      const result: Record<string, number> = {};
+      for (const [id, v] of Object.entries(map)) {
+        result[id] = v.sum / v.count;
+      }
+      return result;
+    },
+  });
+  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editPipeline, setEditPipeline] = useState<Pipeline | null>(null);
   const [saving, setSaving] = useState(false);
