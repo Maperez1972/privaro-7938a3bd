@@ -305,9 +305,9 @@ const AdminVault = () => {
                         <TableCell className="text-sm text-muted-foreground">{entry.user_name || entry.user_id.slice(0, 8) + "…"}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{entry.ip_address || "—"}</TableCell>
                         <TableCell>
-                          {entry.ibs_evidence_id ? (
+                          {entry.ibs_certification_hash ? (
                             <a
-                              href={`https://api.icommunitylabs.com/v2/evidences/${entry.ibs_evidence_id}`}
+                              href={`https://checker.icommunitylabs.com/check/${entry.ibs_network || "fantom_opera_mainnet"}/${entry.ibs_certification_hash}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1.5"
@@ -317,6 +317,10 @@ const AdminVault = () => {
                                 <ExternalLink className="w-3 h-3" />
                               </Badge>
                             </a>
+                          ) : entry.ibs_evidence_id ? (
+                            <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
+                              Certifying…
+                            </Badge>
                           ) : (
                             <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
                               Pending
