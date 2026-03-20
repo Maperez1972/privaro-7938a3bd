@@ -44,7 +44,7 @@ const AuditLogs = () => {
       let query = supabase
         .from("audit_logs")
         .select(
-          "id, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_certification_hash, processing_ms, created_at",
+          "id, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_certification_hash, ibs_network, processing_ms, created_at",
           { count: "exact" }
         )
         .eq("org_id", orgId!)
@@ -262,7 +262,7 @@ const AuditLogs = () => {
                           <StatusBadge status={log.ibs_status} />
                           {log.ibs_status === "certified" && log.ibs_certification_hash && (
                             <a
-                              href={`https://explorer.icommunity.io/tx/${log.ibs_certification_hash}`}
+                              href={`https://checker.icommunitylabs.com/check/${log.ibs_network || "fantom_opera_mainnet"}/${log.ibs_certification_hash}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
