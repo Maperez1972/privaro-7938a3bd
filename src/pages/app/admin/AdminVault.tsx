@@ -175,7 +175,8 @@ const AdminVault = () => {
     const { error } = await (supabase as any)
       .from("tokens_vault")
       .delete()
-      .eq("id", revokeToken.id);
+      .eq("id", revokeToken.id)
+      .eq("org_id", profile?.org_id);
     if (error) {
       toast({ title: "Revoke failed", description: error.message, variant: "destructive" });
     } else {
