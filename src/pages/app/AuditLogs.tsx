@@ -13,10 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Download, ChevronLeft, ChevronRight, Loader2, ExternalLink } from "lucide-react";
+import { Search, Download, ChevronLeft, ChevronRight, Loader2, ExternalLink, FileText } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText } from "lucide-react";
 import { toast } from "sonner";
+import { generateDpoReportHtml, downloadHtml } from "@/lib/dpo-report";
 
 const PAGE_SIZE = 25;
 
@@ -44,7 +44,7 @@ const AuditLogs = () => {
       let query = supabase
         .from("audit_logs")
         .select(
-          "id, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_certification_hash, ibs_network, processing_ms, created_at",
+          "id, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, processing_ms, created_at, pipeline_id, pipelines(name, sector, llm_provider), organizations(name, gdpr_dpo_email)",
           { count: "exact" }
         )
         .eq("org_id", orgId!)
@@ -95,13 +95,15 @@ const AuditLogs = () => {
   const resetPage = () => setPage(0);
 
   const [exporting, setExporting] = useState(false);
+  const [generatingReport, setGeneratingReport] = useState(false);
+
   const handleExport = async () => {
     if (!orgId) return;
     setExporting(true);
     try {
       let query = supabase
         .from("audit_logs")
-        .select("id, created_at, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, processing_ms")
+        .select("id, created_at, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, processing_ms, pipelines(name, sector, llm_provider)")
         .eq("org_id", orgId)
         .order("created_at", { ascending: false })
         .limit(10000);
@@ -117,10 +119,33 @@ const AuditLogs = () => {
       if (error) throw error;
       if (!rows?.length) { toast.info("No logs to export"); return; }
 
-      const headers = ["id", "created_at", "event_type", "entity_type", "entity_category", "action_taken", "severity", "pipeline_stage", "ibs_status", "ibs_evidence_id", "ibs_certification_hash", "ibs_network", "ibs_certified_at", "processing_ms"];
-      const csv = [headers.join(","), ...rows.map((row) =>
-        headers.map((h) => JSON.stringify((row as Record<string, unknown>)[h] ?? "")).join(",")
-      )].join("\n");
+      const headers = ["id", "timestamp", "event_type", "entity_type", "entity_category", "action_taken", "severity", "pipeline_name", "sector", "llm_provider", "pipeline_stage", "processing_ms", "ibs_status", "ibs_evidence_id", "ibs_certification_hash", "ibs_network", "ibs_certified_at", "blockchain_checker_url"];
+      const csv = [headers.join(","), ...rows.map((row: any) => {
+        const pipeline = row.pipelines as any;
+        const values: Record<string, unknown> = {
+          id: row.id,
+          timestamp: row.created_at,
+          event_type: row.event_type,
+          entity_type: row.entity_type,
+          entity_category: row.entity_category,
+          action_taken: row.action_taken,
+          severity: row.severity,
+          pipeline_name: pipeline?.name || "",
+          sector: pipeline?.sector || "",
+          llm_provider: pipeline?.llm_provider || "",
+          pipeline_stage: row.pipeline_stage || "",
+          processing_ms: row.processing_ms,
+          ibs_status: row.ibs_status,
+          ibs_evidence_id: row.ibs_evidence_id || "",
+          ibs_certification_hash: row.ibs_certification_hash || "",
+          ibs_network: row.ibs_network || "",
+          ibs_certified_at: row.ibs_certified_at || "",
+          blockchain_checker_url: row.ibs_certification_hash
+            ? `https://checker.icommunitylabs.com/check/${row.ibs_network || "fantom_opera_mainnet"}/${row.ibs_certification_hash}`
+            : "",
+        };
+        return headers.map((h) => JSON.stringify(values[h] ?? "")).join(",");
+      })].join("\n");
 
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
@@ -137,6 +162,44 @@ const AuditLogs = () => {
     }
   };
 
+  const handleDpoReport = async () => {
+    if (!orgId) return;
+    setGeneratingReport(true);
+    try {
+      let query = supabase
+        .from("audit_logs")
+        .select("id, created_at, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, processing_ms, pipelines(name, sector, llm_provider), organizations(name, gdpr_dpo_email)")
+        .eq("org_id", orgId)
+        .order("created_at", { ascending: false })
+        .limit(10000);
+
+      if (severity !== "all") query = query.eq("severity", severity);
+      if (ibsStatus !== "all") query = query.eq("ibs_status", ibsStatus);
+      if (search.trim()) {
+        const s = search.trim().toLowerCase();
+        query = query.or(`entity_type.ilike.%${s}%,event_type.ilike.%${s}%,action_taken.ilike.%${s}%`);
+      }
+
+      const { data: rows, error } = await query;
+      if (error) throw error;
+      if (!rows?.length) { toast.info("No logs for report"); return; }
+
+      const org = (rows[0] as any).organizations;
+      const html = generateDpoReportHtml({
+        logs: rows as any,
+        orgName: org?.name || "Unknown",
+        dpoEmail: org?.gdpr_dpo_email || "",
+      });
+
+      downloadHtml(html, `privaro-dpo-report-${new Date().toISOString().slice(0, 10)}.html`);
+      toast.success("DPO Report downloaded — open in browser to print as PDF");
+    } catch {
+      toast.error("Failed to generate report");
+    } finally {
+      setGeneratingReport(false);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -146,10 +209,16 @@ const AuditLogs = () => {
             Immutable record of every PII event — blockchain certified
           </p>
         </div>
-        <Button size="sm" variant="outline" className="gap-2" onClick={handleExport} disabled={exporting}>
-          {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-          Export CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" className="gap-2" onClick={handleDpoReport} disabled={generatingReport}>
+            {generatingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+            DPO Report
+          </Button>
+          <Button size="sm" variant="outline" className="gap-2" onClick={handleExport} disabled={exporting}>
+            {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
