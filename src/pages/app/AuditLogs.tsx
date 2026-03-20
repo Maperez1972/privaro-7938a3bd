@@ -41,12 +41,12 @@ const AuditLogs = () => {
     queryKey: ["audit-logs", orgId, search, severity, ibsStatus, sortOrder, page],
     enabled: !!orgId,
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase
         .from("audit_logs")
         .select(
           "id, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, processing_ms, created_at, pipeline_id, pipelines(name, sector, llm_provider), organizations(name, gdpr_dpo_email)",
           { count: "exact" }
-        )
+        ) as any)
         .eq("org_id", orgId!)
         .order("created_at", { ascending: sortOrder === "asc" })
         .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
@@ -101,9 +101,9 @@ const AuditLogs = () => {
     if (!orgId) return;
     setExporting(true);
     try {
-      let query = supabase
+      let query = (supabase
         .from("audit_logs")
-        .select("id, created_at, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, processing_ms, pipelines(name, sector, llm_provider)")
+        .select("id, created_at, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, processing_ms, pipelines(name, sector, llm_provider)") as any)
         .eq("org_id", orgId)
         .order("created_at", { ascending: false })
         .limit(10000);
@@ -119,7 +119,7 @@ const AuditLogs = () => {
       if (error) throw error;
       if (!rows?.length) { toast.info("No logs to export"); return; }
 
-      const headers = ["id", "timestamp", "event_type", "entity_type", "entity_category", "action_taken", "severity", "pipeline_name", "sector", "llm_provider", "pipeline_stage", "processing_ms", "ibs_status", "ibs_evidence_id", "ibs_certification_hash", "ibs_network", "ibs_certified_at", "blockchain_checker_url"];
+      const headers = ["id", "timestamp", "event_type", "entity_type", "entity_category", "action_taken", "severity", "risk_score", "pipeline_name", "sector", "llm_provider", "pipeline_stage", "processing_ms", "ibs_status", "ibs_evidence_id", "ibs_certification_hash", "ibs_network", "ibs_certified_at", "blockchain_checker_url"];
       const csv = [headers.join(","), ...rows.map((row: any) => {
         const pipeline = row.pipelines as any;
         const values: Record<string, unknown> = {
@@ -130,6 +130,7 @@ const AuditLogs = () => {
           entity_category: row.entity_category,
           action_taken: row.action_taken,
           severity: row.severity,
+          risk_score: (row as any).risk_score ?? "",
           pipeline_name: pipeline?.name || "",
           sector: pipeline?.sector || "",
           llm_provider: pipeline?.llm_provider || "",
@@ -166,9 +167,9 @@ const AuditLogs = () => {
     if (!orgId) return;
     setGeneratingReport(true);
     try {
-      let query = supabase
+      let query = (supabase
         .from("audit_logs")
-        .select("id, created_at, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, processing_ms, pipelines(name, sector, llm_provider), organizations(name, gdpr_dpo_email)")
+        .select("id, created_at, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, processing_ms, pipelines(name, sector, llm_provider), organizations(name, gdpr_dpo_email)") as any)
         .eq("org_id", orgId)
         .order("created_at", { ascending: false })
         .limit(10000);
@@ -307,6 +308,7 @@ const AuditLogs = () => {
                     <th className="p-4 font-medium">Category</th>
                     <th className="p-4 font-medium">Action</th>
                     <th className="p-4 font-medium">Severity</th>
+                    <th className="p-4 font-medium">Risk Score</th>
                     <th className="p-4 font-medium">Stage</th>
                     <th className="p-4 font-medium">Blockchain</th>
                     <th className="p-4 font-medium">Latency</th>
@@ -325,6 +327,19 @@ const AuditLogs = () => {
                       <td className="p-4 text-xs capitalize">{log.entity_category}</td>
                       <td className="p-4 text-xs">{log.action_taken}</td>
                       <td className="p-4"><SeverityBadge severity={log.severity} /></td>
+                      <td className="p-4">
+                        {log.risk_score != null ? (
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+                            log.risk_score >= 0.7 ? "bg-destructive/15 text-destructive" :
+                            log.risk_score >= 0.4 ? "bg-amber-500/15 text-amber-400" :
+                            "bg-green-500/15 text-green-400"
+                          }`}>
+                            {log.risk_score >= 0.7 ? "High Risk" : log.risk_score >= 0.4 ? "Medium" : "Low"} ({(log.risk_score * 100).toFixed(0)}%)
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-muted text-muted-foreground">—</span>
+                        )}
+                      </td>
                       <td className="p-4 text-xs text-muted-foreground">{log.pipeline_stage}</td>
                       <td className="p-4">
                         <div className="flex items-center gap-2">

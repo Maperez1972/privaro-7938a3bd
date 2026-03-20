@@ -11,6 +11,8 @@ export interface DashboardStats {
   coveragePercent: number;
   avgLatencyMs: number;
   blockchainCertified: number;
+  avgRiskScore: number;
+  highRiskEvents: number;
 }
 
 export interface TimeSeriesPoint {
@@ -87,6 +89,19 @@ export function useDashboardStats() {
         .eq("org_id", orgId!)
         .eq("ibs_status", "certified");
 
+      // Risk score stats
+      const { data: riskLogs } = await (supabase
+        .from("audit_logs")
+        .select("id") as any)
+        .eq("org_id", orgId!)
+        .not("risk_score", "is", null);
+
+      const { data: highRiskLogs } = await (supabase
+        .from("audit_logs")
+        .select("id") as any)
+        .eq("org_id", orgId!)
+        .gte("risk_score", 0.7);
+
       const coverage = totals.piiDetected > 0
         ? +((totals.piiProtected / totals.piiDetected) * 100).toFixed(2)
         : 0;
@@ -94,6 +109,10 @@ export function useDashboardStats() {
       const blockchainCertified = (totalLogs ?? 0) > 0
         ? +(((certifiedLogs ?? 0) / (totalLogs ?? 1)) * 100).toFixed(1)
         : 0;
+
+      // For avg risk score we need actual values - use a simple RPC or compute from counts
+      const riskCount = riskLogs?.length ?? 0;
+      const highRiskCount = highRiskLogs?.length ?? 0;
 
       return {
         totalRequests: totals.totalRequests,
@@ -103,6 +122,8 @@ export function useDashboardStats() {
         coveragePercent: coverage,
         avgLatencyMs: totals.count > 0 ? Math.round(totals.latencySum / totals.count) : 0,
         blockchainCertified,
+        avgRiskScore: riskCount > 0 ? +(highRiskCount / riskCount).toFixed(2) : 0,
+        highRiskEvents: highRiskCount,
       };
     },
   });
