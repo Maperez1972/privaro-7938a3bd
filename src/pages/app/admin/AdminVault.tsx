@@ -34,6 +34,7 @@ interface AccessLogEntry {
   token_id: string;
   ip_address: string | null;
   ibs_evidence_id: string | null;
+  ibs_status: string | null;
   user_name?: string;
 }
 
@@ -104,7 +105,7 @@ const AdminVault = () => {
     setLoadingLog(true);
     const { data, error } = await (supabase as any)
       .from("vault_access_log")
-      .select("id, action, created_at, user_id, token_id, ip_address, ibs_evidence_id")
+      .select("id, action, created_at, user_id, token_id, ip_address, ibs_evidence_id, ibs_status")
       .eq("org_id", profile.org_id)
       .order("created_at", { ascending: false })
       .limit(100);
@@ -172,16 +173,18 @@ const AdminVault = () => {
   const handleRevoke = async () => {
     if (!revokeToken) return;
     setRevoking(true);
+    const tokenId = revokeToken.id;
     const { error } = await (supabase as any)
       .from("tokens_vault")
       .delete()
-      .eq("id", revokeToken.id)
+      .eq("id", tokenId)
       .eq("org_id", profile?.org_id);
     if (error) {
       toast({ title: "Revoke failed", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Token revoked" });
-      fetchTokens();
+      // Optimistically remove from local state immediately
+      setTokens((prev) => prev.filter((t) => t.id !== tokenId));
     }
     setRevoking(false);
     setRevokeOpen(false);
@@ -296,7 +299,7 @@ const AdminVault = () => {
                         <TableCell className="text-sm text-muted-foreground">{entry.user_name || entry.user_id.slice(0, 8) + "…"}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{entry.ip_address || "—"}</TableCell>
                         <TableCell>
-                          {entry.ibs_evidence_id ? (
+                          {entry.ibs_status === "certified" && entry.ibs_evidence_id ? (
                             <a
                               href={`https://checker.icommunitylabs.com/check/fantom_opera_mainnet/${entry.ibs_evidence_id}`}
                               target="_blank"
@@ -308,6 +311,10 @@ const AdminVault = () => {
                                 <ExternalLink className="w-3 h-3" />
                               </Badge>
                             </a>
+                          ) : entry.ibs_evidence_id ? (
+                            <Badge variant="outline" className="bg-blue-500/15 text-blue-400 border-blue-500/30 animate-pulse">
+                              Certifying…
+                            </Badge>
                           ) : (
                             <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
                               Pending
