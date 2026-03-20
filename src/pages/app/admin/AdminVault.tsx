@@ -280,6 +280,7 @@ const AdminVault = () => {
                       <TableHead>Token ID</TableHead>
                       <TableHead>User</TableHead>
                       <TableHead>IP</TableHead>
+                      <TableHead>Blockchain</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -294,6 +295,25 @@ const AdminVault = () => {
                         <TableCell className="font-mono text-xs text-muted-foreground truncate max-w-[120px]">{entry.token_id}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{entry.user_name || entry.user_id.slice(0, 8) + "…"}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{entry.ip_address || "—"}</TableCell>
+                        <TableCell>
+                          {entry.ibs_evidence_id ? (
+                            <a
+                              href={`https://checker.icommunitylabs.com/check/fantom_opera_mainnet/${entry.ibs_evidence_id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5"
+                            >
+                              <Badge variant="outline" className="bg-green-500/15 text-green-400 border-green-500/30 gap-1">
+                                Certified ⛓️
+                                <ExternalLink className="w-3 h-3" />
+                              </Badge>
+                            </a>
+                          ) : (
+                            <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
+                              Pending
+                            </Badge>
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
