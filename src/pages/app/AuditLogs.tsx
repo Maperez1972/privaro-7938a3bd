@@ -47,7 +47,7 @@ const AuditLogs = () => {
   const [page, setPage] = useState(0);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["audit-logs", orgId, search, severity, ibsStatus, sortOrder, page],
+    queryKey: ["audit-logs", orgId, search, severity, ibsStatus, riskFilter, sortOrder, page],
     enabled: !!orgId,
     queryFn: async () => {
       let query = (supabase
