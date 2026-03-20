@@ -1,6 +1,7 @@
 import { DashboardKpis } from "@/components/app/DashboardKpis";
 import { RequestsChart, PiiCategoryChart, CoverageChart } from "@/components/app/DashboardCharts";
 import { RecentActivityTable } from "@/components/app/RecentActivityTable";
+import { RiskOverviewWidget } from "@/components/app/RiskOverviewWidget";
 import {
   useDashboardStats,
   useDashboardTimeSeries,
@@ -26,6 +27,8 @@ const Dashboard = () => {
       </div>
 
       <DashboardKpis stats={stats} isLoading={statsLoading} />
+
+      <RiskOverviewWidget />
 
       <div className="grid lg:grid-cols-3 gap-4">
         <RequestsChart data={timeSeries ?? []} isLoading={tsLoading} />
