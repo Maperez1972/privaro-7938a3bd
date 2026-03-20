@@ -130,6 +130,7 @@ const AuditLogs = () => {
           entity_category: row.entity_category,
           action_taken: row.action_taken,
           severity: row.severity,
+          risk_score: (row as any).risk_score ?? "",
           pipeline_name: pipeline?.name || "",
           sector: pipeline?.sector || "",
           llm_provider: pipeline?.llm_provider || "",
