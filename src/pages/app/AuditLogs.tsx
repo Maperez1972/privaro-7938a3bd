@@ -13,10 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Download, ChevronLeft, ChevronRight, Loader2, ExternalLink } from "lucide-react";
+import { Search, Download, ChevronLeft, ChevronRight, Loader2, ExternalLink, FileText } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText } from "lucide-react";
 import { toast } from "sonner";
+import { generateDpoReportHtml, downloadHtml } from "@/lib/dpo-report";
 
 const PAGE_SIZE = 25;
 
