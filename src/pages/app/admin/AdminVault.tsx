@@ -133,7 +133,6 @@ const AdminVault = () => {
   // --- Reveal ---
   const openReveal = (token: VaultToken) => {
     setSelectedToken(token);
-    setConfirmPassword("");
     setRevealedValue(null);
     setCopied(false);
     setRevealOpen(true);
