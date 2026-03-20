@@ -209,10 +209,16 @@ const AuditLogs = () => {
             Immutable record of every PII event — blockchain certified
           </p>
         </div>
-        <Button size="sm" variant="outline" className="gap-2" onClick={handleExport} disabled={exporting}>
-          {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-          Export CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" className="gap-2" onClick={handleDpoReport} disabled={generatingReport}>
+            {generatingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+            DPO Report
+          </Button>
+          <Button size="sm" variant="outline" className="gap-2" onClick={handleExport} disabled={exporting}>
+            {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
