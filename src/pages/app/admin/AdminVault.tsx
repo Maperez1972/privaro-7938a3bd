@@ -139,11 +139,11 @@ const AdminVault = () => {
   };
 
   const handleReveal = async () => {
-    if (!selectedToken || !confirmPassword) return;
+    if (!selectedToken) return;
     setRevealing(true);
     try {
       const { data, error } = await supabase.functions.invoke("reveal-token", {
-        body: { token_id: selectedToken.id, password: confirmPassword },
+        body: { token_id: selectedToken.id },
       });
       if (error || data?.error) throw new Error(data?.error || error?.message);
       setRevealedValue(data.value);
