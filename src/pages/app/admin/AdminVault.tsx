@@ -299,8 +299,10 @@ const AdminVault = () => {
                       <TableRow key={entry.id}>
                         <TableCell className="text-sm">{formatDate(entry.created_at)}</TableCell>
                         <TableCell>
-                          <Badge variant="outline" className={entry.action === "reveal" ? "bg-blue-500/15 text-blue-400 border-blue-500/30" : "bg-red-500/15 text-red-400 border-red-500/30"}>
+                          <Badge variant="outline" className={entry.action === "reveal" ? "bg-blue-500/15 text-blue-400 border-blue-500/30" : entry.action === "deleted" ? "bg-red-500/15 text-red-400 border-red-500/30" : "bg-muted text-muted-foreground border-border"}>
                             {entry.action}
+                          </Badge>
+                        </TableCell>
                           </Badge>
                         </TableCell>
                         <TableCell className="font-mono text-xs text-muted-foreground truncate max-w-[120px]">{entry.token_id}</TableCell>
