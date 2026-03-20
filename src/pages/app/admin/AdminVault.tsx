@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Eye, Trash2, KeyRound, Copy, Check, Loader2 } from "lucide-react";
+import { Eye, Trash2, KeyRound, Copy, Check, Loader2, ExternalLink } from "lucide-react";
 
 interface VaultToken {
   id: string;
@@ -33,6 +33,7 @@ interface AccessLogEntry {
   user_id: string;
   token_id: string;
   ip_address: string | null;
+  ibs_evidence_id: string | null;
   user_name?: string;
 }
 
@@ -103,7 +104,7 @@ const AdminVault = () => {
     setLoadingLog(true);
     const { data, error } = await (supabase as any)
       .from("vault_access_log")
-      .select("id, action, created_at, user_id, token_id, ip_address")
+      .select("id, action, created_at, user_id, token_id, ip_address, ibs_evidence_id")
       .eq("org_id", profile.org_id)
       .order("created_at", { ascending: false })
       .limit(100);
@@ -174,7 +175,8 @@ const AdminVault = () => {
     const { error } = await (supabase as any)
       .from("tokens_vault")
       .delete()
-      .eq("id", revokeToken.id);
+      .eq("id", revokeToken.id)
+      .eq("org_id", profile?.org_id);
     if (error) {
       toast({ title: "Revoke failed", description: error.message, variant: "destructive" });
     } else {
@@ -278,6 +280,7 @@ const AdminVault = () => {
                       <TableHead>Token ID</TableHead>
                       <TableHead>User</TableHead>
                       <TableHead>IP</TableHead>
+                      <TableHead>Blockchain</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -292,6 +295,25 @@ const AdminVault = () => {
                         <TableCell className="font-mono text-xs text-muted-foreground truncate max-w-[120px]">{entry.token_id}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{entry.user_name || entry.user_id.slice(0, 8) + "…"}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{entry.ip_address || "—"}</TableCell>
+                        <TableCell>
+                          {entry.ibs_evidence_id ? (
+                            <a
+                              href={`https://checker.icommunitylabs.com/check/fantom_opera_mainnet/${entry.ibs_evidence_id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5"
+                            >
+                              <Badge variant="outline" className="bg-green-500/15 text-green-400 border-green-500/30 gap-1">
+                                Certified ⛓️
+                                <ExternalLink className="w-3 h-3" />
+                              </Badge>
+                            </a>
+                          ) : (
+                            <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
+                              Pending
+                            </Badge>
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
