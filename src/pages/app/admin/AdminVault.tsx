@@ -172,16 +172,18 @@ const AdminVault = () => {
   const handleRevoke = async () => {
     if (!revokeToken) return;
     setRevoking(true);
+    const tokenId = revokeToken.id;
     const { error } = await (supabase as any)
       .from("tokens_vault")
       .delete()
-      .eq("id", revokeToken.id)
+      .eq("id", tokenId)
       .eq("org_id", profile?.org_id);
     if (error) {
       toast({ title: "Revoke failed", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Token revoked" });
-      fetchTokens();
+      // Optimistically remove from local state immediately
+      setTokens((prev) => prev.filter((t) => t.id !== tokenId));
     }
     setRevoking(false);
     setRevokeOpen(false);
