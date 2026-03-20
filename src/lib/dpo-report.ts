@@ -10,6 +10,7 @@ interface AuditLogRow {
   entity_category: string;
   action_taken: string;
   severity: string;
+  risk_score: number | null;
   pipeline_stage: string | null;
   processing_ms: number | null;
   ibs_status: string;
