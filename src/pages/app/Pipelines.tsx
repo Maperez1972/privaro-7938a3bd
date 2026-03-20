@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { mockPipelines } from "@/lib/mock-data";
 import { StatusBadge } from "@/components/app/StatusBadge";
@@ -46,6 +47,39 @@ const Pipelines = () => {
   const { toast } = useToast();
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Avg risk scores per pipeline (last 30 days)
+  const thirtyDaysAgo = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString();
+  }, []);
+
+  const { data: riskScores } = useQuery({
+    queryKey: ["pipeline-risk-scores", profile?.org_id, thirtyDaysAgo],
+    enabled: !!profile?.org_id,
+    queryFn: async () => {
+      const { data } = await (supabase
+        .from("audit_logs")
+        .select("pipeline_id, risk_score") as any)
+        .eq("org_id", profile!.org_id)
+        .not("risk_score", "is", null)
+        .gte("created_at", thirtyDaysAgo);
+
+      const map: Record<string, { sum: number; count: number }> = {};
+      for (const row of data ?? []) {
+        if (!row.pipeline_id) continue;
+        if (!map[row.pipeline_id]) map[row.pipeline_id] = { sum: 0, count: 0 };
+        map[row.pipeline_id].sum += row.risk_score;
+        map[row.pipeline_id].count++;
+      }
+      const result: Record<string, number> = {};
+      for (const [id, v] of Object.entries(map)) {
+        result[id] = v.sum / v.count;
+      }
+      return result;
+    },
+  });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editPipeline, setEditPipeline] = useState<Pipeline | null>(null);
   const [saving, setSaving] = useState(false);
@@ -256,7 +290,7 @@ const Pipelines = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-5 gap-4 mt-5 pt-4 border-t border-border">
+                  <div className="grid grid-cols-6 gap-4 mt-5 pt-4 border-t border-border">
                     <div>
                       <p className="text-xs text-muted-foreground">Requests</p>
                       <p className="text-sm font-semibold">{pipe.total_requests.toLocaleString()}</p>
@@ -272,6 +306,16 @@ const Pipelines = () => {
                     <div>
                       <p className="text-xs text-muted-foreground">Coverage</p>
                       <p className="text-sm font-semibold text-success">{coverage}%</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Avg Risk</p>
+                      {(() => {
+                        const avgRisk = riskScores?.[pipe.id];
+                        if (avgRisk == null) return <p className="text-sm font-semibold text-muted-foreground">—</p>;
+                        const pct = (avgRisk * 100).toFixed(0);
+                        const color = avgRisk >= 0.7 ? "text-destructive" : avgRisk >= 0.4 ? "text-amber-400" : "text-green-400";
+                        return <p className={`text-sm font-semibold ${color}`}>{pct}%</p>;
+                      })()}
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Latency</p>
