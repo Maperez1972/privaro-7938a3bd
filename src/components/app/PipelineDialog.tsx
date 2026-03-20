@@ -130,6 +130,18 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
                 ))}
               </SelectContent>
             </Select>
+            {isHighRisk && (
+              <div className="flex items-start gap-2 p-2.5 rounded-md bg-destructive/10 border border-destructive/20 text-xs text-destructive">
+                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span><strong>High Risk Provider.</strong> This provider has not been verified for GDPR compliance. PII data may be exposed. Review the provider's Trust Posture in Admin → Providers.</span>
+              </div>
+            )}
+            {isMediumNonEu && !isHighRisk && (
+              <div className="flex items-start gap-2 p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400">
+                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span><strong>Non-EU Provider.</strong> Data may be processed outside the EU. Consider enabling EU Data Residency in the provider settings.</span>
+              </div>
+            )}
           </div>
           <div className="space-y-2">
             <Label>Model</Label>
