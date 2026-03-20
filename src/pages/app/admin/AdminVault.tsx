@@ -173,27 +173,35 @@ const AdminVault = () => {
     if (!revokeToken) return;
     setRevoking(true);
     const tokenId = revokeToken.id;
+
+    // Soft revoke to preserve FK references in vault_access_log
     const { error } = await (supabase as any)
       .from("tokens_vault")
-      .delete()
+      .update({
+        is_reversible: false,
+        expires_at: new Date().toISOString(),
+      })
       .eq("id", tokenId)
       .eq("org_id", profile?.org_id);
+
     if (error) {
       toast({ title: "Revoke failed", description: error.message, variant: "destructive" });
     } else {
-      // Log deletion in vault_access_log (triggers iBS certification via DB trigger)
+      // Log revoke in vault_access_log (triggers iBS certification via DB trigger)
       await (supabase as any)
         .from("vault_access_log")
         .insert({
           org_id: profile?.org_id,
           token_id: tokenId,
           user_id: profile?.id,
-          action: "deleted",
+          action: "revoked",
           ip_address: null,
         });
+
       toast({ title: "Token revoked" });
       setTokens((prev) => prev.filter((t) => t.id !== tokenId));
     }
+
     setRevoking(false);
     setRevokeOpen(false);
   };
