@@ -104,7 +104,7 @@ const AdminVault = () => {
     setLoadingLog(true);
     const { data, error } = await (supabase as any)
       .from("vault_access_log")
-      .select("id, action, created_at, user_id, token_id, ip_address")
+      .select("id, action, created_at, user_id, token_id, ip_address, ibs_evidence_id")
       .eq("org_id", profile.org_id)
       .order("created_at", { ascending: false })
       .limit(100);
