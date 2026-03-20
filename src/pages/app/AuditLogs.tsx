@@ -276,6 +276,16 @@ const AuditLogs = () => {
             ))}
           </SelectContent>
         </Select>
+        <Select value={riskFilter} onValueChange={(v) => { setRiskFilter(v); resetPage(); }}>
+          <SelectTrigger className="w-[170px]">
+            <SelectValue placeholder="Risk Score" />
+          </SelectTrigger>
+          <SelectContent>
+            {RISK_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={sortOrder} onValueChange={(v) => { setSortOrder(v as "asc" | "desc"); resetPage(); }}>
           <SelectTrigger className="w-[150px]">
             <SelectValue />
