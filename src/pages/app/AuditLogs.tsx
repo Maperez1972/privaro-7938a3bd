@@ -44,7 +44,7 @@ const AuditLogs = () => {
       let query = supabase
         .from("audit_logs")
         .select(
-          "id, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_certification_hash, processing_ms, created_at",
+          "id, event_type, entity_type, entity_category, action_taken, severity, pipeline_stage, ibs_status, ibs_certification_hash, ibs_network, processing_ms, created_at",
           { count: "exact" }
         )
         .eq("org_id", orgId!)
