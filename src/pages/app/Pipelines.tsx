@@ -291,7 +291,7 @@ const Pipelines = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-5 gap-4 mt-5 pt-4 border-t border-border">
+                  <div className="grid grid-cols-6 gap-4 mt-5 pt-4 border-t border-border">
                     <div>
                       <p className="text-xs text-muted-foreground">Requests</p>
                       <p className="text-sm font-semibold">{pipe.total_requests.toLocaleString()}</p>
@@ -307,6 +307,16 @@ const Pipelines = () => {
                     <div>
                       <p className="text-xs text-muted-foreground">Coverage</p>
                       <p className="text-sm font-semibold text-success">{coverage}%</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Avg Risk</p>
+                      {(() => {
+                        const avgRisk = riskScores?.[pipe.id];
+                        if (avgRisk == null) return <p className="text-sm font-semibold text-muted-foreground">—</p>;
+                        const pct = (avgRisk * 100).toFixed(0);
+                        const color = avgRisk >= 0.7 ? "text-destructive" : avgRisk >= 0.4 ? "text-amber-400" : "text-green-400";
+                        return <p className={`text-sm font-semibold ${color}`}>{pct}%</p>;
+                      })()}
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Latency</p>
