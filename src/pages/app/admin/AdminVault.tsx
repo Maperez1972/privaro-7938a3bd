@@ -33,6 +33,7 @@ interface AccessLogEntry {
   user_id: string;
   token_id: string;
   ip_address: string | null;
+  ibs_evidence_id: string | null;
   user_name?: string;
 }
 
