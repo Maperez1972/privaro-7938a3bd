@@ -23,6 +23,13 @@ const PAGE_SIZE = 25;
 
 const SEVERITY_OPTIONS = ["all", "critical", "high", "medium", "low"] as const;
 const IBS_STATUS_OPTIONS = ["all", "pending", "certified", "failed"] as const;
+const RISK_OPTIONS = [
+  { value: "all", label: "All risk levels" },
+  { value: "high", label: "High Risk (≥70%)" },
+  { value: "medium", label: "Medium (40–69%)" },
+  { value: "low", label: "Low (<40%)" },
+  { value: "none", label: "No score" },
+] as const;
 const SORT_OPTIONS = [
   { value: "desc", label: "Newest first" },
   { value: "asc", label: "Oldest first" },
