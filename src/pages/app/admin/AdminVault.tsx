@@ -208,7 +208,7 @@ const AdminVault = () => {
       <Tabs defaultValue="tokens" onValueChange={(v) => v === "log" && fetchAccessLog()}>
         <TabsList>
           <TabsTrigger value="tokens">Active Tokens</TabsTrigger>
-          <TabsTrigger value="log">Access Log</TabsTrigger>
+          <TabsTrigger value="log">Tokens Log</TabsTrigger>
         </TabsList>
 
         {/* TAB 1: Active Tokens */}
