@@ -271,7 +271,7 @@ const AdminVault = () => {
         {/* TAB 2: Access Log */}
         <TabsContent value="log">
           <Card>
-            <CardHeader><CardTitle className="text-lg">Vault Access Log</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-lg">Tokens Log</CardTitle></CardHeader>
             <CardContent>
               {loadingLog ? (
                 <div className="flex items-center justify-center py-12 text-muted-foreground">
