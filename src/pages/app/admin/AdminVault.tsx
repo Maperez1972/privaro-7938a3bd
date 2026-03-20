@@ -71,7 +71,7 @@ const AdminVault = () => {
   // Reveal state
   const [revealOpen, setRevealOpen] = useState(false);
   const [selectedToken, setSelectedToken] = useState<VaultToken | null>(null);
-  const [confirmPassword, setConfirmPassword] = useState("");
+  // password removed — reveal calls edge function directly
   const [revealedValue, setRevealedValue] = useState<string | null>(null);
   const [revealing, setRevealing] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -133,18 +133,17 @@ const AdminVault = () => {
   // --- Reveal ---
   const openReveal = (token: VaultToken) => {
     setSelectedToken(token);
-    setConfirmPassword("");
     setRevealedValue(null);
     setCopied(false);
     setRevealOpen(true);
   };
 
   const handleReveal = async () => {
-    if (!selectedToken || !confirmPassword) return;
+    if (!selectedToken) return;
     setRevealing(true);
     try {
       const { data, error } = await supabase.functions.invoke("reveal-token", {
-        body: { token_id: selectedToken.id, password: confirmPassword },
+        body: { token_id: selectedToken.id },
       });
       if (error || data?.error) throw new Error(data?.error || error?.message);
       setRevealedValue(data.value);
@@ -335,19 +334,9 @@ const AdminVault = () => {
                   </div>
                 </div>
               ) : (
-                <>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">Enter your password to confirm</label>
-                    <Input
-                      type="password"
-                      placeholder="Password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleReveal()}
-                    />
-                  </div>
+              <>
                   <DialogFooter>
-                    <Button onClick={handleReveal} disabled={!confirmPassword || revealing}>
+                    <Button onClick={handleReveal} disabled={revealing}>
                       {revealing && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
                       Reveal Value
                     </Button>
