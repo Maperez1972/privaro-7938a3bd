@@ -305,7 +305,7 @@ const AdminVault = () => {
                         <TableCell>
                           {entry.ibs_evidence_id ? (
                             <a
-                              href={`https://checker.icommunitylabs.com/check/fantom_opera_mainnet/${entry.ibs_evidence_id}`}
+                              href={`https://api.icommunitylabs.com/v2/evidences/${entry.ibs_evidence_id}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1.5"
