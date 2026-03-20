@@ -264,6 +264,20 @@ const Pipelines = () => {
                           <span className="text-xs text-muted-foreground">
                             {pipe.llm_provider}/{pipe.llm_model}
                           </span>
+                          {(() => {
+                            const prov = llmProviders?.[pipe.llm_provider];
+                            if (!prov) return null;
+                            if (prov.provider_risk_level === "high") {
+                              return <Badge variant="outline" className="bg-destructive/15 text-destructive border-destructive/30 text-[10px] px-1.5 py-0">⚠ High Risk Provider</Badge>;
+                            }
+                            if (prov.provider_risk_level === "medium" && !prov.eu_residency) {
+                              return <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-[10px] px-1.5 py-0">Non-EU Provider</Badge>;
+                            }
+                            if (prov.eu_residency && prov.training_disabled) {
+                              return <Badge variant="outline" className="bg-success/15 text-success border-success/30 text-[10px] px-1.5 py-0">EU · Training Disabled</Badge>;
+                            }
+                            return null;
+                          })()}
                         </div>
                       </div>
                     </div>
