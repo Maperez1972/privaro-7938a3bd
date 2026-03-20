@@ -20,8 +20,8 @@ const kpiDefs = [
 const KpiSkeleton = () => (<Card className="border-border bg-card"><CardContent className="p-4"><div className="flex items-center gap-2 mb-3"><Skeleton className="w-4 h-4 rounded" /><Skeleton className="h-3 w-20" /></div><Skeleton className="h-8 w-16" /></CardContent></Card>);
 
 export const DashboardKpis = ({ stats, isLoading }: Props) => (
-  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-    {isLoading ? Array.from({ length: 6 }).map((_, i) => <KpiSkeleton key={i} />) : kpiDefs.map((kpi) => {
+  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+    {isLoading ? Array.from({ length: 8 }).map((_, i) => <KpiSkeleton key={i} />) : kpiDefs.map((kpi) => {
       const Icon = kpi.icon;
       return (<Card key={kpi.key} className="border-border bg-card"><CardContent className="p-4"><div className="flex items-center gap-2 mb-2"><Icon className={`w-4 h-4 ${kpi.color}`} /><span className="text-xs text-muted-foreground">{kpi.label}</span><Tooltip><TooltipTrigger asChild><Info className="w-3 h-3 text-muted-foreground/50 cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">{kpi.tooltip}</TooltipContent></Tooltip></div><p className="text-2xl font-bold">{stats ? kpi.format(stats[kpi.key]) : "0"}</p></CardContent></Card>);
     })}
