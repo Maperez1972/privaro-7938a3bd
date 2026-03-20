@@ -49,6 +49,7 @@ export function generateDpoReportHtml({ logs, orgName, dpoEmail }: ReportParams)
         <tr><td style="padding:3px 8px;color:#64748b;">Pipeline</td><td>${log.pipelines?.name || "—"} (${log.pipelines?.sector || "—"})</td></tr>
         <tr><td style="padding:3px 8px;color:#64748b;">LLM Provider</td><td>${log.pipelines?.llm_provider || "—"}</td></tr>
         <tr><td style="padding:3px 8px;color:#64748b;">Processing Time</td><td>${log.processing_ms ?? "—"}ms</td></tr>
+        <tr><td style="padding:3px 8px;color:#64748b;">Risk Score</td><td style="color:${log.risk_score != null ? (log.risk_score >= 0.7 ? '#ef4444' : log.risk_score >= 0.4 ? '#f59e0b' : '#22c55e') : '#94a3b8'};font-weight:600;">${log.risk_score != null ? `${(log.risk_score * 100).toFixed(0)}% — ${log.risk_score >= 0.7 ? 'HIGH RISK' : log.risk_score >= 0.4 ? 'MEDIUM' : 'LOW'}` : '—'}</td></tr>
       </table>
       ${
         log.ibs_certification_hash
