@@ -318,49 +318,65 @@ const AuditLogs = () => {
                 </thead>
                 <tbody>
                   {logs.map((log) => (
-                    <tr key={log.id} className="border-b border-border/50 hover:bg-secondary/30 transition-colors">
-                      <td className="p-4 text-xs text-muted-foreground whitespace-nowrap">
-                        {new Date(log.created_at).toLocaleString()}
-                      </td>
-                      <td className="p-4 font-mono text-xs">{log.event_type}</td>
-                      <td className="p-4">
-                        <span className="text-xs bg-secondary px-2 py-0.5 rounded font-mono">{log.entity_type}</span>
-                      </td>
-                      <td className="p-4 text-xs capitalize">{log.entity_category}</td>
-                      <td className="p-4 text-xs">{log.action_taken}</td>
-                      <td className="p-4"><SeverityBadge severity={log.severity} /></td>
-                      <td className="p-4">
-                        {log.risk_score != null ? (
-                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
-                            log.risk_score >= 0.7 ? "bg-destructive/15 text-destructive" :
-                            log.risk_score >= 0.4 ? "bg-amber-500/15 text-amber-400" :
-                            "bg-green-500/15 text-green-400"
-                          }`}>
-                            {log.risk_score >= 0.7 ? "High Risk" : log.risk_score >= 0.4 ? "Medium" : "Low"} ({(log.risk_score * 100).toFixed(0)}%)
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-muted text-muted-foreground">—</span>
-                        )}
-                      </td>
-                      <td className="p-4 text-xs text-muted-foreground">{log.pipeline_stage}</td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <StatusBadge status={log.ibs_status} />
-                          {log.ibs_status === "certified" && log.ibs_certification_hash && (
-                            <a
-                              href={`https://checker.icommunitylabs.com/check/${log.ibs_network || "fantom_opera_mainnet"}/${log.ibs_certification_hash}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                            >
-                              <ExternalLink className="w-3 h-3" />
-                              verify
-                            </a>
+                    <React.Fragment key={log.id}>
+                      <tr
+                        className="border-b border-border/50 hover:bg-secondary/30 transition-colors cursor-pointer"
+                        onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)}
+                      >
+                        <td className="p-4 text-xs text-muted-foreground whitespace-nowrap">
+                          <div className="flex items-center gap-1">
+                            <ChevronDown className={`w-3 h-3 transition-transform ${expandedLogId === log.id ? "rotate-180" : ""}`} />
+                            {new Date(log.created_at).toLocaleString()}
+                          </div>
+                        </td>
+                        <td className="p-4 font-mono text-xs">{log.event_type}</td>
+                        <td className="p-4">
+                          <span className="text-xs bg-secondary px-2 py-0.5 rounded font-mono">{log.entity_type}</span>
+                        </td>
+                        <td className="p-4 text-xs capitalize">{log.entity_category}</td>
+                        <td className="p-4 text-xs">{log.action_taken}</td>
+                        <td className="p-4"><SeverityBadge severity={log.severity} /></td>
+                        <td className="p-4">
+                          {log.risk_score != null ? (
+                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+                              log.risk_score >= 0.7 ? "bg-destructive/15 text-destructive" :
+                              log.risk_score >= 0.4 ? "bg-amber-500/15 text-amber-400" :
+                              "bg-green-500/15 text-green-400"
+                            }`}>
+                              {log.risk_score >= 0.7 ? "High Risk" : log.risk_score >= 0.4 ? "Medium" : "Low"} ({(log.risk_score * 100).toFixed(0)}%)
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-muted text-muted-foreground">—</span>
                           )}
-                        </div>
-                      </td>
-                      <td className="p-4 text-xs font-mono">{log.processing_ms}ms</td>
-                    </tr>
+                        </td>
+                        <td className="p-4 text-xs text-muted-foreground">{log.pipeline_stage}</td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <StatusBadge status={log.ibs_status} />
+                            {log.ibs_status === "certified" && log.ibs_certification_hash && (
+                              <a
+                                href={`https://checker.icommunitylabs.com/check/${log.ibs_network || "fantom_opera_mainnet"}/${log.ibs_certification_hash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                verify
+                              </a>
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-4 text-xs font-mono">{log.processing_ms}ms</td>
+                      </tr>
+                      {expandedLogId === log.id && (
+                        <tr>
+                          <td colSpan={10} className="p-0">
+                            <AuditLogDetail logId={log.id} riskScore={log.risk_score ?? null} />
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>
