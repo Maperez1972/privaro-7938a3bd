@@ -23,6 +23,13 @@ const PAGE_SIZE = 25;
 
 const SEVERITY_OPTIONS = ["all", "critical", "high", "medium", "low"] as const;
 const IBS_STATUS_OPTIONS = ["all", "pending", "certified", "failed"] as const;
+const RISK_OPTIONS = [
+  { value: "all", label: "All risk levels" },
+  { value: "high", label: "High Risk (≥70%)" },
+  { value: "medium", label: "Medium (40–69%)" },
+  { value: "low", label: "Low (<40%)" },
+  { value: "none", label: "No score" },
+] as const;
 const SORT_OPTIONS = [
   { value: "desc", label: "Newest first" },
   { value: "asc", label: "Oldest first" },
@@ -35,11 +42,12 @@ const AuditLogs = () => {
   const [search, setSearch] = useState("");
   const [severity, setSeverity] = useState<string>("all");
   const [ibsStatus, setIbsStatus] = useState<string>("all");
+  const [riskFilter, setRiskFilter] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(0);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["audit-logs", orgId, search, severity, ibsStatus, sortOrder, page],
+    queryKey: ["audit-logs", orgId, search, severity, ibsStatus, riskFilter, sortOrder, page],
     enabled: !!orgId,
     queryFn: async () => {
       let query = (supabase
@@ -57,6 +65,15 @@ const AuditLogs = () => {
       }
       if (ibsStatus !== "all") {
         query = query.eq("ibs_status", ibsStatus);
+      }
+      if (riskFilter === "high") {
+        query = query.gte("risk_score", 0.7);
+      } else if (riskFilter === "medium") {
+        query = query.gte("risk_score", 0.4).lt("risk_score", 0.7);
+      } else if (riskFilter === "low") {
+        query = query.lt("risk_score", 0.4).not("risk_score", "is", null);
+      } else if (riskFilter === "none") {
+        query = query.is("risk_score", null);
       }
       if (search.trim()) {
         const s = search.trim().toLowerCase();
@@ -256,6 +273,16 @@ const AuditLogs = () => {
               <SelectItem key={s} value={s}>
                 {s === "all" ? "All statuses" : s.charAt(0).toUpperCase() + s.slice(1)}
               </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={riskFilter} onValueChange={(v) => { setRiskFilter(v); resetPage(); }}>
+          <SelectTrigger className="w-[170px]">
+            <SelectValue placeholder="Risk Score" />
+          </SelectTrigger>
+          <SelectContent>
+            {RISK_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
