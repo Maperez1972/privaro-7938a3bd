@@ -149,6 +149,7 @@ const ScheduledReports = () => {
                     <th className="p-4 font-medium">Size</th>
                     <th className="p-4 font-medium">Generated</th>
                     <th className="p-4 font-medium">Status</th>
+                    <th className="p-4 font-medium">Anonymized</th>
                     <th className="p-4 font-medium">Action</th>
                   </tr>
                 </thead>
