@@ -13,6 +13,7 @@ const navItems = [
   { label: "Policy Engine", icon: ShieldCheck, href: "/app/policies" },
   { label: "Settings", icon: Settings, href: "/app/settings" },
 ];
+const onboardingItem = { label: "Onboarding", icon: Rocket, href: "/app/onboarding" };
 const adminDpoItems = [{ label: "Audit Logs", icon: FileText, href: "/app/admin/audit-logs" }];
 const adminOnlyItems = [
   { label: "LLM Providers", icon: Cpu, href: "/app/admin/providers" },
