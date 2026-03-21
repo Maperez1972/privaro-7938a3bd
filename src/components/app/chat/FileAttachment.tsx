@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   X, FileText, Image as ImageIcon, Lock, AlertTriangle, Loader2,
-  ChevronDown, ChevronRight, FileSearch,
+  ChevronDown, ChevronRight, FileSearch, Eye, EyeOff,
 } from "lucide-react";
 import { mockProxyDetect } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
@@ -215,8 +215,9 @@ function PageRow({ page }: { page: PageAnalysis }) {
 interface FilePreviewProps { attachment: FileAttachment; onRemove: () => void; }
 
 export function FilePreview({ attachment, onRemove }: FilePreviewProps) {
-  const { file, detections, pages, scanning, scanned } = attachment;
+  const { file, content, detections, pages, scanning, scanned } = attachment;
   const [showDetail, setShowDetail] = useState(false);
+  const [showContent, setShowContent] = useState(false);
   const sizeStr = file.size < 1024 ? `${file.size} B` : file.size < 1024 * 1024 ? `${(file.size / 1024).toFixed(1)} KB` : `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
   const isImage = isImageFile(file);
   const [thumbUrl] = useState(() => isImage ? URL.createObjectURL(file) : null);
@@ -261,6 +262,18 @@ export function FilePreview({ attachment, onRemove }: FilePreviewProps) {
             )}
           </div>
         </div>
+        {/* Content preview toggle */}
+        {!isImage && scanned && content && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 flex-shrink-0 text-muted-foreground hover:text-primary"
+            onClick={() => setShowContent(!showContent)}
+            title="Preview file content"
+          >
+            {showContent ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+          </Button>
+        )}
         {!isImage && scanned && pages.length > 0 && (
           <Button
             variant="ghost"
@@ -276,6 +289,22 @@ export function FilePreview({ attachment, onRemove }: FilePreviewProps) {
           <X className="w-3 h-3" />
         </Button>
       </div>
+
+      {/* Content preview panel */}
+      {showContent && content && (
+        <div className="ml-2 mr-2 p-3 bg-secondary/40 border border-border/60 rounded-lg max-h-60 overflow-y-auto">
+          <div className="flex items-center gap-1.5 px-1 pb-2 border-b border-border/30 mb-2">
+            <Eye className="w-3 h-3 text-primary" />
+            <span className="text-[11px] font-semibold text-foreground">Content Preview</span>
+            <span className="text-[10px] text-muted-foreground ml-auto">
+              {content.length.toLocaleString()} chars
+            </span>
+          </div>
+          <pre className="text-[11px] text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed break-words">
+            {content.length > 5000 ? content.slice(0, 5000) + "\n\n… [truncated]" : content}
+          </pre>
+        </div>
+      )}
 
       {/* Per-page detail panel */}
       {showDetail && pages.length > 0 && (
