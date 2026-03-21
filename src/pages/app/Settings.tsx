@@ -234,7 +234,7 @@ const Settings = () => {
       </Card>
 
       {/* Onboarding Reset */}
-      {roles?.role === "admin" && (
+      {roles.includes("admin") && (
         <Card className="border-border bg-card">
           <CardContent className="p-5 flex items-center justify-between">
             <div>
