@@ -120,6 +120,8 @@ const AdminProviders = () => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
+  const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
+  const [testMessage, setTestMessage] = useState("");
   const [gdprChecked, setGdprChecked] = useState(false);
   const [newModels, setNewModels] = useState("");
 
