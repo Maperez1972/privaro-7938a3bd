@@ -164,11 +164,20 @@ const ScheduledReports = () => {
     if (!report.storage_path) return;
     setDownloadingId(report.id);
     try {
-      const { data, error } = await supabase.storage.from("dpo-reports").createSignedUrl(report.storage_path, 3600);
+      const { data, error } = await supabase.storage.from("dpo-reports").download(report.storage_path);
       if (error) throw error;
-      window.open(data.signedUrl, "_blank");
+      const blob = data;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const filename = report.storage_path.split("/").pop() || "dpo-report.html";
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch {
-      toast.error("Failed to get download link");
+      toast.error("Failed to download report");
     } finally {
       setDownloadingId(null);
     }
