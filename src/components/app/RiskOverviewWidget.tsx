@@ -17,11 +17,14 @@ const RISK_COLORS = {
 
 const chartTooltipStyle = {
   contentStyle: {
-    backgroundColor: "hsl(222, 40%, 9%)",
-    border: "1px solid hsl(222, 20%, 18%)",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e2e8f0",
     borderRadius: "8px",
     fontSize: "12px",
-    color: "hsl(210, 40%, 96%)",
+    color: "#1e293b",
+  },
+  itemStyle: {
+    color: "#334155",
   },
 };
 
