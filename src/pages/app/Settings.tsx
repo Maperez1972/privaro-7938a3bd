@@ -233,6 +233,32 @@ const Settings = () => {
         </CardContent>
       </Card>
 
+      {/* Onboarding Reset */}
+      {roles?.role === "admin" && (
+        <Card className="border-border bg-card">
+          <CardContent className="p-5 flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold">Onboarding Wizard</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Reset the setup wizard to run it again</p>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                localStorage.removeItem("privaro-onboarding-done");
+                localStorage.removeItem("privaro-lastPreset");
+                toast.success("Onboarding reset — it will appear in the sidebar again");
+                window.dispatchEvent(new Event("storage"));
+              }}
+              className="gap-2"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Reset Onboarding
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Sign Out */}
       <div className="pt-2">
         <Button variant="destructive" size="sm" onClick={signOut}>
