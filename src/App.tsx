@@ -27,6 +27,7 @@ import AdminBilling from "./pages/app/admin/AdminBilling";
 import AdminSettings from "./pages/app/admin/AdminSettings";
 import AdminPolicyPresets from "./pages/app/admin/AdminPolicyPresets";
 import AdminVault from "./pages/app/admin/AdminVault";
+import Onboarding from "./pages/app/Onboarding";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 
@@ -85,6 +86,7 @@ const App = () => (
                 <Route path="sandbox" element={<Sandbox />} />
                 <Route path="policies" element={<Policies />} />
                 <Route path="settings" element={<Settings />} />
+                <Route path="onboarding" element={<AdminRoute><Onboarding /></AdminRoute>} />
                 {/* Admin/DPO routes */}
                 <Route path="admin/audit-logs" element={<AdminDpoRoute><AuditLogs /></AdminDpoRoute>} />
                 {/* Admin only routes */}

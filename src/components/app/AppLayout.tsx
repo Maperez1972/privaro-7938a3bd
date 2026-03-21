@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings } from "lucide-react";
+import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logoPrivaro from "@/assets/logo-privaro.png";
 
@@ -13,6 +13,7 @@ const navItems = [
   { label: "Policy Engine", icon: ShieldCheck, href: "/app/policies" },
   { label: "Settings", icon: Settings, href: "/app/settings" },
 ];
+const onboardingItem = { label: "Onboarding", icon: Rocket, href: "/app/onboarding" };
 const adminDpoItems = [{ label: "Audit Logs", icon: FileText, href: "/app/admin/audit-logs" }];
 const adminOnlyItems = [
   { label: "LLM Providers", icon: Cpu, href: "/app/admin/providers" },
@@ -32,13 +33,20 @@ const AppLayout = () => {
   const isDpo = hasRole("dpo");
   const showAdminSection = isAdmin || isDpo;
 
-  const renderNavItem = (item: { label: string; icon: any; href: string }) => {
+  const onboardingDone = localStorage.getItem("privaro-onboarding-done") === "true";
+
+  const renderNavItem = (item: { label: string; icon: any; href: string }, showBadge?: boolean) => {
     const isActive = item.href === "/app" ? location.pathname === "/app" : location.pathname.startsWith(item.href);
     const Icon = item.icon;
     return (
       <Link key={item.href} to={item.href} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors", isActive ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground hover:bg-secondary")}>
         <Icon className="w-4 h-4 flex-shrink-0" />
-        {!collapsed && <span>{item.label}</span>}
+        {!collapsed && (
+          <>
+            <span>{item.label}</span>
+            {showBadge && <span className="ml-auto text-[9px] font-bold bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full leading-none">NEW</span>}
+          </>
+        )}
       </Link>
     );
   };
@@ -53,13 +61,14 @@ const AppLayout = () => {
           </button>
         </div>
         <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
-          {navItems.map(renderNavItem)}
+          {navItems.map((item) => renderNavItem(item))}
+          {isAdmin && renderNavItem(onboardingItem, !onboardingDone)}
           {showAdminSection && (
             <>
               <div className="my-3 border-t border-border" />
               {!collapsed && <p className="px-3 py-1 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Admin</p>}
-              {adminDpoItems.map(renderNavItem)}
-              {isAdmin && adminOnlyItems.map(renderNavItem)}
+              {adminDpoItems.map((item) => renderNavItem(item))}
+              {isAdmin && adminOnlyItems.map((item) => renderNavItem(item))}
             </>
           )}
         </nav>
