@@ -39,7 +39,7 @@ export const DataRetentionCard = ({ orgId }: { orgId: string }) => {
     queryFn: async () => {
       const { data } = await supabase
         .from("org_settings")
-        .select("audit_retention_days, token_ttl_days, conversations_retention_days, pii_detections_retention_days")
+        .select("audit_retention_days, token_ttl_days")
         .eq("org_id", orgId)
         .maybeSingle();
       return data;

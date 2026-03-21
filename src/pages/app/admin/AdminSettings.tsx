@@ -278,6 +278,9 @@ const AdminSettings = () => {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Section C: Data Retention */}
+      {orgId && <DataRetentionCard orgId={orgId} />}
     </div>
   );
 };
