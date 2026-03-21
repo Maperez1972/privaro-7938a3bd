@@ -86,9 +86,9 @@ export const DataRetentionCard = ({ orgId }: { orgId: string }) => {
   });
 
   const statusIcon = (s: string) => {
-    if (s === "completed") return <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />;
+    if (s === "completed") return <CheckCircle2 className="w-3.5 h-3.5 text-primary" />;
     if (s === "failed") return <XCircle className="w-3.5 h-3.5 text-destructive" />;
-    return <AlertCircle className="w-3.5 h-3.5 text-yellow-500" />;
+    return <AlertCircle className="w-3.5 h-3.5 text-accent-foreground" />;
   };
 
   return (
