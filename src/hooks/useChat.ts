@@ -59,10 +59,35 @@ export interface ConversationFolder {
 export function useChat() {
   const { user, profile } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [activeConversationId, setActiveConversationIdRaw] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
-  const [activePipelineId, setActivePipelineId] = useState<string | null>(null);
+  const [activePipelineId, setActivePipelineIdRaw] = useState<string | null>(null);
+
+  // When selecting a conversation, load its saved pipeline
+  const setActiveConversationId = useCallback((id: string | null) => {
+    setActiveConversationIdRaw(id);
+    if (id) {
+      const conv = conversations.find(c => c.id === id);
+      if (conv?.pipeline_id) {
+        setActivePipelineIdRaw(conv.pipeline_id);
+      }
+    }
+  }, [conversations]);
+
+  // When changing pipeline, persist to the active conversation
+  const setActivePipelineId = useCallback(async (pipelineId: string) => {
+    setActivePipelineIdRaw(pipelineId);
+    if (activeConversationId) {
+      await supabase
+        .from("conversations")
+        .update({ pipeline_id: pipelineId } as any)
+        .eq("id", activeConversationId);
+      setConversations(prev =>
+        prev.map(c => c.id === activeConversationId ? { ...c, pipeline_id: pipelineId } : c)
+      );
+    }
+  }, [activeConversationId]);
   const [sending, setSending] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
@@ -83,7 +108,7 @@ export function useChat() {
       .then(({ data }) => {
         if (data && data.length > 0) {
           setPipelines(data);
-          if (!activePipelineId) setActivePipelineId(data[0].id);
+          if (!activePipelineId) setActivePipelineIdRaw(data[0].id);
         }
       });
   }, [profile?.org_id]);
