@@ -89,6 +89,7 @@ const AdminProviders = () => {
   const [selectedProvider, setSelectedProvider] = useState<LlmProvider | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
+  const [showApiKey, setShowApiKey] = useState(false);
   const [gdprChecked, setGdprChecked] = useState(false);
   const [newModels, setNewModels] = useState("");
 
