@@ -9,3 +9,6 @@ verify_jwt = false
 
 [functions.reveal-token]
 verify_jwt = false
+
+[functions.chat-completion]
+verify_jwt = false
