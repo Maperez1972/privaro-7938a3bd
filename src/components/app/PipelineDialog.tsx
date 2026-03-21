@@ -125,9 +125,15 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
             <Select value={form.llm_provider} onValueChange={(v) => setForm({ ...form, llm_provider: v, llm_model: MODELS[v]?.[0] ?? "custom-model" })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                {PROVIDERS.map((p) => (
-                  <SelectItem key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</SelectItem>
-                ))}
+                {PROVIDERS.map((p) => {
+                  const info = providerRiskMap?.[p];
+                  const noKey = info && !info.hasKey;
+                  return (
+                    <SelectItem key={p} value={p} disabled={!!noKey} className={noKey ? "opacity-50" : ""}>
+                      {p.charAt(0).toUpperCase() + p.slice(1)}{noKey ? " (no API key)" : ""}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
             {isHighRisk && (
