@@ -47,7 +47,7 @@ const ScheduledReports = () => {
       const periodEnd = now.toISOString().slice(0, 10);
 
       const { error } = await supabase.functions.invoke("generate-dpo-report", {
-        body: { org_id: orgId, period_start: periodStart, period_end: periodEnd },
+        body: { org_id: orgId, period_start: periodStart, period_end: periodEnd, force_regenerate: true },
       });
       if (error) throw error;
 
