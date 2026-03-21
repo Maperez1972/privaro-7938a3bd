@@ -294,12 +294,24 @@ const AdminProviders = () => {
           <div className="space-y-4 mt-6">
             <div className="space-y-2">
               <Label>API Key</Label>
-              <Input
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder={selectedProvider?.api_key_hint ? `Current: ${selectedProvider.api_key_hint}` : "Enter API key"}
-              />
+              <div className="relative">
+                <Input
+                  type={showApiKey ? "text" : "password"}
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder={selectedProvider?.api_key_hint ? `Current: ${selectedProvider.api_key_hint}` : "Enter API key"}
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full w-10 hover:bg-transparent"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                >
+                  {showApiKey ? <EyeOff className="w-4 h-4 text-muted-foreground" /> : <Eye className="w-4 h-4 text-muted-foreground" />}
+                </Button>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Checkbox
