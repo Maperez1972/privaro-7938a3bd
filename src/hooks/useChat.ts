@@ -470,14 +470,46 @@ export function useChat() {
 
     let responseText: string;
 
+    // Create a temporary streaming message
+    const tempStreamId = `streaming-${Date.now()}`;
+    const streamingMsg: Message = {
+      id: tempStreamId,
+      conversation_id: convId!,
+      role: "assistant",
+      content_protected: "",
+      content_preview: null,
+      pii_detected: 0,
+      pii_protected: 0,
+      model_used: modelUsed,
+      created_at: new Date().toISOString(),
+      attachment_url: null,
+      attachment_name: null,
+      attachment_type: null,
+      attachment_size: null,
+    };
+    setMessages((prev) => [...prev, streamingMsg]);
+
     try {
-      // Try calling the real LLM via Edge Function
-      responseText = await callLLM(activePipelineId || convId, history);
+      responseText = await callLLMStreaming(
+        activePipelineId || convId!,
+        history,
+        (partialText) => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === tempStreamId
+                ? { ...m, content_protected: partialText }
+                : m
+            )
+          );
+        }
+      );
     } catch (err) {
       console.warn("LLM call failed, using fallback:", err);
-      // Fallback to contextual mock response
       responseText = generateFallbackResponse(protectedText, detections, !!fileAttachment);
     }
+
+    // Remove streaming message and insert the real persisted one
+    setMessages((prev) => prev.filter((m) => m.id !== tempStreamId));
 
     const { data: assistantMsg } = await supabase
       .from("conversation_messages")
