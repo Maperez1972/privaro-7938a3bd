@@ -108,7 +108,7 @@ export function useChat() {
       .then(({ data }) => {
         if (data && data.length > 0) {
           setPipelines(data);
-          if (!activePipelineId) setActivePipelineId(data[0].id);
+          if (!activePipelineId) setActivePipelineIdRaw(data[0].id);
         }
       });
   }, [profile?.org_id]);
