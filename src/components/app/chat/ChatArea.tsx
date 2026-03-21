@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn } from "@/lib/utils";
 import { FilePreview, FileAttachment } from "./FileAttachment";
 import { useRef, useState, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
 
 interface Message { id: string; role: "user" | "assistant"; content_protected: string; pii_detected: number; pii_protected: number; created_at: string; attachment_name?: string | null; attachment_type?: string | null; attachment_size?: number | null; }
 interface Pipeline { id: string; name: string; llm_provider: string; llm_model: string; }
