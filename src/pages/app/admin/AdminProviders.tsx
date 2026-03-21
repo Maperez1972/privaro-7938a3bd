@@ -160,6 +160,11 @@ const AdminProviders = () => {
         approved_for_agents: formApprovedAgents,
       };
       if (apiKey) {
+        const provider = selectedProvider.provider;
+        const pattern = API_KEY_PATTERNS[provider] ?? API_KEY_PATTERNS.custom;
+        if (!pattern.regex.test(apiKey)) {
+          throw new Error(`Invalid API key format for ${provider}. ${pattern.hint}`);
+        }
         updates.api_key_encrypted = apiKey;
         updates.api_key_hint = `...${apiKey.slice(-4)}`;
       }
