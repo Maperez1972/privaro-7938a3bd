@@ -33,13 +33,20 @@ const AppLayout = () => {
   const isDpo = hasRole("dpo");
   const showAdminSection = isAdmin || isDpo;
 
-  const renderNavItem = (item: { label: string; icon: any; href: string }) => {
+  const onboardingDone = localStorage.getItem("privaro-onboarding-done") === "true";
+
+  const renderNavItem = (item: { label: string; icon: any; href: string }, showBadge?: boolean) => {
     const isActive = item.href === "/app" ? location.pathname === "/app" : location.pathname.startsWith(item.href);
     const Icon = item.icon;
     return (
       <Link key={item.href} to={item.href} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors", isActive ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground hover:bg-secondary")}>
         <Icon className="w-4 h-4 flex-shrink-0" />
-        {!collapsed && <span>{item.label}</span>}
+        {!collapsed && (
+          <>
+            <span>{item.label}</span>
+            {showBadge && <span className="ml-auto text-[9px] font-bold bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full leading-none">NEW</span>}
+          </>
+        )}
       </Link>
     );
   };
