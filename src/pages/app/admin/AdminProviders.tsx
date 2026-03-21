@@ -16,6 +16,15 @@ import { Separator } from "@/components/ui/separator";
 import { Cpu, Plus, Loader2, AlertTriangle, Globe, Shield, FileText, HeartPulse, Bot, Eye, EyeOff, Key, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 
+const API_KEY_PATTERNS: Record<string, { regex: RegExp; hint: string }> = {
+  openai: { regex: /^sk-[a-zA-Z0-9_-]{20,}$/, hint: "Must start with sk- (e.g. sk-proj-...)" },
+  anthropic: { regex: /^sk-ant-[a-zA-Z0-9_-]{20,}$/, hint: "Must start with sk-ant- (e.g. sk-ant-api03-...)" },
+  google: { regex: /^AIza[a-zA-Z0-9_-]{30,}$/, hint: "Must start with AIza..." },
+  azure: { regex: /^[a-f0-9]{32}$/, hint: "Must be a 32-char hex string" },
+  deepseek: { regex: /^sk-[a-zA-Z0-9_-]{20,}$/, hint: "Must start with sk-" },
+  custom: { regex: /^.{8,}$/, hint: "At least 8 characters" },
+};
+
 const regionColors: Record<string, string> = {
   EU: "bg-green-500/15 text-green-400 border-green-500/30",
   US: "bg-amber-500/15 text-amber-400 border-amber-500/30",
@@ -151,6 +160,11 @@ const AdminProviders = () => {
         approved_for_agents: formApprovedAgents,
       };
       if (apiKey) {
+        const provider = selectedProvider.provider;
+        const pattern = API_KEY_PATTERNS[provider] ?? API_KEY_PATTERNS.custom;
+        if (!pattern.regex.test(apiKey)) {
+          throw new Error(`Invalid API key format for ${provider}. ${pattern.hint}`);
+        }
         updates.api_key_encrypted = apiKey;
         updates.api_key_hint = `...${apiKey.slice(-4)}`;
       }
@@ -324,6 +338,16 @@ const AdminProviders = () => {
                   {showApiKey ? <EyeOff className="w-4 h-4 text-muted-foreground" /> : <Eye className="w-4 h-4 text-muted-foreground" />}
                 </Button>
               </div>
+              {apiKey && (() => {
+                const provider = selectedProvider?.provider ?? "custom";
+                const pattern = API_KEY_PATTERNS[provider] ?? API_KEY_PATTERNS.custom;
+                const valid = pattern.regex.test(apiKey);
+                return (
+                  <p className={`text-xs ${valid ? "text-success" : "text-destructive"}`}>
+                    {valid ? "✓ Valid format" : `✗ Invalid — ${pattern.hint}`}
+                  </p>
+                );
+              })()}
             </div>
             <div className="flex items-center gap-2">
               <Checkbox
