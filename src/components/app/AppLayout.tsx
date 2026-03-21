@@ -67,8 +67,8 @@ const AppLayout = () => {
             <>
               <div className="my-3 border-t border-border" />
               {!collapsed && <p className="px-3 py-1 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Admin</p>}
-              {adminDpoItems.map(renderNavItem)}
-              {isAdmin && adminOnlyItems.map(renderNavItem)}
+              {adminDpoItems.map((item) => renderNavItem(item))}
+              {isAdmin && adminOnlyItems.map((item) => renderNavItem(item))}
             </>
           )}
         </nav>
