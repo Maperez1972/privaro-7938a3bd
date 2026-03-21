@@ -290,9 +290,9 @@ const Policies = () => {
         <>
           {/* Active preset indicator */}
           <div className="flex items-center gap-2">
-            {detectedPreset ? (
+            {activePresetSlug ? (
               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs">
-                {detectedPreset.icon} {detectedPreset.name} active
+                {activePresetSlug} active
               </Badge>
             ) : (
               <Badge variant="outline" className="bg-secondary text-muted-foreground border-border text-xs">

@@ -64,12 +64,12 @@ const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps)
   const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
-    supabase
+    (supabase as any)
       .from("policy_presets")
       .select("id, name, slug, description, sector, icon, color, rules")
       .order("name")
-      .then(({ data }) => {
-        setPresets((data as unknown as Preset[]) ?? []);
+      .then(({ data }: { data: Preset[] | null }) => {
+        setPresets(data ?? []);
         setLoading(false);
       });
   }, []);
