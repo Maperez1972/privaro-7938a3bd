@@ -441,6 +441,12 @@ const AuditLogs = () => {
           </div>
         </div>
       )}
+        </TabsContent>
+
+        <TabsContent value="reports">
+          <ScheduledReports />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
