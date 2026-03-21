@@ -67,11 +67,11 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
     queryFn: async () => {
       const { data } = await (supabase
         .from("llm_providers")
-        .select("provider, provider_risk_level, eu_residency") as any)
+        .select("provider, provider_risk_level, eu_residency, api_key_hint") as any)
         .eq("org_id", profile!.org_id);
-      const map: Record<string, { risk: string; eu: boolean }> = {};
+      const map: Record<string, { risk: string; eu: boolean; hasKey: boolean }> = {};
       for (const row of data ?? []) {
-        map[row.provider] = { risk: row.provider_risk_level, eu: row.eu_residency };
+        map[row.provider] = { risk: row.provider_risk_level, eu: row.eu_residency, hasKey: !!row.api_key_hint };
       }
       return map;
     },
@@ -125,9 +125,15 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
             <Select value={form.llm_provider} onValueChange={(v) => setForm({ ...form, llm_provider: v, llm_model: MODELS[v]?.[0] ?? "custom-model" })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                {PROVIDERS.map((p) => (
-                  <SelectItem key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</SelectItem>
-                ))}
+                {PROVIDERS.map((p) => {
+                  const info = providerRiskMap?.[p];
+                  const noKey = info && !info.hasKey;
+                  return (
+                    <SelectItem key={p} value={p} disabled={!!noKey} className={noKey ? "opacity-50" : ""}>
+                      {p.charAt(0).toUpperCase() + p.slice(1)}{noKey ? " (no API key)" : ""}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
             {isHighRisk && (
