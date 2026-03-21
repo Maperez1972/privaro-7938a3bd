@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { useToast } from "@/hooks/use-toast";
 import { ChevronDown, Loader2 } from "lucide-react";
 
 interface PresetRule {
@@ -29,16 +30,61 @@ interface PresetRule {
   custom_pattern?: string;
 }
 
-interface Preset {
-  id: string;
-  name: string;
+export interface Preset {
   slug: string;
+  name: string;
   description: string;
   sector: string;
   icon: string;
-  color: string;
   rules: PresetRule[];
 }
+
+export const PRESETS: Preset[] = [
+  {
+    slug: "legal",
+    name: "Legal Mode",
+    description: "Privacy rules for law firms and legal departments. Covers personal identifiers, financial data, and contact information with GDPR-aligned actions.",
+    sector: "Legal",
+    icon: "⚖️",
+    rules: [
+      { entity_type: "full_name", category: "personal", action: "tokenise", regulation_ref: "GDPR Art.5", priority: 10 },
+      { entity_type: "dni", category: "personal", action: "tokenise", regulation_ref: "GDPR Art.9", priority: 5 },
+      { entity_type: "iban", category: "financial", action: "tokenise", regulation_ref: "PSD2", priority: 5 },
+      { entity_type: "email", category: "personal", action: "pseudonymise", regulation_ref: "GDPR Art.5", priority: 15 },
+      { entity_type: "phone", category: "personal", action: "pseudonymise", regulation_ref: "GDPR Art.5", priority: 15 },
+      { entity_type: "address", category: "personal", action: "anonymise", regulation_ref: "GDPR Art.5", priority: 20 },
+    ],
+  },
+  {
+    slug: "healthcare",
+    name: "Healthcare Mode",
+    description: "Strict privacy rules for healthcare organizations. Blocks special category data and tokenises personal identifiers per HIPAA and GDPR Art.9.",
+    sector: "Healthcare",
+    icon: "🏥",
+    rules: [
+      { entity_type: "full_name", category: "personal", action: "tokenise", regulation_ref: "HIPAA §164.502", priority: 5 },
+      { entity_type: "medical_record", category: "special", action: "block", regulation_ref: "GDPR Art.9", priority: 1 },
+      { entity_type: "diagnosis", category: "special", action: "anonymise", regulation_ref: "GDPR Art.9", priority: 3 },
+      { entity_type: "ssn", category: "personal", action: "tokenise", regulation_ref: "HIPAA", priority: 5 },
+      { entity_type: "email", category: "personal", action: "pseudonymise", regulation_ref: "GDPR Art.5", priority: 15 },
+    ],
+  },
+  {
+    slug: "fintech",
+    name: "Fintech Mode",
+    description: "Financial-grade privacy rules for banks, payment processors, and fintech companies. Prioritizes tokenisation with PSD2 and PCI-DSS compliance.",
+    sector: "Fintech",
+    icon: "🏦",
+    rules: [
+      { entity_type: "iban", category: "financial", action: "tokenise", regulation_ref: "PSD2 Art.94", priority: 1 },
+      { entity_type: "credit_card", category: "financial", action: "tokenise", regulation_ref: "PCI-DSS", priority: 1 },
+      { entity_type: "full_name", category: "personal", action: "pseudonymise", regulation_ref: "GDPR Art.5", priority: 10 },
+      { entity_type: "dni", category: "personal", action: "tokenise", regulation_ref: "AML Directive", priority: 5 },
+      { entity_type: "email", category: "personal", action: "pseudonymise", regulation_ref: "GDPR Art.5", priority: 15 },
+      { entity_type: "phone", category: "personal", action: "pseudonymise", regulation_ref: "GDPR Art.5", priority: 15 },
+    ],
+  },
+];
 
 const actionColors: Record<string, string> = {
   tokenise: "bg-primary/15 text-primary border-primary/30",
@@ -50,34 +96,30 @@ const actionColors: Record<string, string> = {
 interface PolicyPresetPanelProps {
   orgId: string;
   userId: string;
-  onApplied: () => void;
+  onApplied: (presetSlug: string) => void;
 }
 
 const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps) => {
-  const [presets, setPresets] = useState<Preset[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
   const [confirmPreset, setConfirmPreset] = useState<Preset | null>(null);
   const [applying, setApplying] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
-
-  useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("policy_presets")
-        .select("id, name, slug, description, sector, icon, color, rules")
-        .order("name");
-      setPresets((data as Preset[]) ?? []);
-      setLoading(false);
-    };
-    fetch();
-  }, []);
 
   const handleApply = async () => {
     if (!confirmPreset) return;
     setApplying(true);
 
     // Delete existing rules
-    await supabase.from("policy_rules").delete().eq("org_id", orgId);
+    const { error: delErr } = await supabase
+      .from("policy_rules")
+      .delete()
+      .eq("org_id", orgId);
+
+    if (delErr) {
+      toast({ title: "Error", description: delErr.message, variant: "destructive" });
+      setApplying(false);
+      return;
+    }
 
     // Insert preset rules
     const rows = confirmPreset.rules.map((r) => ({
@@ -95,22 +137,17 @@ const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps)
     const { error } = await supabase.from("policy_rules").insert(rows);
     setApplying(false);
 
-    if (!error) {
-      localStorage.setItem("privaro-lastPreset", JSON.stringify({
-        slug: confirmPreset.slug,
-        name: confirmPreset.name,
-        icon: confirmPreset.icon,
-        rulesCount: confirmPreset.rules.length,
-      }));
-      onApplied();
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      localStorage.setItem("privaro-lastPreset", confirmPreset.slug);
+      toast({ title: `${confirmPreset.name} applied`, description: `${confirmPreset.rules.length} rules configured` });
+      onApplied(confirmPreset.slug);
     }
 
     setConfirmPreset(null);
-    return error;
+    setPreviewOpen(false);
   };
-
-  if (loading) return null;
-  if (presets.length === 0) return null;
 
   return (
     <>
@@ -121,8 +158,8 @@ const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps)
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {presets.map((preset) => (
-            <Card key={preset.id} className="border-border bg-card hover:border-primary/30 transition-colors">
+          {PRESETS.map((preset) => (
+            <Card key={preset.slug} className="border-border bg-card hover:border-primary/30 transition-colors">
               <CardContent className="p-4 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -162,8 +199,10 @@ const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps)
         <AlertDialogContent className="bg-card border-border max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle>Apply {confirmPreset?.icon} {confirmPreset?.name}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will <strong>replace all current policy rules</strong> with the {confirmPreset?.name} preset ({confirmPreset?.rules.length} rules). This action cannot be undone.
+            <AlertDialogDescription asChild>
+              <div>
+                This will <strong>replace all current policy rules</strong> with the {confirmPreset?.name} preset ({confirmPreset?.rules.length} rules). This action cannot be undone.
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
 
