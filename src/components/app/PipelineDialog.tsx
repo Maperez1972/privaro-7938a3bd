@@ -67,11 +67,11 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
     queryFn: async () => {
       const { data } = await (supabase
         .from("llm_providers")
-        .select("provider, provider_risk_level, eu_residency") as any)
+        .select("provider, provider_risk_level, eu_residency, api_key_hint") as any)
         .eq("org_id", profile!.org_id);
-      const map: Record<string, { risk: string; eu: boolean }> = {};
+      const map: Record<string, { risk: string; eu: boolean; hasKey: boolean }> = {};
       for (const row of data ?? []) {
-        map[row.provider] = { risk: row.provider_risk_level, eu: row.eu_residency };
+        map[row.provider] = { risk: row.provider_risk_level, eu: row.eu_residency, hasKey: !!row.api_key_hint };
       }
       return map;
     },
