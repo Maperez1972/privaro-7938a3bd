@@ -154,13 +154,42 @@ Deno.serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
-    const { org_id, period_start, period_end } = await req.json();
+    const { org_id, period_start, period_end, force_regenerate } = await req.json();
 
     if (!org_id || !period_start || !period_end) {
       return new Response(
         JSON.stringify({ error: "org_id, period_start, period_end required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Check for existing report for this period
+    if (!force_regenerate) {
+      const { data: existing } = await supabase
+        .from("dpo_reports")
+        .select("id, status")
+        .eq("org_id", org_id)
+        .eq("period_start", period_start)
+        .eq("period_end", period_end)
+        .in("status", ["ready", "generating"])
+        .maybeSingle();
+
+      if (existing) {
+        return new Response(
+          JSON.stringify({ error: "Report already exists for this period", report_id: existing.id }),
+          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    // If force_regenerate, delete old reports for this period
+    if (force_regenerate) {
+      await supabase
+        .from("dpo_reports")
+        .delete()
+        .eq("org_id", org_id)
+        .eq("period_start", period_start)
+        .eq("period_end", period_end);
     }
 
     // Get org info
