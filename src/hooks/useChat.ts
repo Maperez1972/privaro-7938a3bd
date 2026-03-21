@@ -406,7 +406,7 @@ export function useChat() {
           body: JSON.stringify({ prompt: fullText, pipeline_id: activePipelineId || "c93aed87-b440-4de0-bb21-54a938e475f2", options: { mode: "tokenise", include_detections: true, reversible: true } }),
         });
         const data = await res.json();
-        protectedText = data.protected_prompt;
+        protectedText = data.protected_prompt ?? fullText;
         detections = data.detections ?? [];
       } else {
         const mock = mockProxyProtect(fullText);
