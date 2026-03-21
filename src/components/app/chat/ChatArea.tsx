@@ -38,7 +38,13 @@ export function ChatArea({ messages, sending, loading, activeConversationId, act
               <div key={msg.id} className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}>
                 <div className={cn("max-w-[75%] rounded-xl px-4 py-3 text-sm", msg.role === "user" ? "bg-primary/20 text-foreground" : "bg-secondary text-foreground")}>
                   {msg.attachment_name && <div className="flex items-center gap-1.5 mb-2 pb-2 border-b border-border/40"><FileText className="w-3.5 h-3.5 text-primary" /><span className="text-[10px] font-medium text-primary">{msg.attachment_name}</span></div>}
-                  <p className="whitespace-pre-wrap">{msg.content_protected}</p>
+                  {msg.role === "assistant" ? (
+                    <div className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_pre]:bg-background/50 [&_pre]:rounded-md [&_pre]:p-2 [&_code]:text-primary [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm">
+                      <ReactMarkdown>{msg.content_protected}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p className="whitespace-pre-wrap">{msg.content_protected}</p>
+                  )}
                   {msg.role === "user" && msg.pii_detected > 0 && <div className="flex items-center gap-1 mt-2"><Badge className="text-[9px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30 gap-1 px-1.5 py-0"><Lock className="w-2 h-2" /> {msg.pii_protected} protected</Badge></div>}
                 </div>
               </div>
