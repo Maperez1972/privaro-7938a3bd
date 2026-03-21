@@ -177,7 +177,7 @@ export const RiskOverviewWidget = () => {
               {(topRisk.data ?? []).map((evt) => (
                 <button
                   key={evt.id}
-                  onClick={() => navigate("/app/audit-logs")}
+                  onClick={() => navigate("/app/admin/audit-logs")}
                   className="w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-secondary/50 transition-colors text-left"
                 >
                   <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center flex-shrink-0">
