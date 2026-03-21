@@ -12,3 +12,6 @@ verify_jwt = false
 
 [functions.chat-completion]
 verify_jwt = false
+
+[functions.generate-dpo-report]
+verify_jwt = false
