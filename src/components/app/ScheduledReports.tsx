@@ -27,9 +27,9 @@ const ScheduledReports = () => {
     queryKey: ["dpo-reports", orgId],
     enabled: !!orgId,
     queryFn: async () => {
-      const { data, error } = await (supabase
+      const { data, error } = await (supabase as any)
         .from("dpo_reports")
-        .select("id, period_label, period_start, period_end, status, event_count, certified_count, high_risk_count, file_size_bytes, generated_at, storage_path") as any)
+        .select("id, period_label, period_start, period_end, status, event_count, certified_count, high_risk_count, file_size_bytes, generated_at, storage_path")
         .eq("org_id", orgId!)
         .order("period_start", { ascending: false })
         .limit(24);

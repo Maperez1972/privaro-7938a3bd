@@ -13,11 +13,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Download, ChevronLeft, ChevronRight, Loader2, ExternalLink, FileText, ChevronDown } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Search, Download, ChevronLeft, ChevronRight, Loader2, ExternalLink, FileText, ChevronDown, CalendarClock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { generateDpoReportHtml, downloadHtml } from "@/lib/dpo-report";
 import { AuditLogDetail } from "@/components/app/AuditLogDetail";
+import ScheduledReports from "@/components/app/ScheduledReports";
 
 const PAGE_SIZE = 25;
 
