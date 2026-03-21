@@ -143,10 +143,14 @@ const ScheduledReports = () => {
     try {
       const today = new Date().toISOString().split("T")[0];
       const firstDay = today.slice(0, 7) + "-01";
-      const { error } = await supabase.functions.invoke("generate-dpo-report", {
+      const { data, error } = await supabase.functions.invoke("generate-dpo-report", {
         body: { org_id: orgId, period_start: firstDay, period_end: today, force_regenerate: true },
       });
-      if (error) throw error;
+      if (error) {
+        console.error("generate-dpo-report error:", error);
+        throw error;
+      }
+      console.log("generate-dpo-report response:", data);
       toast.success("Generating report...");
       setTimeout(() => queryClient.invalidateQueries({ queryKey: ["dpo-reports"] }), 4000);
     } catch {
