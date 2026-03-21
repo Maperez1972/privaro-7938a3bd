@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket } from "lucide-react";
@@ -33,7 +33,15 @@ const AppLayout = () => {
   const isDpo = hasRole("dpo");
   const showAdminSection = isAdmin || isDpo;
 
-  const onboardingDone = localStorage.getItem("privaro-onboarding-done") === "true";
+  const [onboardingDone, setOnboardingDone] = useState(
+    () => localStorage.getItem("privaro-onboarding-done") === "true"
+  );
+
+  useEffect(() => {
+    const handler = () => setOnboardingDone(localStorage.getItem("privaro-onboarding-done") === "true");
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
 
   const renderNavItem = (item: { label: string; icon: any; href: string }, showBadge?: boolean) => {
     const isActive = item.href === "/app" ? location.pathname === "/app" : location.pathname.startsWith(item.href);
