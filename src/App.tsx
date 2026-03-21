@@ -86,6 +86,7 @@ const App = () => (
                 <Route path="sandbox" element={<Sandbox />} />
                 <Route path="policies" element={<Policies />} />
                 <Route path="settings" element={<Settings />} />
+                <Route path="onboarding" element={<AdminRoute><Onboarding /></AdminRoute>} />
                 {/* Admin/DPO routes */}
                 <Route path="admin/audit-logs" element={<AdminDpoRoute><AuditLogs /></AdminDpoRoute>} />
                 {/* Admin only routes */}
