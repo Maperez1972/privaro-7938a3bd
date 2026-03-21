@@ -83,19 +83,8 @@ const Policies = () => {
 
   useEffect(() => { fetchRules(); }, [fetchRules]);
 
-  // Detect active preset from current rules
-  const detectedPreset = (() => {
-    if (rules.length === 0) return null;
-    const ruleKeys = new Set(rules.map((r) => `${r.entity_type}::${r.action}`));
-    for (const p of PRESETS) {
-      if (p.rules.length !== rules.length) continue;
-      const presetKeys = new Set(p.rules.map((r) => `${r.entity_type}::${r.action}`));
-      if (presetKeys.size === ruleKeys.size && [...presetKeys].every((k) => ruleKeys.has(k))) {
-        return p;
-      }
-    }
-    return null;
-  })();
+  // Detect active preset from localStorage
+  const activePresetSlug = activePreset || localStorage.getItem("privaro-lastPreset") || null;
 
   const handleCreate = async (form: PolicyFormData) => {
     if (!profile?.org_id) return;
