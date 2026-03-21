@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { User, Building2, Shield, Key, Save, Loader2 } from "lucide-react";
+import { User, Building2, Shield, Key, Save, Loader2, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
 const Settings = () => {
