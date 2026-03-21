@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   X, FileText, Image as ImageIcon, Lock, AlertTriangle, Loader2,
-  ChevronDown, ChevronRight, FileSearch,
+  ChevronDown, ChevronRight, FileSearch, Eye, EyeOff,
 } from "lucide-react";
 import { mockProxyDetect } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
