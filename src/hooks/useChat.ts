@@ -299,14 +299,14 @@ export function useChat() {
     await fetchFolders();
   }, [fetchFolders]);
 
-  /* ── Call LLM via Edge Function ── */
-  const callLLM = async (
+  /* ── Call LLM via Edge Function (streaming) ── */
+  const callLLMStreaming = async (
     pipelineId: string,
-    conversationHistory: { role: string; content: string }[]
+    conversationHistory: { role: string; content: string }[],
+    onChunk: (text: string) => void
   ): Promise<string> => {
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData?.session?.access_token;
-
     if (!token) throw new Error("No auth session");
 
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -320,6 +320,7 @@ export function useChat() {
       body: JSON.stringify({
         pipeline_id: pipelineId,
         messages: conversationHistory,
+        stream: true,
       }),
     });
 
@@ -328,8 +329,37 @@ export function useChat() {
       throw new Error(errData.error || `LLM call failed (${res.status})`);
     }
 
-    const data = await res.json();
-    return data.content;
+    const reader = res.body?.getReader();
+    if (!reader) throw new Error("No response body");
+
+    const decoder = new TextDecoder();
+    let fullText = "";
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed === "data: [DONE]") continue;
+        if (trimmed.startsWith("data: ")) {
+          try {
+            const json = JSON.parse(trimmed.slice(6));
+            if (json.text) {
+              fullText += json.text;
+              onChunk(fullText);
+            }
+          } catch { /* skip */ }
+        }
+      }
+    }
+
+    return fullText;
   };
 
   const uploadFile = async (file: File, conversationId: string): Promise<string | null> => {
