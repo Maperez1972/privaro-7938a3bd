@@ -24,7 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import PolicyDialog, { PolicyFormData } from "@/components/app/PolicyDialog";
-import PolicyPresetPanel, { PRESETS } from "@/components/app/PolicyPresetPanel";
+import PolicyPresetPanel from "@/components/app/PolicyPresetPanel";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, MoreVertical, Pencil, Trash2, Download, Upload } from "lucide-react";
 
@@ -83,19 +83,8 @@ const Policies = () => {
 
   useEffect(() => { fetchRules(); }, [fetchRules]);
 
-  // Detect active preset from current rules
-  const detectedPreset = (() => {
-    if (rules.length === 0) return null;
-    const ruleKeys = new Set(rules.map((r) => `${r.entity_type}::${r.action}`));
-    for (const p of PRESETS) {
-      if (p.rules.length !== rules.length) continue;
-      const presetKeys = new Set(p.rules.map((r) => `${r.entity_type}::${r.action}`));
-      if (presetKeys.size === ruleKeys.size && [...presetKeys].every((k) => ruleKeys.has(k))) {
-        return p;
-      }
-    }
-    return null;
-  })();
+  // Detect active preset from localStorage
+  const activePresetSlug = activePreset || localStorage.getItem("privaro-lastPreset") || null;
 
   const handleCreate = async (form: PolicyFormData) => {
     if (!profile?.org_id) return;
@@ -301,9 +290,9 @@ const Policies = () => {
         <>
           {/* Active preset indicator */}
           <div className="flex items-center gap-2">
-            {detectedPreset ? (
+            {activePresetSlug ? (
               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs">
-                {detectedPreset.icon} {detectedPreset.name} active
+                {activePresetSlug} active
               </Badge>
             ) : (
               <Badge variant="outline" className="bg-secondary text-muted-foreground border-border text-xs">
