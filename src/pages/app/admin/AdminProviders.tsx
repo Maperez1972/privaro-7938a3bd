@@ -273,9 +273,20 @@ const AdminProviders = () => {
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className="text-xs text-muted-foreground">
-                      {p.available_models.length} model{p.available_models.length !== 1 ? "s" : ""}
-                      {p.api_key_hint && <span className="ml-2">Key: {p.api_key_hint}</span>}
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="flex items-center gap-1">
+                            {p.api_key_hint ? (
+                              <Key className="w-3.5 h-3.5 text-success" />
+                            ) : (
+                              <KeyRound className="w-3.5 h-3.5 text-destructive" />
+                            )}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>{p.api_key_hint ? `API Key configured (${p.api_key_hint})` : "No API Key configured"}</TooltipContent>
+                      </Tooltip>
+                      <span>{p.available_models.length} model{p.available_models.length !== 1 ? "s" : ""}</span>
                     </div>
                     <TrustPostureIcons provider={p} />
                   </div>
