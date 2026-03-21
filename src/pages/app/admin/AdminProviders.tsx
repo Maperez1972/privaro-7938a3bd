@@ -333,6 +333,16 @@ const AdminProviders = () => {
                   {showApiKey ? <EyeOff className="w-4 h-4 text-muted-foreground" /> : <Eye className="w-4 h-4 text-muted-foreground" />}
                 </Button>
               </div>
+              {apiKey && (() => {
+                const provider = selectedProvider?.provider ?? "custom";
+                const pattern = API_KEY_PATTERNS[provider] ?? API_KEY_PATTERNS.custom;
+                const valid = pattern.regex.test(apiKey);
+                return (
+                  <p className={`text-xs ${valid ? "text-success" : "text-destructive"}`}>
+                    {valid ? "✓ Valid format" : `✗ Invalid — ${pattern.hint}`}
+                  </p>
+                );
+              })()}
             </div>
             <div className="flex items-center gap-2">
               <Checkbox
