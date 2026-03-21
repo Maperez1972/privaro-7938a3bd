@@ -163,22 +163,11 @@ const ScheduledReports = () => {
   const handleDownload = async (report: any) => {
     if (!report.storage_path) return;
     setDownloadingId(report.id);
-    // Open window immediately to avoid popup blocker
-    const newWindow = window.open("", "_blank");
     try {
       const { data, error } = await supabase.storage.from("dpo-reports").createSignedUrl(report.storage_path, 3600);
       if (error) throw error;
-      if (newWindow) {
-        newWindow.location.href = data.signedUrl;
-      } else {
-        // Fallback: use link click
-        const a = document.createElement("a");
-        a.href = data.signedUrl;
-        a.target = "_blank";
-        a.click();
-      }
+      window.open(data.signedUrl, "_blank");
     } catch {
-      if (newWindow) newWindow.close();
       toast.error("Failed to get download link");
     } finally {
       setDownloadingId(null);
