@@ -25,6 +25,7 @@ import AdminUsers from "./pages/app/admin/AdminUsers";
 import AdminApiKeys from "./pages/app/admin/AdminApiKeys";
 import AdminBilling from "./pages/app/admin/AdminBilling";
 import AdminSettings from "./pages/app/admin/AdminSettings";
+import AdminPolicyPresets from "./pages/app/admin/AdminPolicyPresets";
 import AdminVault from "./pages/app/admin/AdminVault";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
@@ -91,6 +92,7 @@ const App = () => (
                 <Route path="admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
                 <Route path="admin/api-keys" element={<AdminRoute><AdminApiKeys /></AdminRoute>} />
                 <Route path="admin/vault" element={<AdminRoute><AdminVault /></AdminRoute>} />
+                <Route path="admin/policy-presets" element={<AdminRoute><AdminPolicyPresets /></AdminRoute>} />
                 <Route path="admin/billing" element={<AdminRoute><AdminBilling /></AdminRoute>} />
                 <Route path="admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
               </Route>
