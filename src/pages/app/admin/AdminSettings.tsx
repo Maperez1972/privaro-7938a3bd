@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Settings2, Building2, Bell, Save, Loader2, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { DataRetentionCard } from "@/components/app/admin/DataRetentionCard";
 
 interface OrgNotification {
   id: string;
@@ -277,6 +278,9 @@ const AdminSettings = () => {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Section C: Data Retention */}
+      {orgId && <DataRetentionCard orgId={orgId} />}
     </div>
   );
 };
