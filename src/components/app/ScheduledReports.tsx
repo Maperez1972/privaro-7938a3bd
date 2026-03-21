@@ -8,12 +8,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Download, Loader2, FileText, RefreshCw } from "lucide-react";
-import { formatDistanceToNow, format, startOfMonth } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 
-const statusConfig: Record<string, { label: string; className: string; animate?: boolean }> = {
-  ready: { label: "Ready", className: "bg-green-500/15 text-green-400 border-green-500/20" },
-  generating: { label: "Generating...", className: "bg-amber-500/15 text-amber-400 border-amber-500/20", animate: true },
-  failed: { label: "Failed", className: "bg-destructive/15 text-destructive border-destructive/20" },
+const statusConfig = (report: any): { label: string; className: string; animate?: boolean } => {
+  if (report.status === "ready" && report.contains_raw_data === false) {
+    return { label: "⚠ Anonymized data", className: "bg-amber-500/15 text-amber-400 border-amber-500/20" };
+  }
+  const map: Record<string, { label: string; className: string; animate?: boolean }> = {
+    ready: { label: "Ready", className: "bg-green-500/15 text-green-400 border-green-500/20" },
+    generating: { label: "Generating...", className: "bg-amber-500/15 text-amber-400 border-amber-500/20", animate: true },
+    failed: { label: "Failed", className: "bg-destructive/15 text-destructive border-destructive/20" },
+    expired: { label: "Expired", className: "bg-muted text-muted-foreground border-border" },
+  };
+  return map[report.status] ?? map.failed;
 };
 
 const ScheduledReports = () => {
@@ -29,7 +36,7 @@ const ScheduledReports = () => {
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("dpo_reports")
-        .select("id, period_label, period_start, period_end, status, event_count, certified_count, high_risk_count, file_size_bytes, generated_at, storage_path")
+        .select("id, period_label, period_start, period_end, status, event_count, certified_count, high_risk_count, file_size_bytes, generated_at, storage_path, contains_raw_data, logs_anonymized_at")
         .eq("org_id", orgId!)
         .order("period_start", { ascending: false })
         .limit(24);
@@ -42,19 +49,18 @@ const ScheduledReports = () => {
     if (!orgId) return;
     setGenerating(true);
     try {
-      const now = new Date();
-      const periodStart = startOfMonth(now).toISOString().slice(0, 10);
-      const periodEnd = now.toISOString().slice(0, 10);
+      const today = new Date().toISOString().split("T")[0];
+      const firstDay = today.slice(0, 7) + "-01";
 
       const { error } = await supabase.functions.invoke("generate-dpo-report", {
-        body: { org_id: orgId, period_start: periodStart, period_end: periodEnd, force_regenerate: true },
+        body: { org_id: orgId, period_start: firstDay, period_end: today, force_regenerate: true },
       });
       if (error) throw error;
 
       toast.success("Generating report...");
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ["dpo-reports"] });
-      }, 3000);
+      }, 4000);
     } catch {
       toast.error("Failed to trigger report generation");
     } finally {
@@ -100,9 +106,6 @@ const ScheduledReports = () => {
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-4 w-12" />
               <Skeleton className="h-4 w-12" />
-              <Skeleton className="h-4 w-12" />
-              <Skeleton className="h-4 w-16" />
-              <Skeleton className="h-4 w-20" />
               <Skeleton className="h-4 w-16" />
             </div>
           ))}
@@ -151,7 +154,7 @@ const ScheduledReports = () => {
                 </thead>
                 <tbody>
                   {reports.map((report: any) => {
-                    const st = statusConfig[report.status] ?? statusConfig.failed;
+                    const st = statusConfig(report);
                     return (
                       <tr key={report.id} className="border-b border-border/50 hover:bg-secondary/30 transition-colors">
                         <td className="p-4 font-medium text-sm">{formatPeriod(report.period_start)}</td>
@@ -182,7 +185,7 @@ const ScheduledReports = () => {
                           </span>
                         </td>
                         <td className="p-4">
-                          {report.status === "ready" ? (
+                          {report.status === "ready" && report.storage_path ? (
                             <Button
                               size="sm"
                               variant="ghost"
