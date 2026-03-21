@@ -185,6 +185,11 @@ const ScheduledReports = () => {
                             {st.label}
                           </span>
                         </td>
+                        <td className="p-4 text-xs text-muted-foreground">
+                          {report.logs_anonymized_at
+                            ? formatDistanceToNow(new Date(report.logs_anonymized_at), { addSuffix: true })
+                            : "—"}
+                        </td>
                         <td className="p-4">
                           {report.status === "ready" && report.storage_path ? (
                             <Button
