@@ -24,7 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import PolicyDialog, { PolicyFormData } from "@/components/app/PolicyDialog";
-import PolicyPresetPanel, { PRESETS } from "@/components/app/PolicyPresetPanel";
+import PolicyPresetPanel from "@/components/app/PolicyPresetPanel";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, MoreVertical, Pencil, Trash2, Download, Upload } from "lucide-react";
 
