@@ -231,17 +231,25 @@ const AuditLogs = () => {
             Immutable record of every PII event — blockchain certified
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button size="sm" variant="outline" className="gap-2" onClick={handleDpoReport} disabled={generatingReport}>
-            {generatingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-            DPO Report
-          </Button>
-          <Button size="sm" variant="outline" className="gap-2" onClick={handleExport} disabled={exporting}>
-            {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-            Export CSV
-          </Button>
-        </div>
       </div>
+
+      <Tabs defaultValue="logs" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="logs" className="gap-2"><FileText className="w-4 h-4" /> Event Log</TabsTrigger>
+          <TabsTrigger value="reports" className="gap-2"><CalendarClock className="w-4 h-4" /> Scheduled Reports</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="logs" className="space-y-4">
+          <div className="flex justify-end gap-2">
+            <Button size="sm" variant="outline" className="gap-2" onClick={handleDpoReport} disabled={generatingReport}>
+              {generatingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+              DPO Report
+            </Button>
+            <Button size="sm" variant="outline" className="gap-2" onClick={handleExport} disabled={exporting}>
+              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              Export CSV
+            </Button>
+          </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
