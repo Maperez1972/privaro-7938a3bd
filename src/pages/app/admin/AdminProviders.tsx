@@ -13,8 +13,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
-import { Cpu, Plus, Loader2, AlertTriangle, Globe, Shield, FileText, HeartPulse, Bot, Eye, EyeOff, Key, KeyRound } from "lucide-react";
+import { Cpu, Plus, Loader2, AlertTriangle, Globe, Shield, FileText, HeartPulse, Bot, Eye, EyeOff, Key, KeyRound, Zap, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
+
+const TEST_ENDPOINTS: Record<string, { url: string; buildHeaders: (key: string) => Record<string, string>; buildBody?: () => string; method?: string }> = {
+  openai: {
+    url: "https://api.openai.com/v1/models",
+    buildHeaders: (key) => ({ Authorization: `Bearer ${key}` }),
+  },
+  anthropic: {
+    url: "https://api.anthropic.com/v1/messages",
+    buildHeaders: (key) => ({ "x-api-key": key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" }),
+    buildBody: () => JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 1, messages: [{ role: "user", content: "hi" }] }),
+    method: "POST",
+  },
+  deepseek: {
+    url: "https://api.deepseek.com/v1/models",
+    buildHeaders: (key) => ({ Authorization: `Bearer ${key}` }),
+  },
+  google: {
+    url: "https://generativelanguage.googleapis.com/v1/models",
+    buildHeaders: (key) => ({ "x-goog-api-key": key }),
+  },
+};
 
 const API_KEY_PATTERNS: Record<string, { regex: RegExp; hint: string }> = {
   openai: { regex: /^sk-[a-zA-Z0-9_-]{20,}$/, hint: "Must start with sk- (e.g. sk-proj-...)" },
