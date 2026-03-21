@@ -149,6 +149,7 @@ const ScheduledReports = () => {
                     <th className="p-4 font-medium">Size</th>
                     <th className="p-4 font-medium">Generated</th>
                     <th className="p-4 font-medium">Status</th>
+                    <th className="p-4 font-medium">Anonymized</th>
                     <th className="p-4 font-medium">Action</th>
                   </tr>
                 </thead>
@@ -183,6 +184,11 @@ const ScheduledReports = () => {
                           <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold ${st.className} ${st.animate ? "animate-pulse" : ""}`}>
                             {st.label}
                           </span>
+                        </td>
+                        <td className="p-4 text-xs text-muted-foreground">
+                          {report.logs_anonymized_at
+                            ? formatDistanceToNow(new Date(report.logs_anonymized_at), { addSuffix: true })
+                            : "—"}
                         </td>
                         <td className="p-4">
                           {report.status === "ready" && report.storage_path ? (
