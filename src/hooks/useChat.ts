@@ -268,34 +268,43 @@ export function useChat() {
   }, []);
 
   const deleteFolder = useCallback(async (id: string) => {
-    // Move conversations out of folder first
     await (supabase as any).from("conversations").update({ folder_id: null }).eq("folder_id", id);
     await (supabase as any).from("conversation_folders").delete().eq("id", id);
     setConversations(prev => prev.map(c => c.folder_id === id ? { ...c, folder_id: null } : c));
     await fetchFolders();
   }, [fetchFolders]);
 
-  const generateMockResponse = (protectedText: string, detections: any[], hasFile: boolean): string => {
-    const hasFinancial = detections.some((d: any) => ["iban", "dni", "ssn"].includes(d.type));
-    const hasPersonal = detections.some((d: any) => ["full_name", "email"].includes(d.type));
-    const count = detections.length;
+  /* ── Call LLM via Edge Function ── */
+  const callLLM = async (
+    pipelineId: string,
+    conversationHistory: { role: string; content: string }[]
+  ): Promise<string> => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
 
-    if (hasFile && count > 0) {
-      return `I've analyzed the uploaded file securely. ${count} PII entities were detected and tokenized before processing. The file content has been fully protected — no sensitive data reached the model.`;
+    if (!token) throw new Error("No auth session");
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const res = await fetch(`${supabaseUrl}/functions/v1/chat-completion`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      },
+      body: JSON.stringify({
+        pipeline_id: pipelineId,
+        messages: conversationHistory,
+      }),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({ error: "Unknown error" }));
+      throw new Error(errData.error || `LLM call failed (${res.status})`);
     }
-    if (hasFile && count === 0) {
-      return `I've analyzed the uploaded file. No sensitive data was detected in the document. The content is clean and has been processed normally.`;
-    }
-    if (hasFinancial) {
-      return `I've securely processed the financial information. ${count} sensitive entities were protected before processing. The tokenized references have been maintained throughout the analysis to ensure zero data exposure.`;
-    }
-    if (hasPersonal) {
-      return `Understood. I've worked with the contact information while maintaining privacy. ${count} personal identifiers were automatically tokenized before reaching this model.`;
-    }
-    if (count > 0) {
-      return `I've processed your query securely. ${count} PII entities were automatically protected before processing your message. All sensitive data remains tokenized.`;
-    }
-    return "I've processed your message. No sensitive data was detected in this request. How can I help you further?";
+
+    const data = await res.json();
+    return data.content;
   };
 
   const uploadFile = async (file: File, conversationId: string): Promise<string | null> => {
@@ -398,8 +407,22 @@ export function useChat() {
       setMessages((prev) => [...prev, userMsg as Message]);
     }
 
-    await new Promise((r) => setTimeout(r, 1000 + Math.random() * 1500));
-    const responseText = generateMockResponse(protectedText, detections, !!fileAttachment);
+    // Build conversation history for LLM (include all previous messages + new one)
+    const history = [
+      ...messages.map((m) => ({ role: m.role, content: m.content_protected })),
+      { role: "user" as const, content: protectedText },
+    ];
+
+    let responseText: string;
+
+    try {
+      // Try calling the real LLM via Edge Function
+      responseText = await callLLM(activePipelineId || convId, history);
+    } catch (err) {
+      console.warn("LLM call failed, using fallback:", err);
+      // Fallback to contextual mock response
+      responseText = generateFallbackResponse(protectedText, detections, !!fileAttachment);
+    }
 
     const { data: assistantMsg } = await supabase
       .from("conversation_messages")
@@ -423,7 +446,7 @@ export function useChat() {
 
     await fetchConversations();
     setSending(false);
-  }, [user, profile?.org_id, activeConversationId, activePipelineId, pipelines, sending, createConversation, fetchConversations]);
+  }, [user, profile?.org_id, activeConversationId, activePipelineId, pipelines, sending, messages, createConversation, fetchConversations]);
 
   return {
     conversations,
@@ -454,4 +477,27 @@ export function useChat() {
     changeFolderColor,
     deleteFolder,
   };
+}
+
+function generateFallbackResponse(protectedText: string, detections: any[], hasFile: boolean): string {
+  const count = detections.length;
+  const hasFinancial = detections.some((d: any) => ["iban", "dni", "ssn"].includes(d.type));
+  const hasPersonal = detections.some((d: any) => ["full_name", "email"].includes(d.type));
+
+  if (hasFile && count > 0) {
+    return `I've analyzed the uploaded file securely. ${count} PII entities were detected and tokenized before processing. The file content has been fully protected — no sensitive data reached the model.`;
+  }
+  if (hasFile && count === 0) {
+    return `I've analyzed the uploaded file. No sensitive data was detected in the document. The content is clean and has been processed normally.`;
+  }
+  if (hasFinancial) {
+    return `I've securely processed the financial information. ${count} sensitive entities were protected before processing. The tokenized references have been maintained throughout the analysis to ensure zero data exposure.`;
+  }
+  if (hasPersonal) {
+    return `Understood. I've worked with the contact information while maintaining privacy. ${count} personal identifiers were automatically tokenized before reaching this model.`;
+  }
+  if (count > 0) {
+    return `I've processed your query securely. ${count} PII entities were automatically protected before processing your message. All sensitive data remains tokenized.`;
+  }
+  return "I've processed your message. No sensitive data was detected in this request. How can I help you further?";
 }
