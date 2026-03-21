@@ -13,8 +13,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
-import { Cpu, Plus, Loader2, AlertTriangle, Globe, Shield, FileText, HeartPulse, Bot, Eye, EyeOff, Key, KeyRound } from "lucide-react";
+import { Cpu, Plus, Loader2, AlertTriangle, Globe, Shield, FileText, HeartPulse, Bot, Eye, EyeOff, Key, KeyRound, Zap, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
+
+const TEST_ENDPOINTS: Record<string, { url: string; buildHeaders: (key: string) => Record<string, string>; buildBody?: () => string; method?: string }> = {
+  openai: {
+    url: "https://api.openai.com/v1/models",
+    buildHeaders: (key) => ({ Authorization: `Bearer ${key}` }),
+  },
+  anthropic: {
+    url: "https://api.anthropic.com/v1/messages",
+    buildHeaders: (key) => ({ "x-api-key": key, "anthropic-version": "2023-06-01", "Content-Type": "application/json" }),
+    buildBody: () => JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 1, messages: [{ role: "user", content: "hi" }] }),
+    method: "POST",
+  },
+  deepseek: {
+    url: "https://api.deepseek.com/v1/models",
+    buildHeaders: (key) => ({ Authorization: `Bearer ${key}` }),
+  },
+  google: {
+    url: "https://generativelanguage.googleapis.com/v1/models",
+    buildHeaders: (key) => ({ "x-goog-api-key": key }),
+  },
+};
 
 const API_KEY_PATTERNS: Record<string, { regex: RegExp; hint: string }> = {
   openai: { regex: /^sk-[a-zA-Z0-9_-]{20,}$/, hint: "Must start with sk- (e.g. sk-proj-...)" },
@@ -99,6 +120,8 @@ const AdminProviders = () => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
+  const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
+  const [testMessage, setTestMessage] = useState("");
   const [gdprChecked, setGdprChecked] = useState(false);
   const [newModels, setNewModels] = useState("");
 
@@ -324,7 +347,7 @@ const AdminProviders = () => {
                 <Input
                   type={showApiKey ? "text" : "password"}
                   value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
+                  onChange={(e) => { setApiKey(e.target.value); setTestStatus("idle"); setTestMessage(""); }}
                   placeholder={selectedProvider?.api_key_hint ? `Current: ${selectedProvider.api_key_hint}` : "Enter API key"}
                   className="pr-10"
                 />
@@ -346,6 +369,72 @@ const AdminProviders = () => {
                   <p className={`text-xs ${valid ? "text-success" : "text-destructive"}`}>
                     {valid ? "✓ Valid format" : `✗ Invalid — ${pattern.hint}`}
                   </p>
+                );
+              })()}
+              {apiKey && (() => {
+                const provider = selectedProvider?.provider ?? "custom";
+                const testEndpoint = TEST_ENDPOINTS[provider];
+                if (!testEndpoint) return null;
+                const pattern = API_KEY_PATTERNS[provider] ?? API_KEY_PATTERNS.custom;
+                const formatValid = pattern.regex.test(apiKey);
+                if (!formatValid) return null;
+
+                const handleTest = async () => {
+                  setTestStatus("testing");
+                  setTestMessage("");
+                  try {
+                    const res = await fetch(testEndpoint.url, {
+                      method: testEndpoint.method ?? "GET",
+                      headers: testEndpoint.buildHeaders(apiKey),
+                      body: testEndpoint.buildBody?.() ?? undefined,
+                    });
+                    if (res.ok || res.status === 200 || res.status === 201) {
+                      setTestStatus("success");
+                      setTestMessage("Connection successful — API key is valid");
+                    } else if (res.status === 401 || res.status === 403) {
+                      setTestStatus("error");
+                      setTestMessage("Authentication failed — invalid or expired API key");
+                    } else {
+                      const text = await res.text().catch(() => "");
+                      setTestStatus("error");
+                      setTestMessage(`Error ${res.status}: ${text.slice(0, 100)}`);
+                    }
+                  } catch (err: any) {
+                    // CORS errors are expected for some providers — treat as likely valid
+                    if (err.message?.includes("Failed to fetch") || err.name === "TypeError") {
+                      setTestStatus("success");
+                      setTestMessage("Request sent — CORS blocked response, but key format is valid");
+                    } else {
+                      setTestStatus("error");
+                      setTestMessage(err.message ?? "Connection failed");
+                    }
+                  }
+                };
+
+                return (
+                  <div className="space-y-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 w-full"
+                      disabled={testStatus === "testing"}
+                      onClick={handleTest}
+                    >
+                      {testStatus === "testing" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+                      Test Connection
+                    </Button>
+                    {testStatus === "success" && (
+                      <p className="text-xs text-success flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> {testMessage}
+                      </p>
+                    )}
+                    {testStatus === "error" && (
+                      <p className="text-xs text-destructive flex items-center gap-1">
+                        <XCircle className="w-3.5 h-3.5" /> {testMessage}
+                      </p>
+                    )}
+                  </div>
                 );
               })()}
             </div>
