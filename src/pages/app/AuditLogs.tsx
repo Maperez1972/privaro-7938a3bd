@@ -13,11 +13,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Download, ChevronLeft, ChevronRight, Loader2, ExternalLink, FileText, ChevronDown } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Search, Download, ChevronLeft, ChevronRight, Loader2, ExternalLink, FileText, ChevronDown, CalendarClock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { generateDpoReportHtml, downloadHtml } from "@/lib/dpo-report";
 import { AuditLogDetail } from "@/components/app/AuditLogDetail";
+import ScheduledReports from "@/components/app/ScheduledReports";
 
 const PAGE_SIZE = 25;
 
@@ -229,17 +231,25 @@ const AuditLogs = () => {
             Immutable record of every PII event — blockchain certified
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button size="sm" variant="outline" className="gap-2" onClick={handleDpoReport} disabled={generatingReport}>
-            {generatingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-            DPO Report
-          </Button>
-          <Button size="sm" variant="outline" className="gap-2" onClick={handleExport} disabled={exporting}>
-            {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-            Export CSV
-          </Button>
-        </div>
       </div>
+
+      <Tabs defaultValue="logs" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="logs" className="gap-2"><FileText className="w-4 h-4" /> Event Log</TabsTrigger>
+          <TabsTrigger value="reports" className="gap-2"><CalendarClock className="w-4 h-4" /> Scheduled Reports</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="logs" className="space-y-4">
+          <div className="flex justify-end gap-2">
+            <Button size="sm" variant="outline" className="gap-2" onClick={handleDpoReport} disabled={generatingReport}>
+              {generatingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+              DPO Report
+            </Button>
+            <Button size="sm" variant="outline" className="gap-2" onClick={handleExport} disabled={exporting}>
+              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              Export CSV
+            </Button>
+          </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
@@ -431,6 +441,12 @@ const AuditLogs = () => {
           </div>
         </div>
       )}
+        </TabsContent>
+
+        <TabsContent value="reports">
+          <ScheduledReports />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
