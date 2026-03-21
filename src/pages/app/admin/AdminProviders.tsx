@@ -347,7 +347,7 @@ const AdminProviders = () => {
                 <Input
                   type={showApiKey ? "text" : "password"}
                   value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
+                  onChange={(e) => { setApiKey(e.target.value); setTestStatus("idle"); setTestMessage(""); }}
                   placeholder={selectedProvider?.api_key_hint ? `Current: ${selectedProvider.api_key_hint}` : "Enter API key"}
                   className="pr-10"
                 />
