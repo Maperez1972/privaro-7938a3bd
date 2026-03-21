@@ -8,9 +8,10 @@ import {
 import { mockProxyDetect } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import * as pdfjsLib from "pdfjs-dist";
+import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import mammoth from "mammoth";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 type Detection = { type: string; value: string; start: number; end: number; severity: string; category: string };
 
