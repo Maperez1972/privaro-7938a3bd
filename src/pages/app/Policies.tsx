@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { mockPolicyRules } from "@/lib/mock-data";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,9 +23,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import PolicyDialog, { PolicyFormData, SECTOR_PRESETS } from "@/components/app/PolicyDialog";
+import PolicyDialog, { PolicyFormData } from "@/components/app/PolicyDialog";
+import PolicyPresetPanel, { PRESETS } from "@/components/app/PolicyPresetPanel";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, ShieldCheck, MoreVertical, Pencil, Trash2, Download, Upload } from "lucide-react";
+import { Plus, MoreVertical, Pencil, Trash2, Download, Upload } from "lucide-react";
 
 const actionColors: Record<string, string> = {
   tokenise: "bg-primary/15 text-primary border-primary/30",
@@ -53,6 +55,10 @@ const Policies = () => {
   const [editRule, setEditRule] = useState<PolicyRule | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<PolicyRule | null>(null);
+  const [activePreset, setActivePreset] = useState<string | null>(
+    localStorage.getItem("privaro-lastPreset")
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchRules = useCallback(async () => {
     if (!profile?.org_id) {
@@ -77,6 +83,20 @@ const Policies = () => {
 
   useEffect(() => { fetchRules(); }, [fetchRules]);
 
+  // Detect active preset from current rules
+  const detectedPreset = (() => {
+    if (rules.length === 0) return null;
+    const ruleKeys = new Set(rules.map((r) => `${r.entity_type}::${r.action}`));
+    for (const p of PRESETS) {
+      if (p.rules.length !== rules.length) continue;
+      const presetKeys = new Set(p.rules.map((r) => `${r.entity_type}::${r.action}`));
+      if (presetKeys.size === ruleKeys.size && [...presetKeys].every((k) => ruleKeys.has(k))) {
+        return p;
+      }
+    }
+    return null;
+  })();
+
   const handleCreate = async (form: PolicyFormData) => {
     if (!profile?.org_id) return;
     setSaving(true);
@@ -96,13 +116,14 @@ const Policies = () => {
     } else {
       toast({ title: "Rule created" });
       setDialogOpen(false);
+      localStorage.removeItem("privaro-lastPreset");
+      setActivePreset(null);
       fetchRules();
     }
   };
 
   const handleEdit = async (form: PolicyFormData) => {
     if (!editRule || !profile?.org_id || !user?.id) return;
-
     setSaving(true);
     const { data: updatedRule, error } = await supabase
       .from("policy_rules")
@@ -121,29 +142,23 @@ const Policies = () => {
       .maybeSingle();
 
     setSaving(false);
-
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
       return;
     }
-
     if (!updatedRule) {
-      toast({
-        title: "Update blocked",
-        description: "No tienes permisos UPDATE para esta regla (RLS).",
-        variant: "destructive",
-      });
+      toast({ title: "Update blocked", description: "No tienes permisos UPDATE para esta regla (RLS).", variant: "destructive" });
       return;
     }
-
     toast({ title: "Rule updated" });
     setEditRule(null);
+    localStorage.removeItem("privaro-lastPreset");
+    setActivePreset(null);
     fetchRules();
   };
 
   const handleToggle = async (rule: PolicyRule) => {
     if (!profile?.org_id || !user?.id) return;
-
     const { data: updatedRule, error } = await supabase
       .from("policy_rules")
       .update({ is_enabled: !rule.is_enabled, updated_by: user.id })
@@ -156,16 +171,10 @@ const Policies = () => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
       return;
     }
-
     if (!updatedRule) {
-      toast({
-        title: "Update blocked",
-        description: "No tienes permisos UPDATE para esta regla (RLS).",
-        variant: "destructive",
-      });
+      toast({ title: "Update blocked", description: "No tienes permisos UPDATE para esta regla (RLS).", variant: "destructive" });
       return;
     }
-
     setRules((prev) => prev.map((r) => r.id === rule.id ? { ...r, is_enabled: !r.is_enabled } : r));
   };
 
@@ -176,51 +185,72 @@ const Policies = () => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Rule deleted" });
+      localStorage.removeItem("privaro-lastPreset");
+      setActivePreset(null);
       fetchRules();
     }
     setDeleteTarget(null);
   };
 
-  const loadPreset = async (sector: string) => {
-    if (!profile?.org_id) return;
-    const preset = SECTOR_PRESETS[sector];
-    if (!preset) return;
+  const handlePresetApplied = (presetSlug: string) => {
+    setActivePreset(presetSlug);
+    fetchRules();
+  };
 
-    // Filter out rules that already exist (same entity_type + action)
-    const existingKeys = new Set(
-      rules.map((r) => `${r.entity_type}::${r.action}`)
-    );
-    const newPresets = preset.filter(
-      (p) => !existingKeys.has(`${p.entity_type}::${p.action}`)
-    );
+  // Export rules as JSON
+  const handleExport = () => {
+    const exportData = rules.map(({ id, ...rest }) => rest);
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `privaro-policy-rules-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Rules exported", description: `${rules.length} rules downloaded as JSON` });
+  };
 
-    if (newPresets.length === 0) {
-      toast({ title: "All rules already exist", description: `The ${sector} preset is already loaded.` });
-      return;
-    }
+  // Import rules from JSON
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile?.org_id) return;
 
-    const rows = newPresets.map((p) => ({
-      org_id: profile.org_id,
-      entity_type: p.entity_type,
-      category: p.category,
-      action: p.action,
-      regulation_ref: p.regulation_ref || null,
-      priority: p.priority,
-      custom_pattern: p.custom_pattern || null,
-      updated_by: user?.id,
-    }));
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        const imported = JSON.parse(ev.target?.result as string);
+        if (!Array.isArray(imported)) throw new Error("Invalid format");
 
-    const { error } = await supabase.from("policy_rules").insert(rows);
-    if (error) {
-      toast({ title: "Error loading preset", description: error.message, variant: "destructive" });
-    } else {
-      const skipped = preset.length - newPresets.length;
-      const msg = skipped > 0
-        ? `${newPresets.length} added, ${skipped} skipped (already exist)`
-        : `${newPresets.length} rules added`;
-      toast({ title: `${sector} preset loaded`, description: msg });
-      fetchRules();
-    }
+        // Delete existing then insert
+        await supabase.from("policy_rules").delete().eq("org_id", profile.org_id);
+
+        const rows = imported.map((r: any) => ({
+          org_id: profile.org_id,
+          entity_type: r.entity_type,
+          category: r.category,
+          action: r.action,
+          regulation_ref: r.regulation_ref || null,
+          priority: r.priority ?? 10,
+          custom_pattern: r.custom_pattern || null,
+          is_enabled: r.is_enabled ?? true,
+          updated_by: user?.id,
+        }));
+
+        const { error } = await supabase.from("policy_rules").insert(rows);
+        if (error) {
+          toast({ title: "Import error", description: error.message, variant: "destructive" });
+        } else {
+          localStorage.removeItem("privaro-lastPreset");
+          setActivePreset(null);
+          toast({ title: "Rules imported", description: `${rows.length} rules loaded` });
+          fetchRules();
+        }
+      } catch {
+        toast({ title: "Invalid file", description: "Could not parse the JSON file", variant: "destructive" });
+      }
+    };
+    reader.readAsText(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
@@ -233,109 +263,116 @@ const Policies = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline" className="gap-2">
+          {rules.length > 0 && (
+            <>
+              <Button size="sm" variant="outline" className="gap-2" onClick={handleExport}>
                 <Download className="w-4 h-4" />
-                Load Preset
+                Export
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => loadPreset("legal")}>
-                <ShieldCheck className="w-3.5 h-3.5 mr-2" /> Legal
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => loadPreset("healthcare")}>
-                <ShieldCheck className="w-3.5 h-3.5 mr-2" /> Healthcare
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => loadPreset("fintech")}>
-                <ShieldCheck className="w-3.5 h-3.5 mr-2" /> Fintech
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <Button size="sm" variant="outline" className="gap-2" onClick={() => fileInputRef.current?.click()}>
+                <Upload className="w-4 h-4" />
+                Import
+              </Button>
+            </>
+          )}
           <Button size="sm" className="gap-2" onClick={() => setDialogOpen(true)}>
             <Plus className="w-4 h-4" />
             New Rule
           </Button>
+          <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
         </div>
       </div>
+
+      {/* Quick Setup Presets */}
+      {profile?.org_id && user?.id && (
+        <PolicyPresetPanel orgId={profile.org_id} userId={user.id} onApplied={handlePresetApplied} />
+      )}
 
       {loading ? (
         <div className="text-center py-12 text-muted-foreground text-sm">Loading rules…</div>
       ) : rules.length === 0 ? (
         <Card className="border-border bg-card">
           <CardContent className="flex flex-col items-center justify-center py-16 gap-3">
-            <ShieldCheck className="w-10 h-10 text-muted-foreground" />
             <p className="text-muted-foreground text-sm">No privacy rules configured</p>
-            <p className="text-xs text-muted-foreground">Load a sector preset or create a custom rule</p>
-            <div className="flex gap-2 mt-2">
-              <Button size="sm" variant="outline" onClick={() => loadPreset("legal")}>Legal Preset</Button>
-              <Button size="sm" variant="outline" onClick={() => loadPreset("healthcare")}>Healthcare Preset</Button>
-              <Button size="sm" variant="outline" onClick={() => loadPreset("fintech")}>Fintech Preset</Button>
-            </div>
+            <p className="text-xs text-muted-foreground">Apply a preset above or create a custom rule</p>
           </CardContent>
         </Card>
       ) : (
-        <Card className="border-border bg-card">
-          <CardContent className="p-0">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-muted-foreground border-b border-border">
-                  <th className="p-4 font-medium">Enabled</th>
-                  <th className="p-4 font-medium">Priority</th>
-                  <th className="p-4 font-medium">Entity Type</th>
-                  <th className="p-4 font-medium">Category</th>
-                  <th className="p-4 font-medium">Action</th>
-                  <th className="p-4 font-medium">Regulation</th>
-                  <th className="p-4 font-medium w-10"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {rules.map((rule) => (
-                  <tr key={rule.id} className="border-b border-border/50 hover:bg-secondary/30 transition-colors">
-                    <td className="p-4">
-                      <Switch checked={rule.is_enabled} onCheckedChange={() => handleToggle(rule)} />
-                    </td>
-                    <td className="p-4 font-mono text-xs text-muted-foreground">#{rule.priority}</td>
-                    <td className="p-4">
-                      <span className="font-mono text-xs bg-secondary px-2 py-1 rounded">{rule.entity_type}</span>
-                    </td>
-                    <td className="p-4 text-xs capitalize">{rule.category}</td>
-                    <td className="p-4">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border capitalize ${actionColors[rule.action] ?? "bg-muted text-muted-foreground border-border"}`}>
-                        {rule.action}
-                      </span>
-                    </td>
-                    <td className="p-4 text-xs text-muted-foreground">{rule.regulation_ref ?? "—"}</td>
-                    <td className="p-4">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-36">
-                          <DropdownMenuItem onClick={() => setEditRule(rule)}>
-                            <Pencil className="w-3.5 h-3.5 mr-2" /> Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => setDeleteTarget(rule)} className="text-destructive focus:text-destructive">
-                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </td>
+        <>
+          {/* Active preset indicator */}
+          <div className="flex items-center gap-2">
+            {detectedPreset ? (
+              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs">
+                {detectedPreset.icon} {detectedPreset.name} active
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="bg-secondary text-muted-foreground border-border text-xs">
+                Custom configuration
+              </Badge>
+            )}
+            <span className="text-xs text-muted-foreground">{rules.length} rules</span>
+          </div>
+
+          <Card className="border-border bg-card">
+            <CardContent className="p-0">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-muted-foreground border-b border-border">
+                    <th className="p-4 font-medium">Enabled</th>
+                    <th className="p-4 font-medium">Priority</th>
+                    <th className="p-4 font-medium">Entity Type</th>
+                    <th className="p-4 font-medium">Category</th>
+                    <th className="p-4 font-medium">Action</th>
+                    <th className="p-4 font-medium">Regulation</th>
+                    <th className="p-4 font-medium w-10"></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
+                </thead>
+                <tbody>
+                  {rules.map((rule) => (
+                    <tr key={rule.id} className="border-b border-border/50 hover:bg-secondary/30 transition-colors">
+                      <td className="p-4">
+                        <Switch checked={rule.is_enabled} onCheckedChange={() => handleToggle(rule)} />
+                      </td>
+                      <td className="p-4 font-mono text-xs text-muted-foreground">#{rule.priority}</td>
+                      <td className="p-4">
+                        <span className="font-mono text-xs bg-secondary px-2 py-1 rounded">{rule.entity_type}</span>
+                      </td>
+                      <td className="p-4 text-xs capitalize">{rule.category}</td>
+                      <td className="p-4">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border capitalize ${actionColors[rule.action] ?? "bg-muted text-muted-foreground border-border"}`}>
+                          {rule.action}
+                        </span>
+                      </td>
+                      <td className="p-4 text-xs text-muted-foreground">{rule.regulation_ref ?? "—"}</td>
+                      <td className="p-4">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-36">
+                            <DropdownMenuItem onClick={() => setEditRule(rule)}>
+                              <Pencil className="w-3.5 h-3.5 mr-2" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => setDeleteTarget(rule)} className="text-destructive focus:text-destructive">
+                              <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        </>
       )}
 
-      {/* Create dialog */}
       <PolicyDialog open={dialogOpen} onOpenChange={setDialogOpen} onSubmit={handleCreate} loading={saving} />
 
-      {/* Edit dialog */}
       <PolicyDialog
         open={!!editRule}
         onOpenChange={(open) => !open && setEditRule(null)}
@@ -351,7 +388,6 @@ const Policies = () => {
         } : null}
       />
 
-      {/* Delete confirmation */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
