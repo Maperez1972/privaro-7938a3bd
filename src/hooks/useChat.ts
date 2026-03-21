@@ -403,7 +403,7 @@ export function useChat() {
         const res = await fetch(`${PROXY_URL}/proxy/protect`, {
           method: "POST",
           headers: { "Content-Type": "application/json", "X-Privaro-Key": import.meta.env.VITE_PROXY_API_KEY || "" },
-          body: JSON.stringify({ prompt: fullText, pipeline_id: activePipelineId || "c93aed87-b440-4de0-bb21-54a938e475f2", options: { mode: "tokenise", include_detections: true, reversible: true } }),
+          body: JSON.stringify({ prompt: fullText, pipeline_id: activePipelineId || "c93aed87-b440-4de0-bb21-54a938e475f2", conversation_id: convId, options: { mode: "tokenise", include_detections: true, reversible: true } }),
         });
         const data = await res.json();
         protectedText = data.protected_prompt ?? fullText;
