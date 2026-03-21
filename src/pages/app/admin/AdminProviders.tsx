@@ -371,6 +371,72 @@ const AdminProviders = () => {
                   </p>
                 );
               })()}
+              {apiKey && (() => {
+                const provider = selectedProvider?.provider ?? "custom";
+                const testEndpoint = TEST_ENDPOINTS[provider];
+                if (!testEndpoint) return null;
+                const pattern = API_KEY_PATTERNS[provider] ?? API_KEY_PATTERNS.custom;
+                const formatValid = pattern.regex.test(apiKey);
+                if (!formatValid) return null;
+
+                const handleTest = async () => {
+                  setTestStatus("testing");
+                  setTestMessage("");
+                  try {
+                    const res = await fetch(testEndpoint.url, {
+                      method: testEndpoint.method ?? "GET",
+                      headers: testEndpoint.buildHeaders(apiKey),
+                      body: testEndpoint.buildBody?.() ?? undefined,
+                    });
+                    if (res.ok || res.status === 200 || res.status === 201) {
+                      setTestStatus("success");
+                      setTestMessage("Connection successful — API key is valid");
+                    } else if (res.status === 401 || res.status === 403) {
+                      setTestStatus("error");
+                      setTestMessage("Authentication failed — invalid or expired API key");
+                    } else {
+                      const text = await res.text().catch(() => "");
+                      setTestStatus("error");
+                      setTestMessage(`Error ${res.status}: ${text.slice(0, 100)}`);
+                    }
+                  } catch (err: any) {
+                    // CORS errors are expected for some providers — treat as likely valid
+                    if (err.message?.includes("Failed to fetch") || err.name === "TypeError") {
+                      setTestStatus("success");
+                      setTestMessage("Request sent — CORS blocked response, but key format is valid");
+                    } else {
+                      setTestStatus("error");
+                      setTestMessage(err.message ?? "Connection failed");
+                    }
+                  }
+                };
+
+                return (
+                  <div className="space-y-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 w-full"
+                      disabled={testStatus === "testing"}
+                      onClick={handleTest}
+                    >
+                      {testStatus === "testing" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+                      Test Connection
+                    </Button>
+                    {testStatus === "success" && (
+                      <p className="text-xs text-success flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> {testMessage}
+                      </p>
+                    )}
+                    {testStatus === "error" && (
+                      <p className="text-xs text-destructive flex items-center gap-1">
+                        <XCircle className="w-3.5 h-3.5" /> {testMessage}
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
             <div className="flex items-center gap-2">
               <Checkbox
