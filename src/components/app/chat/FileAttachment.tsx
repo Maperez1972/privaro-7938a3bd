@@ -106,7 +106,7 @@ export function useFileAttachment() {
 
   const attachFile = useCallback(async (file: File) => {
     const ext = "." + file.name.split(".").pop()?.toLowerCase();
-    if (!ACCEPTED_TYPES.includes(file.type) && !ACCEPTED_EXTENSIONS.includes(ext)) return "Unsupported file type. Supported: TXT, CSV, PDF, JSON, MD, DOCX";
+    if (!ACCEPTED_TYPES.includes(file.type) && !ACCEPTED_EXTENSIONS.includes(ext)) return "Unsupported file type. Supported: TXT, CSV, PDF, JSON, MD, DOCX, XLSX, XLS, PPTX, PPT, images";
     if (file.size > MAX_SIZE) return "File too large. Maximum size is 10MB.";
 
     const att: FileAttachment = { file, content: "", detections: [], pages: [], scanning: true, scanned: false };
