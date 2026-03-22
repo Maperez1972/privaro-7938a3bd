@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Key, Plus, Trash2, Copy, Check } from "lucide-react";
+import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 import { useToast } from "@/hooks/use-toast";
 
 const AdminApiKeys = () => {
