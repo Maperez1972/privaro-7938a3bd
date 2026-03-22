@@ -78,10 +78,11 @@ const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps)
     if (!confirmPreset) return;
     setApplying(true);
 
-    const { error: delErr } = await supabase
+    const { error: delErr } = await (supabase as any)
       .from("policy_rules")
       .delete()
-      .eq("org_id", orgId);
+      .eq("org_id", orgId)
+      .is("pipeline_id", null);
 
     if (delErr) {
       toast({ title: "Error", description: delErr.message, variant: "destructive" });

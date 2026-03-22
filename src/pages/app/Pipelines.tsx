@@ -26,7 +26,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, GitBranch, MoreVertical, Pencil, Play, Pause, Archive, Trash2 } from "lucide-react";
+import { Plus, GitBranch, MoreVertical, Pencil, Play, Pause, Archive, Trash2, ChevronDown } from "lucide-react";
+import PipelinePoliciesSection from "@/components/app/pipeline/PipelinePoliciesSection";
 
 interface Pipeline {
   id: string;
@@ -102,6 +103,7 @@ const Pipelines = () => {
   const [editPipeline, setEditPipeline] = useState<Pipeline | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Pipeline | null>(null);
+  const [expandedPipeline, setExpandedPipeline] = useState<string | null>(null);
 
   const fetchPipelines = useCallback(async () => {
     if (!profile?.org_id) {
@@ -354,6 +356,27 @@ const Pipelines = () => {
                       <p className="text-sm font-semibold">{pipe.avg_latency_ms}ms</p>
                     </div>
                   </div>
+
+                  {/* Expand/Collapse Policies */}
+                  <div className="mt-3 pt-3 border-t border-border/50">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-muted-foreground gap-1 px-0 h-auto hover:text-foreground"
+                      onClick={() => setExpandedPipeline(expandedPipeline === pipe.id ? null : pipe.id)}
+                    >
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expandedPipeline === pipe.id ? "rotate-180" : ""}`} />
+                      Pipeline Policies
+                    </Button>
+                  </div>
+
+                  {expandedPipeline === pipe.id && (
+                    <PipelinePoliciesSection
+                      pipelineId={pipe.id}
+                      pipelineName={pipe.name}
+                      pipelineSector={pipe.sector}
+                    />
+                  )}
                 </CardContent>
               </Card>
             );
