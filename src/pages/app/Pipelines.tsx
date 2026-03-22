@@ -103,6 +103,7 @@ const Pipelines = () => {
   const [editPipeline, setEditPipeline] = useState<Pipeline | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Pipeline | null>(null);
+  const [expandedPipeline, setExpandedPipeline] = useState<string | null>(null);
 
   const fetchPipelines = useCallback(async () => {
     if (!profile?.org_id) {
