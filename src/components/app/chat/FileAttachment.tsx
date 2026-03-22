@@ -31,8 +31,8 @@ export interface FileAttachment {
   scanned: boolean;
 }
 
-const ACCEPTED_TYPES = ["text/plain","text/csv","application/pdf","application/json","text/markdown","application/vnd.openxmlformats-officedocument.wordprocessingml.document","image/png","image/jpeg","image/webp","image/gif"];
-const ACCEPTED_EXTENSIONS = [".txt",".csv",".pdf",".json",".md",".docx",".png",".jpg",".jpeg",".webp",".gif"];
+const ACCEPTED_TYPES = ["text/plain","text/csv","application/pdf","application/json","text/markdown","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.presentationml.presentation","application/vnd.ms-powerpoint","image/png","image/jpeg","image/webp","image/gif"];
+const ACCEPTED_EXTENSIONS = [".txt",".csv",".pdf",".json",".md",".docx",".xlsx",".xls",".pptx",".ppt",".png",".jpg",".jpeg",".webp",".gif"];
 const IMAGE_TYPES = ["image/png","image/jpeg","image/webp","image/gif"];
 const IMAGE_EXTENSIONS = [".png",".jpg",".jpeg",".webp",".gif"];
 const MAX_SIZE = 10 * 1024 * 1024;
@@ -106,7 +106,7 @@ export function useFileAttachment() {
 
   const attachFile = useCallback(async (file: File) => {
     const ext = "." + file.name.split(".").pop()?.toLowerCase();
-    if (!ACCEPTED_TYPES.includes(file.type) && !ACCEPTED_EXTENSIONS.includes(ext)) return "Unsupported file type. Supported: TXT, CSV, PDF, JSON, MD, DOCX";
+    if (!ACCEPTED_TYPES.includes(file.type) && !ACCEPTED_EXTENSIONS.includes(ext)) return "Unsupported file type. Supported: TXT, CSV, PDF, JSON, MD, DOCX, XLSX, XLS, PPTX, PPT, images";
     if (file.size > MAX_SIZE) return "File too large. Maximum size is 10MB.";
 
     const att: FileAttachment = { file, content: "", detections: [], pages: [], scanning: true, scanned: false };
