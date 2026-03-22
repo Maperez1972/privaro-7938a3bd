@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import logoPrivaro from "@/assets/logo-privaro.png";
 
 const navItems = [
-  { label: "Chat", icon: MessageSquare, href: "/app/chat" },
+  { label: "Conversations", icon: MessageSquare, href: "/app/chat" },
   { label: "Dashboard", icon: LayoutDashboard, href: "/app/dashboard" },
   { label: "AI Pipelines", icon: Zap, href: "/app/pipelines" },
   { label: "PII Sandbox", icon: FlaskConical, href: "/app/sandbox" },
