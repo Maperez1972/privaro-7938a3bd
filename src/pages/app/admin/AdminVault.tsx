@@ -240,7 +240,7 @@ const AdminVault = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {tokens.map((t) => (
+                    {(() => { const { paged } = paginate(tokens, tokenPage, 10); return paged; })().map((t) => (
                       <TableRow key={t.id}>
                         <TableCell className="font-mono text-sm">{t.token_value}</TableCell>
                         <TableCell>
