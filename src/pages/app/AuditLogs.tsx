@@ -48,6 +48,7 @@ const AuditLogs = () => {
   const [riskFilter, setRiskFilter] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
   const { data, isLoading } = useQuery({
     queryKey: ["audit-logs", orgId, search, severity, ibsStatus, riskFilter, sortOrder, page],
