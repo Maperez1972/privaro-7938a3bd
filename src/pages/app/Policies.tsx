@@ -321,7 +321,7 @@ const Policies = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {(() => { const { paged } = paginate(rules, policyPage, 10); return paged; })().map((rule) => (
+                  {(() => { const { paged } = paginate(rules, policyPage, policyPageSize); return paged; })().map((rule) => (
                     <tr key={rule.id} className="border-b border-border/50 hover:bg-secondary/30 transition-colors">
                       <td className="p-4">
                         <Switch checked={rule.is_enabled} onCheckedChange={() => handleToggle(rule)} />
