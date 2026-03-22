@@ -26,7 +26,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, GitBranch, MoreVertical, Pencil, Play, Pause, Archive, Trash2 } from "lucide-react";
+import { Plus, GitBranch, MoreVertical, Pencil, Play, Pause, Archive, Trash2, ChevronDown } from "lucide-react";
+import PipelinePoliciesSection from "@/components/app/pipeline/PipelinePoliciesSection";
 
 interface Pipeline {
   id: string;
