@@ -121,7 +121,7 @@ const AdminApiKeys = () => {
                   No API keys yet
                 </TableCell>
               </TableRow>
-            ) : (() => { const { paged } = paginate(keys, keyPage, 10); return paged; })().map(k => (
+            ) : (() => { const { paged } = paginate(keys, keyPage, keyPageSize); return paged; })().map(k => (
               <TableRow key={k.id} className="border-border">
                 <TableCell className="font-semibold">{k.name}</TableCell>
                 <TableCell className="font-mono text-sm text-muted-foreground">
