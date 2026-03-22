@@ -34,6 +34,7 @@ const AdminUsers = () => {
   const orgId = profile?.org_id;
   const queryClient = useQueryClient();
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [userPage, setUserPage] = useState(0);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("viewer");
 
