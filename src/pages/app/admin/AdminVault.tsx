@@ -287,57 +287,59 @@ const AdminVault = () => {
                   <p className="text-sm">No access log entries yet</p>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Time</TableHead>
-                      <TableHead>Action</TableHead>
-                      <TableHead>Token ID</TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>IP</TableHead>
-                      <TableHead>Blockchain</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {(() => { const { paged } = paginate(accessLog, logPage, 10); return paged; })().map((entry) => (
-                      <TableRow key={entry.id}>
-                        <TableCell className="text-sm">{formatDate(entry.created_at)}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={entry.action === "reveal" ? "bg-blue-500/15 text-blue-400 border-blue-500/30" : entry.action === "revoked" ? "bg-red-500/15 text-red-400 border-red-500/30" : "bg-muted text-muted-foreground border-border"}>
-                            {entry.action}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-mono text-xs text-muted-foreground truncate max-w-[120px]">{entry.token_id}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{entry.user_name || entry.user_id.slice(0, 8) + "…"}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{entry.ip_address || "—"}</TableCell>
-                        <TableCell>
-                          {entry.ibs_certification_hash ? (
-                            <a
-                              href={`https://checker.icommunitylabs.com/check/${entry.ibs_network || "fantom_opera_mainnet"}/${entry.ibs_certification_hash}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5"
-                            >
-                              <Badge variant="outline" className="bg-green-500/15 text-green-400 border-green-500/30 gap-1">
-                                Certified ⛓️
-                                <ExternalLink className="w-3 h-3" />
-                              </Badge>
-                            </a>
-                          ) : entry.ibs_evidence_id ? (
-                            <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
-                              Certifying…
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
-                              Pending
-                            </Badge>
-                          )}
-                        </TableCell>
+                <>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Time</TableHead>
+                        <TableHead>Action</TableHead>
+                        <TableHead>Token ID</TableHead>
+                        <TableHead>User</TableHead>
+                        <TableHead>IP</TableHead>
+                        <TableHead>Blockchain</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                <PaginationControls page={logPage} totalPages={Math.max(1, Math.ceil(accessLog.length / 10))} totalItems={accessLog.length} pageSize={10} onPageChange={setLogPage} />
+                    </TableHeader>
+                    <TableBody>
+                      {(() => { const { paged } = paginate(accessLog, logPage, 10); return paged; })().map((entry) => (
+                        <TableRow key={entry.id}>
+                          <TableCell className="text-sm">{formatDate(entry.created_at)}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={entry.action === "reveal" ? "bg-blue-500/15 text-blue-400 border-blue-500/30" : entry.action === "revoked" ? "bg-red-500/15 text-red-400 border-red-500/30" : "bg-muted text-muted-foreground border-border"}>
+                              {entry.action}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-xs text-muted-foreground truncate max-w-[120px]">{entry.token_id}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground">{entry.user_name || entry.user_id.slice(0, 8) + "…"}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground">{entry.ip_address || "—"}</TableCell>
+                          <TableCell>
+                            {entry.ibs_certification_hash ? (
+                              <a
+                                href={`https://checker.icommunitylabs.com/check/${entry.ibs_network || "fantom_opera_mainnet"}/${entry.ibs_certification_hash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5"
+                              >
+                                <Badge variant="outline" className="bg-green-500/15 text-green-400 border-green-500/30 gap-1">
+                                  Certified ⛓️
+                                  <ExternalLink className="w-3 h-3" />
+                                </Badge>
+                              </a>
+                            ) : entry.ibs_evidence_id ? (
+                              <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
+                                Certifying…
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
+                                Pending
+                              </Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <PaginationControls page={logPage} totalPages={Math.max(1, Math.ceil(accessLog.length / 10))} totalItems={accessLog.length} pageSize={10} onPageChange={setLogPage} />
+                </>
               )}
             </CardContent>
           </Card>
