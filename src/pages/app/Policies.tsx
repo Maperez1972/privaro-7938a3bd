@@ -58,6 +58,7 @@ const Policies = () => {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<PolicyRule | null>(null);
   const [policyPage, setPolicyPage] = useState(0);
+  const [policyPageSize, setPolicyPageSize] = useState(10);
   const [activePreset, setActivePreset] = useState<string | null>(
     localStorage.getItem("privaro-lastPreset")
   );
