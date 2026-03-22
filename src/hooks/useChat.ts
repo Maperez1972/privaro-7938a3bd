@@ -217,17 +217,36 @@ export function useChat() {
   }, [fetchConversations, fetchArchivedConversations]);
 
   const deleteConversation = useCallback(async (id: string) => {
-    const { error: msgErr } = await (supabase as any).from("conversation_messages").delete().eq("conversation_id", id);
-    if (msgErr) console.error("Delete messages error:", msgErr);
-    const { error: convErr } = await (supabase as any).from("conversations").delete().eq("id", id);
-    if (convErr) console.error("Delete conversation error:", convErr);
+    if (!user) return;
+
+    const { data, error } = await (supabase as any)
+      .from("conversations")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .select("id");
+
+    if (error) {
+      console.error("Delete conversation error:", error);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      console.error("Delete conversation warning: no rows deleted", { id, userId: user.id });
+      return;
+    }
+
+    setConversations((prev) => prev.filter((c) => c.id !== id));
+    setArchivedConversations((prev) => prev.filter((c) => c.id !== id));
+
     if (activeConversationId === id) {
       setActiveConversationId(null);
       setMessages([]);
     }
+
     await fetchConversations();
     await fetchArchivedConversations();
-  }, [activeConversationId, fetchConversations, fetchArchivedConversations]);
+  }, [user, activeConversationId, fetchConversations, fetchArchivedConversations]);
 
   const renameConversation = useCallback(async (id: string, newTitle: string) => {
     await (supabase as any).from("conversations").update({ custom_title: newTitle }).eq("id", id);
