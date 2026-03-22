@@ -64,17 +64,43 @@ export function ChatArea({ messages, sending, loading, activeConversationId, act
         ) : (
           <div className="space-y-4 max-w-3xl mx-auto">
             {messages.map((msg) => (
-              <div key={msg.id} className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}>
-                <div className={cn("max-w-[75%] rounded-xl px-4 py-3 text-sm", msg.role === "user" ? "bg-primary/20 text-foreground" : "bg-secondary text-foreground")}>
-                  {msg.attachment_name && <div className="flex items-center gap-1.5 mb-2 pb-2 border-b border-border/40"><FileText className="w-3.5 h-3.5 text-primary" /><span className="text-[10px] font-medium text-primary">{msg.attachment_name}</span></div>}
-                  {msg.role === "assistant" ? (
-                    <div className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_pre]:bg-background/50 [&_pre]:rounded-md [&_pre]:p-2 [&_code]:text-primary [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm">
-                      <ReactMarkdown>{msg.content_protected}</ReactMarkdown>
+              <div key={msg.id} className={cn("group flex", msg.role === "user" ? "justify-end" : "justify-start")}>
+                <div className="flex flex-col gap-1 max-w-[75%]">
+                  <div className={cn("rounded-xl px-4 py-3 text-sm", msg.role === "user" ? "bg-primary/20 text-foreground" : "bg-secondary text-foreground")}>
+                    {msg.attachment_name && <div className="flex items-center gap-1.5 mb-2 pb-2 border-b border-border/40"><FileText className="w-3.5 h-3.5 text-primary" /><span className="text-[10px] font-medium text-primary">{msg.attachment_name}</span></div>}
+                    {editingId === msg.id ? (
+                      <div className="space-y-2">
+                        <textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="w-full resize-none bg-background/50 border border-border rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary" rows={3} autoFocus />
+                        <div className="flex gap-1.5 justify-end">
+                          <Button variant="ghost" size="sm" className="h-6 text-[11px] px-2" onClick={handleCancelEdit}>Cancel</Button>
+                          <Button size="sm" className="h-6 text-[11px] px-2" onClick={() => handleSaveEdit(msg.id)} disabled={!editText.trim()}>Save</Button>
+                        </div>
+                      </div>
+                    ) : msg.role === "assistant" ? (
+                      <div className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_pre]:bg-background/50 [&_pre]:rounded-md [&_pre]:p-2 [&_code]:text-primary [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm">
+                        <ReactMarkdown>{msg.content_protected}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className="whitespace-pre-wrap">{msg.content_protected}</p>
+                    )}
+                    {msg.role === "user" && msg.pii_detected > 0 && editingId !== msg.id && <div className="flex items-center gap-1 mt-2"><Badge className="text-[9px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30 gap-1 px-1.5 py-0"><Lock className="w-2 h-2" /> {msg.pii_protected} protected</Badge></div>}
+                  </div>
+                  {editingId !== msg.id && (
+                    <div className={cn("flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity", msg.role === "user" ? "justify-end" : "justify-start")}>
+                      <Tooltip><TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleCopy(msg)}>
+                          {copiedId === msg.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                        </Button>
+                      </TooltipTrigger><TooltipContent side="bottom" className="text-[11px]">Copy</TooltipContent></Tooltip>
+                      {msg.role === "user" && onEditMessage && (
+                        <Tooltip><TooltipTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleStartEdit(msg)}>
+                            <Pencil className="w-3 h-3" />
+                          </Button>
+                        </TooltipTrigger><TooltipContent side="bottom" className="text-[11px]">Edit</TooltipContent></Tooltip>
+                      )}
                     </div>
-                  ) : (
-                    <p className="whitespace-pre-wrap">{msg.content_protected}</p>
                   )}
-                  {msg.role === "user" && msg.pii_detected > 0 && <div className="flex items-center gap-1 mt-2"><Badge className="text-[9px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30 gap-1 px-1.5 py-0"><Lock className="w-2 h-2" /> {msg.pii_protected} protected</Badge></div>}
                 </div>
               </div>
             ))}
