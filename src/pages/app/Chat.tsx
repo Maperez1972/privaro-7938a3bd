@@ -48,7 +48,7 @@ const Chat = () => {
         onChangeFolderColor={chat.changeFolderColor}
         onDeleteFolder={chat.deleteFolder}
       />
-      <ChatArea messages={chat.messages} sending={chat.sending} loading={chat.loadingMessages} activeConversationId={chat.activeConversationId} activePipeline={chat.pipelines.find((p) => p.id === chat.activePipelineId)} isProxyActive={chat.isProxyActive} input={input} setInput={setInput} textareaRef={textareaRef} onSend={handleSend} onKeyDown={handleKeyDown} messagesEndRef={chat.messagesEndRef} attachment={attachment} onAttachFile={attachFile} onRemoveAttachment={removeAttachment} />
+      <ChatArea messages={chat.messages} sending={chat.sending} loading={chat.loadingMessages} activeConversationId={chat.activeConversationId} activePipeline={chat.pipelines.find((p) => p.id === chat.activePipelineId)} isProxyActive={chat.isProxyActive} input={input} setInput={setInput} textareaRef={textareaRef} onSend={handleSend} onKeyDown={handleKeyDown} messagesEndRef={chat.messagesEndRef} attachment={attachment} onAttachFile={attachFile} onRemoveAttachment={removeAttachment} onEditMessage={chat.editMessage} />
       <PipelineSelector pipelines={chat.pipelines} activePipelineId={chat.activePipelineId} onSelect={chat.setActivePipelineId} />
     </div>
   );

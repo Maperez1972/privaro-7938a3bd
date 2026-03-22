@@ -1,20 +1,49 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Lock, AlertTriangle, Send, Paperclip, FileText, Upload } from "lucide-react";
+import { MessageSquare, Lock, AlertTriangle, Send, Paperclip, FileText, Upload, Copy, Check, Pencil } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { FilePreview, FileAttachment } from "./FileAttachment";
 import { useRef, useState, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
+import { toast } from "sonner";
 
 interface Message { id: string; role: "user" | "assistant"; content_protected: string; pii_detected: number; pii_protected: number; created_at: string; attachment_name?: string | null; attachment_type?: string | null; attachment_size?: number | null; }
 interface Pipeline { id: string; name: string; llm_provider: string; llm_model: string; }
-interface Props { messages: Message[]; sending: boolean; loading: boolean; activeConversationId: string | null; activePipeline?: Pipeline; isProxyActive: boolean; input: string; setInput: (v: string) => void; textareaRef: React.RefObject<HTMLTextAreaElement>; onSend: () => void; onKeyDown: (e: React.KeyboardEvent) => void; messagesEndRef: React.RefObject<HTMLDivElement>; attachment: FileAttachment | null; onAttachFile: (file: File) => Promise<string | null>; onRemoveAttachment: () => void; }
+interface Props { messages: Message[]; sending: boolean; loading: boolean; activeConversationId: string | null; activePipeline?: Pipeline; isProxyActive: boolean; input: string; setInput: (v: string) => void; textareaRef: React.RefObject<HTMLTextAreaElement>; onSend: () => void; onKeyDown: (e: React.KeyboardEvent) => void; messagesEndRef: React.RefObject<HTMLDivElement>; attachment: FileAttachment | null; onAttachFile: (file: File) => Promise<string | null>; onRemoveAttachment: () => void; onEditMessage?: (messageId: string, newContent: string) => void; }
 
-export function ChatArea({ messages, sending, loading, activeConversationId, activePipeline, isProxyActive, input, setInput, textareaRef, onSend, onKeyDown, messagesEndRef, attachment, onAttachFile, onRemoveAttachment }: Props) {
+export function ChatArea({ messages, sending, loading, activeConversationId, activePipeline, isProxyActive, input, setInput, textareaRef, onSend, onKeyDown, messagesEndRef, attachment, onAttachFile, onRemoveAttachment, onEditMessage }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragCounterRef = useRef(0);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
+
+  const handleCopy = (msg: Message) => {
+    navigator.clipboard.writeText(msg.content_protected);
+    setCopiedId(msg.id);
+    toast.success("Copied to clipboard");
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleStartEdit = (msg: Message) => {
+    setEditingId(msg.id);
+    setEditText(msg.content_protected);
+  };
+
+  const handleSaveEdit = (msgId: string) => {
+    if (editText.trim() && onEditMessage) {
+      onEditMessage(msgId, editText.trim());
+    }
+    setEditingId(null);
+    setEditText("");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditText("");
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (!file) return; const error = await onAttachFile(file); if (error) alert(error); if (fileInputRef.current) fileInputRef.current.value = ""; };
   const handleDrop = useCallback(async (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); dragCounterRef.current = 0; const file = e.dataTransfer.files?.[0]; if (!file) return; const error = await onAttachFile(file); if (error) alert(error); }, [onAttachFile]);
@@ -35,17 +64,43 @@ export function ChatArea({ messages, sending, loading, activeConversationId, act
         ) : (
           <div className="space-y-4 max-w-3xl mx-auto">
             {messages.map((msg) => (
-              <div key={msg.id} className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}>
-                <div className={cn("max-w-[75%] rounded-xl px-4 py-3 text-sm", msg.role === "user" ? "bg-primary/20 text-foreground" : "bg-secondary text-foreground")}>
-                  {msg.attachment_name && <div className="flex items-center gap-1.5 mb-2 pb-2 border-b border-border/40"><FileText className="w-3.5 h-3.5 text-primary" /><span className="text-[10px] font-medium text-primary">{msg.attachment_name}</span></div>}
-                  {msg.role === "assistant" ? (
-                    <div className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_pre]:bg-background/50 [&_pre]:rounded-md [&_pre]:p-2 [&_code]:text-primary [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm">
-                      <ReactMarkdown>{msg.content_protected}</ReactMarkdown>
+              <div key={msg.id} className={cn("group flex", msg.role === "user" ? "justify-end" : "justify-start")}>
+                <div className="flex flex-col gap-1 max-w-[75%]">
+                  <div className={cn("rounded-xl px-4 py-3 text-sm", msg.role === "user" ? "bg-primary/20 text-foreground" : "bg-secondary text-foreground")}>
+                    {msg.attachment_name && <div className="flex items-center gap-1.5 mb-2 pb-2 border-b border-border/40"><FileText className="w-3.5 h-3.5 text-primary" /><span className="text-[10px] font-medium text-primary">{msg.attachment_name}</span></div>}
+                    {editingId === msg.id ? (
+                      <div className="space-y-2">
+                        <textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="w-full resize-none bg-background/50 border border-border rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary" rows={3} autoFocus />
+                        <div className="flex gap-1.5 justify-end">
+                          <Button variant="ghost" size="sm" className="h-6 text-[11px] px-2" onClick={handleCancelEdit}>Cancel</Button>
+                          <Button size="sm" className="h-6 text-[11px] px-2" onClick={() => handleSaveEdit(msg.id)} disabled={!editText.trim()}>Save</Button>
+                        </div>
+                      </div>
+                    ) : msg.role === "assistant" ? (
+                      <div className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_pre]:bg-background/50 [&_pre]:rounded-md [&_pre]:p-2 [&_code]:text-primary [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm">
+                        <ReactMarkdown>{msg.content_protected}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className="whitespace-pre-wrap">{msg.content_protected}</p>
+                    )}
+                    {msg.role === "user" && msg.pii_detected > 0 && editingId !== msg.id && <div className="flex items-center gap-1 mt-2"><Badge className="text-[9px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30 gap-1 px-1.5 py-0"><Lock className="w-2 h-2" /> {msg.pii_protected} protected</Badge></div>}
+                  </div>
+                  {editingId !== msg.id && (
+                    <div className={cn("flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity", msg.role === "user" ? "justify-end" : "justify-start")}>
+                      <Tooltip><TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleCopy(msg)}>
+                          {copiedId === msg.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                        </Button>
+                      </TooltipTrigger><TooltipContent side="bottom" className="text-[11px]">Copy</TooltipContent></Tooltip>
+                      {msg.role === "user" && onEditMessage && (
+                        <Tooltip><TooltipTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleStartEdit(msg)}>
+                            <Pencil className="w-3 h-3" />
+                          </Button>
+                        </TooltipTrigger><TooltipContent side="bottom" className="text-[11px]">Edit</TooltipContent></Tooltip>
+                      )}
                     </div>
-                  ) : (
-                    <p className="whitespace-pre-wrap">{msg.content_protected}</p>
                   )}
-                  {msg.role === "user" && msg.pii_detected > 0 && <div className="flex items-center gap-1 mt-2"><Badge className="text-[9px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30 gap-1 px-1.5 py-0"><Lock className="w-2 h-2" /> {msg.pii_protected} protected</Badge></div>}
                 </div>
               </div>
             ))}

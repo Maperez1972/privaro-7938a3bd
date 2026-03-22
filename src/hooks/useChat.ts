@@ -535,6 +535,12 @@ export function useChat() {
     setSending(false);
   }, [user, profile?.org_id, activeConversationId, activePipelineId, pipelines, sending, messages, createConversation, fetchConversations]);
 
+  const editMessage = useCallback(async (messageId: string, newContent: string) => {
+    const { error } = await (supabase as any).from("messages").update({ content_protected: newContent }).eq("id", messageId);
+    if (error) { console.error("Edit message error:", error); return; }
+    setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, content_protected: newContent } : m));
+  }, []);
+
   return {
     conversations,
     archivedConversations,
@@ -558,6 +564,7 @@ export function useChat() {
     moveToFolder,
     duplicateConversation,
     sendMessage,
+    editMessage,
     folders,
     createFolder,
     renameFolder,
