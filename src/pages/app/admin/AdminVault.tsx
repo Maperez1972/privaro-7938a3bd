@@ -81,7 +81,9 @@ const AdminVault = () => {
   const [copied, setCopied] = useState(false);
 
   const [tokenPage, setTokenPage] = useState(0);
+  const [tokenPageSize, setTokenPageSize] = useState(10);
   const [logPage, setLogPage] = useState(0);
+  const [logPageSize, setLogPageSize] = useState(10);
   // Revoke state
   const [revokeOpen, setRevokeOpen] = useState(false);
   const [revokeToken, setRevokeToken] = useState<VaultToken | null>(null);
@@ -241,7 +243,7 @@ const AdminVault = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {(() => { const { paged } = paginate(tokens, tokenPage, 10); return paged; })().map((t) => (
+                      {(() => { const { paged } = paginate(tokens, tokenPage, tokenPageSize); return paged; })().map((t) => (
                         <TableRow key={t.id}>
                           <TableCell className="font-mono text-sm">{t.token_value}</TableCell>
                           <TableCell>
@@ -265,7 +267,7 @@ const AdminVault = () => {
                       ))}
                     </TableBody>
                   </Table>
-                  <PaginationControls page={tokenPage} totalPages={Math.max(1, Math.ceil(tokens.length / 10))} totalItems={tokens.length} pageSize={10} onPageChange={setTokenPage} />
+                  <PaginationControls page={tokenPage} totalPages={Math.max(1, Math.ceil(tokens.length / tokenPageSize))} totalItems={tokens.length} pageSize={tokenPageSize} onPageChange={setTokenPage} onPageSizeChange={setTokenPageSize} />
                 </>
               )}
             </CardContent>
@@ -300,7 +302,7 @@ const AdminVault = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {(() => { const { paged } = paginate(accessLog, logPage, 10); return paged; })().map((entry) => (
+                      {(() => { const { paged } = paginate(accessLog, logPage, logPageSize); return paged; })().map((entry) => (
                         <TableRow key={entry.id}>
                           <TableCell className="text-sm">{formatDate(entry.created_at)}</TableCell>
                           <TableCell>
@@ -338,7 +340,7 @@ const AdminVault = () => {
                       ))}
                     </TableBody>
                   </Table>
-                  <PaginationControls page={logPage} totalPages={Math.max(1, Math.ceil(accessLog.length / 10))} totalItems={accessLog.length} pageSize={10} onPageChange={setLogPage} />
+                  <PaginationControls page={logPage} totalPages={Math.max(1, Math.ceil(accessLog.length / logPageSize))} totalItems={accessLog.length} pageSize={logPageSize} onPageChange={setLogPage} onPageSizeChange={setLogPageSize} />
                 </>
               )}
             </CardContent>

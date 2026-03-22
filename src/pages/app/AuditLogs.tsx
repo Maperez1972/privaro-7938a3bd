@@ -14,14 +14,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Download, ChevronLeft, ChevronRight, Loader2, ExternalLink, FileText, ChevronDown, CalendarClock } from "lucide-react";
+import { Search, Download, Loader2, ExternalLink, FileText, ChevronDown, CalendarClock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { generateDpoReportHtml, downloadHtml } from "@/lib/dpo-report";
 import { AuditLogDetail } from "@/components/app/AuditLogDetail";
+import { PaginationControls } from "@/components/app/PaginationControls";
 import ScheduledReports from "@/components/app/ScheduledReports";
 
-const PAGE_SIZE = 15;
+const DEFAULT_pageSize = 15;
 
 const SEVERITY_OPTIONS = ["all", "critical", "high", "medium", "low"] as const;
 const IBS_STATUS_OPTIONS = ["all", "pending", "certified", "failed"] as const;
@@ -47,6 +48,7 @@ const AuditLogs = () => {
   const [riskFilter, setRiskFilter] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(DEFAULT_pageSize);
 
   const { data, isLoading } = useQuery({
     queryKey: ["audit-logs", orgId, search, severity, ibsStatus, riskFilter, sortOrder, page],
@@ -60,7 +62,7 @@ const AuditLogs = () => {
         ) as any)
         .eq("org_id", orgId!)
         .order("created_at", { ascending: sortOrder === "asc" })
-        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+        .range(page * pageSize, (page + 1) * pageSize - 1);
 
       if (severity !== "all") {
         query = query.eq("severity", severity);
@@ -109,7 +111,7 @@ const AuditLogs = () => {
 
   const logs = data?.rows ?? [];
   const total = data?.total ?? 0;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   // Reset page when filters change
   const resetPage = () => setPage(0);
@@ -422,25 +424,7 @@ const AuditLogs = () => {
         </CardContent>
       </Card>
 
-      {/* Pagination */}
-      {total > PAGE_SIZE && (
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)} of {total}
-          </p>
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage(page - 1)}>
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <span className="text-sm flex items-center px-2">
-              {page + 1} / {totalPages}
-            </span>
-            <Button size="sm" variant="outline" disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}>
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      )}
+      <PaginationControls page={page} totalPages={totalPages} totalItems={total} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
         </TabsContent>
 
         <TabsContent value="reports">

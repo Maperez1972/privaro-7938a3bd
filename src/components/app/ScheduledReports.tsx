@@ -123,6 +123,7 @@ const ScheduledReports = () => {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [expandedPeriod, setExpandedPeriod] = useState<string | null>(null);
   const [reportPage, setReportPage] = useState(0);
+  const [reportPageSize, setReportPageSize] = useState(10);
 
   const { data: reports, isLoading } = useQuery({
     queryKey: ["dpo-reports", orgId],
@@ -246,7 +247,7 @@ const ScheduledReports = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {(() => { const { paged } = paginate(reports, reportPage, 10); return paged; })().map((report: any) => {
+                  {(() => { const { paged } = paginate(reports, reportPage, reportPageSize); return paged; })().map((report: any) => {
                     const st = statusConfig(report);
                     const isExpanded = expandedPeriod === report.period_label;
                     return (
@@ -315,7 +316,7 @@ const ScheduledReports = () => {
           )}
         </CardContent>
       </Card>
-      {reports?.length ? <PaginationControls page={reportPage} totalPages={Math.max(1, Math.ceil(reports.length / 10))} totalItems={reports.length} pageSize={10} onPageChange={setReportPage} /> : null}
+      {reports?.length ? <PaginationControls page={reportPage} totalPages={Math.max(1, Math.ceil(reports.length / reportPageSize))} totalItems={reports.length} pageSize={reportPageSize} onPageChange={setReportPage} onPageSizeChange={setReportPageSize} /> : null}
     </div>
   );
 };

@@ -24,6 +24,7 @@ const AdminApiKeys = () => {
   const [copied, setCopied] = useState(false);
   const [permissions, setPermissions] = useState({ detect: true, protect: true });
   const [keyPage, setKeyPage] = useState(0);
+  const [keyPageSize, setKeyPageSize] = useState(10);
   useEffect(() => {
     if (!profile?.org_id) return;
     supabase.from("api_keys").select("*").eq("org_id", profile.org_id).order("created_at", { ascending: false })
@@ -120,7 +121,7 @@ const AdminApiKeys = () => {
                   No API keys yet
                 </TableCell>
               </TableRow>
-            ) : (() => { const { paged } = paginate(keys, keyPage, 10); return paged; })().map(k => (
+            ) : (() => { const { paged } = paginate(keys, keyPage, keyPageSize); return paged; })().map(k => (
               <TableRow key={k.id} className="border-border">
                 <TableCell className="font-semibold">{k.name}</TableCell>
                 <TableCell className="font-mono text-sm text-muted-foreground">
@@ -161,7 +162,7 @@ const AdminApiKeys = () => {
           </TableBody>
         </Table>
       </Card>
-      <PaginationControls page={keyPage} totalPages={Math.max(1, Math.ceil(keys.length / 10))} totalItems={keys.length} pageSize={10} onPageChange={setKeyPage} />
+      <PaginationControls page={keyPage} totalPages={Math.max(1, Math.ceil(keys.length / keyPageSize))} totalItems={keys.length} pageSize={keyPageSize} onPageChange={setKeyPage} onPageSizeChange={setKeyPageSize} />
 
       <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) handleCloseDialog(); else setDialogOpen(true); }}>
         <DialogContent className="max-w-md bg-card border-border">

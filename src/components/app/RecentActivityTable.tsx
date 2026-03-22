@@ -5,13 +5,14 @@ import { StatusBadge, SeverityBadge } from "@/components/app/StatusBadge";
 import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 import { FileText } from "lucide-react";
 
-const PAGE_SIZE = 5;
+const DEFAULT_PAGE_SIZE = 5;
 
 interface LogRow { id: string; event_type: string; entity_type: string; action_taken: string; severity: string; ibs_status: string; created_at: string; }
 
 export const RecentActivityTable = ({ logs, isLoading }: { logs: LogRow[]; isLoading: boolean }) => {
   const [page, setPage] = useState(0);
-  const { paged, totalPages } = paginate(logs, page, PAGE_SIZE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const { paged, totalPages } = paginate(logs, page, pageSize);
 
   return (
     <Card className="border-border bg-card">
@@ -22,7 +23,7 @@ export const RecentActivityTable = ({ logs, isLoading }: { logs: LogRow[]; isLoa
         ) : (
           <>
             <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="text-left text-muted-foreground border-b border-border"><th className="pb-3 font-medium">Event</th><th className="pb-3 font-medium">Entity</th><th className="pb-3 font-medium">Action</th><th className="pb-3 font-medium">Severity</th><th className="pb-3 font-medium">Blockchain</th><th className="pb-3 font-medium">Time</th></tr></thead><tbody>{paged.map((log) => (<tr key={log.id} className="border-b border-border/50 hover:bg-secondary/30 transition-colors"><td className="py-3 font-mono text-xs">{log.event_type}</td><td className="py-3"><span className="text-xs bg-secondary px-2 py-1 rounded">{log.entity_type}</span></td><td className="py-3 text-xs">{log.action_taken}</td><td className="py-3"><SeverityBadge severity={log.severity} /></td><td className="py-3"><StatusBadge status={log.ibs_status} /></td><td className="py-3 text-xs text-muted-foreground">{new Date(log.created_at).toLocaleTimeString()}</td></tr>))}</tbody></table></div>
-            <PaginationControls page={page} totalPages={totalPages} totalItems={logs.length} pageSize={PAGE_SIZE} onPageChange={setPage} />
+            <PaginationControls page={page} totalPages={totalPages} totalItems={logs.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
           </>
         )}
       </CardContent>

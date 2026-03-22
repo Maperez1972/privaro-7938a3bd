@@ -58,6 +58,7 @@ const Policies = () => {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<PolicyRule | null>(null);
   const [policyPage, setPolicyPage] = useState(0);
+  const [policyPageSize, setPolicyPageSize] = useState(10);
   const [activePreset, setActivePreset] = useState<string | null>(
     localStorage.getItem("privaro-lastPreset")
   );
@@ -320,7 +321,7 @@ const Policies = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {(() => { const { paged } = paginate(rules, policyPage, 10); return paged; })().map((rule) => (
+                  {(() => { const { paged } = paginate(rules, policyPage, policyPageSize); return paged; })().map((rule) => (
                     <tr key={rule.id} className="border-b border-border/50 hover:bg-secondary/30 transition-colors">
                       <td className="p-4">
                         <Switch checked={rule.is_enabled} onCheckedChange={() => handleToggle(rule)} />
@@ -360,7 +361,7 @@ const Policies = () => {
               </table>
             </CardContent>
           </Card>
-          <PaginationControls page={policyPage} totalPages={Math.max(1, Math.ceil(rules.length / 10))} totalItems={rules.length} pageSize={10} onPageChange={setPolicyPage} />
+          <PaginationControls page={policyPage} totalPages={Math.max(1, Math.ceil(rules.length / policyPageSize))} totalItems={rules.length} pageSize={policyPageSize} onPageChange={setPolicyPage} onPageSizeChange={setPolicyPageSize} />
         </>
       )}
 
