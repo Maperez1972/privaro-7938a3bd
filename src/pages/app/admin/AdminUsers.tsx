@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Users, Plus, MoreHorizontal, Loader2, UserCheck, UserX } from "lucide-react";
 import { toast } from "sonner";
+import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 
 const roleBadgeColors: Record<string, string> = {
   admin: "bg-purple-500/15 text-purple-400 border-purple-500/30",
