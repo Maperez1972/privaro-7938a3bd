@@ -10,12 +10,40 @@ import { toast } from "sonner";
 
 interface Message { id: string; role: "user" | "assistant"; content_protected: string; pii_detected: number; pii_protected: number; created_at: string; attachment_name?: string | null; attachment_type?: string | null; attachment_size?: number | null; }
 interface Pipeline { id: string; name: string; llm_provider: string; llm_model: string; }
-interface Props { messages: Message[]; sending: boolean; loading: boolean; activeConversationId: string | null; activePipeline?: Pipeline; isProxyActive: boolean; input: string; setInput: (v: string) => void; textareaRef: React.RefObject<HTMLTextAreaElement>; onSend: () => void; onKeyDown: (e: React.KeyboardEvent) => void; messagesEndRef: React.RefObject<HTMLDivElement>; attachment: FileAttachment | null; onAttachFile: (file: File) => Promise<string | null>; onRemoveAttachment: () => void; }
+interface Props { messages: Message[]; sending: boolean; loading: boolean; activeConversationId: string | null; activePipeline?: Pipeline; isProxyActive: boolean; input: string; setInput: (v: string) => void; textareaRef: React.RefObject<HTMLTextAreaElement>; onSend: () => void; onKeyDown: (e: React.KeyboardEvent) => void; messagesEndRef: React.RefObject<HTMLDivElement>; attachment: FileAttachment | null; onAttachFile: (file: File) => Promise<string | null>; onRemoveAttachment: () => void; onEditMessage?: (messageId: string, newContent: string) => void; }
 
-export function ChatArea({ messages, sending, loading, activeConversationId, activePipeline, isProxyActive, input, setInput, textareaRef, onSend, onKeyDown, messagesEndRef, attachment, onAttachFile, onRemoveAttachment }: Props) {
+export function ChatArea({ messages, sending, loading, activeConversationId, activePipeline, isProxyActive, input, setInput, textareaRef, onSend, onKeyDown, messagesEndRef, attachment, onAttachFile, onRemoveAttachment, onEditMessage }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragCounterRef = useRef(0);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
+
+  const handleCopy = (msg: Message) => {
+    navigator.clipboard.writeText(msg.content_protected);
+    setCopiedId(msg.id);
+    toast.success("Copied to clipboard");
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleStartEdit = (msg: Message) => {
+    setEditingId(msg.id);
+    setEditText(msg.content_protected);
+  };
+
+  const handleSaveEdit = (msgId: string) => {
+    if (editText.trim() && onEditMessage) {
+      onEditMessage(msgId, editText.trim());
+    }
+    setEditingId(null);
+    setEditText("");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditText("");
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (!file) return; const error = await onAttachFile(file); if (error) alert(error); if (fileInputRef.current) fileInputRef.current.value = ""; };
   const handleDrop = useCallback(async (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); dragCounterRef.current = 0; const file = e.dataTransfer.files?.[0]; if (!file) return; const error = await onAttachFile(file); if (error) alert(error); }, [onAttachFile]);
