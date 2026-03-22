@@ -189,7 +189,7 @@ const AdminUsers = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {(() => { const { paged } = paginate(users ?? [], userPage, 10); return paged; })().map((u) => (
+                {(() => { const { paged } = paginate(users ?? [], userPage, userPageSize); return paged; })().map((u) => (
                   <TableRow key={u.id} className="border-border">
                     <TableCell className="font-medium">{u.full_name}</TableCell>
                     <TableCell>
