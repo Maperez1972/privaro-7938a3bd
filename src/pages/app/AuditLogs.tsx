@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { generateDpoReportHtml, downloadHtml } from "@/lib/dpo-report";
 import { AuditLogDetail } from "@/components/app/AuditLogDetail";
+import { PaginationControls } from "@/components/app/PaginationControls";
 import ScheduledReports from "@/components/app/ScheduledReports";
 
 const PAGE_SIZE = 15;
