@@ -264,6 +264,7 @@ const AdminVault = () => {
                     ))}
                   </TableBody>
                 </Table>
+                <PaginationControls page={tokenPage} totalPages={Math.max(1, Math.ceil(tokens.length / 10))} totalItems={tokens.length} pageSize={10} onPageChange={setTokenPage} />
               )}
             </CardContent>
           </Card>
