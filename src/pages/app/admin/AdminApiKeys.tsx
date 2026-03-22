@@ -24,6 +24,7 @@ const AdminApiKeys = () => {
   const [copied, setCopied] = useState(false);
   const [permissions, setPermissions] = useState({ detect: true, protect: true });
   const [keyPage, setKeyPage] = useState(0);
+  const [keyPageSize, setKeyPageSize] = useState(10);
   useEffect(() => {
     if (!profile?.org_id) return;
     supabase.from("api_keys").select("*").eq("org_id", profile.org_id).order("created_at", { ascending: false })
