@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Download, ChevronLeft, ChevronRight, Loader2, ExternalLink, FileText, ChevronDown, CalendarClock } from "lucide-react";
+import { Search, Download, Loader2, ExternalLink, FileText, ChevronDown, CalendarClock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { generateDpoReportHtml, downloadHtml } from "@/lib/dpo-report";
