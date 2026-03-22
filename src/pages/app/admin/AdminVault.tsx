@@ -340,7 +340,7 @@ const AdminVault = () => {
                       ))}
                     </TableBody>
                   </Table>
-                  <PaginationControls page={logPage} totalPages={Math.max(1, Math.ceil(accessLog.length / 10))} totalItems={accessLog.length} pageSize={10} onPageChange={setLogPage} />
+                  <PaginationControls page={logPage} totalPages={Math.max(1, Math.ceil(accessLog.length / logPageSize))} totalItems={accessLog.length} pageSize={logPageSize} onPageChange={setLogPage} onPageSizeChange={setLogPageSize} />
                 </>
               )}
             </CardContent>

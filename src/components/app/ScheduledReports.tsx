@@ -316,7 +316,7 @@ const ScheduledReports = () => {
           )}
         </CardContent>
       </Card>
-      {reports?.length ? <PaginationControls page={reportPage} totalPages={Math.max(1, Math.ceil(reports.length / 10))} totalItems={reports.length} pageSize={10} onPageChange={setReportPage} /> : null}
+      {reports?.length ? <PaginationControls page={reportPage} totalPages={Math.max(1, Math.ceil(reports.length / reportPageSize))} totalItems={reports.length} pageSize={reportPageSize} onPageChange={setReportPage} onPageSizeChange={setReportPageSize} /> : null}
     </div>
   );
 };

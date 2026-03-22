@@ -243,7 +243,7 @@ const AdminUsers = () => {
               </TableBody>
             </Table>
           </div>
-          <PaginationControls page={userPage} totalPages={Math.max(1, Math.ceil((users?.length ?? 0) / 10))} totalItems={users?.length ?? 0} pageSize={10} onPageChange={setUserPage} />
+          <PaginationControls page={userPage} totalPages={Math.max(1, Math.ceil((users?.length ?? 0) / userPageSize))} totalItems={users?.length ?? 0} pageSize={userPageSize} onPageChange={setUserPage} onPageSizeChange={setUserPageSize} />
         </>
       )}
     </div>

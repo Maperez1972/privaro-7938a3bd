@@ -361,7 +361,7 @@ const Policies = () => {
               </table>
             </CardContent>
           </Card>
-          <PaginationControls page={policyPage} totalPages={Math.max(1, Math.ceil(rules.length / 10))} totalItems={rules.length} pageSize={10} onPageChange={setPolicyPage} />
+          <PaginationControls page={policyPage} totalPages={Math.max(1, Math.ceil(rules.length / policyPageSize))} totalItems={rules.length} pageSize={policyPageSize} onPageChange={setPolicyPage} onPageSizeChange={setPolicyPageSize} />
         </>
       )}
 
