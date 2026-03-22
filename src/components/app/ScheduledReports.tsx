@@ -246,7 +246,7 @@ const ScheduledReports = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {reports.map((report: any) => {
+                  {(() => { const { paged } = paginate(reports, reportPage, 10); return paged; })().map((report: any) => {
                     const st = statusConfig(report);
                     const isExpanded = expandedPeriod === report.period_label;
                     return (
