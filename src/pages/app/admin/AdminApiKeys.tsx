@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Key, Plus, Trash2, Copy, Check } from "lucide-react";
+import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 import { useToast } from "@/hooks/use-toast";
 
 const AdminApiKeys = () => {
@@ -22,6 +23,7 @@ const AdminApiKeys = () => {
   const [generatedKey, setGeneratedKey] = useState("");
   const [copied, setCopied] = useState(false);
   const [permissions, setPermissions] = useState({ detect: true, protect: true });
+  const [keyPage, setKeyPage] = useState(0);
   useEffect(() => {
     if (!profile?.org_id) return;
     supabase.from("api_keys").select("*").eq("org_id", profile.org_id).order("created_at", { ascending: false })
@@ -118,7 +120,7 @@ const AdminApiKeys = () => {
                   No API keys yet
                 </TableCell>
               </TableRow>
-            ) : keys.map(k => (
+            ) : (() => { const { paged } = paginate(keys, keyPage, 10); return paged; })().map(k => (
               <TableRow key={k.id} className="border-border">
                 <TableCell className="font-semibold">{k.name}</TableCell>
                 <TableCell className="font-mono text-sm text-muted-foreground">
@@ -159,6 +161,7 @@ const AdminApiKeys = () => {
           </TableBody>
         </Table>
       </Card>
+      <PaginationControls page={keyPage} totalPages={Math.max(1, Math.ceil(keys.length / 10))} totalItems={keys.length} pageSize={10} onPageChange={setKeyPage} />
 
       <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) handleCloseDialog(); else setDialogOpen(true); }}>
         <DialogContent className="max-w-md bg-card border-border">

@@ -27,6 +27,8 @@ import PolicyDialog, { PolicyFormData } from "@/components/app/PolicyDialog";
 import PolicyPresetPanel from "@/components/app/PolicyPresetPanel";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, MoreVertical, Pencil, Trash2, Download, Upload } from "lucide-react";
+import { useState as usePaginationState } from "react";
+import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 
 const actionColors: Record<string, string> = {
   tokenise: "bg-primary/15 text-primary border-primary/30",
@@ -55,6 +57,7 @@ const Policies = () => {
   const [editRule, setEditRule] = useState<PolicyRule | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<PolicyRule | null>(null);
+  const [policyPage, setPolicyPage] = useState(0);
   const [activePreset, setActivePreset] = useState<string | null>(
     localStorage.getItem("privaro-lastPreset")
   );
@@ -317,7 +320,7 @@ const Policies = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {rules.map((rule) => (
+                  {(() => { const { paged } = paginate(rules, policyPage, 10); return paged; })().map((rule) => (
                     <tr key={rule.id} className="border-b border-border/50 hover:bg-secondary/30 transition-colors">
                       <td className="p-4">
                         <Switch checked={rule.is_enabled} onCheckedChange={() => handleToggle(rule)} />
@@ -357,6 +360,7 @@ const Policies = () => {
               </table>
             </CardContent>
           </Card>
+          <PaginationControls page={policyPage} totalPages={Math.max(1, Math.ceil(rules.length / 10))} totalItems={rules.length} pageSize={10} onPageChange={setPolicyPage} />
         </>
       )}
 

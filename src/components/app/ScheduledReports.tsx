@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Download, Loader2, FileText, RefreshCw, History, ChevronDown, ChevronUp } from "lucide-react";
+import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 import { formatDistanceToNow, format } from "date-fns";
 
 const statusConfig = (report: any): { label: string; className: string; animate?: boolean } => {
@@ -121,6 +122,7 @@ const ScheduledReports = () => {
   const [generating, setGenerating] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [expandedPeriod, setExpandedPeriod] = useState<string | null>(null);
+  const [reportPage, setReportPage] = useState(0);
 
   const { data: reports, isLoading } = useQuery({
     queryKey: ["dpo-reports", orgId],
@@ -244,7 +246,7 @@ const ScheduledReports = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {reports.map((report: any) => {
+                  {(() => { const { paged } = paginate(reports, reportPage, 10); return paged; })().map((report: any) => {
                     const st = statusConfig(report);
                     const isExpanded = expandedPeriod === report.period_label;
                     return (
@@ -313,6 +315,7 @@ const ScheduledReports = () => {
           )}
         </CardContent>
       </Card>
+      {reports?.length ? <PaginationControls page={reportPage} totalPages={Math.max(1, Math.ceil(reports.length / 10))} totalItems={reports.length} pageSize={10} onPageChange={setReportPage} /> : null}
     </div>
   );
 };

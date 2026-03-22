@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Users, Plus, MoreHorizontal, Loader2, UserCheck, UserX } from "lucide-react";
 import { toast } from "sonner";
+import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 
 const roleBadgeColors: Record<string, string> = {
   admin: "bg-purple-500/15 text-purple-400 border-purple-500/30",
@@ -33,6 +34,7 @@ const AdminUsers = () => {
   const orgId = profile?.org_id;
   const queryClient = useQueryClient();
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [userPage, setUserPage] = useState(0);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("viewer");
 
@@ -173,72 +175,75 @@ const AdminUsers = () => {
       {isLoading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
       ) : (
-        <div className="border border-border rounded-lg overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border">
-                <TableHead>Name</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead className="w-10"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users?.map((u) => (
-                <TableRow key={u.id} className="border-border">
-                  <TableCell className="font-medium">{u.full_name}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={roleBadgeColors[u.role] || ""}>
-                      {u.role}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {u.is_active ? (
-                      <span className="flex items-center gap-1 text-green-400 text-sm"><UserCheck className="w-3.5 h-3.5" /> Active</span>
-                    ) : (
-                      <span className="flex items-center gap-1 text-muted-foreground text-sm"><UserX className="w-3.5 h-3.5" /> Inactive</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {new Date(u.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {["admin", "dpo", "developer", "viewer"].map((role) => (
-                          <DropdownMenuItem
-                            key={role}
-                            onClick={() => changeRole.mutate({ userId: u.id, newRole: role })}
-                            disabled={u.role === role}
-                          >
-                            Set as {role}
-                          </DropdownMenuItem>
-                        ))}
-                        <DropdownMenuItem
-                          onClick={() => {
-                            if (u.id === user?.id) {
-                              toast.error("You cannot deactivate yourself");
-                              return;
-                            }
-                            toggleActive.mutate({ userId: u.id, is_active: !u.is_active });
-                          }}
-                        >
-                          {u.is_active ? "Deactivate" : "Activate"}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+        <>
+          <div className="border border-border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border">
+                  <TableHead>Name</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead className="w-10"></TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {(() => { const { paged } = paginate(users ?? [], userPage, 10); return paged; })().map((u) => (
+                  <TableRow key={u.id} className="border-border">
+                    <TableCell className="font-medium">{u.full_name}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={roleBadgeColors[u.role] || ""}>
+                        {u.role}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {u.is_active ? (
+                        <span className="flex items-center gap-1 text-green-400 text-sm"><UserCheck className="w-3.5 h-3.5" /> Active</span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-muted-foreground text-sm"><UserX className="w-3.5 h-3.5" /> Inactive</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {new Date(u.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {["admin", "dpo", "developer", "viewer"].map((role) => (
+                            <DropdownMenuItem
+                              key={role}
+                              onClick={() => changeRole.mutate({ userId: u.id, newRole: role })}
+                              disabled={u.role === role}
+                            >
+                              Set as {role}
+                            </DropdownMenuItem>
+                          ))}
+                          <DropdownMenuItem
+                            onClick={() => {
+                              if (u.id === user?.id) {
+                                toast.error("You cannot deactivate yourself");
+                                return;
+                              }
+                              toggleActive.mutate({ userId: u.id, is_active: !u.is_active });
+                            }}
+                          >
+                            {u.is_active ? "Deactivate" : "Activate"}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          <PaginationControls page={userPage} totalPages={Math.max(1, Math.ceil((users?.length ?? 0) / 10))} totalItems={users?.length ?? 0} pageSize={10} onPageChange={setUserPage} />
+        </>
       )}
     </div>
   );

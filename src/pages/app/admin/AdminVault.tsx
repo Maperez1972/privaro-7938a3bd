@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Eye, Trash2, KeyRound, Copy, Check, Loader2, ExternalLink } from "lucide-react";
+import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 
 interface VaultToken {
   id: string;
@@ -79,6 +80,8 @@ const AdminVault = () => {
   const [revealing, setRevealing] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const [tokenPage, setTokenPage] = useState(0);
+  const [logPage, setLogPage] = useState(0);
   // Revoke state
   const [revokeOpen, setRevokeOpen] = useState(false);
   const [revokeToken, setRevokeToken] = useState<VaultToken | null>(null);
@@ -224,43 +227,46 @@ const AdminVault = () => {
                   <p className="text-sm">No tokens in vault yet</p>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Token</TableHead>
-                      <TableHead>Entity Type</TableHead>
-                      <TableHead>Key ID</TableHead>
-                      <TableHead className="text-center">Reversals</TableHead>
-                      <TableHead>Last Revealed</TableHead>
-                      <TableHead>Expires</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {tokens.map((t) => (
-                      <TableRow key={t.id}>
-                        <TableCell className="font-mono text-sm">{t.token_value}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={getEntityBadgeClass(t.entity_type)}>
-                            {t.entity_type}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-mono text-xs text-muted-foreground">{t.encryption_key_id}</TableCell>
-                        <TableCell className="text-center">{t.reversal_count}</TableCell>
-                        <TableCell className="text-sm">{formatDate(t.last_reversed_at)}</TableCell>
-                        <TableCell className="text-sm">{formatDate(t.expires_at)}</TableCell>
-                        <TableCell className="text-right space-x-1">
-                          <Button variant="ghost" size="icon" onClick={() => openReveal(t)} title="Reveal">
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => openRevoke(t)} title="Revoke" className="text-destructive hover:text-destructive">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </TableCell>
+                <>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Token</TableHead>
+                        <TableHead>Entity Type</TableHead>
+                        <TableHead>Key ID</TableHead>
+                        <TableHead className="text-center">Reversals</TableHead>
+                        <TableHead>Last Revealed</TableHead>
+                        <TableHead>Expires</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {(() => { const { paged } = paginate(tokens, tokenPage, 10); return paged; })().map((t) => (
+                        <TableRow key={t.id}>
+                          <TableCell className="font-mono text-sm">{t.token_value}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={getEntityBadgeClass(t.entity_type)}>
+                              {t.entity_type}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-xs text-muted-foreground">{t.encryption_key_id}</TableCell>
+                          <TableCell className="text-center">{t.reversal_count}</TableCell>
+                          <TableCell className="text-sm">{formatDate(t.last_reversed_at)}</TableCell>
+                          <TableCell className="text-sm">{formatDate(t.expires_at)}</TableCell>
+                          <TableCell className="text-right space-x-1">
+                            <Button variant="ghost" size="icon" onClick={() => openReveal(t)} title="Reveal">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => openRevoke(t)} title="Revoke" className="text-destructive hover:text-destructive">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <PaginationControls page={tokenPage} totalPages={Math.max(1, Math.ceil(tokens.length / 10))} totalItems={tokens.length} pageSize={10} onPageChange={setTokenPage} />
+                </>
               )}
             </CardContent>
           </Card>
@@ -281,56 +287,59 @@ const AdminVault = () => {
                   <p className="text-sm">No access log entries yet</p>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Time</TableHead>
-                      <TableHead>Action</TableHead>
-                      <TableHead>Token ID</TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>IP</TableHead>
-                      <TableHead>Blockchain</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {accessLog.map((entry) => (
-                      <TableRow key={entry.id}>
-                        <TableCell className="text-sm">{formatDate(entry.created_at)}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={entry.action === "reveal" ? "bg-blue-500/15 text-blue-400 border-blue-500/30" : entry.action === "revoked" ? "bg-red-500/15 text-red-400 border-red-500/30" : "bg-muted text-muted-foreground border-border"}>
-                            {entry.action}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-mono text-xs text-muted-foreground truncate max-w-[120px]">{entry.token_id}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{entry.user_name || entry.user_id.slice(0, 8) + "…"}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{entry.ip_address || "—"}</TableCell>
-                        <TableCell>
-                          {entry.ibs_certification_hash ? (
-                            <a
-                              href={`https://checker.icommunitylabs.com/check/${entry.ibs_network || "fantom_opera_mainnet"}/${entry.ibs_certification_hash}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5"
-                            >
-                              <Badge variant="outline" className="bg-green-500/15 text-green-400 border-green-500/30 gap-1">
-                                Certified ⛓️
-                                <ExternalLink className="w-3 h-3" />
-                              </Badge>
-                            </a>
-                          ) : entry.ibs_evidence_id ? (
-                            <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
-                              Certifying…
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
-                              Pending
-                            </Badge>
-                          )}
-                        </TableCell>
+                <>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Time</TableHead>
+                        <TableHead>Action</TableHead>
+                        <TableHead>Token ID</TableHead>
+                        <TableHead>User</TableHead>
+                        <TableHead>IP</TableHead>
+                        <TableHead>Blockchain</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {(() => { const { paged } = paginate(accessLog, logPage, 10); return paged; })().map((entry) => (
+                        <TableRow key={entry.id}>
+                          <TableCell className="text-sm">{formatDate(entry.created_at)}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={entry.action === "reveal" ? "bg-blue-500/15 text-blue-400 border-blue-500/30" : entry.action === "revoked" ? "bg-red-500/15 text-red-400 border-red-500/30" : "bg-muted text-muted-foreground border-border"}>
+                              {entry.action}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-xs text-muted-foreground truncate max-w-[120px]">{entry.token_id}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground">{entry.user_name || entry.user_id.slice(0, 8) + "…"}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground">{entry.ip_address || "—"}</TableCell>
+                          <TableCell>
+                            {entry.ibs_certification_hash ? (
+                              <a
+                                href={`https://checker.icommunitylabs.com/check/${entry.ibs_network || "fantom_opera_mainnet"}/${entry.ibs_certification_hash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5"
+                              >
+                                <Badge variant="outline" className="bg-green-500/15 text-green-400 border-green-500/30 gap-1">
+                                  Certified ⛓️
+                                  <ExternalLink className="w-3 h-3" />
+                                </Badge>
+                              </a>
+                            ) : entry.ibs_evidence_id ? (
+                              <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
+                                Certifying…
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
+                                Pending
+                              </Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <PaginationControls page={logPage} totalPages={Math.max(1, Math.ceil(accessLog.length / 10))} totalItems={accessLog.length} pageSize={10} onPageChange={setLogPage} />
+                </>
               )}
             </CardContent>
           </Card>
