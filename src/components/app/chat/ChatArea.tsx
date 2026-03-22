@@ -1,11 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Lock, AlertTriangle, Send, Paperclip, FileText, Upload } from "lucide-react";
+import { MessageSquare, Lock, AlertTriangle, Send, Paperclip, FileText, Upload, Copy, Check, Pencil } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { FilePreview, FileAttachment } from "./FileAttachment";
 import { useRef, useState, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
+import { toast } from "sonner";
 
 interface Message { id: string; role: "user" | "assistant"; content_protected: string; pii_detected: number; pii_protected: number; created_at: string; attachment_name?: string | null; attachment_type?: string | null; attachment_size?: number | null; }
 interface Pipeline { id: string; name: string; llm_provider: string; llm_model: string; }
