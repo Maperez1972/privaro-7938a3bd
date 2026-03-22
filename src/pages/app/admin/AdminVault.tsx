@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Eye, Trash2, KeyRound, Copy, Check, Loader2, ExternalLink } from "lucide-react";
+import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 
 interface VaultToken {
   id: string;
