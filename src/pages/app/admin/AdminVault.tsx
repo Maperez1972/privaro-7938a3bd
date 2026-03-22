@@ -81,7 +81,9 @@ const AdminVault = () => {
   const [copied, setCopied] = useState(false);
 
   const [tokenPage, setTokenPage] = useState(0);
+  const [tokenPageSize, setTokenPageSize] = useState(10);
   const [logPage, setLogPage] = useState(0);
+  const [logPageSize, setLogPageSize] = useState(10);
   // Revoke state
   const [revokeOpen, setRevokeOpen] = useState(false);
   const [revokeToken, setRevokeToken] = useState<VaultToken | null>(null);
