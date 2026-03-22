@@ -161,6 +161,7 @@ const AdminApiKeys = () => {
           </TableBody>
         </Table>
       </Card>
+      <PaginationControls page={keyPage} totalPages={Math.max(1, Math.ceil(keys.length / 10))} totalItems={keys.length} pageSize={10} onPageChange={setKeyPage} />
 
       <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) handleCloseDialog(); else setDialogOpen(true); }}>
         <DialogContent className="max-w-md bg-card border-border">
