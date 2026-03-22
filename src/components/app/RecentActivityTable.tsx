@@ -5,13 +5,14 @@ import { StatusBadge, SeverityBadge } from "@/components/app/StatusBadge";
 import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 import { FileText } from "lucide-react";
 
-const PAGE_SIZE = 5;
+const DEFAULT_PAGE_SIZE = 5;
 
 interface LogRow { id: string; event_type: string; entity_type: string; action_taken: string; severity: string; ibs_status: string; created_at: string; }
 
 export const RecentActivityTable = ({ logs, isLoading }: { logs: LogRow[]; isLoading: boolean }) => {
   const [page, setPage] = useState(0);
-  const { paged, totalPages } = paginate(logs, page, PAGE_SIZE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const { paged, totalPages } = paginate(logs, page, pageSize);
 
   return (
     <Card className="border-border bg-card">
