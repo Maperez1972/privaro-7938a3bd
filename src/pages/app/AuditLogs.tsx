@@ -21,7 +21,7 @@ import { generateDpoReportHtml, downloadHtml } from "@/lib/dpo-report";
 import { AuditLogDetail } from "@/components/app/AuditLogDetail";
 import ScheduledReports from "@/components/app/ScheduledReports";
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 15;
 
 const SEVERITY_OPTIONS = ["all", "critical", "high", "medium", "low"] as const;
 const IBS_STATUS_OPTIONS = ["all", "pending", "certified", "failed"] as const;

@@ -360,6 +360,7 @@ const Policies = () => {
               </table>
             </CardContent>
           </Card>
+          <PaginationControls page={policyPage} totalPages={Math.max(1, Math.ceil(rules.length / 10))} totalItems={rules.length} pageSize={10} onPageChange={setPolicyPage} />
         </>
       )}
 
