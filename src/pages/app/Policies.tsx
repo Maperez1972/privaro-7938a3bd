@@ -27,6 +27,8 @@ import PolicyDialog, { PolicyFormData } from "@/components/app/PolicyDialog";
 import PolicyPresetPanel from "@/components/app/PolicyPresetPanel";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, MoreVertical, Pencil, Trash2, Download, Upload } from "lucide-react";
+import { useState as usePaginationState } from "react";
+import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 
 const actionColors: Record<string, string> = {
   tokenise: "bg-primary/15 text-primary border-primary/30",
