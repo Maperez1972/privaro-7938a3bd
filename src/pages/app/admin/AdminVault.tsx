@@ -302,7 +302,7 @@ const AdminVault = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {(() => { const { paged } = paginate(accessLog, logPage, 10); return paged; })().map((entry) => (
+                      {(() => { const { paged } = paginate(accessLog, logPage, logPageSize); return paged; })().map((entry) => (
                         <TableRow key={entry.id}>
                           <TableCell className="text-sm">{formatDate(entry.created_at)}</TableCell>
                           <TableCell>
