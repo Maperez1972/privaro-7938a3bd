@@ -229,13 +229,17 @@ export function useChat() {
 
     if (error) {
       console.error("Delete conversation error:", error);
+      toast.error("Failed to delete conversation");
       return;
     }
 
     if (!data || data.length === 0) {
       console.error("Delete conversation warning: no rows deleted", { id, userId: user.id });
+      toast.error("Could not delete conversation");
       return;
     }
+
+    toast.success("Conversation deleted");
 
     setConversations((prev) => prev.filter((c) => c.id !== id));
     setArchivedConversations((prev) => prev.filter((c) => c.id !== id));
