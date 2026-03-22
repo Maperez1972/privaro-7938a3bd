@@ -217,14 +217,17 @@ export function useChat() {
   }, [fetchConversations, fetchArchivedConversations]);
 
   const deleteConversation = useCallback(async (id: string) => {
-    await supabase.from("conversation_messages").delete().eq("conversation_id", id);
-    await supabase.from("conversations").delete().eq("id", id);
+    const { error: msgErr } = await (supabase as any).from("conversation_messages").delete().eq("conversation_id", id);
+    if (msgErr) console.error("Delete messages error:", msgErr);
+    const { error: convErr } = await (supabase as any).from("conversations").delete().eq("id", id);
+    if (convErr) console.error("Delete conversation error:", convErr);
     if (activeConversationId === id) {
       setActiveConversationId(null);
       setMessages([]);
     }
     await fetchConversations();
-  }, [activeConversationId, fetchConversations]);
+    await fetchArchivedConversations();
+  }, [activeConversationId, fetchConversations, fetchArchivedConversations]);
 
   const renameConversation = useCallback(async (id: string, newTitle: string) => {
     await (supabase as any).from("conversations").update({ custom_title: newTitle }).eq("id", id);
