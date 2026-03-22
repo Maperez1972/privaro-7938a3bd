@@ -227,44 +227,46 @@ const AdminVault = () => {
                   <p className="text-sm">No tokens in vault yet</p>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Token</TableHead>
-                      <TableHead>Entity Type</TableHead>
-                      <TableHead>Key ID</TableHead>
-                      <TableHead className="text-center">Reversals</TableHead>
-                      <TableHead>Last Revealed</TableHead>
-                      <TableHead>Expires</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {(() => { const { paged } = paginate(tokens, tokenPage, 10); return paged; })().map((t) => (
-                      <TableRow key={t.id}>
-                        <TableCell className="font-mono text-sm">{t.token_value}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={getEntityBadgeClass(t.entity_type)}>
-                            {t.entity_type}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-mono text-xs text-muted-foreground">{t.encryption_key_id}</TableCell>
-                        <TableCell className="text-center">{t.reversal_count}</TableCell>
-                        <TableCell className="text-sm">{formatDate(t.last_reversed_at)}</TableCell>
-                        <TableCell className="text-sm">{formatDate(t.expires_at)}</TableCell>
-                        <TableCell className="text-right space-x-1">
-                          <Button variant="ghost" size="icon" onClick={() => openReveal(t)} title="Reveal">
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => openRevoke(t)} title="Revoke" className="text-destructive hover:text-destructive">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </TableCell>
+                <>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Token</TableHead>
+                        <TableHead>Entity Type</TableHead>
+                        <TableHead>Key ID</TableHead>
+                        <TableHead className="text-center">Reversals</TableHead>
+                        <TableHead>Last Revealed</TableHead>
+                        <TableHead>Expires</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                <PaginationControls page={tokenPage} totalPages={Math.max(1, Math.ceil(tokens.length / 10))} totalItems={tokens.length} pageSize={10} onPageChange={setTokenPage} />
+                    </TableHeader>
+                    <TableBody>
+                      {(() => { const { paged } = paginate(tokens, tokenPage, 10); return paged; })().map((t) => (
+                        <TableRow key={t.id}>
+                          <TableCell className="font-mono text-sm">{t.token_value}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={getEntityBadgeClass(t.entity_type)}>
+                              {t.entity_type}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-xs text-muted-foreground">{t.encryption_key_id}</TableCell>
+                          <TableCell className="text-center">{t.reversal_count}</TableCell>
+                          <TableCell className="text-sm">{formatDate(t.last_reversed_at)}</TableCell>
+                          <TableCell className="text-sm">{formatDate(t.expires_at)}</TableCell>
+                          <TableCell className="text-right space-x-1">
+                            <Button variant="ghost" size="icon" onClick={() => openReveal(t)} title="Reveal">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => openRevoke(t)} title="Revoke" className="text-destructive hover:text-destructive">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <PaginationControls page={tokenPage} totalPages={Math.max(1, Math.ceil(tokens.length / 10))} totalItems={tokens.length} pageSize={10} onPageChange={setTokenPage} />
+                </>
               )}
             </CardContent>
           </Card>
