@@ -122,6 +122,7 @@ const ScheduledReports = () => {
   const [generating, setGenerating] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [expandedPeriod, setExpandedPeriod] = useState<string | null>(null);
+  const [reportPage, setReportPage] = useState(0);
 
   const { data: reports, isLoading } = useQuery({
     queryKey: ["dpo-reports", orgId],
