@@ -424,25 +424,7 @@ const AuditLogs = () => {
         </CardContent>
       </Card>
 
-      {/* Pagination */}
-      {total > pageSize && (
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, total)} of {total}
-          </p>
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage(page - 1)}>
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <span className="text-sm flex items-center px-2">
-              {page + 1} / {totalPages}
-            </span>
-            <Button size="sm" variant="outline" disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}>
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      )}
+      <PaginationControls page={page} totalPages={totalPages} totalItems={total} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
         </TabsContent>
 
         <TabsContent value="reports">
