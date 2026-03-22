@@ -22,7 +22,7 @@ import { AuditLogDetail } from "@/components/app/AuditLogDetail";
 import { PaginationControls } from "@/components/app/PaginationControls";
 import ScheduledReports from "@/components/app/ScheduledReports";
 
-const PAGE_SIZE = 15;
+const DEFAULT_PAGE_SIZE = 15;
 
 const SEVERITY_OPTIONS = ["all", "critical", "high", "medium", "low"] as const;
 const IBS_STATUS_OPTIONS = ["all", "pending", "certified", "failed"] as const;
