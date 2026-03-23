@@ -46,58 +46,18 @@ const PipelinePresetModal = ({ open, onOpenChange, pipelineId, pipelineName, pip
     if (!profile?.org_id || !user?.id) return;
     setApplying(true);
 
-    // Step 1: Delete existing pipeline rules
-    const { error: delErr } = await (supabase as any)
-      .from("policy_rules")
-      .delete()
-      .eq("pipeline_id", pipelineId)
-      .eq("org_id", profile.org_id);
+    const { data, error } = await (supabase as any).rpc("apply_preset_to_pipeline", {
+      p_pipeline_id: pipelineId,
+      p_sector: sector,
+      p_org_id: profile.org_id,
+    });
 
-    if (delErr) {
-      toast({ title: "Error", description: delErr.message, variant: "destructive" });
-      setApplying(false);
-      return;
-    }
-
-    // Step 2: Fetch preset rules
-    const { data: presetData, error: presetErr } = await (supabase as any)
-      .from("policy_presets")
-      .select("rules")
-      .eq("sector", sector)
-      .limit(1)
-      .maybeSingle();
-
-    if (presetErr || !presetData) {
-      toast({ title: "Error", description: presetErr?.message || "Preset not found", variant: "destructive" });
-      setApplying(false);
-      return;
-    }
-
-    const presetRules = Array.isArray(presetData.rules) ? presetData.rules : [];
-
-    // Step 3: Insert new pipeline rules
-    const rows = presetRules.map((r: any) => ({
-      org_id: profile.org_id,
-      pipeline_id: pipelineId,
-      scope: "pipeline",
-      entity_type: r.entity_type,
-      category: r.category,
-      action: r.action,
-      is_enabled: true,
-      priority: r.priority ?? 10,
-      regulation_ref: r.regulation_ref || null,
-      custom_pattern: r.custom_pattern || null,
-      overrides_org: false,
-      updated_by: user.id,
-    }));
-
-    const { error: insertErr } = await (supabase as any).from("policy_rules").insert(rows);
     setApplying(false);
 
-    if (insertErr) {
-      toast({ title: "Error", description: insertErr.message, variant: "destructive" });
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Preset applied", description: `${rows.length} pipeline rules configured` });
+      toast({ title: "Preset applied", description: `${data ?? 0} pipeline rules configured` });
       onApplied();
       onOpenChange(false);
     }

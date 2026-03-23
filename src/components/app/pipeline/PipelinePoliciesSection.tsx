@@ -98,11 +98,15 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
 
   useEffect(() => { fetchRules(); }, [fetchRules]);
 
-  // Realtime subscription
+  // Realtime subscription — listen to both pipeline-specific and org-level rule changes
   useEffect(() => {
     const channel = supabase
       .channel(`pipeline-policies-${pipelineId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "policy_rules", filter: `pipeline_id=eq.${pipelineId}` }, () => {
+        fetchRules();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "policy_rules", filter: `scope=eq.org` }, () => {
+        // Org-level changes affect effective policies view
         fetchRules();
       })
       .subscribe();

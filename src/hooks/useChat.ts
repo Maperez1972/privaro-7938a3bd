@@ -80,10 +80,15 @@ export function useChat() {
   const setActivePipelineId = useCallback(async (pipelineId: string) => {
     setActivePipelineIdRaw(pipelineId);
     if (activeConversationId) {
-      await supabase
+      const { error } = await (supabase as any)
         .from("conversations")
-        .update({ pipeline_id: pipelineId } as any)
+        .update({ pipeline_id: pipelineId })
         .eq("id", activeConversationId);
+      if (error) {
+        console.error("Update pipeline error:", error);
+        toast.error("Failed to update pipeline");
+        return;
+      }
       setConversations(prev =>
         prev.map(c => c.id === activeConversationId ? { ...c, pipeline_id: pipelineId } : c)
       );
@@ -254,8 +259,14 @@ export function useChat() {
   }, [user, activeConversationId, fetchConversations, fetchArchivedConversations]);
 
   const renameConversation = useCallback(async (id: string, newTitle: string) => {
-    await (supabase as any).from("conversations").update({ custom_title: newTitle }).eq("id", id);
+    const { error } = await (supabase as any).from("conversations").update({ custom_title: newTitle }).eq("id", id);
+    if (error) {
+      console.error("Rename conversation error:", error);
+      toast.error("Failed to rename conversation");
+      return;
+    }
     setConversations(prev => prev.map(c => c.id === id ? { ...c, custom_title: newTitle } : c));
+    setArchivedConversations(prev => prev.map(c => c.id === id ? { ...c, custom_title: newTitle } : c));
   }, []);
 
   const togglePin = useCallback(async (id: string) => {
