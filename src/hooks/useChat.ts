@@ -254,8 +254,14 @@ export function useChat() {
   }, [user, activeConversationId, fetchConversations, fetchArchivedConversations]);
 
   const renameConversation = useCallback(async (id: string, newTitle: string) => {
-    await (supabase as any).from("conversations").update({ custom_title: newTitle }).eq("id", id);
+    const { error } = await (supabase as any).from("conversations").update({ custom_title: newTitle }).eq("id", id);
+    if (error) {
+      console.error("Rename conversation error:", error);
+      toast.error("Failed to rename conversation");
+      return;
+    }
     setConversations(prev => prev.map(c => c.id === id ? { ...c, custom_title: newTitle } : c));
+    setArchivedConversations(prev => prev.map(c => c.id === id ? { ...c, custom_title: newTitle } : c));
   }, []);
 
   const togglePin = useCallback(async (id: string) => {
