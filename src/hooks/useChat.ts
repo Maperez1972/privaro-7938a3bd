@@ -80,10 +80,15 @@ export function useChat() {
   const setActivePipelineId = useCallback(async (pipelineId: string) => {
     setActivePipelineIdRaw(pipelineId);
     if (activeConversationId) {
-      await supabase
+      const { error } = await (supabase as any)
         .from("conversations")
-        .update({ pipeline_id: pipelineId } as any)
+        .update({ pipeline_id: pipelineId })
         .eq("id", activeConversationId);
+      if (error) {
+        console.error("Update pipeline error:", error);
+        toast.error("Failed to update pipeline");
+        return;
+      }
       setConversations(prev =>
         prev.map(c => c.id === activeConversationId ? { ...c, pipeline_id: pipelineId } : c)
       );
