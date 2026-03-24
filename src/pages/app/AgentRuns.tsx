@@ -24,6 +24,7 @@ type AgentRun = {
   ibs_status: string;
   ibs_evidence_id: string | null;
   ibs_certification_hash: string | null;
+  ibs_network: string | null;
   started_at: string;
   ended_at: string | null;
   duration_ms: number;
