@@ -82,7 +82,9 @@ export function useRiskOverview() {
         .from("audit_logs")
         .select("id, entity_type, risk_score, created_at, pipelines(name)") as any)
         .eq("org_id", orgId!)
-        .gte("risk_score", 0.7)
+        .not("risk_score", "is", null)
+        .gt("risk_score", 0)
+        .order("risk_score", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(5);
 
