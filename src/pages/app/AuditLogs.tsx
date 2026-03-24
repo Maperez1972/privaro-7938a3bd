@@ -392,9 +392,13 @@ const AuditLogs = () => {
                         <td className="p-4">
                           <div className="flex items-center gap-2">
                             <StatusBadge status={log.ibs_status} />
-                            {log.ibs_status === "certified" && log.ibs_certification_hash && (
+                            {log.ibs_status === "certified" && (log.ibs_certification_hash || log.ibs_evidence_id) && (
                               <a
-                                href={`https://checker.icommunitylabs.com/check/${log.ibs_network || "fantom_opera_mainnet"}/${log.ibs_certification_hash}`}
+                                href={
+                                  log.ibs_certification_hash
+                                    ? `https://checker.icommunitylabs.com/check/${log.ibs_network || "fantom_opera_mainnet"}/${log.ibs_certification_hash}`
+                                    : `https://checker.icommunitylabs.com/?evidence_id=${log.ibs_evidence_id}`
+                                }
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
