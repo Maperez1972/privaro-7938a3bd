@@ -123,13 +123,41 @@ const AgentRuns = () => {
   const { runs, loading } = useAgentRuns();
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-  const { paged, totalPages } = paginate(runs, page, pageSize);
+  const [filters, setFilters] = useState<AgentRunFilters>(EMPTY_FILTERS);
 
-  const totalPii = runs.reduce((a, r) => a + r.pii_detected, 0);
-  const totalMasked = runs.reduce((a, r) => a + r.pii_masked, 0);
-  const totalLeaked = runs.reduce((a, r) => a + r.pii_leaked, 0);
-  const avgRisk = runs.length > 0 ? runs.reduce((a, r) => a + r.risk_score, 0) / runs.length : 0;
-  const certified = runs.filter((r) => r.ibs_status === "certified").length;
+  const pipelines = useMemo(
+    () => [...new Set(runs.map((r) => r.pipeline_name).filter((p) => p !== "—"))],
+    [runs]
+  );
+
+  const filtered = useMemo(() => {
+    return runs.filter((r) => {
+      if (filters.status !== "all" && r.status !== filters.status) return false;
+      if (filters.pipeline !== "all" && r.pipeline_name !== filters.pipeline) return false;
+      if (filters.dateFrom) {
+        const start = new Date(r.started_at);
+        if (start < filters.dateFrom) return false;
+      }
+      if (filters.dateTo) {
+        const end = new Date(filters.dateTo);
+        end.setHours(23, 59, 59, 999);
+        const start = new Date(r.started_at);
+        if (start > end) return false;
+      }
+      return true;
+    });
+  }, [runs, filters]);
+
+  const { paged, totalPages } = paginate(filtered, page, pageSize);
+
+  // Reset page when filters change
+  useEffect(() => { setPage(0); }, [filters]);
+
+  const totalPii = filtered.reduce((a, r) => a + r.pii_detected, 0);
+  const totalMasked = filtered.reduce((a, r) => a + r.pii_masked, 0);
+  const totalLeaked = filtered.reduce((a, r) => a + r.pii_leaked, 0);
+  const avgRisk = filtered.length > 0 ? filtered.reduce((a, r) => a + r.risk_score, 0) / filtered.length : 0;
+  const certified = filtered.filter((r) => r.ibs_status === "certified").length;
 
   if (loading) return <p className="p-6 text-muted-foreground">Cargando agent runs...</p>;
 
