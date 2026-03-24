@@ -258,35 +258,49 @@ const AgentRuns = () => {
             </TableHeader>
             <TableBody>
               {paged.map((run) => (
-                <TableRow key={run.id} className="hover:bg-secondary/30 transition-colors">
-                  <TableCell>
-                    <div>
-                      <span className="font-medium text-sm">{run.agent_name}</span>
-                      <Badge variant="outline" className="ml-2 text-[10px] px-1.5 py-0">{run.sector_preset}</Badge>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">{run.pipeline_name}</TableCell>
-                  <TableCell>
-                    <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border capitalize", statusStyles[run.status])}>
-                      {run.status === "running" && <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5 animate-pulse" />}
-                      {run.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-center text-sm">{run.total_steps}</TableCell>
-                  <TableCell className="text-center text-sm font-medium">{run.pii_detected}</TableCell>
-                  <TableCell className="text-center">
-                    <span className="text-sm font-medium text-success">{run.pii_masked}</span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <span className={cn("text-sm font-medium", run.pii_leaked > 0 ? "text-destructive" : "text-muted-foreground")}>
-                      {run.pii_leaked}
-                    </span>
-                  </TableCell>
-                  <TableCell><RiskScoreBadge score={run.risk_score} /></TableCell>
-                  <TableCell><StatusBadge status={run.ibs_status} /></TableCell>
-                  <TableCell className="text-xs text-muted-foreground">{formatDuration(run.duration_ms)}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground">{new Date(run.started_at).toLocaleString()}</TableCell>
-                </TableRow>
+                <>
+                  <TableRow
+                    key={run.id}
+                    className="hover:bg-secondary/30 transition-colors cursor-pointer"
+                    onClick={() => setExpandedId(expandedId === run.id ? null : run.id)}
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-1.5">
+                        <ChevronRight className={cn("w-4 h-4 text-muted-foreground transition-transform", expandedId === run.id && "rotate-90")} />
+                        <span className="font-medium text-sm">{run.agent_name}</span>
+                        <Badge variant="outline" className="ml-1 text-[10px] px-1.5 py-0">{run.sector_preset}</Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">{run.pipeline_name}</TableCell>
+                    <TableCell>
+                      <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border capitalize", statusStyles[run.status])}>
+                        {run.status === "running" && <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5 animate-pulse" />}
+                        {run.status}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center text-sm">{run.total_steps}</TableCell>
+                    <TableCell className="text-center text-sm font-medium">{run.pii_detected}</TableCell>
+                    <TableCell className="text-center">
+                      <span className="text-sm font-medium text-success">{run.pii_masked}</span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className={cn("text-sm font-medium", run.pii_leaked > 0 ? "text-destructive" : "text-muted-foreground")}>
+                        {run.pii_leaked}
+                      </span>
+                    </TableCell>
+                    <TableCell><RiskScoreBadge score={run.risk_score} /></TableCell>
+                    <TableCell><StatusBadge status={run.ibs_status} /></TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{formatDuration(run.duration_ms)}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{new Date(run.started_at).toLocaleString()}</TableCell>
+                  </TableRow>
+                  {expandedId === run.id && (
+                    <TableRow key={`${run.id}-detail`}>
+                      <TableCell colSpan={11} className="p-0 bg-secondary/10">
+                        <AgentRunDetail agentRunId={run.id} />
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </>
               ))}
             </TableBody>
           </Table>
