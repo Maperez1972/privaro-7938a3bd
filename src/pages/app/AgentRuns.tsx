@@ -212,7 +212,7 @@ const AgentRuns = () => {
             <Clock className="w-4 h-4 text-primary" />
             <div>
               <p className="text-xs text-muted-foreground">iBS Certified</p>
-              <p className="text-2xl font-bold">{certified}<span className="text-xs text-muted-foreground ml-1">/ {runs.length}</span></p>
+              <p className="text-2xl font-bold">{certified}<span className="text-xs text-muted-foreground ml-1">/ {filtered.length}</span></p>
             </div>
           </CardContent>
         </Card>
