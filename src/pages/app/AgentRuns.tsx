@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { PaginationControls, paginate } from "@/components/app/PaginationControl
 import { Bot, ShieldCheck, ShieldAlert, Activity, Clock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import AgentRunsFilters, { EMPTY_FILTERS, type AgentRunFilters } from "@/components/app/agent-runs/AgentRunsFilters";
 
 type AgentRun = {
   id: string;
