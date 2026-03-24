@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { AlertTriangle, ShieldAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 
 const RISK_COLORS = {
@@ -82,7 +83,9 @@ export function useRiskOverview() {
         .from("audit_logs")
         .select("id, entity_type, risk_score, created_at, pipelines(name)") as any)
         .eq("org_id", orgId!)
-        .gte("risk_score", 0.7)
+        .not("risk_score", "is", null)
+        .gt("risk_score", 0)
+        .order("risk_score", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(5);
 
@@ -192,7 +195,10 @@ export const RiskOverviewWidget = () => {
                       {formatDistanceToNow(new Date(evt.created_at), { addSuffix: true })}
                     </p>
                   </div>
-                  <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-destructive/15 text-destructive flex-shrink-0">
+                  <span className={cn(
+                    "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold flex-shrink-0",
+                    evt.risk_score >= 0.7 ? "bg-destructive/15 text-destructive" : evt.risk_score >= 0.4 ? "bg-warning/15 text-warning" : "bg-success/15 text-success"
+                  )}>
                     {(evt.risk_score * 100).toFixed(0)}%
                   </span>
                 </button>
