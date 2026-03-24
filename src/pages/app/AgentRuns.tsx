@@ -23,6 +23,7 @@ type AgentRun = {
   risk_score: number;
   ibs_status: string;
   ibs_evidence_id: string | null;
+  ibs_certification_hash: string | null;
   started_at: string;
   ended_at: string | null;
   duration_ms: number;
