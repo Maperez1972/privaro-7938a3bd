@@ -141,15 +141,7 @@ function formatDuration(ms: number) {
   return `${Math.floor(s / 60)}m ${s % 60}s`;
 }
 
-function buildCheckerUrl(run: AgentRun): string | null {
-  if (run.ibs_certification_hash) {
-    return `https://checker.icommunitylabs.com/check/fantom_opera_mainnet/${run.ibs_certification_hash}`;
-  }
-  if (run.ibs_evidence_id) {
-    return `https://checker.icommunitylabs.com/?evidence_id=${run.ibs_evidence_id}`;
-  }
-  return null;
-}
+// removed buildCheckerUrl — inline logic in cell
 
 const DEFAULT_PAGE_SIZE = 10;
 
