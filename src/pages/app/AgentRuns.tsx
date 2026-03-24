@@ -45,6 +45,7 @@ function useAgentRuns() {
           total_pii_masked,
           max_risk_score,
           ibs_status,
+          ibs_evidence_id,
           started_at,
           ended_at,
           pipelines ( name, sector )
