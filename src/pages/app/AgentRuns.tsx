@@ -177,7 +177,7 @@ const AgentRuns = () => {
         <Card className="border-border bg-card">
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground">Total Runs</p>
-            <p className="text-2xl font-bold">{runs.length}</p>
+            <p className="text-2xl font-bold">{filtered.length}{filtered.length !== runs.length && <span className="text-xs text-muted-foreground ml-1">/ {runs.length}</span>}</p>
           </CardContent>
         </Card>
         <Card className="border-border bg-card">
