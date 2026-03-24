@@ -1,0 +1,175 @@
+import { useState, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/app/StatusBadge";
+import { PaginationControls, paginate } from "@/components/app/PaginationControls";
+import { Bot, ShieldCheck, ShieldAlert, Activity, Clock, AlertTriangle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { generateMockAgentRuns, type AgentRun } from "@/lib/mock-agent-runs";
+
+const statusStyles: Record<AgentRun["status"], string> = {
+  running: "bg-info/15 text-info border-info/30",
+  completed: "bg-success/15 text-success border-success/30",
+  failed: "bg-destructive/15 text-destructive border-destructive/30",
+  aborted: "bg-warning/15 text-warning border-warning/30",
+};
+
+function RiskScoreBadge({ score }: { score: number }) {
+  const level = score >= 0.7 ? "high" : score >= 0.4 ? "medium" : "low";
+  const styles = {
+    high: "bg-destructive/15 text-destructive border-destructive/30",
+    medium: "bg-warning/15 text-warning border-warning/30",
+    low: "bg-success/15 text-success border-success/30",
+  };
+  return (
+    <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border", styles[level])}>
+      {score >= 0.7 && <AlertTriangle className="w-3 h-3" />}
+      {(score * 100).toFixed(0)}%
+    </span>
+  );
+}
+
+function formatDuration(ms: number) {
+  if (ms < 1000) return `${ms}ms`;
+  const s = Math.floor(ms / 1000);
+  if (s < 60) return `${s}s`;
+  return `${Math.floor(s / 60)}m ${s % 60}s`;
+}
+
+const DEFAULT_PAGE_SIZE = 10;
+
+const AgentRuns = () => {
+  const runs = useMemo(() => generateMockAgentRuns(30), []);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const { paged, totalPages } = paginate(runs, page, pageSize);
+
+  const totalPii = runs.reduce((a, r) => a + r.pii_detected, 0);
+  const totalMasked = runs.reduce((a, r) => a + r.pii_masked, 0);
+  const totalLeaked = runs.reduce((a, r) => a + r.pii_leaked, 0);
+  const avgRisk = runs.length > 0 ? runs.reduce((a, r) => a + r.risk_score, 0) / runs.length : 0;
+  const certified = runs.filter((r) => r.ibs_status === "certified").length;
+
+  return (
+    <div className="p-6 space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <Bot className="w-6 h-6 text-primary" /> Agent Runs
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Monitor AI agent sessions — PII governance, risk scoring & blockchain certification
+        </p>
+      </div>
+
+      {/* KPI cards */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <Card className="border-border bg-card">
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground">Total Runs</p>
+            <p className="text-2xl font-bold">{runs.length}</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border bg-card">
+          <CardContent className="p-4 flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-success" />
+            <div>
+              <p className="text-xs text-muted-foreground">PII Masked</p>
+              <p className="text-2xl font-bold">{totalMasked}<span className="text-xs text-muted-foreground ml-1">/ {totalPii}</span></p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-border bg-card">
+          <CardContent className="p-4 flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-destructive" />
+            <div>
+              <p className="text-xs text-muted-foreground">PII Leaked</p>
+              <p className="text-2xl font-bold">{totalLeaked}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-border bg-card">
+          <CardContent className="p-4 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-warning" />
+            <div>
+              <p className="text-xs text-muted-foreground">Avg Risk</p>
+              <p className="text-2xl font-bold">{(avgRisk * 100).toFixed(0)}%</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-border bg-card">
+          <CardContent className="p-4 flex items-center gap-2">
+            <Clock className="w-4 h-4 text-primary" />
+            <div>
+              <p className="text-xs text-muted-foreground">iBS Certified</p>
+              <p className="text-2xl font-bold">{certified}<span className="text-xs text-muted-foreground ml-1">/ {runs.length}</span></p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Table */}
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <CardTitle className="text-lg">Run History</CardTitle>
+          <CardDescription>All agent sessions with PII governance metrics</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Agent</TableHead>
+                <TableHead>Pipeline</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Steps</TableHead>
+                <TableHead className="text-center">PII Detected</TableHead>
+                <TableHead className="text-center">Masked</TableHead>
+                <TableHead className="text-center">Leaked</TableHead>
+                <TableHead>Risk Score</TableHead>
+                <TableHead>Blockchain</TableHead>
+                <TableHead>Duration</TableHead>
+                <TableHead>Started</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paged.map((run) => (
+                <TableRow key={run.id} className="hover:bg-secondary/30 transition-colors">
+                  <TableCell>
+                    <div>
+                      <span className="font-medium text-sm">{run.agent_name}</span>
+                      <Badge variant="outline" className="ml-2 text-[10px] px-1.5 py-0">{run.sector_preset}</Badge>
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-mono text-xs text-muted-foreground">{run.pipeline_name}</TableCell>
+                  <TableCell>
+                    <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border capitalize", statusStyles[run.status])}>
+                      {run.status === "running" && <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5 animate-pulse" />}
+                      {run.status}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-center text-sm">{run.total_steps}</TableCell>
+                  <TableCell className="text-center text-sm font-medium">{run.pii_detected}</TableCell>
+                  <TableCell className="text-center">
+                    <span className="text-sm font-medium text-success">{run.pii_masked}</span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span className={cn("text-sm font-medium", run.pii_leaked > 0 ? "text-destructive" : "text-muted-foreground")}>
+                      {run.pii_leaked}
+                    </span>
+                  </TableCell>
+                  <TableCell><RiskScoreBadge score={run.risk_score} /></TableCell>
+                  <TableCell><StatusBadge status={run.ibs_status} /></TableCell>
+                  <TableCell className="text-xs text-muted-foreground">{formatDuration(run.duration_ms)}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground">{new Date(run.started_at).toLocaleString()}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <PaginationControls page={page} totalPages={totalPages} totalItems={runs.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default AgentRuns;
