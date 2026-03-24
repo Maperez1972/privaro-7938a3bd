@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +6,86 @@ import { StatusBadge } from "@/components/app/StatusBadge";
 import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 import { Bot, ShieldCheck, ShieldAlert, Activity, Clock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { generateMockAgentRuns, type AgentRun } from "@/lib/mock-agent-runs";
+import { supabase } from "@/integrations/supabase/client";
+
+type AgentRun = {
+  id: string;
+  agent_name: string;
+  pipeline_name: string;
+  sector_preset: string;
+  status: "running" | "completed" | "failed" | "aborted";
+  total_steps: number;
+  pii_detected: number;
+  pii_masked: number;
+  pii_leaked: number;
+  risk_score: number;
+  ibs_status: string;
+  started_at: string;
+  ended_at: string | null;
+  duration_ms: number;
+};
+
+function useAgentRuns() {
+  const [runs, setRuns] = useState<AgentRun[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchRuns() {
+      const { data, error } = await (supabase as any)
+        .from("agent_runs")
+        .select(`
+          id,
+          agent_name,
+          status,
+          step_count,
+          total_pii_detected,
+          total_pii_masked,
+          max_risk_score,
+          ibs_status,
+          started_at,
+          ended_at,
+          pipelines ( name, sector )
+        `)
+        .order("started_at", { ascending: false })
+        .limit(100);
+
+      if (!error && data) {
+        setRuns(
+          data.map((r: any) => ({
+            id: r.id,
+            agent_name: r.agent_name ?? "unnamed",
+            pipeline_name: r.pipelines?.name ?? "—",
+            sector_preset: r.pipelines?.sector ?? "general",
+            status: (r.status ?? "completed") as AgentRun["status"],
+            total_steps: r.step_count ?? 0,
+            pii_detected: r.total_pii_detected ?? 0,
+            pii_masked: r.total_pii_masked ?? 0,
+            pii_leaked: (r.total_pii_detected ?? 0) - (r.total_pii_masked ?? 0),
+            risk_score: r.max_risk_score ?? 0,
+            ibs_status: r.ibs_status ?? "pending",
+            started_at: r.started_at,
+            ended_at: r.ended_at,
+            duration_ms: r.ended_at
+              ? new Date(r.ended_at).getTime() - new Date(r.started_at).getTime()
+              : Date.now() - new Date(r.started_at).getTime(),
+          }))
+        );
+      }
+      setLoading(false);
+    }
+
+    fetchRuns();
+
+    const channel = supabase
+      .channel("agent_runs_realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "agent_runs" }, fetchRuns)
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  return { runs, loading };
+}
 
 const statusStyles: Record<AgentRun["status"], string> = {
   running: "bg-info/15 text-info border-info/30",
@@ -40,7 +119,7 @@ function formatDuration(ms: number) {
 const DEFAULT_PAGE_SIZE = 10;
 
 const AgentRuns = () => {
-  const runs = useMemo(() => generateMockAgentRuns(30), []);
+  const { runs, loading } = useAgentRuns();
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const { paged, totalPages } = paginate(runs, page, pageSize);
@@ -50,6 +129,8 @@ const AgentRuns = () => {
   const totalLeaked = runs.reduce((a, r) => a + r.pii_leaked, 0);
   const avgRisk = runs.length > 0 ? runs.reduce((a, r) => a + r.risk_score, 0) / runs.length : 0;
   const certified = runs.filter((r) => r.ibs_status === "certified").length;
+
+  if (loading) return <p className="p-6 text-muted-foreground">Cargando agent runs...</p>;
 
   return (
     <div className="p-6 space-y-6">
