@@ -31,7 +31,7 @@ function useAgentRuns() {
 
   useEffect(() => {
     async function fetchRuns() {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("agent_runs")
         .select(`
           id,
