@@ -194,7 +194,10 @@ export const RiskOverviewWidget = () => {
                       {formatDistanceToNow(new Date(evt.created_at), { addSuffix: true })}
                     </p>
                   </div>
-                  <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-destructive/15 text-destructive flex-shrink-0">
+                  <span className={cn(
+                    "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold flex-shrink-0",
+                    evt.risk_score >= 0.7 ? "bg-destructive/15 text-destructive" : evt.risk_score >= 0.4 ? "bg-warning/15 text-warning" : "bg-success/15 text-success"
+                  )}>
                     {(evt.risk_score * 100).toFixed(0)}%
                   </span>
                 </button>
