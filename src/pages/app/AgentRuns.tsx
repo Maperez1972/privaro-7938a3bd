@@ -139,7 +139,7 @@ const AgentRuns = () => {
           <Bot className="w-6 h-6 text-primary" /> Agent Runs
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Monitor AI agent sessions — PII governance, risk scoring & blockchain certification
+          Monitor AI agent sessions — PII governance, risk scoring &amp; blockchain certification
         </p>
       </div>
 
