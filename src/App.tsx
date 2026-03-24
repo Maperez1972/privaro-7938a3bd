@@ -28,6 +28,7 @@ import AdminSettings from "./pages/app/admin/AdminSettings";
 import AdminPolicyPresets from "./pages/app/admin/AdminPolicyPresets";
 import AdminVault from "./pages/app/admin/AdminVault";
 import Onboarding from "./pages/app/Onboarding";
+import AgentRuns from "./pages/app/AgentRuns";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 
