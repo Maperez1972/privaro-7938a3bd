@@ -88,6 +88,20 @@ function useAgentRuns() {
   return { runs, loading };
 }
 
+function usePipelineNames() {
+  const [pipelines, setPipelines] = useState<string[]>([]);
+  useEffect(() => {
+    (supabase as any)
+      .from("pipelines")
+      .select("name")
+      .order("name")
+      .then(({ data }: { data: any[] | null }) => {
+        if (data) setPipelines(data.map((p: any) => p.name));
+      });
+  }, []);
+  return pipelines;
+}
+
 const statusStyles: Record<AgentRun["status"], string> = {
   running: "bg-info/15 text-info border-info/30",
   completed: "bg-success/15 text-success border-success/30",
@@ -124,11 +138,7 @@ const AgentRuns = () => {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [filters, setFilters] = useState<AgentRunFilters>(EMPTY_FILTERS);
-
-  const pipelines = useMemo(
-    () => [...new Set(runs.map((r) => r.pipeline_name).filter((p) => p !== "—"))],
-    [runs]
-  );
+  const pipelines = usePipelineNames();
 
   const filtered = useMemo(() => {
     return runs.filter((r) => {
