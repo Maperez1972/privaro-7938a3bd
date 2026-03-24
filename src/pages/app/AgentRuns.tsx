@@ -303,13 +303,12 @@ const AgentRuns = () => {
                     <TableCell>
                       <div className="flex flex-col gap-1">
                         <StatusBadge status={run.ibs_status} />
-                        {run.ibs_status === "certified" && buildCheckerUrl(run) && (
+                        {run.ibs_certification_hash && (
                           <a
-                            href={buildCheckerUrl(run)!}
+                            href={`https://checker.icommunitylabs.com/check/${run.ibs_network ?? "fantom_opera_mainnet"}/${run.ibs_certification_hash}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-[10px] text-primary hover:underline"
-                            title="Verify on blockchain"
                             onClick={(e) => e.stopPropagation()}
                           >
                             🔗 Verify
