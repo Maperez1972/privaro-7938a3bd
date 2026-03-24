@@ -278,7 +278,7 @@ const AgentRuns = () => {
               ))}
             </TableBody>
           </Table>
-          <PaginationControls page={page} totalPages={totalPages} totalItems={runs.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
+          <PaginationControls page={page} totalPages={totalPages} totalItems={filtered.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
         </CardContent>
       </Card>
     </div>
