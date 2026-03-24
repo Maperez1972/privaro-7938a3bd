@@ -49,6 +49,7 @@ function useAgentRuns() {
           ibs_status,
           ibs_evidence_id,
           ibs_certification_hash,
+          ibs_network,
           started_at,
           ended_at,
           pipelines ( name, sector )
