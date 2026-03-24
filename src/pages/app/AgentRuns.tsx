@@ -23,6 +23,7 @@ type AgentRun = {
   risk_score: number;
   ibs_status: string;
   ibs_evidence_id: string | null;
+  ibs_certification_hash: string | null;
   started_at: string;
   ended_at: string | null;
   duration_ms: number;
@@ -46,6 +47,7 @@ function useAgentRuns() {
           max_risk_score,
           ibs_status,
           ibs_evidence_id,
+          ibs_certification_hash,
           started_at,
           ended_at,
           pipelines ( name, sector )
@@ -68,6 +70,7 @@ function useAgentRuns() {
             risk_score: r.max_risk_score ?? 0,
             ibs_status: r.ibs_status ?? "pending",
             ibs_evidence_id: r.ibs_evidence_id ?? null,
+            ibs_certification_hash: r.ibs_certification_hash ?? null,
             started_at: r.started_at,
             ended_at: r.ended_at,
             duration_ms: r.ended_at
@@ -133,6 +136,16 @@ function formatDuration(ms: number) {
   const s = Math.floor(ms / 1000);
   if (s < 60) return `${s}s`;
   return `${Math.floor(s / 60)}m ${s % 60}s`;
+}
+
+function buildCheckerUrl(run: AgentRun): string | null {
+  if (run.ibs_certification_hash) {
+    return `https://checker.icommunitylabs.com/check/fantom_opera_mainnet/${run.ibs_certification_hash}`;
+  }
+  if (run.ibs_evidence_id) {
+    return `https://checker.icommunitylabs.com/?evidence_id=${run.ibs_evidence_id}`;
+  }
+  return null;
 }
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -295,13 +308,13 @@ const AgentRuns = () => {
                     <TableCell>
                       <div className="flex flex-col gap-1">
                         <StatusBadge status={run.ibs_status} />
-                        {run.ibs_status === "certified" && run.ibs_evidence_id && (
+                        {run.ibs_status === "certified" && buildCheckerUrl(run) && (
                           <a
-                            href={`https://checker.icommunitylabs.com/?evidence_id=${run.ibs_evidence_id}`}
+                            href={buildCheckerUrl(run)!}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[10px] text-primary hover:underline truncate max-w-[100px]"
-                            title={`Verify: ${run.ibs_evidence_id}`}
+                            className="text-[10px] text-primary hover:underline"
+                            title="Verify on blockchain"
                             onClick={(e) => e.stopPropagation()}
                           >
                             🔗 Verify
