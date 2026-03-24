@@ -56,7 +56,7 @@ const PipelinePresetModal = ({ open, onOpenChange, pipelineId, pipelineName, pip
     setLoadingPresets(true);
     (supabase as any)
       .from("policy_presets")
-      .select("id, name, slug, sector, icon, color, description")
+      .select("id, name, slug, sector, icon, color, description, rules")
       .order("name", { ascending: true })
       .then(({ data }: { data: PolicyPreset[] | null }) => {
         const list = data ?? [];
