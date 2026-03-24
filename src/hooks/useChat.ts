@@ -461,6 +461,54 @@ export function useChat() {
       piiProtected = detections.length;
     }
 
+    // ── Write audit log with correct event_type based on detections ──
+    const eventType = detections.length > 0 ? "pii_detected" : "request_clean";
+    const dominantAction = detections.length > 0
+      ? (detections[0]?.action || detections[0]?.action_taken || "tokenised")
+      : "passed";
+
+    const riskScores = detections
+      .map((d: any) => d.risk_score ?? d.confidence_score ?? 0)
+      .filter((s: number) => s > 0);
+    const avgRisk = riskScores.length > 0
+      ? riskScores.reduce((a: number, b: number) => a + b, 0) / riskScores.length
+      : null;
+
+    const auditPipelineId = activePipelineId || "c93aed87-b440-4de0-bb21-54a938e475f2";
+
+    try {
+      const { data: auditLog } = await supabase
+        .from("audit_logs")
+        .insert({
+          org_id: profile.org_id,
+          pipeline_id: auditPipelineId,
+          event_type: eventType,
+          action_taken: dominantAction,
+          risk_score: avgRisk,
+          entity_count: detections.length,
+          source: "chat",
+          user_id: user.id,
+        } as any)
+        .select("id")
+        .single();
+
+      // Insert individual PII detections linked to this audit log
+      if (auditLog && detections.length > 0) {
+        const piiRows = detections.map((d: any) => ({
+          audit_log_id: auditLog.id,
+          entity_type: d.entity_type || d.type || "unknown",
+          confidence_score: d.confidence_score ?? d.confidence ?? 0.5,
+          risk_score: d.risk_score ?? avgRisk,
+          detector_version: d.detector_version || "proxy-v1",
+          decision_reason: `${eventType}: ${dominantAction}`,
+          token_ref: d.token_ref || d.token || null,
+        }));
+        await supabase.from("pii_detections").insert(piiRows as any);
+      }
+    } catch (auditErr) {
+      console.warn("Audit log insert failed:", auditErr);
+    }
+
     let attachmentUrl: string | null = null;
     let attachmentName: string | null = null;
     let attachmentType: string | null = null;
