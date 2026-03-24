@@ -138,11 +138,7 @@ const AgentRuns = () => {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [filters, setFilters] = useState<AgentRunFilters>(EMPTY_FILTERS);
-
-  const pipelines = useMemo(
-    () => [...new Set(runs.map((r) => r.pipeline_name).filter((p) => p !== "—"))],
-    [runs]
-  );
+  const pipelines = usePipelineNames();
 
   const filtered = useMemo(() => {
     return runs.filter((r) => {
