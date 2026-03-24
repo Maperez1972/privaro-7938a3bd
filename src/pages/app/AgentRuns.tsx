@@ -70,6 +70,7 @@ function useAgentRuns() {
             risk_score: r.max_risk_score ?? 0,
             ibs_status: r.ibs_status ?? "pending",
             ibs_evidence_id: r.ibs_evidence_id ?? null,
+            ibs_certification_hash: r.ibs_certification_hash ?? null,
             started_at: r.started_at,
             ended_at: r.ended_at,
             duration_ms: r.ended_at
