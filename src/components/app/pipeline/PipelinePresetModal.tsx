@@ -30,6 +30,7 @@ interface PolicyPreset {
   icon: string;
   color: string;
   description: string;
+  rules: unknown[] | null;
 }
 
 interface Props {
