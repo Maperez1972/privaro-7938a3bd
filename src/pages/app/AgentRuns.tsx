@@ -66,6 +66,7 @@ function useAgentRuns() {
             pii_leaked: (r.total_pii_detected ?? 0) - (r.total_pii_masked ?? 0),
             risk_score: r.max_risk_score ?? 0,
             ibs_status: r.ibs_status ?? "pending",
+            ibs_evidence_id: r.ibs_evidence_id ?? null,
             started_at: r.started_at,
             ended_at: r.ended_at,
             duration_ms: r.ended_at
