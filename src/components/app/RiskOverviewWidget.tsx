@@ -47,6 +47,23 @@ interface TopRiskEvent {
 export function useRiskOverview() {
   const { profile } = useAuth();
   const orgId = profile?.org_id;
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!orgId) return;
+    const channel = supabase
+      .channel("risk-overview-rt")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "audit_logs", filter: `org_id=eq.${orgId}` },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["risk-distribution", orgId] });
+          queryClient.invalidateQueries({ queryKey: ["top-risk-events", orgId] });
+        }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [orgId, queryClient]);
 
   const distribution = useQuery({
     queryKey: ["risk-distribution", orgId],
