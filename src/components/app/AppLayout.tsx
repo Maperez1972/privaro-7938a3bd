@@ -11,6 +11,7 @@ const navItems = [
   { label: "AI Pipelines", icon: Zap, href: "/app/pipelines" },
   { label: "PII Sandbox", icon: FlaskConical, href: "/app/sandbox" },
   { label: "Policy Engine", icon: ShieldCheck, href: "/app/policies" },
+  { label: "Agent Runs", icon: Bot, href: "/app/agent-runs" },
   { label: "Settings", icon: Settings, href: "/app/settings" },
 ];
 const onboardingItem = { label: "Onboarding", icon: Rocket, href: "/app/onboarding" };

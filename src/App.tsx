@@ -86,6 +86,7 @@ const App = () => (
                 <Route path="pipelines" element={<Pipelines />} />
                 <Route path="sandbox" element={<Sandbox />} />
                 <Route path="policies" element={<Policies />} />
+                <Route path="agent-runs" element={<AgentRuns />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="onboarding" element={<AdminRoute><Onboarding /></AdminRoute>} />
                 {/* Admin/DPO routes */}
