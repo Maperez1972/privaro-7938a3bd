@@ -121,11 +121,27 @@ const PipelinePresetModal = ({ open, onOpenChange, pipelineId, pipelineName, pip
                 {selectedPreset?.description && (
                   <p className="text-xs text-muted-foreground mt-1">{selectedPreset.description}</p>
                 )}
-                {selectedPreset && (
-                  <p className="text-xs font-medium text-primary mt-1">
-                    {Array.isArray(selectedPreset.rules) ? selectedPreset.rules.length : 0} rules will be applied
-                  </p>
-                )}
+                {selectedPreset && Array.isArray(selectedPreset.rules) && selectedPreset.rules.length > 0 && (() => {
+                  const rules = selectedPreset.rules as Array<{ action?: string }>;
+                  const counts: Record<string, number> = {};
+                  rules.forEach(r => { const a = r.action || "other"; counts[a] = (counts[a] || 0) + 1; });
+                  const actionColors: Record<string, string> = {
+                    block: "bg-destructive text-destructive-foreground",
+                    anonymise: "bg-[hsl(38,92%,50%)] text-white",
+                    tokenise: "bg-primary text-primary-foreground",
+                    pseudonymise: "bg-[hsl(258,56%,52%)] text-white",
+                  };
+                  return (
+                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                      <span className="text-xs font-medium text-primary">{rules.length} rules:</span>
+                      {Object.entries(counts).map(([action, count]) => (
+                        <span key={action} className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${actionColors[action] || "bg-muted text-muted-foreground"}`}>
+                          {count} {action}
+                        </span>
+                      ))}
+                    </div>
+                  );
+                })()}
               </>
             )}
           </div>
