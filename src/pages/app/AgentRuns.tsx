@@ -4,8 +4,9 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/app/StatusBadge";
 import { PaginationControls, paginate } from "@/components/app/PaginationControls";
-import { Bot, ShieldCheck, ShieldAlert, Activity, Clock, AlertTriangle } from "lucide-react";
+import { Bot, ShieldCheck, ShieldAlert, Activity, Clock, AlertTriangle, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import AgentRunDetail from "@/components/app/agent-runs/AgentRunDetail";
 import { supabase } from "@/integrations/supabase/client";
 import AgentRunsFilters, { EMPTY_FILTERS, type AgentRunFilters } from "@/components/app/agent-runs/AgentRunsFilters";
 
