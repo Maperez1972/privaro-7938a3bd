@@ -47,6 +47,7 @@ function useAgentRuns() {
           max_risk_score,
           ibs_status,
           ibs_evidence_id,
+          ibs_certification_hash,
           started_at,
           ended_at,
           pipelines ( name, sector )
