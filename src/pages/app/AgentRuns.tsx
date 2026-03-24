@@ -218,8 +218,10 @@ const AgentRuns = () => {
         </Card>
       </div>
 
+      {/* Filters */}
+      <AgentRunsFilters filters={filters} onChange={setFilters} pipelines={pipelines} />
+
       {/* Table */}
-      <Card className="border-border bg-card">
         <CardHeader>
           <CardTitle className="text-lg">Run History</CardTitle>
           <CardDescription>All agent sessions with PII governance metrics</CardDescription>
