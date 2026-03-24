@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+**URL**: https://lovable.dev/projects/938e6682-2a16-4ca7-b87f-913f1bd69b5d
 
 ## How can I edit this code?
 
@@ -10,7 +10,7 @@ There are several ways of editing your application.
 
 **Use Lovable**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Simply visit the [Lovable Project](https://lovable.dev/projects/938e6682-2a16-4ca7-b87f-913f1bd69b5d) and start prompting.
 
 Changes made via Lovable will be committed automatically to this repo.
 
