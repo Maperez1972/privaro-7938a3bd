@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket } from "lucide-react";
+import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logoPrivaro from "@/assets/logo-privaro.png";
 
@@ -11,6 +11,7 @@ const navItems = [
   { label: "AI Pipelines", icon: Zap, href: "/app/pipelines" },
   { label: "PII Sandbox", icon: FlaskConical, href: "/app/sandbox" },
   { label: "Policy Engine", icon: ShieldCheck, href: "/app/policies" },
+  { label: "Agent Runs", icon: Bot, href: "/app/agent-runs" },
   { label: "Settings", icon: Settings, href: "/app/settings" },
 ];
 const onboardingItem = { label: "Onboarding", icon: Rocket, href: "/app/onboarding" };

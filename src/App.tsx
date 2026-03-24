@@ -28,6 +28,7 @@ import AdminSettings from "./pages/app/admin/AdminSettings";
 import AdminPolicyPresets from "./pages/app/admin/AdminPolicyPresets";
 import AdminVault from "./pages/app/admin/AdminVault";
 import Onboarding from "./pages/app/Onboarding";
+import AgentRuns from "./pages/app/AgentRuns";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 
@@ -85,6 +86,7 @@ const App = () => (
                 <Route path="pipelines" element={<Pipelines />} />
                 <Route path="sandbox" element={<Sandbox />} />
                 <Route path="policies" element={<Policies />} />
+                <Route path="agent-runs" element={<AgentRuns />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="onboarding" element={<AdminRoute><Onboarding /></AdminRoute>} />
                 {/* Admin/DPO routes */}
