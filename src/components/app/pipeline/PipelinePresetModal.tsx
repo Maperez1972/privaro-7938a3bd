@@ -121,6 +121,11 @@ const PipelinePresetModal = ({ open, onOpenChange, pipelineId, pipelineName, pip
                 {selectedPreset?.description && (
                   <p className="text-xs text-muted-foreground mt-1">{selectedPreset.description}</p>
                 )}
+                {selectedPreset && (
+                  <p className="text-xs font-medium text-primary mt-1">
+                    {Array.isArray(selectedPreset.rules) ? selectedPreset.rules.length : 0} rules will be applied
+                  </p>
+                )}
               </>
             )}
           </div>
