@@ -291,7 +291,23 @@ const AgentRuns = () => {
                       </span>
                     </TableCell>
                     <TableCell><RiskScoreBadge score={run.risk_score} /></TableCell>
-                    <TableCell><StatusBadge status={run.ibs_status} /></TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <StatusBadge status={run.ibs_status} />
+                        {run.ibs_status === "certified" && run.ibs_evidence_id && (
+                          <a
+                            href={`https://checker.icommunitylabs.com/?evidence_id=${run.ibs_evidence_id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] text-primary hover:underline truncate max-w-[100px]"
+                            title={`Verify: ${run.ibs_evidence_id}`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            🔗 Verify
+                          </a>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="text-xs text-muted-foreground">{formatDuration(run.duration_ms)}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{new Date(run.started_at).toLocaleString()}</TableCell>
                   </TableRow>
