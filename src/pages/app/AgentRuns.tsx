@@ -88,6 +88,20 @@ function useAgentRuns() {
   return { runs, loading };
 }
 
+function usePipelineNames() {
+  const [pipelines, setPipelines] = useState<string[]>([]);
+  useEffect(() => {
+    (supabase as any)
+      .from("pipelines")
+      .select("name")
+      .order("name")
+      .then(({ data }: { data: any[] | null }) => {
+        if (data) setPipelines(data.map((p: any) => p.name));
+      });
+  }, []);
+  return pipelines;
+}
+
 const statusStyles: Record<AgentRun["status"], string> = {
   running: "bg-info/15 text-info border-info/30",
   completed: "bg-success/15 text-success border-success/30",
