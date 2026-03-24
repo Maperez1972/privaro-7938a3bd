@@ -139,6 +139,7 @@ const AgentRuns = () => {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [filters, setFilters] = useState<AgentRunFilters>(EMPTY_FILTERS);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const pipelines = usePipelineNames();
 
   const filtered = useMemo(() => {
