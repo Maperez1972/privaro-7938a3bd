@@ -2,6 +2,29 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Download, Mail } from "lucide-react";
+import { motion } from "framer-motion";
+import { ReactNode } from "react";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
+};
+
+const stagger = {
+  visible: { transition: { staggerChildren: 0.08 } },
+};
+
+const FadeSection = ({ children, className }: { children: ReactNode; className?: string }) => (
+  <motion.section
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true, amount: 0.15 }}
+    variants={fadeUp}
+    className={className}
+  >
+    {children}
+  </motion.section>
+);
 
 const heroBadges = [
   { label: "AES-256-GCM Encryption", active: true },
@@ -73,62 +96,99 @@ const Security = () => {
       <Navbar />
 
       {/* HERO */}
-      <section className="bg-gradient-to-br from-background to-secondary text-foreground py-20 px-8 text-center">
-        <span className="inline-flex items-center gap-2 bg-secondary border border-border rounded-full px-4 py-1.5 text-xs text-primary mb-6">
+      <motion.section
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="bg-gradient-to-br from-background to-secondary text-foreground py-20 px-8 text-center"
+      >
+        <motion.span
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="inline-flex items-center gap-2 bg-secondary border border-border rounded-full px-4 py-1.5 text-xs text-primary mb-6"
+        >
           🔒 Security &amp; Compliance
-        </span>
-        <h1 className="text-3xl md:text-5xl font-extrabold mb-4 leading-tight">
+        </motion.span>
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="text-3xl md:text-5xl font-extrabold mb-4 leading-tight"
+        >
           Enterprise-grade security<br />by design, not by policy
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10">
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="text-lg text-muted-foreground max-w-xl mx-auto mb-10"
+        >
           Privaro's privacy infrastructure is built on the principle that security controls must be architectural — not application-layer afterthoughts.
-        </p>
-        <div className="flex flex-wrap justify-center gap-3">
+        </motion.p>
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={stagger}
+          className="flex flex-wrap justify-center gap-3"
+        >
           {heroBadges.map((b) => (
-            <span key={b.label} className="inline-flex items-center gap-2 bg-secondary/60 border border-border rounded-lg px-4 py-2 text-xs text-muted-foreground">
+            <motion.span key={b.label} variants={fadeUp} className="inline-flex items-center gap-2 bg-secondary/60 border border-border rounded-lg px-4 py-2 text-xs text-muted-foreground">
               <span className={`w-2 h-2 rounded-full ${b.active ? "bg-green-400 shadow-[0_0_6px_theme(colors.green.400)]" : "bg-yellow-300"}`} />
               {b.label}
-            </span>
+            </motion.span>
           ))}
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* ARCHITECTURE */}
-      <section className="py-16 border-b border-border">
+      <FadeSection className="py-16 border-b border-border">
         <div className="max-w-[1100px] mx-auto px-8">
           <SectionHeader label="Architecture" title="Security built into every layer" desc="Privacy controls are applied at the network layer — before any data reaches an AI model. This is architecturally superior to post-processing or application-level filtering." />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={stagger}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10"
+          >
             {pillars.map((p) => (
-              <div key={p.title} className="bg-card border border-border rounded-xl p-7">
+              <motion.div key={p.title} variants={fadeUp} className="bg-card border border-border rounded-xl p-7">
                 <div className="text-3xl mb-4">{p.icon}</div>
                 <h3 className="text-sm font-bold text-foreground mb-2">{p.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </FadeSection>
 
       {/* CONTROLS */}
-      <section className="py-16 border-b border-border">
+      <FadeSection className="py-16 border-b border-border">
         <div className="max-w-[1100px] mx-auto px-8">
           <SectionHeader label="Controls" title="Implemented security controls" desc="Key technical controls aligned to ISO/IEC 27001:2022 Annex A and SOC2 Trust Services Criteria." />
-          <div className="grid gap-3 mt-8">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={stagger}
+            className="grid gap-3 mt-8"
+          >
             {controls.map((c) => (
-              <div key={c.id} className="grid grid-cols-1 sm:grid-cols-[200px_1fr_auto] gap-4 items-center p-4 bg-card border border-border rounded-lg">
+              <motion.div key={c.id} variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-[200px_1fr_auto] gap-4 items-center p-4 bg-card border border-border rounded-lg">
                 <span className="font-mono text-xs font-bold text-primary">{c.id}</span>
                 <span className="text-sm text-foreground">{c.desc}</span>
                 <span className={`inline-flex items-center gap-1.5 text-xs font-semibold rounded-full px-3 py-1 whitespace-nowrap ${c.status === "implemented" ? "bg-green-500/15 text-green-400" : "bg-yellow-500/15 text-yellow-400"}`}>
                   {c.status === "implemented" ? "✓ Implemented" : "⟳ In Progress"}
                 </span>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </FadeSection>
 
       {/* COMPLIANCE */}
-      <section className="py-16 border-b border-border">
+      <FadeSection className="py-16 border-b border-border">
         <div className="max-w-[1100px] mx-auto px-8">
           <SectionHeader label="Compliance" title="Regulatory coverage" desc="Privaro is designed to help enterprise customers meet their data protection obligations under multiple regulatory frameworks." />
           <div className="overflow-x-auto mt-8">
@@ -155,14 +215,20 @@ const Security = () => {
             </table>
           </div>
         </div>
-      </section>
+      </FadeSection>
 
       {/* BLOCKCHAIN */}
-      <section className="py-16 border-b border-border">
+      <FadeSection className="py-16 border-b border-border">
         <div className="max-w-[1100px] mx-auto px-8">
           <SectionHeader label="Blockchain Audit Trail" title="Tamper-proof compliance evidence" desc="Every audit event is cryptographically certified on Fantom Opera Mainnet — independently verifiable by regulators, auditors, and data subjects." />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 bg-gradient-to-br from-background to-secondary rounded-2xl p-10 gap-8 mt-8 border border-border">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="grid grid-cols-1 sm:grid-cols-2 bg-gradient-to-br from-background to-secondary rounded-2xl p-10 gap-8 mt-8 border border-border"
+          >
             <div>
               <h3 className="text-lg font-bold text-foreground mb-3">How it works</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
@@ -184,39 +250,51 @@ const Security = () => {
                 0xfbe1b5163bdb4e7265e130e09b1b2b0c6b606799...
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 mt-8">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={stagger}
+            className="grid grid-cols-2 sm:grid-cols-4 gap-5 mt-8"
+          >
             {stats.map((s) => (
-              <div key={s.label} className="text-center p-6 border border-border rounded-xl bg-card">
+              <motion.div key={s.label} variants={fadeUp} className="text-center p-6 border border-border rounded-xl bg-card">
                 <div className="text-3xl font-extrabold text-foreground leading-none mb-1.5">{s.value}</div>
                 <div className="text-xs text-muted-foreground">{s.label}</div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </FadeSection>
 
       {/* POLICY DOCUMENTS */}
-      <section className="py-16 border-b border-border">
+      <FadeSection className="py-16 border-b border-border">
         <div className="max-w-[1100px] mx-auto px-8">
           <SectionHeader label="Policy Documents" title="Security policies & procedures" desc="Privaro maintains a complete set of security policies aligned to ISO 27001 and SOC2 requirements. Available to enterprise customers under NDA." />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-8">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={stagger}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-8"
+          >
             {policyDocs.map((d) => (
-              <div key={d.title} className="border border-border rounded-xl px-5 py-4 flex items-start gap-4 bg-card">
+              <motion.div key={d.title} variants={fadeUp} className="border border-border rounded-xl px-5 py-4 flex items-start gap-4 bg-card">
                 <span className="text-2xl flex-shrink-0">{d.icon}</span>
                 <div>
                   <div className="text-sm font-bold text-foreground mb-1">{d.title}</div>
                   <div className="text-xs text-muted-foreground font-mono">{d.id}</div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </FadeSection>
 
       {/* CTA */}
-      <section className="py-16">
+      <FadeSection className="py-16">
         <div className="max-w-[1100px] mx-auto px-8">
           <div className="bg-card border border-border rounded-2xl p-12 text-center">
             <h2 className="text-2xl font-bold text-foreground mb-3">Security questions?</h2>
@@ -239,7 +317,7 @@ const Security = () => {
             </div>
           </div>
         </div>
-      </section>
+      </FadeSection>
 
       <Footer />
     </div>
