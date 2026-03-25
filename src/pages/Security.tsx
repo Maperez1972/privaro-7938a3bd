@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -26,62 +27,6 @@ const FadeSection = ({ children, className }: { children: ReactNode; className?:
   </motion.section>
 );
 
-const heroBadges = [
-  { label: "AES-256-GCM Encryption", active: true },
-  { label: "Blockchain-Certified Audit Trail", active: true },
-  { label: "GDPR Art.5 Compliant", active: true },
-  { label: "TLS 1.3 Enforced", active: true },
-  { label: "SOC2 Type I — In Preparation", active: false },
-  { label: "ISO 27001 — In Preparation", active: false },
-];
-
-const pillars = [
-  { icon: "🔐", title: "Zero Raw PII Exposure", desc: "No plaintext personal data is ever transmitted to an AI provider. Tokenization occurs within Privaro's trusted boundary. Original values are stored exclusively in the encrypted vault." },
-  { icon: "⛓️", title: "Verifiable Compliance Evidence", desc: "Audit records are cryptographically certified on Fantom Opera Mainnet. Compliance is demonstrable to regulators independently of Privaro's infrastructure." },
-  { icon: "🛡️", title: "Defense in Depth", desc: "Security controls are layered: TLS 1.3 at the network level, JWT + API key auth at the application level, Row Level Security at the database level, AES-256-GCM at the data level." },
-  { icon: "⚙️", title: "Policy-Driven Governance", desc: "Every entity type has a configurable action: tokenise, anonymise, or block. Sector presets for Legal, Healthcare, Fintech, HR, and Port Environmental are built-in." },
-  { icon: "🤖", title: "Agent Governance", desc: "Autonomous AI agents operate under the same privacy policies as human users. The Agent API enforces governance at every step of automated workflows — EU AI Act compliant." },
-  { icon: "🌍", title: "EU Data Residency", desc: "All infrastructure is hosted in EU regions by default. Database in eu-central-1, proxy in europe-west4. No data leaves the EU without explicit customer configuration." },
-];
-
-const controls = [
-  { id: "A.8.24 / CC6.1", desc: "AES-256-GCM encryption for all token originals. 12-byte random nonce per operation. Per-org key segmentation.", status: "implemented" as const },
-  { id: "A.8.3 / CC6.3", desc: "Row Level Security enforces org isolation at the database level. All queries filtered by org_id.", status: "implemented" as const },
-  { id: "A.8.5 / CC6.1", desc: "API keys stored as SHA-256 hashes. Plaintext never persisted. JWT verification on all frontend calls.", status: "implemented" as const },
-  { id: "A.8.15 / CC7.2", desc: "Immutable audit logs with blockchain certification. UPDATE restricted to ibs_* columns only via RLS policy.", status: "implemented" as const },
-  { id: "A.8.20 / CC6.6", desc: "TLS 1.3 enforced on all connections. No TLS 1.0 or 1.1 accepted. CORS configured per environment.", status: "implemented" as const },
-  { id: "A.8.34 / CC4.1", desc: "Blockchain-certified audit trail. Every PII interaction generates a tamper-evident record on Fantom Opera Mainnet.", status: "implemented" as const },
-  { id: "A.5.2 / CC6.2", desc: "Four-tier role model: viewer, developer, dpo, admin. Cumulative permissions enforced at DB level, not application layer.", status: "implemented" as const },
-  { id: "A.8.25 / CC8.1", desc: "Secure development lifecycle: GitHub-based code review, Railway deployment pipeline, automated health checks.", status: "progress" as const },
-];
-
-const regulations = [
-  { reg: "GDPR Art.5", scope: "Data minimization, purpose limitation", coverage: "Policy engine enforces minimum necessary processing. No raw PII to LLMs.", status: "Covered" as const },
-  { reg: "GDPR Art.9", scope: "Special category data (health, biometric)", coverage: "health_record entity blocked or anonymised by default in Healthcare/HR presets.", status: "Covered" as const },
-  { reg: "GDPR Art.30", scope: "Records of processing activities", coverage: "Blockchain-certified audit log per interaction. DPO report export with TX hashes.", status: "Covered" as const },
-  { reg: "EU AI Act", scope: "High-risk AI systems, human oversight", coverage: "Agent API enforces governance on autonomous agents. Per-entity action in audit logs.", status: "Covered" as const },
-  { reg: "PSD2", scope: "Payment data protection", coverage: "IBAN and card numbers tokenized before any LLM call. Fintech preset built-in.", status: "Covered" as const },
-  { reg: "HIPAA", scope: "Protected Health Information", coverage: "PHI tokenized/anonymised. Blockchain audit trail per PHI access. Healthcare preset.", status: "Covered" as const },
-  { reg: "ISO 27001:2022", scope: "Information security management", coverage: "83% of Annex A controls implemented. ISMS documentation in progress.", status: "In Progress" as const },
-  { reg: "SOC2 Type I", scope: "Security, Confidentiality trust criteria", coverage: "Controls implemented. Formal audit preparation in progress for Q3 2026.", status: "In Progress" as const },
-];
-
-const stats = [
-  { value: "Fantom", label: "Opera Mainnet blockchain" },
-  { value: "~60s", label: "Avg. certification time" },
-  { value: "100x", label: "Batch efficiency (events per TX)" },
-  { value: "SHA-512", label: "Hashing algorithm" },
-];
-
-const policyDocs = [
-  { icon: "📋", title: "Information Security Policy", id: "POL-001 · v1.0 · March 2026" },
-  { icon: "🔒", title: "Data Processing & Privacy Policy", id: "POL-002 · v1.0 · March 2026" },
-  { icon: "✅", title: "Security Controls Register (ISO 27001 Annex A)", id: "POL-003 · v1.0 · March 2026 · 83% implemented" },
-  { icon: "🚨", title: "Incident Response Plan", id: "POL-004 · v1.0 · March 2026 · GDPR Art.33 compliant" },
-  { icon: "♻️", title: "Business Continuity & Availability Policy", id: "POL-005 · v1.0 · March 2026 · RTO < 4h · RPO < 1h" },
-  { icon: "📄", title: "Data Processing Agreement (DPA)", id: "Available upon request · GDPR Art.28 compliant" },
-];
-
 const SectionHeader = ({ label, title, desc }: { label: string; title: string; desc: string }) => (
   <>
     <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">{label}</p>
@@ -90,7 +35,82 @@ const SectionHeader = ({ label, title, desc }: { label: string; title: string; d
   </>
 );
 
+const controlIds = [
+  "A.8.24 / CC6.1", "A.8.3 / CC6.3", "A.8.5 / CC6.1", "A.8.15 / CC7.2",
+  "A.8.20 / CC6.6", "A.8.34 / CC4.1", "A.5.2 / CC6.2", "A.8.25 / CC8.1",
+];
+const controlStatuses: ("implemented" | "progress")[] = [
+  "implemented", "implemented", "implemented", "implemented",
+  "implemented", "implemented", "implemented", "progress",
+];
+
+const regNames = ["GDPR Art.5", "GDPR Art.9", "GDPR Art.30", "EU AI Act", "PSD2", "HIPAA", "ISO 27001:2022", "SOC2 Type I"];
+const regStatuses: ("covered" | "inprogress")[] = [
+  "covered", "covered", "covered", "covered", "covered", "covered", "inprogress", "inprogress",
+];
+
+const pillarIcons = ["🔐", "⛓️", "🛡️", "⚙️", "🤖", "🌍"];
+const docIcons = ["📋", "🔒", "✅", "🚨", "♻️", "📄"];
+const docIds = [
+  "POL-001 · v1.0 · March 2026",
+  "POL-002 · v1.0 · March 2026",
+  "POL-003 · v1.0 · March 2026 · 83% implemented",
+  "POL-004 · v1.0 · March 2026 · GDPR Art.33 compliant",
+  "POL-005 · v1.0 · March 2026 · RTO < 4h · RPO < 1h",
+  "Available upon request · GDPR Art.28 compliant",
+];
+
 const Security = () => {
+  const { t } = useLanguage();
+
+  const heroBadges = [
+    { label: t("secpage.badge.aes"), active: true },
+    { label: t("secpage.badge.blockchain"), active: true },
+    { label: t("secpage.badge.gdpr"), active: true },
+    { label: t("secpage.badge.tls"), active: true },
+    { label: t("secpage.badge.soc2"), active: false },
+    { label: t("secpage.badge.iso"), active: false },
+  ];
+
+  const pillars = pillarIcons.map((icon, i) => ({
+    icon,
+    title: t(`secpage.pillar${i + 1}.title`),
+    desc: t(`secpage.pillar${i + 1}.desc`),
+  }));
+
+  const controls = controlIds.map((id, i) => ({
+    id,
+    desc: t(`secpage.ctrl${i + 1}.desc`),
+    status: controlStatuses[i],
+  }));
+
+  const regulations = regNames.map((reg, i) => ({
+    reg,
+    scope: t(`secpage.reg${i + 1}.scope`),
+    coverage: t(`secpage.reg${i + 1}.coverage`),
+    status: regStatuses[i],
+  }));
+
+  const stats = [
+    { value: "Fantom", label: t("secpage.stat1.label") },
+    { value: "~60s", label: t("secpage.stat2.label") },
+    { value: "100x", label: t("secpage.stat3.label") },
+    { value: "SHA-512", label: t("secpage.stat4.label") },
+  ];
+
+  const policyDocs = docIcons.map((icon, i) => ({
+    icon,
+    title: t(`secpage.doc${i + 1}.title`),
+    id: docIds[i],
+  }));
+
+  const tableHeaders = [
+    t("secpage.table.regulation"),
+    t("secpage.table.scope"),
+    t("secpage.table.coverage"),
+    t("secpage.table.status"),
+  ];
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
@@ -108,7 +128,7 @@ const Security = () => {
           transition={{ delay: 0.2 }}
           className="inline-flex items-center gap-2 bg-secondary border border-border rounded-full px-4 py-1.5 text-xs text-primary mb-6"
         >
-          🔒 Security &amp; Compliance
+          🔒 {t("secpage.hero.badge")}
         </motion.span>
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -116,7 +136,7 @@ const Security = () => {
           transition={{ delay: 0.3, duration: 0.5 }}
           className="text-3xl md:text-5xl font-extrabold mb-4 leading-tight"
         >
-          Enterprise-grade security<br />by design, not by policy
+          {t("secpage.hero.title1")}<br />{t("secpage.hero.title2")}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -124,7 +144,7 @@ const Security = () => {
           transition={{ delay: 0.4, duration: 0.5 }}
           className="text-lg text-muted-foreground max-w-xl mx-auto mb-10"
         >
-          Privaro's privacy infrastructure is built on the principle that security controls must be architectural — not application-layer afterthoughts.
+          {t("secpage.hero.desc")}
         </motion.p>
         <motion.div
           initial="hidden"
@@ -144,7 +164,7 @@ const Security = () => {
       {/* ARCHITECTURE */}
       <FadeSection className="py-16 border-b border-border">
         <div className="max-w-[1100px] mx-auto px-8">
-          <SectionHeader label="Architecture" title="Security built into every layer" desc="Privacy controls are applied at the network layer — before any data reaches an AI model. This is architecturally superior to post-processing or application-level filtering." />
+          <SectionHeader label={t("secpage.arch.label")} title={t("secpage.arch.title")} desc={t("secpage.arch.desc")} />
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -166,7 +186,7 @@ const Security = () => {
       {/* CONTROLS */}
       <FadeSection className="py-16 border-b border-border">
         <div className="max-w-[1100px] mx-auto px-8">
-          <SectionHeader label="Controls" title="Implemented security controls" desc="Key technical controls aligned to ISO/IEC 27001:2022 Annex A and SOC2 Trust Services Criteria." />
+          <SectionHeader label={t("secpage.controls.label")} title={t("secpage.controls.title")} desc={t("secpage.controls.desc")} />
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -179,7 +199,7 @@ const Security = () => {
                 <span className="font-mono text-xs font-bold text-primary">{c.id}</span>
                 <span className="text-sm text-foreground">{c.desc}</span>
                 <span className={`inline-flex items-center gap-1.5 text-xs font-semibold rounded-full px-3 py-1 whitespace-nowrap ${c.status === "implemented" ? "bg-green-500/15 text-green-400" : "bg-yellow-500/15 text-yellow-400"}`}>
-                  {c.status === "implemented" ? "✓ Implemented" : "⟳ In Progress"}
+                  {c.status === "implemented" ? t("secpage.status.implemented") : t("secpage.status.progress")}
                 </span>
               </motion.div>
             ))}
@@ -190,12 +210,12 @@ const Security = () => {
       {/* COMPLIANCE */}
       <FadeSection className="py-16 border-b border-border">
         <div className="max-w-[1100px] mx-auto px-8">
-          <SectionHeader label="Compliance" title="Regulatory coverage" desc="Privaro is designed to help enterprise customers meet their data protection obligations under multiple regulatory frameworks." />
+          <SectionHeader label={t("secpage.compliance.label")} title={t("secpage.compliance.title")} desc={t("secpage.compliance.desc")} />
           <div className="overflow-x-auto mt-8">
             <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  {["Regulation", "Scope", "Privaro Coverage", "Status"].map((h, i) => (
+                  {tableHeaders.map((h, i) => (
                     <th key={h} className={`text-left px-4 py-3 bg-secondary text-foreground text-xs font-semibold ${i === 0 ? "rounded-tl-lg" : ""} ${i === 3 ? "rounded-tr-lg" : ""}`}>{h}</th>
                   ))}
                 </tr>
@@ -207,7 +227,9 @@ const Security = () => {
                     <td className={`px-4 py-3.5 border-b border-border text-sm text-muted-foreground ${i % 2 === 1 ? "bg-card" : ""}`}>{r.scope}</td>
                     <td className={`px-4 py-3.5 border-b border-border text-sm text-muted-foreground ${i % 2 === 1 ? "bg-card" : ""}`}>{r.coverage}</td>
                     <td className={`px-4 py-3.5 border-b border-border text-sm ${i % 2 === 1 ? "bg-card" : ""}`}>
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold rounded-full px-3 py-1 ${r.status === "Covered" ? "bg-green-500/15 text-green-400" : "bg-yellow-500/15 text-yellow-400"}`}>{r.status}</span>
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold rounded-full px-3 py-1 ${r.status === "covered" ? "bg-green-500/15 text-green-400" : "bg-yellow-500/15 text-yellow-400"}`}>
+                        {r.status === "covered" ? t("secpage.status.covered") : t("secpage.status.inprogress")}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -220,7 +242,7 @@ const Security = () => {
       {/* BLOCKCHAIN */}
       <FadeSection className="py-16 border-b border-border">
         <div className="max-w-[1100px] mx-auto px-8">
-          <SectionHeader label="Blockchain Audit Trail" title="Tamper-proof compliance evidence" desc="Every audit event is cryptographically certified on Fantom Opera Mainnet — independently verifiable by regulators, auditors, and data subjects." />
+          <SectionHeader label={t("secpage.blockchain.label")} title={t("secpage.blockchain.title")} desc={t("secpage.blockchain.desc")} />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -230,19 +252,13 @@ const Security = () => {
             className="grid grid-cols-1 sm:grid-cols-2 bg-gradient-to-br from-background to-secondary rounded-2xl p-10 gap-8 mt-8 border border-border"
           >
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-3">How it works</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Every PII detection event generates an audit record. The record's SHA-512 hash is certified on Fantom Opera Mainnet via iBS API. The resulting blockchain TX hash is stored in the audit log.
-              </p>
-              <p className="text-sm text-muted-foreground leading-relaxed mt-3">
-                Batch certification reduces costs: up to 100 audit events are certified in a single blockchain transaction every 5 minutes.
-              </p>
+              <h3 className="text-lg font-bold text-foreground mb-3">{t("secpage.blockchain.howTitle")}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{t("secpage.blockchain.howP1")}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed mt-3">{t("secpage.blockchain.howP2")}</p>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground mb-3">Public verifiability</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Any certified event can be independently verified using the TX hash — no access to Privaro's infrastructure required.
-              </p>
+              <h3 className="text-lg font-bold text-foreground mb-3">{t("secpage.blockchain.verifyTitle")}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{t("secpage.blockchain.verifyDesc")}</p>
               <div className="font-mono text-[11px] text-primary break-all mt-3 p-3 bg-muted rounded-md">
                 Example TX:<br />
                 https://checker.icommunitylabs.com/check/<br />
@@ -272,7 +288,7 @@ const Security = () => {
       {/* POLICY DOCUMENTS */}
       <FadeSection className="py-16 border-b border-border">
         <div className="max-w-[1100px] mx-auto px-8">
-          <SectionHeader label="Policy Documents" title="Security policies & procedures" desc="Privaro maintains a complete set of security policies aligned to ISO 27001 and SOC2 requirements. Available to enterprise customers under NDA." />
+          <SectionHeader label={t("secpage.docs.label")} title={t("secpage.docs.title")} desc={t("secpage.docs.desc")} />
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -297,21 +313,19 @@ const Security = () => {
       <FadeSection className="py-16">
         <div className="max-w-[1100px] mx-auto px-8">
           <div className="bg-card border border-border rounded-2xl p-12 text-center">
-            <h2 className="text-2xl font-bold text-foreground mb-3">Security questions?</h2>
-            <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-              Our team is available to answer security questionnaires, complete vendor assessments, or schedule a technical deep-dive.
-            </p>
+            <h2 className="text-2xl font-bold text-foreground mb-3">{t("secpage.cta.title")}</h2>
+            <p className="text-muted-foreground mb-8 max-w-md mx-auto">{t("secpage.cta.desc")}</p>
             <div className="flex flex-wrap justify-center gap-3">
               <Button asChild>
                 <a href="mailto:hello@icommunity.io">
                   <Mail className="w-4 h-4" />
-                  Contact Security Team
+                  {t("secpage.cta.contact")}
                 </a>
               </Button>
               <Button variant="outline" asChild>
                 <a href="/docs/Privaro_Compliance_Pack_v1.0.zip" download>
                   <Download className="w-4 h-4" />
-                  Download Policy Documents
+                  {t("secpage.cta.download")}
                 </a>
               </Button>
             </div>
