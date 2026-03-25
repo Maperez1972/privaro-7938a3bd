@@ -167,9 +167,13 @@ export function useChat() {
       });
   }, [activeConversationId]);
 
+  const prevConversationRef = useRef<string | null>(null);
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    const isConversationSwitch = prevConversationRef.current !== activeConversationId;
+    prevConversationRef.current = activeConversationId;
+    messagesEndRef.current?.scrollIntoView({ behavior: isConversationSwitch ? "instant" : "smooth" });
+  }, [messages, activeConversationId]);
 
   const createConversation = useCallback(async () => {
     if (!user || !profile?.org_id || !activePipelineId) return null;
