@@ -43,7 +43,7 @@ const Navbar = () => {
     { label: t("nav.problem"), href: "/#problem" },
     { label: t("nav.solution"), href: "/#solution" },
     { label: t("nav.howItWorks"), href: "/#how-it-works" },
-    { label: t("nav.security"), href: "/#security" },
+    { label: t("nav.security"), href: "/security" },
   ];
 
   const isUseCasePage = location.pathname.startsWith("/use-cases");
