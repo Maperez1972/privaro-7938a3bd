@@ -12,6 +12,7 @@ import FintechPage from "./pages/use-cases/Fintech";
 import HealthPage from "./pages/use-cases/Health";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
+import Security from "./pages/Security";
 import AppLayout from "./components/app/AppLayout";
 import Chat from "./pages/app/Chat";
 import Dashboard from "./pages/app/Dashboard";
@@ -73,6 +74,7 @@ const App = () => (
               <Route path="/use-cases/legal" element={<LegalPage />} />
               <Route path="/use-cases/fintech" element={<FintechPage />} />
               <Route path="/use-cases/health" element={<HealthPage />} />
+              <Route path="/security" element={<Security />} />
 
               {/* Auth */}
               <Route path="/auth" element={<Auth />} />
