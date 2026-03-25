@@ -167,13 +167,23 @@ export function useChat() {
       });
   }, [activeConversationId]);
 
+  const isConversationSwitchRef = useRef(true);
+
+  // Flag conversation switches so we scroll instantly (not smoothly)
   const prevConversationRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (prevConversationRef.current !== activeConversationId) {
+      isConversationSwitchRef.current = true;
+      prevConversationRef.current = activeConversationId;
+    }
+  }, [activeConversationId]);
 
   useEffect(() => {
-    const isConversationSwitch = prevConversationRef.current !== activeConversationId;
-    prevConversationRef.current = activeConversationId;
-    messagesEndRef.current?.scrollIntoView({ behavior: isConversationSwitch ? "instant" : "smooth" });
-  }, [messages, activeConversationId]);
+    if (!messages.length) return;
+    const behavior = isConversationSwitchRef.current ? "instant" : "smooth";
+    isConversationSwitchRef.current = false;
+    messagesEndRef.current?.scrollIntoView({ behavior });
+  }, [messages]);
 
   const createConversation = useCallback(async () => {
     if (!user || !profile?.org_id || !activePipelineId) return null;
