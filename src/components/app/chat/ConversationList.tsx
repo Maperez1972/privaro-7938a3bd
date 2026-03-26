@@ -444,7 +444,9 @@ export function ConversationList({
   folders, onCreateFolder, onRenameFolder, onChangeFolderColor, onDeleteFolder,
 }: Props) {
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
-  const [showArchived, setShowArchived] = useState(false);
+  const [showArchived, setShowArchived] = useState(
+    () => localStorage.getItem("privaro-archived-expanded") === "true"
+  );
   const [dragOverAll, setDragOverAll] = useState(false);
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(false);
@@ -563,7 +565,7 @@ export function ConversationList({
             {archivedConversations.length > 0 && (
               <div>
                 <button
-                  onClick={() => setShowArchived(!showArchived)}
+                  onClick={() => { const next = !showArchived; setShowArchived(next); localStorage.setItem("privaro-archived-expanded", String(next)); }}
                   className="flex items-center gap-2 w-full px-3 pt-3 pb-1 hover:bg-secondary/30 transition-colors"
                 >
                   <ChevronRight className={cn("w-3 h-3 text-muted-foreground transition-transform", showArchived && "rotate-90")} />
