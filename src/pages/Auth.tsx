@@ -129,10 +129,17 @@ const Auth = () => {
                 <form onSubmit={mode === "login" ? handleLogin : handleSignup} className="space-y-4">
                   {mode === "signup" && (
                     <>
-                      <div className="space-y-2">
-                        <Label htmlFor="orgName">{t("auth.orgName")}</Label>
-                        <Input id="orgName" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="Acme Corp" required />
-                      </div>
+                      {!invitationToken && (
+                        <div className="space-y-2">
+                          <Label htmlFor="orgName">{t("auth.orgName")}</Label>
+                          <Input id="orgName" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="Acme Corp" required />
+                        </div>
+                      )}
+                      {invitationToken && (
+                        <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+                          You've been invited to join an organization. Complete your registration below.
+                        </p>
+                      )}
                       <div className="space-y-2">
                         <Label htmlFor="fullName">{t("auth.fullName")}</Label>
                         <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Jane Doe" required />
