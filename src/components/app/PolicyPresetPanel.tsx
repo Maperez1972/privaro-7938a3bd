@@ -78,37 +78,18 @@ const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps)
     if (!confirmPreset) return;
     setApplying(true);
 
-    const { error: delErr } = await (supabase as any)
-      .from("policy_rules")
-      .delete()
-      .eq("org_id", orgId)
-      .is("pipeline_id", null);
+    const { data, error } = await (supabase as any).rpc("apply_preset_org", {
+      p_org_id: orgId,
+      p_preset_slug: confirmPreset.slug,
+      p_user_id: userId,
+    });
 
-    if (delErr) {
-      toast({ title: "Error", description: delErr.message, variant: "destructive" });
-      setApplying(false);
-      return;
-    }
-
-    const rules = Array.isArray(confirmPreset.rules) ? confirmPreset.rules : [];
-    const rows = rules.map((r) => ({
-      org_id: orgId,
-      entity_type: r.entity_type,
-      category: r.category,
-      action: r.action,
-      regulation_ref: r.regulation_ref || null,
-      priority: r.priority,
-      custom_pattern: r.custom_pattern || null,
-      is_enabled: true,
-      updated_by: userId,
-    }));
-
-    const { error } = await supabase.from("policy_rules").insert(rows);
     setApplying(false);
 
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
+      const rules = Array.isArray(confirmPreset.rules) ? confirmPreset.rules : [];
       localStorage.setItem("privaro-lastPreset", confirmPreset.slug);
       toast({ title: `${confirmPreset.name} applied`, description: `${rules.length} rules configured` });
       onApplied(confirmPreset.slug);
