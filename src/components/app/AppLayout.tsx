@@ -35,6 +35,7 @@ const AppLayout = () => {
   const [showBottomShadow, setShowBottomShadow] = useState(false);
   const navRef = useRef<HTMLElement | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, profile, roles, hasRole, signOut } = useAuth();
   const isAdmin = hasRole("admin");
   const isDpo = hasRole("dpo");
@@ -50,17 +51,12 @@ const AppLayout = () => {
     return () => window.removeEventListener("storage", handler);
   }, []);
 
-  // Auto-redirect to onboarding if not completed (except if already there)
+  // Auto-redirect to onboarding if not completed
   useEffect(() => {
     if (!onboardingDone && location.pathname !== "/app/onboarding") {
-      // Small delay to let layout render
-      const t = setTimeout(() => {
-        window.history.replaceState(null, "", "/app/onboarding");
-        window.location.href = "/app/onboarding";
-      }, 0);
-      return () => clearTimeout(t);
+      navigate("/app/onboarding", { replace: true });
     }
-  }, [onboardingDone, location.pathname]);
+  }, [onboardingDone, location.pathname, navigate]);
 
   useEffect(() => {
     const nav = navRef.current;
