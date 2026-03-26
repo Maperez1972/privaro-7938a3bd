@@ -446,6 +446,25 @@ export function ConversationList({
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const [dragOverAll, setDragOverAll] = useState(false);
+  const [showTopShadow, setShowTopShadow] = useState(false);
+  const [showBottomShadow, setShowBottomShadow] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const update = () => {
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      const hasOverflow = scrollHeight > clientHeight + 1;
+      setShowTopShadow(hasOverflow && scrollTop > 2);
+      setShowBottomShadow(hasOverflow && scrollTop + clientHeight < scrollHeight - 2);
+    };
+    update();
+    requestAnimationFrame(update);
+    el.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => { el.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
+  }, [conversations, archivedConversations, folders, showArchived]);
 
   const pinned = conversations.filter(c => c.is_pinned && !c.folder_id);
   const unfolderedUnpinned = conversations.filter(c => !c.is_pinned && !c.folder_id);
