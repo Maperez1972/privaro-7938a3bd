@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot } from "lucide-react";
+import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, ChevronDown, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logoPrivaro from "@/assets/logo-privaro.png";
 
@@ -28,6 +28,7 @@ const adminOnlyItems = [
 
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [adminExpanded, setAdminExpanded] = useState(false);
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(false);
   const navRef = useRef<HTMLElement | null>(null);
@@ -103,9 +104,21 @@ const AppLayout = () => {
             {showAdminSection && (
               <>
                 <div className="my-3 border-t border-border" />
-                {!collapsed && <p className="px-3 py-1 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Admin</p>}
-                {adminDpoItems.map((item) => renderNavItem(item))}
-                {isAdmin && adminOnlyItems.map((item) => renderNavItem(item))}
+                {!collapsed && (
+                  <button
+                    onClick={() => setAdminExpanded(!adminExpanded)}
+                    className="flex items-center justify-between w-full px-3 py-1 group hover:bg-secondary/30 rounded-md transition-colors"
+                  >
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Admin</span>
+                    <ChevronDown className={cn("w-3 h-3 text-muted-foreground transition-transform duration-200", !adminExpanded && "-rotate-90")} />
+                  </button>
+                )}
+                {(collapsed || adminExpanded) && (
+                  <>
+                    {adminDpoItems.map((item) => renderNavItem(item))}
+                    {isAdmin && adminOnlyItems.map((item) => renderNavItem(item))}
+                  </>
+                )}
               </>
             )}
           </nav>
