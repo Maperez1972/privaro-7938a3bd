@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot } from "lucide-react";
@@ -28,6 +28,9 @@ const adminOnlyItems = [
 
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [showTopShadow, setShowTopShadow] = useState(false);
+  const [showBottomShadow, setShowBottomShadow] = useState(false);
+  const navRef = useRef<HTMLElement | null>(null);
   const location = useLocation();
   const { user, profile, roles, hasRole, signOut } = useAuth();
   const isAdmin = hasRole("admin");
@@ -43,6 +46,29 @@ const AppLayout = () => {
     window.addEventListener("storage", handler);
     return () => window.removeEventListener("storage", handler);
   }, []);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    const updateShadows = () => {
+      const { scrollTop, scrollHeight, clientHeight } = nav;
+      const hasOverflow = scrollHeight > clientHeight + 1;
+      setShowTopShadow(hasOverflow && scrollTop > 2);
+      setShowBottomShadow(hasOverflow && scrollTop + clientHeight < scrollHeight - 2);
+    };
+
+    updateShadows();
+    requestAnimationFrame(updateShadows);
+
+    nav.addEventListener("scroll", updateShadows, { passive: true });
+    window.addEventListener("resize", updateShadows);
+
+    return () => {
+      nav.removeEventListener("scroll", updateShadows);
+      window.removeEventListener("resize", updateShadows);
+    };
+  }, [collapsed, onboardingDone, showAdminSection, isAdmin, location.pathname]);
 
   const renderNavItem = (item: { label: string; icon: any; href: string }, showBadge?: boolean) => {
     const isActive = item.href === "/app" ? location.pathname === "/app" : location.pathname.startsWith(item.href);
@@ -61,26 +87,45 @@ const AppLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <aside className={cn("flex flex-col border-r border-border bg-sidebar transition-all duration-200", collapsed ? "w-16" : "w-60")}>
+    <div className="h-screen bg-background flex overflow-hidden">
+      <aside className={cn("min-h-0 flex flex-col border-r border-border bg-sidebar transition-all duration-200", collapsed ? "w-16" : "w-60")}>
         <div className="h-16 flex items-center px-3 border-b border-border">
           {!collapsed && <img src={logoPrivaro} alt="Privaro" className="h-12" />}
           <button onClick={() => setCollapsed(!collapsed)} className="ml-auto p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
         </div>
-        <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto min-h-0">
-          {navItems.map((item) => renderNavItem(item))}
-          {isAdmin && !onboardingDone && renderNavItem(onboardingItem)}
-          {showAdminSection && (
-            <>
-              <div className="my-3 border-t border-border" />
-              {!collapsed && <p className="px-3 py-1 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Admin</p>}
-              {adminDpoItems.map((item) => renderNavItem(item))}
-              {isAdmin && adminOnlyItems.map((item) => renderNavItem(item))}
-            </>
-          )}
-        </nav>
+
+        <div className="relative flex-1 min-h-0">
+          <nav ref={navRef} className="h-full overflow-y-auto py-4 px-2 space-y-1">
+            {navItems.map((item) => renderNavItem(item))}
+            {isAdmin && !onboardingDone && renderNavItem(onboardingItem)}
+            {showAdminSection && (
+              <>
+                <div className="my-3 border-t border-border" />
+                {!collapsed && <p className="px-3 py-1 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Admin</p>}
+                {adminDpoItems.map((item) => renderNavItem(item))}
+                {isAdmin && adminOnlyItems.map((item) => renderNavItem(item))}
+              </>
+            )}
+          </nav>
+
+          <div
+            aria-hidden
+            className={cn(
+              "pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-sidebar to-transparent transition-opacity duration-200",
+              showTopShadow ? "opacity-100" : "opacity-0"
+            )}
+          />
+          <div
+            aria-hidden
+            className={cn(
+              "pointer-events-none absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-sidebar to-transparent transition-opacity duration-200",
+              showBottomShadow ? "opacity-100" : "opacity-0"
+            )}
+          />
+        </div>
+
         <div className="border-t border-border p-3">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0"><User className="w-4 h-4 text-primary" /></div>
@@ -94,7 +139,7 @@ const AppLayout = () => {
           </div>
         </div>
       </aside>
-      <main className="flex-1 overflow-auto"><Outlet /></main>
+      <main className="flex-1 min-h-0 overflow-auto"><Outlet /></main>
     </div>
   );
 };
