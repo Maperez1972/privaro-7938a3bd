@@ -69,7 +69,7 @@ const AppLayout = () => {
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
         </div>
-        <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
+        <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto min-h-0">
           {navItems.map((item) => renderNavItem(item))}
           {isAdmin && !onboardingDone && renderNavItem(onboardingItem)}
           {showAdminSection && (
