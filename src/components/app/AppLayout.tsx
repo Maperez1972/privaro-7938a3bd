@@ -108,7 +108,7 @@ const AppLayout = () => {
                 <div className="my-3 border-t border-border" />
                 {!collapsed && (
                   <button
-                    onClick={() => setAdminExpanded(!adminExpanded)}
+                    onClick={() => { const next = !adminExpanded; setAdminExpanded(next); localStorage.setItem("privaro-admin-expanded", String(next)); }}
                     className="flex items-center justify-between w-full px-3 py-1 group hover:bg-secondary/30 rounded-md transition-colors"
                   >
                     <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Admin</span>

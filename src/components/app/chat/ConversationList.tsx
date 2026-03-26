@@ -565,7 +565,7 @@ export function ConversationList({
             {archivedConversations.length > 0 && (
               <div>
                 <button
-                  onClick={() => setShowArchived(!showArchived)}
+                  onClick={() => { const next = !showArchived; setShowArchived(next); localStorage.setItem("privaro-archived-expanded", String(next)); }}
                   className="flex items-center gap-2 w-full px-3 pt-3 pb-1 hover:bg-secondary/30 transition-colors"
                 >
                   <ChevronRight className={cn("w-3 h-3 text-muted-foreground transition-transform", showArchived && "rotate-90")} />
