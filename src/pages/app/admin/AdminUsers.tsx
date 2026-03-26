@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Users, Plus, MoreHorizontal, Loader2, UserCheck, UserX } from "lucide-react";
+import { Users, Plus, MoreHorizontal, Loader2, UserCheck, UserX, Copy, Link } from "lucide-react";
 import { toast } from "sonner";
 import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 
