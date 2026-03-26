@@ -101,33 +101,40 @@ const AdminUsers = () => {
     mutationFn: async () => {
       if (!orgId || !inviteEmail) throw new Error("Missing data");
 
-      const { data, error } = await supabase.functions.invoke("invite-user", {
-        body: {
-          email: inviteEmail,
-          role: inviteRole,
-          full_name: inviteEmail.split("@")[0],
-        },
+      const { data, error } = await supabase.rpc("create_invitation", {
+        p_email: inviteEmail,
+        p_role: inviteRole,
       });
 
       if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      return data;
+      if (!data) throw new Error("No token returned");
+      return data as string;
     },
-    onSuccess: () => {
+    onSuccess: (token: string) => {
+      const baseUrl = window.location.origin;
+      const link = `${baseUrl}/auth?invitation_token=${token}&email=${encodeURIComponent(inviteEmail)}`;
+      setInviteLink(link);
       queryClient.invalidateQueries({ queryKey: ["admin-users", orgId] });
-      toast.success(`Invitación enviada a ${inviteEmail}. Recibirá un email para acceder.`);
-      setInviteOpen(false);
-      setInviteEmail("");
-      setInviteRole("viewer");
+      toast.success(`Invitation created for ${inviteEmail}`);
     },
     onError: (e: Error) => {
-      if (e.message?.includes("ya está registrado") || e.message?.includes("already registered")) {
-        toast.error("Este email ya está registrado");
-      } else {
-        toast.error(e.message || "Error al invitar usuario");
-      }
+      toast.error(e.message || "Error creating invitation");
     },
   });
+
+  const copyLink = () => {
+    if (inviteLink) {
+      navigator.clipboard.writeText(inviteLink);
+      toast.success("Link copied to clipboard");
+    }
+  };
+
+  const resetInviteDialog = () => {
+    setInviteOpen(false);
+    setInviteEmail("");
+    setInviteRole("viewer");
+    setInviteLink(null);
+  };
 
   return (
     <div className="p-6 space-y-6">
