@@ -50,6 +50,18 @@ const AppLayout = () => {
     return () => window.removeEventListener("storage", handler);
   }, []);
 
+  // Auto-redirect to onboarding if not completed (except if already there)
+  useEffect(() => {
+    if (!onboardingDone && location.pathname !== "/app/onboarding") {
+      // Small delay to let layout render
+      const t = setTimeout(() => {
+        window.history.replaceState(null, "", "/app/onboarding");
+        window.location.href = "/app/onboarding";
+      }, 0);
+      return () => clearTimeout(t);
+    }
+  }, [onboardingDone, location.pathname]);
+
   useEffect(() => {
     const nav = navRef.current;
     if (!nav) return;
