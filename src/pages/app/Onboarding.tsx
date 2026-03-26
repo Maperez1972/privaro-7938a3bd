@@ -502,11 +502,24 @@ console.log(data);`;
             </CardContent>
           </Card>
 
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <Button variant="ghost" onClick={() => setStep(2)}>Back</Button>
-            <Button onClick={handleFinish} size="lg" className="gap-2">
-              Go to Dashboard <ArrowRight className="w-4 h-4" />
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  localStorage.setItem("privaro-onboarding-done", "true");
+                  navigate("/app/chat");
+                }}
+                className="text-muted-foreground"
+              >
+                Don't show again
+              </Button>
+              <Button onClick={handleFinish} size="lg" className="gap-2">
+                Go to Dashboard <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
       )}
