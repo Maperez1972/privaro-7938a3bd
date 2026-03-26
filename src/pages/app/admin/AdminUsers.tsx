@@ -106,8 +106,11 @@ const AdminUsers = () => {
         p_role: inviteRole,
       });
 
-      if (error) throw error;
-      if (!data) throw new Error("No token returned");
+      if (error) {
+        console.error("RPC create_invitation error:", JSON.stringify(error));
+        throw new Error(error.message || error.details || "Error calling create_invitation");
+      }
+      if (!data) throw new Error("No token returned — check that create_invitation() exists and is granted to authenticated role");
       return data as string;
     },
     onSuccess: (token: string) => {
