@@ -101,7 +101,7 @@ const AdminUsers = () => {
     mutationFn: async () => {
       if (!orgId || !inviteEmail) throw new Error("Missing data");
 
-      const { data, error } = await supabase.rpc("create_invitation", {
+      const { data, error } = await (supabase.rpc as any)("create_invitation", {
         p_email: inviteEmail,
         p_role: inviteRole,
       });
