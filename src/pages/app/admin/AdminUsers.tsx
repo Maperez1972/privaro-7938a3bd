@@ -147,7 +147,7 @@ const AdminUsers = () => {
             Manage users, roles, and permissions
           </p>
         </div>
-        <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <Dialog open={inviteOpen} onOpenChange={(open) => { if (!open) resetInviteDialog(); else setInviteOpen(true); }}>
           <DialogTrigger asChild>
             <Button size="sm"><Plus className="w-4 h-4 mr-1" /> Invite User</Button>
           </DialogTrigger>
@@ -156,26 +156,46 @@ const AdminUsers = () => {
               <DialogTitle>Invite User</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="user@company.com" />
-              </div>
-              <div className="space-y-2">
-                <Label>Role</Label>
-                <Select value={inviteRole} onValueChange={setInviteRole}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="viewer">Viewer</SelectItem>
-                    <SelectItem value="developer">Developer</SelectItem>
-                    <SelectItem value="dpo">DPO</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button onClick={() => inviteUser.mutate()} disabled={!inviteEmail || inviteUser.isPending} className="w-full">
-                {inviteUser.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                {inviteUser.isPending ? "Sending…" : "Send Invitation"}
-              </Button>
+              {inviteLink ? (
+                <>
+                  <p className="text-sm text-muted-foreground">Share this link with the user to join your organization:</p>
+                  <div className="flex gap-2">
+                    <Input value={inviteLink} readOnly className="text-xs font-mono" />
+                    <Button variant="outline" size="icon" onClick={copyLink} title="Copy link">
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" className="flex-1" onClick={resetInviteDialog}>Close</Button>
+                    <Button className="flex-1" onClick={() => { setInviteLink(null); setInviteEmail(""); }}>
+                      <Plus className="w-4 h-4 mr-1" /> Invite Another
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="user@company.com" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Role</Label>
+                    <Select value={inviteRole} onValueChange={setInviteRole}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="viewer">Viewer</SelectItem>
+                        <SelectItem value="developer">Developer</SelectItem>
+                        <SelectItem value="dpo">DPO</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button onClick={() => inviteUser.mutate()} disabled={!inviteEmail || inviteUser.isPending} className="w-full">
+                    {inviteUser.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Link className="w-4 h-4 mr-2" />}
+                    {inviteUser.isPending ? "Creating…" : "Generate Invitation Link"}
+                  </Button>
+                </>
+              )}
             </div>
           </DialogContent>
         </Dialog>
