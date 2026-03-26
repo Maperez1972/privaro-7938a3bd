@@ -12,6 +12,7 @@ import FintechPage from "./pages/use-cases/Fintech";
 import HealthPage from "./pages/use-cases/Health";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
+import EmailConfirmed from "./pages/EmailConfirmed";
 import Security from "./pages/Security";
 import AppLayout from "./components/app/AppLayout";
 import Chat from "./pages/app/Chat";

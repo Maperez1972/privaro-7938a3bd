@@ -42,6 +42,7 @@ const Auth = () => {
       email,
       password,
       options: {
+        emailRedirectTo: `${window.location.origin}/email-confirmed`,
         data: {
           organization_name: orgName,
           full_name: fullName,
