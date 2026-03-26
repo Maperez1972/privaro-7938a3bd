@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,8 +12,12 @@ import { useLanguage } from "@/context/LanguageContext";
 import type { Language } from "@/context/LanguageContext";
 
 const Auth = () => {
-  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
-  const [email, setEmail] = useState("");
+  const [searchParams] = useSearchParams();
+  const invitationToken = searchParams.get("invitation_token");
+  const invitedEmail = searchParams.get("email");
+
+  const [mode, setMode] = useState<"login" | "signup" | "forgot">(invitationToken ? "signup" : "login");
+  const [email, setEmail] = useState(invitedEmail || "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -38,15 +42,22 @@ const Auth = () => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const metadata: Record<string, string> = {
+      full_name: fullName,
+    };
+    if (!invitationToken) {
+      metadata.organization_name = orgName;
+    }
+    if (invitationToken) {
+      metadata.invitation_token = invitationToken;
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/email-confirmed`,
-        data: {
-          organization_name: orgName,
-          full_name: fullName,
-        },
+        data: metadata,
       },
     });
     setLoading(false);
@@ -118,10 +129,17 @@ const Auth = () => {
                 <form onSubmit={mode === "login" ? handleLogin : handleSignup} className="space-y-4">
                   {mode === "signup" && (
                     <>
-                      <div className="space-y-2">
-                        <Label htmlFor="orgName">{t("auth.orgName")}</Label>
-                        <Input id="orgName" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="Acme Corp" required />
-                      </div>
+                      {!invitationToken && (
+                        <div className="space-y-2">
+                          <Label htmlFor="orgName">{t("auth.orgName")}</Label>
+                          <Input id="orgName" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="Acme Corp" required />
+                        </div>
+                      )}
+                      {invitationToken && (
+                        <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+                          You've been invited to join an organization. Complete your registration below.
+                        </p>
+                      )}
                       <div className="space-y-2">
                         <Label htmlFor="fullName">{t("auth.fullName")}</Label>
                         <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Jane Doe" required />

@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Users, Plus, MoreHorizontal, Loader2, UserCheck, UserX } from "lucide-react";
+import { Users, Plus, MoreHorizontal, Loader2, UserCheck, UserX, Copy, Link } from "lucide-react";
 import { toast } from "sonner";
 import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 
@@ -38,6 +38,7 @@ const AdminUsers = () => {
   const [userPageSize, setUserPageSize] = useState(10);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("viewer");
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
 
   const { data: users, isLoading } = useQuery({
     queryKey: ["admin-users", orgId],
@@ -100,33 +101,40 @@ const AdminUsers = () => {
     mutationFn: async () => {
       if (!orgId || !inviteEmail) throw new Error("Missing data");
 
-      const { data, error } = await supabase.functions.invoke("invite-user", {
-        body: {
-          email: inviteEmail,
-          role: inviteRole,
-          full_name: inviteEmail.split("@")[0],
-        },
+      const { data, error } = await (supabase.rpc as any)("create_invitation", {
+        p_email: inviteEmail,
+        p_role: inviteRole,
       });
 
       if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      return data;
+      if (!data) throw new Error("No token returned");
+      return data as string;
     },
-    onSuccess: () => {
+    onSuccess: (token: string) => {
+      const baseUrl = window.location.origin;
+      const link = `${baseUrl}/auth?invitation_token=${token}&email=${encodeURIComponent(inviteEmail)}`;
+      setInviteLink(link);
       queryClient.invalidateQueries({ queryKey: ["admin-users", orgId] });
-      toast.success(`Invitación enviada a ${inviteEmail}. Recibirá un email para acceder.`);
-      setInviteOpen(false);
-      setInviteEmail("");
-      setInviteRole("viewer");
+      toast.success(`Invitation created for ${inviteEmail}`);
     },
     onError: (e: Error) => {
-      if (e.message?.includes("ya está registrado") || e.message?.includes("already registered")) {
-        toast.error("Este email ya está registrado");
-      } else {
-        toast.error(e.message || "Error al invitar usuario");
-      }
+      toast.error(e.message || "Error creating invitation");
     },
   });
+
+  const copyLink = () => {
+    if (inviteLink) {
+      navigator.clipboard.writeText(inviteLink);
+      toast.success("Link copied to clipboard");
+    }
+  };
+
+  const resetInviteDialog = () => {
+    setInviteOpen(false);
+    setInviteEmail("");
+    setInviteRole("viewer");
+    setInviteLink(null);
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -139,7 +147,7 @@ const AdminUsers = () => {
             Manage users, roles, and permissions
           </p>
         </div>
-        <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <Dialog open={inviteOpen} onOpenChange={(open) => { if (!open) resetInviteDialog(); else setInviteOpen(true); }}>
           <DialogTrigger asChild>
             <Button size="sm"><Plus className="w-4 h-4 mr-1" /> Invite User</Button>
           </DialogTrigger>
@@ -148,26 +156,46 @@ const AdminUsers = () => {
               <DialogTitle>Invite User</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="user@company.com" />
-              </div>
-              <div className="space-y-2">
-                <Label>Role</Label>
-                <Select value={inviteRole} onValueChange={setInviteRole}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="viewer">Viewer</SelectItem>
-                    <SelectItem value="developer">Developer</SelectItem>
-                    <SelectItem value="dpo">DPO</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button onClick={() => inviteUser.mutate()} disabled={!inviteEmail || inviteUser.isPending} className="w-full">
-                {inviteUser.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                {inviteUser.isPending ? "Sending…" : "Send Invitation"}
-              </Button>
+              {inviteLink ? (
+                <>
+                  <p className="text-sm text-muted-foreground">Share this link with the user to join your organization:</p>
+                  <div className="flex gap-2">
+                    <Input value={inviteLink} readOnly className="text-xs font-mono" />
+                    <Button variant="outline" size="icon" onClick={copyLink} title="Copy link">
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" className="flex-1" onClick={resetInviteDialog}>Close</Button>
+                    <Button className="flex-1" onClick={() => { setInviteLink(null); setInviteEmail(""); }}>
+                      <Plus className="w-4 h-4 mr-1" /> Invite Another
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="user@company.com" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Role</Label>
+                    <Select value={inviteRole} onValueChange={setInviteRole}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="viewer">Viewer</SelectItem>
+                        <SelectItem value="developer">Developer</SelectItem>
+                        <SelectItem value="dpo">DPO</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button onClick={() => inviteUser.mutate()} disabled={!inviteEmail || inviteUser.isPending} className="w-full">
+                    {inviteUser.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Link className="w-4 h-4 mr-2" />}
+                    {inviteUser.isPending ? "Creating…" : "Generate Invitation Link"}
+                  </Button>
+                </>
+              )}
             </div>
           </DialogContent>
         </Dialog>
