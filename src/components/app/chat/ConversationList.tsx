@@ -446,6 +446,25 @@ export function ConversationList({
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const [dragOverAll, setDragOverAll] = useState(false);
+  const [showTopShadow, setShowTopShadow] = useState(false);
+  const [showBottomShadow, setShowBottomShadow] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const update = () => {
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      const hasOverflow = scrollHeight > clientHeight + 1;
+      setShowTopShadow(hasOverflow && scrollTop > 2);
+      setShowBottomShadow(hasOverflow && scrollTop + clientHeight < scrollHeight - 2);
+    };
+    update();
+    requestAnimationFrame(update);
+    el.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => { el.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
+  }, [conversations, archivedConversations, folders, showArchived]);
 
   const pinned = conversations.filter(c => c.is_pinned && !c.folder_id);
   const unfolderedUnpinned = conversations.filter(c => !c.is_pinned && !c.folder_id);
@@ -472,7 +491,8 @@ export function ConversationList({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="relative flex-1 min-h-0">
+        <div ref={listRef} className="h-full overflow-y-auto">
         {loading ? (
           <p className="text-xs text-muted-foreground text-center py-8">Loading…</p>
         ) : conversations.length === 0 ? (
@@ -595,6 +615,9 @@ export function ConversationList({
             )}
           </>
         )}
+        </div>
+        <div aria-hidden className={cn("pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-card/80 to-transparent transition-opacity duration-200", showTopShadow ? "opacity-100" : "opacity-0")} />
+        <div aria-hidden className={cn("pointer-events-none absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-card/80 to-transparent transition-opacity duration-200", showBottomShadow ? "opacity-100" : "opacity-0")} />
       </div>
 
       <NewFolderDialog
