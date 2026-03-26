@@ -444,7 +444,9 @@ export function ConversationList({
   folders, onCreateFolder, onRenameFolder, onChangeFolderColor, onDeleteFolder,
 }: Props) {
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
-  const [showArchived, setShowArchived] = useState(false);
+  const [showArchived, setShowArchived] = useState(
+    () => localStorage.getItem("privaro-archived-expanded") === "true"
+  );
   const [dragOverAll, setDragOverAll] = useState(false);
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(false);
