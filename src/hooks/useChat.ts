@@ -605,8 +605,20 @@ export function useChat() {
           );
         }
       );
-    } catch (err) {
-      console.warn("LLM call failed, using fallback:", err);
+    } catch (err: any) {
+      const errMsg = err?.message || "";
+      const isRateLimit = errMsg.includes("429") || errMsg.includes("rate_limit");
+      const isPayment = errMsg.includes("402") || errMsg.includes("billing");
+
+      if (isRateLimit) {
+        toast.error("Rate limit exceeded — too many requests. Please wait a moment and try again.");
+      } else if (isPayment) {
+        toast.error("Payment required — the AI provider quota has been exceeded.");
+      } else {
+        toast.error("AI request failed. Using fallback response.");
+      }
+
+      console.warn("LLM call failed:", err);
       responseText = generateFallbackResponse(protectedText, detections, !!fileAttachment);
     }
 
