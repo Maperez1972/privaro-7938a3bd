@@ -562,9 +562,11 @@ export function useChat() {
       setMessages((prev) => [...prev, userMsg as Message]);
     }
 
-    // Build conversation history for LLM (include all previous messages + new one)
+    // Build conversation history for LLM — limit to last N messages to avoid token overflow
+    const MAX_HISTORY = 10;
+    const recentMessages = messages.slice(-MAX_HISTORY);
     const history = [
-      ...messages.map((m) => ({ role: m.role, content: m.content_protected })),
+      ...recentMessages.map((m) => ({ role: m.role, content: m.content_protected })),
       { role: "user" as const, content: protectedText },
     ];
 
