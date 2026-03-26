@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation, Outlet } from "react-router-dom";
+import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, ChevronDown, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -35,6 +35,7 @@ const AppLayout = () => {
   const [showBottomShadow, setShowBottomShadow] = useState(false);
   const navRef = useRef<HTMLElement | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, profile, roles, hasRole, signOut } = useAuth();
   const isAdmin = hasRole("admin");
   const isDpo = hasRole("dpo");
@@ -49,6 +50,13 @@ const AppLayout = () => {
     window.addEventListener("storage", handler);
     return () => window.removeEventListener("storage", handler);
   }, []);
+
+  // Auto-redirect to onboarding if not completed
+  useEffect(() => {
+    if (!onboardingDone && location.pathname !== "/app/onboarding") {
+      navigate("/app/onboarding", { replace: true });
+    }
+  }, [onboardingDone, location.pathname, navigate]);
 
   useEffect(() => {
     const nav = navRef.current;
@@ -102,7 +110,7 @@ const AppLayout = () => {
         <div className="relative flex-1 min-h-0">
           <nav ref={navRef} className="h-full overflow-y-auto py-4 px-2 space-y-1">
             {navItems.map((item) => renderNavItem(item))}
-            {isAdmin && !onboardingDone && renderNavItem(onboardingItem)}
+            {!onboardingDone && renderNavItem(onboardingItem)}
             {showAdminSection && (
               <>
                 <div className="my-3 border-t border-border" />

@@ -92,7 +92,7 @@ const App = () => (
                 <Route path="policies" element={<Policies />} />
                 <Route path="agent-runs" element={<AgentRuns />} />
                 <Route path="settings" element={<Settings />} />
-                <Route path="onboarding" element={<AdminRoute><Onboarding /></AdminRoute>} />
+                <Route path="onboarding" element={<Onboarding />} />
                 {/* Admin/DPO routes */}
                 <Route path="admin/audit-logs" element={<AdminDpoRoute><AuditLogs /></AdminDpoRoute>} />
                 {/* Admin only routes */}
