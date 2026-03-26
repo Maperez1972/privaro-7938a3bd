@@ -17,6 +17,18 @@ import BetaSection from "@/components/BetaSection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.includes('error=access_denied') || hash.includes('error=otp_expired') || hash.includes('error_code=otp_expired')) {
+      const params = new URLSearchParams(hash.replace('#', ''));
+      const errorCode = params.get('error_code');
+      const errorDesc = params.get('error_description');
+      navigate(`/reset-password?error=${errorCode}&message=${encodeURIComponent(errorDesc || 'Link expired')}`, { replace: true });
+    }
+  }, [navigate]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />

@@ -75,7 +75,19 @@ const ResetPassword = () => {
             <CardDescription>{t("reset.desc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            {!ready ? (
+            {expired ? (
+              <div className="text-center space-y-4">
+                <div className="flex justify-center">
+                  <AlertTriangle className="w-10 h-10 text-destructive" />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Your reset link has expired. Please request a new one.
+                </p>
+                <Button className="w-full" onClick={() => navigate("/auth?tab=forgot")}>
+                  Request new link
+                </Button>
+              </div>
+            ) : !ready ? (
               <p className="text-center text-muted-foreground text-sm">{t("reset.verifying")}</p>
             ) : (
               <form onSubmit={handleReset} className="space-y-4">
