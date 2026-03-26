@@ -42,15 +42,22 @@ const Auth = () => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const metadata: Record<string, string> = {
+      full_name: fullName,
+    };
+    if (!invitationToken) {
+      metadata.organization_name = orgName;
+    }
+    if (invitationToken) {
+      metadata.invitation_token = invitationToken;
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/email-confirmed`,
-        data: {
-          organization_name: orgName,
-          full_name: fullName,
-        },
+        data: metadata,
       },
     });
     setLoading(false);
