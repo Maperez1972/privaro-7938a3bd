@@ -110,7 +110,7 @@ const AppLayout = () => {
         <div className="relative flex-1 min-h-0">
           <nav ref={navRef} className="h-full overflow-y-auto py-4 px-2 space-y-1">
             {navItems.map((item) => renderNavItem(item))}
-            {isAdmin && !onboardingDone && renderNavItem(onboardingItem)}
+            {!onboardingDone && renderNavItem(onboardingItem)}
             {showAdminSection && (
               <>
                 <div className="my-3 border-t border-border" />
