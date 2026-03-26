@@ -491,7 +491,8 @@ export function ConversationList({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="relative flex-1 min-h-0">
+        <div ref={listRef} className="h-full overflow-y-auto">
         {loading ? (
           <p className="text-xs text-muted-foreground text-center py-8">Loading…</p>
         ) : conversations.length === 0 ? (
