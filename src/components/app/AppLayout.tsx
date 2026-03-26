@@ -28,6 +28,7 @@ const adminOnlyItems = [
 
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [adminExpanded, setAdminExpanded] = useState(false);
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(false);
   const navRef = useRef<HTMLElement | null>(null);
