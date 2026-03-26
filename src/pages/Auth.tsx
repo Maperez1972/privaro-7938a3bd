@@ -12,8 +12,12 @@ import { useLanguage } from "@/context/LanguageContext";
 import type { Language } from "@/context/LanguageContext";
 
 const Auth = () => {
-  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
-  const [email, setEmail] = useState("");
+  const [searchParams] = useSearchParams();
+  const invitationToken = searchParams.get("invitation_token");
+  const invitedEmail = searchParams.get("email");
+
+  const [mode, setMode] = useState<"login" | "signup" | "forgot">(invitationToken ? "signup" : "login");
+  const [email, setEmail] = useState(invitedEmail || "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
