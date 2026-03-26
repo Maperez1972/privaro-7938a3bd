@@ -615,6 +615,9 @@ export function ConversationList({
             )}
           </>
         )}
+        </div>
+        <div aria-hidden className={cn("pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-card/80 to-transparent transition-opacity duration-200", showTopShadow ? "opacity-100" : "opacity-0")} />
+        <div aria-hidden className={cn("pointer-events-none absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-card/80 to-transparent transition-opacity duration-200", showBottomShadow ? "opacity-100" : "opacity-0")} />
       </div>
 
       <NewFolderDialog
