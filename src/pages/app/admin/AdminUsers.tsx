@@ -38,6 +38,7 @@ const AdminUsers = () => {
   const [userPageSize, setUserPageSize] = useState(10);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("viewer");
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
 
   const { data: users, isLoading } = useQuery({
     queryKey: ["admin-users", orgId],
