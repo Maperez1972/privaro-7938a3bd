@@ -29,6 +29,7 @@ import AdminBilling from "./pages/app/admin/AdminBilling";
 import AdminSettings from "./pages/app/admin/AdminSettings";
 import AdminPolicyPresets from "./pages/app/admin/AdminPolicyPresets";
 import AdminVault from "./pages/app/admin/AdminVault";
+import AdminEncryptionKeys from "./pages/app/admin/AdminEncryptionKeys";
 import Onboarding from "./pages/app/Onboarding";
 import AgentRuns from "./pages/app/AgentRuns";
 import { LanguageProvider } from "@/context/LanguageContext";
