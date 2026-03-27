@@ -15,3 +15,6 @@ verify_jwt = false
 
 [functions.generate-dpo-report]
 verify_jwt = false
+
+[functions.byok-admin]
+verify_jwt = false
