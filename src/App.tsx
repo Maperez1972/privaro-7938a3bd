@@ -29,6 +29,7 @@ import AdminBilling from "./pages/app/admin/AdminBilling";
 import AdminSettings from "./pages/app/admin/AdminSettings";
 import AdminPolicyPresets from "./pages/app/admin/AdminPolicyPresets";
 import AdminVault from "./pages/app/admin/AdminVault";
+import AdminEncryptionKeys from "./pages/app/admin/AdminEncryptionKeys";
 import Onboarding from "./pages/app/Onboarding";
 import AgentRuns from "./pages/app/AgentRuns";
 import { LanguageProvider } from "@/context/LanguageContext";
@@ -100,6 +101,7 @@ const App = () => (
                 <Route path="admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
                 <Route path="admin/api-keys" element={<AdminRoute><AdminApiKeys /></AdminRoute>} />
                 <Route path="admin/vault" element={<AdminRoute><AdminVault /></AdminRoute>} />
+                <Route path="admin/encryption-keys" element={<AdminDpoRoute><AdminEncryptionKeys /></AdminDpoRoute>} />
                 <Route path="admin/policy-presets" element={<AdminRoute><AdminPolicyPresets /></AdminRoute>} />
                 <Route path="admin/billing" element={<AdminRoute><AdminBilling /></AdminRoute>} />
                 <Route path="admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
