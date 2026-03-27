@@ -15,7 +15,10 @@ const navItems = [
   { label: "Settings", icon: Settings, href: "/app/settings" },
 ];
 const onboardingItem = { label: "Onboarding", icon: Rocket, href: "/app/onboarding" };
-const adminDpoItems = [{ label: "Audit Logs", icon: FileText, href: "/app/admin/audit-logs" }];
+const adminDpoItems = [
+  { label: "Audit Logs", icon: FileText, href: "/app/admin/audit-logs" },
+  { label: "Encryption Keys", icon: Lock, href: "/app/admin/encryption-keys" },
+];
 const adminOnlyItems = [
   { label: "LLM Providers", icon: Cpu, href: "/app/admin/providers" },
   { label: "Users", icon: Users, href: "/app/admin/users" },

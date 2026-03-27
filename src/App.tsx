@@ -101,6 +101,7 @@ const App = () => (
                 <Route path="admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
                 <Route path="admin/api-keys" element={<AdminRoute><AdminApiKeys /></AdminRoute>} />
                 <Route path="admin/vault" element={<AdminRoute><AdminVault /></AdminRoute>} />
+                <Route path="admin/encryption-keys" element={<AdminDpoRoute><AdminEncryptionKeys /></AdminDpoRoute>} />
                 <Route path="admin/policy-presets" element={<AdminRoute><AdminPolicyPresets /></AdminRoute>} />
                 <Route path="admin/billing" element={<AdminRoute><AdminBilling /></AdminRoute>} />
                 <Route path="admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
