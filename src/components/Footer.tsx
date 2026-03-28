@@ -8,6 +8,17 @@ const Footer = () => {
     <footer className="py-10 px-6 border-t border-border">
       <div className="max-w-6xl mx-auto flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Use Cases
+          </span>
+          <a href="/use-cases/legal" className={linkClass}>Legal</a>
+          <a href="/use-cases/health" className={linkClass}>Healthcare</a>
+          <a href="/use-cases/fintech" className={linkClass}>Fintech</a>
+          <a href="/use-cases/agents" className="text-sm text-amber-400 underline underline-offset-2 hover:text-amber-300 transition-colors">
+            AI Agents
+          </a>
+        </div>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
           <a href="/privacy" className={linkClass}>{t("footer.privacy")}</a>
           <a href="/terms" className={linkClass}>{t("footer.terms")}</a>
           <a href="/security" className={linkClass}>Security</a>
