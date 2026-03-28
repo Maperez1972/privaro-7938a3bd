@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Shield } from "lucide-react";
+import { Shield, Bot } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 
 const HeroSection = () => {
