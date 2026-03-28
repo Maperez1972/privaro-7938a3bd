@@ -135,9 +135,13 @@ const Navbar = () => {
           <SheetContent side="right" className="w-72 bg-background border-border p-0">
             <SheetTitle className="sr-only">Menu</SheetTitle>
             <div className="flex flex-col pt-12 px-6 gap-1">
-              {navLinks.map((link) => (
-                <a key={link.href} href={link.href} onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 border-b border-border">{link.label}</a>
-              ))}
+              {navLinks.map((link) =>
+                link.href.includes('#') ? (
+                  <a key={link.href} href={link.href} onClick={(e) => handleHashLink(e, link.href)} className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 border-b border-border">{link.label}</a>
+                ) : (
+                  <Link key={link.href} to={link.href} onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 border-b border-border">{link.label}</Link>
+                )
+              )}
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mt-4 mb-1">{t("nav.usecases")}</p>
               {useCases.map((uc) => {
                 const Icon = uc.icon;
