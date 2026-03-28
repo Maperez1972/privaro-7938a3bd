@@ -118,7 +118,7 @@ const Navbar = () => {
             <span className="font-medium uppercase tracking-wide">{lang === "en" ? "ES" : "EN"}</span>
           </button>
 
-          <a href="/#early-access" className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-md hover:opacity-90 transition-opacity">{t("nav.cta")}</a>
+          <a href="/#early-access" onClick={(e) => handleHashLink(e, '/#early-access')} className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-md hover:opacity-90 transition-opacity">{t("nav.cta")}</a>
         </div>
 
         <div className="flex md:hidden items-center gap-3">
