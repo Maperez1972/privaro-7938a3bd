@@ -77,6 +77,7 @@ const App = () => (
               <Route path="/use-cases/legal" element={<LegalPage />} />
               <Route path="/use-cases/fintech" element={<FintechPage />} />
               <Route path="/use-cases/health" element={<HealthPage />} />
+              <Route path="/use-cases/agents" element={<AgentsPage />} />
               <Route path="/security" element={<Security />} />
 
               {/* Auth */}

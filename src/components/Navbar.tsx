@@ -10,6 +10,7 @@ const useCases = [
   { icon: Scale, labelKey: "nav.usecases.legal", href: "/use-cases/legal", iconColor: "text-primary" },
   { icon: HeartPulse, labelKey: "nav.usecases.health", href: "/use-cases/health", iconColor: "text-emerald-400" },
   { icon: BarChart3, labelKey: "nav.usecases.consulting", href: "/use-cases/fintech", iconColor: "text-sky-400" },
+  { icon: Bot, labelKey: "nav.usecases.agents", href: "/use-cases/agents", iconColor: "text-amber-400" },
 ];
 
 const Navbar = () => {

@@ -21,7 +21,7 @@ const UseCasesSection = () => {
           <h2 className="text-3xl md:text-5xl font-bold mb-4">{t("usecases.title1")} <span className="text-gradient">{t("usecases.title2")}</span></h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{t("usecases.subtitle")}</p>
         </motion.div>
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {cases.map((c, i) => {
             const Icon = c.icon;
             return (
