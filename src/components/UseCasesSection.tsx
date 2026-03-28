@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Scale, HeartPulse, BarChart3, ArrowRight } from "lucide-react";
+import { Scale, HeartPulse, BarChart3, Bot, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -7,6 +7,7 @@ const cases = [
   { icon: Scale, titleKey: "usecases.legal.title", descKey: "usecases.legal.desc", href: "/use-cases/legal", accent: "from-primary/20 to-primary/5", border: "border-primary/20 hover:border-primary/50", iconBg: "bg-primary/10", iconColor: "text-primary", tag: "Legal" },
   { icon: HeartPulse, titleKey: "usecases.health.title", descKey: "usecases.health.desc", href: "/use-cases/health", accent: "from-emerald-500/20 to-emerald-500/5", border: "border-emerald-500/20 hover:border-emerald-500/50", iconBg: "bg-emerald-500/10", iconColor: "text-emerald-400", tag: "Healthcare" },
   { icon: BarChart3, titleKey: "usecases.finance.title", descKey: "usecases.finance.desc", href: "/use-cases/fintech", accent: "from-sky-500/20 to-sky-500/5", border: "border-sky-500/20 hover:border-sky-500/50", iconBg: "bg-sky-500/10", iconColor: "text-sky-400", tag: "Fintech & Finance" },
+  { icon: Bot, titleKey: "usecases.agents.title", descKey: "usecases.agents.desc", href: "/use-cases/agents", accent: "from-amber-500/20 to-amber-500/5", border: "border-amber-500/20 hover:border-amber-500/50", iconBg: "bg-amber-500/10", iconColor: "text-amber-400", tag: "AI Agents" },
 ];
 
 const UseCasesSection = () => {
@@ -20,7 +21,7 @@ const UseCasesSection = () => {
           <h2 className="text-3xl md:text-5xl font-bold mb-4">{t("usecases.title1")} <span className="text-gradient">{t("usecases.title2")}</span></h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{t("usecases.subtitle")}</p>
         </motion.div>
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {cases.map((c, i) => {
             const Icon = c.icon;
             return (

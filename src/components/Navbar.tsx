@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Globe, ChevronDown, Scale, HeartPulse, BarChart3, Menu } from "lucide-react";
+import { Globe, ChevronDown, Scale, HeartPulse, BarChart3, Bot, Menu } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { Link, useLocation } from "react-router-dom";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -10,6 +10,7 @@ const useCases = [
   { icon: Scale, labelKey: "nav.usecases.legal", href: "/use-cases/legal", iconColor: "text-primary" },
   { icon: HeartPulse, labelKey: "nav.usecases.health", href: "/use-cases/health", iconColor: "text-emerald-400" },
   { icon: BarChart3, labelKey: "nav.usecases.consulting", href: "/use-cases/fintech", iconColor: "text-sky-400" },
+  { icon: Bot, labelKey: "nav.usecases.agents", href: "/use-cases/agents", iconColor: "text-amber-400" },
 ];
 
 const Navbar = () => {
