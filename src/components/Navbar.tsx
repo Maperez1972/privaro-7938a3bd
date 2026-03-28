@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Globe, ChevronDown, Scale, HeartPulse, BarChart3, Menu } from "lucide-react";
+import { Globe, ChevronDown, Scale, HeartPulse, BarChart3, Bot, Menu } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { Link, useLocation } from "react-router-dom";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
