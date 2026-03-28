@@ -10,6 +10,7 @@ import Terms from "./pages/Terms";
 import LegalPage from "./pages/use-cases/Legal";
 import FintechPage from "./pages/use-cases/Fintech";
 import HealthPage from "./pages/use-cases/Health";
+import AgentsPage from "./pages/use-cases/Agents";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import EmailConfirmed from "./pages/EmailConfirmed";
