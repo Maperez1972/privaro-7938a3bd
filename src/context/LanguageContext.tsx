@@ -52,7 +52,7 @@ const translations: Record<Language, Record<string, string>> = {
     "riskgap.conclusion": "That gap creates exposure.",
     "solution.label": "The Solution",
     "solution.title": "Meet Privaro — The Missing Layer.",
-    "solution.subtitle": "Privaro creates a governance layer between enterprise users and AI systems, giving organizations visibility, control, and auditability over AI usage.",
+    "solution.subtitle": "Privaro creates a governance layer between enterprise and AI models, giving organizations visibility, control, and auditability over AI usage.",
     "solution.f1": "AI interactions are monitored in real time",
     "solution.f2": "Sensitive data is automatically protected",
     "solution.f3": "Policies control what data can enter AI",
