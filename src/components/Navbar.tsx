@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Globe, ChevronDown, Scale, HeartPulse, BarChart3, Bot, Menu } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import logoPrivaro from "@/assets/logo-privaro.png";
 
