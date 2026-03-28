@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Scale, HeartPulse, BarChart3, ArrowRight } from "lucide-react";
+import { Scale, HeartPulse, BarChart3, Bot, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 
