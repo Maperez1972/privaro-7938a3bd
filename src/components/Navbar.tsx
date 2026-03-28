@@ -82,9 +82,13 @@ const Navbar = () => {
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a key={link.href} href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</a>
-          ))}
+          {navLinks.map((link) =>
+            link.href.includes('#') ? (
+              <a key={link.href} href={link.href} onClick={(e) => handleHashLink(e, link.href)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</a>
+            ) : (
+              <Link key={link.href} to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link>
+            )
+          )}
 
           <div className="relative" ref={dropdownRef}>
             <button onClick={() => setDropdownOpen((v) => !v)} className={`flex items-center gap-1.5 text-sm transition-colors ${isUseCasePage ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"}`}>
