@@ -153,7 +153,7 @@ const Navbar = () => {
                   </Link>
                 );
               })}
-              <a href="/#early-access" onClick={() => setMobileOpen(false)} className="mt-6 text-sm font-medium bg-primary text-primary-foreground px-4 py-2.5 rounded-md hover:opacity-90 transition-opacity text-center">{t("nav.cta")}</a>
+              <a href="/#early-access" onClick={(e) => handleHashLink(e, '/#early-access')} className="mt-6 text-sm font-medium bg-primary text-primary-foreground px-4 py-2.5 rounded-md hover:opacity-90 transition-opacity text-center">{t("nav.cta")}</a>
             </div>
           </SheetContent>
         </Sheet>
