@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Globe, ChevronDown, Scale, HeartPulse, BarChart3, Bot, Menu } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import logoPrivaro from "@/assets/logo-privaro.png";
 
@@ -20,6 +20,31 @@ const Navbar = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { lang, setLang, t } = useLanguage();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleHashLink = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const [path, hash] = href.split('#');
+    const targetPath = path || '/';
+    
+    if (location.pathname === targetPath) {
+      // Same page — just scroll
+      const el = document.getElementById(hash);
+      el?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Navigate first, then scroll after render
+      navigate(targetPath);
+      setTimeout(() => {
+        const el = document.getElementById(hash);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
+    }
+    setMobileOpen(false);
+  }, [location.pathname, navigate]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -57,9 +82,13 @@ const Navbar = () => {
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a key={link.href} href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</a>
-          ))}
+          {navLinks.map((link) =>
+            link.href.includes('#') ? (
+              <a key={link.href} href={link.href} onClick={(e) => handleHashLink(e, link.href)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</a>
+            ) : (
+              <Link key={link.href} to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link>
+            )
+          )}
 
           <div className="relative" ref={dropdownRef}>
             <button onClick={() => setDropdownOpen((v) => !v)} className={`flex items-center gap-1.5 text-sm transition-colors ${isUseCasePage ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"}`}>
@@ -89,7 +118,7 @@ const Navbar = () => {
             <span className="font-medium uppercase tracking-wide">{lang === "en" ? "ES" : "EN"}</span>
           </button>
 
-          <a href="/#early-access" className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-md hover:opacity-90 transition-opacity">{t("nav.cta")}</a>
+          <a href="/#early-access" onClick={(e) => handleHashLink(e, '/#early-access')} className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-md hover:opacity-90 transition-opacity">{t("nav.cta")}</a>
         </div>
 
         <div className="flex md:hidden items-center gap-3">
@@ -106,9 +135,13 @@ const Navbar = () => {
           <SheetContent side="right" className="w-72 bg-background border-border p-0">
             <SheetTitle className="sr-only">Menu</SheetTitle>
             <div className="flex flex-col pt-12 px-6 gap-1">
-              {navLinks.map((link) => (
-                <a key={link.href} href={link.href} onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 border-b border-border">{link.label}</a>
-              ))}
+              {navLinks.map((link) =>
+                link.href.includes('#') ? (
+                  <a key={link.href} href={link.href} onClick={(e) => handleHashLink(e, link.href)} className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 border-b border-border">{link.label}</a>
+                ) : (
+                  <Link key={link.href} to={link.href} onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3 border-b border-border">{link.label}</Link>
+                )
+              )}
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mt-4 mb-1">{t("nav.usecases")}</p>
               {useCases.map((uc) => {
                 const Icon = uc.icon;
@@ -120,7 +153,7 @@ const Navbar = () => {
                   </Link>
                 );
               })}
-              <a href="/#early-access" onClick={() => setMobileOpen(false)} className="mt-6 text-sm font-medium bg-primary text-primary-foreground px-4 py-2.5 rounded-md hover:opacity-90 transition-opacity text-center">{t("nav.cta")}</a>
+              <a href="/#early-access" onClick={(e) => handleHashLink(e, '/#early-access')} className="mt-6 text-sm font-medium bg-primary text-primary-foreground px-4 py-2.5 rounded-md hover:opacity-90 transition-opacity text-center">{t("nav.cta")}</a>
             </div>
           </SheetContent>
         </Sheet>
