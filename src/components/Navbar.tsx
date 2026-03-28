@@ -20,6 +20,31 @@ const Navbar = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { lang, setLang, t } = useLanguage();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleHashLink = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const [path, hash] = href.split('#');
+    const targetPath = path || '/';
+    
+    if (location.pathname === targetPath) {
+      // Same page — just scroll
+      const el = document.getElementById(hash);
+      el?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Navigate first, then scroll after render
+      navigate(targetPath);
+      setTimeout(() => {
+        const el = document.getElementById(hash);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
+    }
+    setMobileOpen(false);
+  }, [location.pathname, navigate]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
