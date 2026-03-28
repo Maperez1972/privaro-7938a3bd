@@ -15,6 +15,14 @@ const HeroSection = () => {
           <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full border border-border bg-surface/50 text-sm text-muted-foreground">
             <Shield className="w-4 h-4 text-primary" />
             {t("hero.badge")}
+            <span className="text-border mx-1">·</span>
+            <Bot className="w-3.5 h-3.5 text-amber-400" />
+            <Link
+              to="/use-cases/agents"
+              className="text-amber-400 hover:text-amber-300 transition-colors font-medium"
+            >
+              New: Agent Privacy Layer
+            </Link>
           </div>
         </motion.div>
         <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }} className="text-5xl md:text-7xl font-extrabold leading-[1.05] mb-6">
