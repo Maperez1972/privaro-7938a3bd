@@ -41,7 +41,7 @@ const BlockchainSection = () => {
               ))}
             </div>
             <div className="mt-8 flex justify-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-muted/50 text-xs text-muted-foreground"><Link2 className="w-3.5 h-3.5 text-primary" />{t("blockchain.poweredBy")}</div>
+              <a href="https://icommunity.io" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-muted/50 text-xs text-muted-foreground hover:border-primary/30 transition-colors"><Link2 className="w-3.5 h-3.5 text-primary" />{t("blockchain.poweredBy")}</a>
             </div>
           </div>
         </motion.div>
