@@ -26,7 +26,7 @@ const UseCasesSection = () => {
             const Icon = c.icon;
             return (
               <motion.div key={c.href} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ duration: 0.6, delay: i * 0.12 }}>
-                <Link to={c.href} className={`group flex flex-col h-full rounded-xl border ${c.border} bg-surface/40 backdrop-blur-sm overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5`}>
+                <Link to={c.href} onClick={() => window.scrollTo({ top: 0 })} className={`group flex flex-col h-full rounded-xl border ${c.border} bg-surface/40 backdrop-blur-sm overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5`}>
                   <div className={`h-1 w-full bg-gradient-to-r ${c.accent}`} />
                   <div className="p-7 flex flex-col flex-1">
                     <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-5">{c.tag}</span>
