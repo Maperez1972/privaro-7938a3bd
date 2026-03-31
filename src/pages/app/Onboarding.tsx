@@ -194,8 +194,13 @@ const Onboarding = () => {
     setTesting(false);
   };
 
-  const handleFinish = () => {
+  const markOnboardingDone = () => {
     localStorage.setItem("privaro-onboarding-done", "true");
+    window.dispatchEvent(new Event("storage"));
+  };
+
+  const handleFinish = () => {
+    markOnboardingDone();
     navigate("/app/dashboard");
   };
 
