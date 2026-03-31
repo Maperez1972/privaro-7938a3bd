@@ -194,8 +194,13 @@ const Onboarding = () => {
     setTesting(false);
   };
 
-  const handleFinish = () => {
+  const markOnboardingDone = () => {
     localStorage.setItem("privaro-onboarding-done", "true");
+    window.dispatchEvent(new Event("storage"));
+  };
+
+  const handleFinish = () => {
+    markOnboardingDone();
     navigate("/app/dashboard");
   };
 
@@ -509,7 +514,7 @@ console.log(data);`;
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  localStorage.setItem("privaro-onboarding-done", "true");
+                  markOnboardingDone();
                   navigate("/app/chat");
                 }}
                 className="text-muted-foreground"
