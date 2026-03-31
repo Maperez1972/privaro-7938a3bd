@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { Search, Lock, FileCheck, Activity } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-import solutionImageEn from "@/assets/solution-protected-flow.jpg";
-import solutionImageEs from "@/assets/solution-protected-flow-es.jpg";
+import solutionImageEn from "@/assets/solution-protected-flow.webp";
+import solutionImageEs from "@/assets/solution-protected-flow-es.webp";
 
 const SolutionSection = () => {
   const { t, lang } = useLanguage();
