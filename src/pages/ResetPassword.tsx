@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Eye, EyeOff, AlertTriangle } from "lucide-react";
-import logoPrivaro from "@/assets/logo-privaro.png";
+import logoPrivaro from "@/assets/logo-privaro.webp";
 import { useLanguage } from "@/context/LanguageContext";
 
 const ResetPassword = () => {

@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-import problemImageEn from "@/assets/problem-data-exposure.jpg";
-import problemImageEs from "@/assets/problem-data-exposure-es.jpg";
+import problemImageEn from "@/assets/problem-data-exposure.webp";
+import problemImageEs from "@/assets/problem-data-exposure-es.webp";
 
 const ProblemSection = () => {
   const { t, lang } = useLanguage();

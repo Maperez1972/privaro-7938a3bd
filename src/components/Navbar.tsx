@@ -4,7 +4,7 @@ import { Globe, ChevronDown, Scale, HeartPulse, BarChart3, Bot, Menu } from "luc
 import { useLanguage } from "@/context/LanguageContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import logoPrivaro from "@/assets/logo-privaro.png";
+import logoPrivaro from "@/assets/logo-privaro.webp";
 
 const useCases = [
   { icon: Scale, labelKey: "nav.usecases.legal", href: "/use-cases/legal", iconColor: "text-primary" },

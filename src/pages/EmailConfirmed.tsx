@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import logoPrivaro from "@/assets/logo-privaro.png";
+import logoPrivaro from "@/assets/logo-privaro.webp";
 import { useLanguage } from "@/context/LanguageContext";
 
 const EmailConfirmed = () => {

@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
-import featureDashboardEn from "@/assets/feature-dashboard.png";
-import featureChatEn from "@/assets/feature-chat.png";
-import featureEnginesEn from "@/assets/feature-engines.png";
-import featureDashboardEs from "@/assets/feature-dashboard-es.png";
-import featureChatEs from "@/assets/feature-chat-es.png";
-import featureEnginesEs from "@/assets/feature-engines-es.png";
+import featureDashboardEn from "@/assets/feature-dashboard.webp";
+import featureChatEn from "@/assets/feature-chat.webp";
+import featureEnginesEn from "@/assets/feature-engines.webp";
+import featureDashboardEs from "@/assets/feature-dashboard-es.webp";
+import featureChatEs from "@/assets/feature-chat-es.webp";
+import featureEnginesEs from "@/assets/feature-engines-es.webp";
 
 const DashboardMockupSection = () => {
   const { t, lang } = useLanguage();
