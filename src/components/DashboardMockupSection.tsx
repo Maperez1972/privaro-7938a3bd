@@ -30,7 +30,7 @@ const DashboardMockupSection = () => {
               <motion.div className="w-full md:w-[55%] shrink-0" initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.7, delay: 0.2 }}>
                 <div className="rounded-xl border border-border bg-card overflow-hidden shadow-2xl shadow-primary/[0.05] relative">
                   <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-                  <img src={sub.image} alt={sub.alt} className="w-full h-auto" loading="lazy" />
+                  <img src={sub.image} alt={sub.alt} className="w-full h-auto" loading="lazy" width={1920} height={1080} />
                   <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
                 </div>
               </motion.div>
