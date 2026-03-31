@@ -25,7 +25,7 @@ const ProblemSection = () => {
           </div>
           <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.7, delay: 0.2 }} className="mt-8">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4 text-center">{t("riskgap.diagramLabel")}</p>
-            <img src={lang === "es" ? problemImageEs : problemImageEn} alt={lang === "en" ? "Diagram showing sensitive data flowing uncontrolled into AI systems" : "Diagrama mostrando datos sensibles fluyendo sin control hacia sistemas de IA"} className="w-full max-w-3xl mx-auto rounded-xl border border-border" loading="lazy" />
+            <img src={lang === "es" ? problemImageEs : problemImageEn} alt={lang === "en" ? "Diagram showing sensitive data flowing uncontrolled into AI systems" : "Diagrama mostrando datos sensibles fluyendo sin control hacia sistemas de IA"} className="w-full max-w-3xl mx-auto rounded-xl border border-border" loading="lazy" width={1920} height={1080} />
           </motion.div>
           <div className="space-y-5 mt-8 text-lg text-muted-foreground leading-relaxed max-w-3xl text-center mx-auto">
             <p>{t("problem.p2").split(p2Bold)[0]}<span className="text-foreground font-semibold">{p2Bold}</span></p>

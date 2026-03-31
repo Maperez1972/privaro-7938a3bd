@@ -1,20 +1,21 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import UrgencySection from "@/components/UrgencySection";
-import ProblemSection from "@/components/ProblemSection";
-import RiskGapSection from "@/components/RiskGapSection";
-import SolutionSection from "@/components/SolutionSection";
-import DashboardMockupSection from "@/components/DashboardMockupSection";
-import HowItWorksSection from "@/components/HowItWorksSection";
-import ComparisonSection from "@/components/ComparisonSection";
-import SecuritySection from "@/components/SecuritySection";
-import BlockchainSection from "@/components/BlockchainSection";
-import UseCasesSection from "@/components/UseCasesSection";
-import TechBriefSection from "@/components/TechBriefSection";
-import BetaSection from "@/components/BetaSection";
-import Footer from "@/components/Footer";
+
+const UrgencySection = lazy(() => import("@/components/UrgencySection"));
+const ProblemSection = lazy(() => import("@/components/ProblemSection"));
+const RiskGapSection = lazy(() => import("@/components/RiskGapSection"));
+const SolutionSection = lazy(() => import("@/components/SolutionSection"));
+const DashboardMockupSection = lazy(() => import("@/components/DashboardMockupSection"));
+const HowItWorksSection = lazy(() => import("@/components/HowItWorksSection"));
+const ComparisonSection = lazy(() => import("@/components/ComparisonSection"));
+const SecuritySection = lazy(() => import("@/components/SecuritySection"));
+const BlockchainSection = lazy(() => import("@/components/BlockchainSection"));
+const UseCasesSection = lazy(() => import("@/components/UseCasesSection"));
+const TechBriefSection = lazy(() => import("@/components/TechBriefSection"));
+const BetaSection = lazy(() => import("@/components/BetaSection"));
+const Footer = lazy(() => import("@/components/Footer"));
 
 const Index = () => {
   const navigate = useNavigate();
@@ -33,19 +34,21 @@ const Index = () => {
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
       <HeroSection />
-      <UrgencySection />
-      <ProblemSection />
-      <RiskGapSection />
-      <SolutionSection />
-      <DashboardMockupSection />
-      <HowItWorksSection />
-      <ComparisonSection />
-      <SecuritySection />
-      <BlockchainSection />
-      <UseCasesSection />
-      <TechBriefSection />
-      <BetaSection />
-      <Footer />
+      <Suspense fallback={null}>
+        <UrgencySection />
+        <ProblemSection />
+        <RiskGapSection />
+        <SolutionSection />
+        <DashboardMockupSection />
+        <HowItWorksSection />
+        <ComparisonSection />
+        <SecuritySection />
+        <BlockchainSection />
+        <UseCasesSection />
+        <TechBriefSection />
+        <BetaSection />
+        <Footer />
+      </Suspense>
     </div>
   );
 };
