@@ -514,7 +514,7 @@ console.log(data);`;
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  localStorage.setItem("privaro-onboarding-done", "true");
+                  markOnboardingDone();
                   navigate("/app/chat");
                 }}
                 className="text-muted-foreground"
