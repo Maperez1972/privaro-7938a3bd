@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, ChevronDown, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import logoPrivaro from "@/assets/logo-privaro.png";
+import logoPrivaro from "@/assets/logo-privaro.webp";
 
 const navItems = [
   { label: "Conversations", icon: MessageSquare, href: "/app/chat" },
