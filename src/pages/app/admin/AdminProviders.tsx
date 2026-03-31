@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
-import { Cpu, Plus, Loader2, AlertTriangle, Globe, Shield, FileText, HeartPulse, Bot, Eye, EyeOff, Key, KeyRound, Zap, CheckCircle2, XCircle } from "lucide-react";
+import { Cpu, Plus, Loader2, Globe, Shield, FileText, HeartPulse, Bot, Eye, EyeOff, Key, KeyRound, Zap, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 const TEST_ENDPOINTS: Record<string, { url: string; buildHeaders: (key: string) => Record<string, string>; buildBody?: () => string; method?: string }> = {
@@ -264,14 +264,6 @@ const AdminProviders = () => {
         </Button>
       </div>
 
-      {/* Banner */}
-      <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300">
-        <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-        <p>
-          Las API keys se almacenan temporalmente en texto. El cifrado AES-256-GCM real se implementará
-          cuando el Proxy API esté desplegado.
-        </p>
-      </div>
 
       {isLoading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
