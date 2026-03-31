@@ -71,6 +71,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <Suspense fallback={<div className="min-h-screen bg-background" />}>
             <Routes>
               {/* Landing pages */}
               <Route path="/" element={<Index />} />
