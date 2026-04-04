@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Bot, Shield, Zap, Code2, X, Check, ArrowRight } from "lucide-react";
+import { Bot, Shield, Zap, Code2, X, Check, ArrowRight, Rocket, Handshake, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
@@ -12,17 +12,17 @@ const features = [
 ];
 
 const withoutPrivaro = [
-  "Raw customer data sent directly to the LLM",
-  "No visibility into what the agent exposed",
-  "GDPR liability on every autonomous step",
-  "No audit trail when regulators ask",
+  "Agents blocked on sensitive data",
+  "Deals slowed down by compliance concerns",
+  "On-premise required for regulated clients",
+  "No clear control of what the model sees",
 ];
 
 const withPrivaro = [
-  "PII never reaches the model — tokenised before each step",
-  "Full visibility: every agent step logged and certified",
-  "GDPR-compliant by design — not as an afterthought",
-  "Blockchain audit trail per interaction (iBS)",
+  "Agents run on real client data safely",
+  "Faster sales cycles",
+  "No infrastructure changes required",
+  "Full control over data exposure at runtime",
 ];
 
 const steps = [
@@ -36,9 +36,57 @@ const steps = [
 const frameworks = ["LangChain", "CrewAI", "n8n", "Custom Agents", "OpenAI Agents", "Claude", "ruflo"];
 
 const pricing = [
-  { name: "Agent Starter", price: "€99", period: "/mo", steps: "50K agent steps", desc: "Entry for builders", highlighted: false },
-  { name: "Agent Business", price: "€499", period: "/mo", steps: "500K agent steps", desc: "Growing ISVs", highlighted: true },
-  { name: "Agent Enterprise", price: "Custom", period: "", steps: "5M+ steps", desc: "White-label available", highlighted: false },
+  {
+    name: "Agent Starter",
+    price: "€99",
+    period: "/mo",
+    steps: "50K agent steps",
+    desc: "For prototyping & early integrations",
+    overage: "€0.0020 / step",
+    highlighted: false,
+    bullets: [],
+  },
+  {
+    name: "Agent Business",
+    price: "€499",
+    period: "/mo",
+    steps: "500K agent steps",
+    desc: "For production agents & client deployments",
+    overage: "€0.0015 / step",
+    highlighted: true,
+    bullets: [],
+  },
+  {
+    name: "Agent Enterprise",
+    price: "Custom",
+    period: "",
+    steps: "5M+ agent steps/month",
+    desc: "For platforms, white-label & regulated environments",
+    overage: "€0.0010 / step",
+    highlighted: false,
+    bullets: ["White-label ready", "Multi-tenant environments", "Custom SLA", "Dedicated support", "Custom deployment options"],
+  },
+];
+
+const whyEmbed = [
+  "Use real client data without blocking your deals",
+  "Close deals in regulated sectors (healthcare, legal, finance)",
+  "Avoid costly on-prem deployments — compliance as a proxy layer",
+  "Add a trust layer without changing your architecture",
+];
+
+const partnerBenefits = [
+  "Usage-based pricing — you control the margin",
+  "White-label available on Enterprise",
+  "No infrastructure changes for your clients",
+  "Built for multi-client environments",
+  "Verifiable audit trail (blockchain-backed)",
+];
+
+const useCases = [
+  "AI agents for compliance platforms",
+  "Automation over CRM + documents",
+  "Customer-facing workflows with sensitive data",
 ];
 
 const AgentsPage = () => {
@@ -55,40 +103,9 @@ const AgentsPage = () => {
               Privacy for <span className="text-primary">AI Agents</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Every agent step that touches customer data creates GDPR liability. Privaro intercepts each step, tokenises PII, certifies on blockchain, and returns a clean payload — in milliseconds.
+              Your agents handle sensitive data on behalf of your clients. Privaro adds a privacy enforcement layer to every step — so you can close deals in regulated sectors without changing your architecture.
             </p>
           </motion.div>
-        </div>
-      </section>
-
-      {/* The Problem — comparison */}
-      <section className="pb-20 px-6">
-        <div className="max-w-5xl mx-auto">
-          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-12">The Problem</motion.h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="p-6 rounded-xl border border-destructive/30 bg-destructive/5">
-              <h3 className="text-lg font-semibold mb-4 text-destructive">Without Privaro</h3>
-              <ul className="space-y-3">
-                {withoutPrivaro.map((item, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
-                    <X className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="p-6 rounded-xl border border-emerald-500/30 bg-emerald-500/5">
-              <h3 className="text-lg font-semibold mb-4 text-emerald-400">With Privaro</h3>
-              <ul className="space-y-3">
-                {withPrivaro.map((item, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
-                    <Check className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          </div>
         </div>
       </section>
 
@@ -140,8 +157,39 @@ const AgentsPage = () => {
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* Without vs With Privaro */}
       <section className="pb-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-12">Without vs With Privaro</motion.h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="p-6 rounded-xl border border-destructive/30 bg-destructive/5">
+              <h3 className="text-lg font-semibold mb-4 text-destructive">Without Privaro</h3>
+              <ul className="space-y-3">
+                {withoutPrivaro.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
+                    <X className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="p-6 rounded-xl border border-emerald-500/30 bg-emerald-500/5">
+              <h3 className="text-lg font-semibold mb-4 text-emerald-400">With Privaro</h3>
+              <ul className="space-y-3">
+                {withPrivaro.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
+                    <Check className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section className="pb-12 px-6">
         <div className="max-w-5xl mx-auto">
           <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-12">Pricing</motion.h2>
           <div className="grid md:grid-cols-3 gap-6">
@@ -154,13 +202,82 @@ const AgentsPage = () => {
                   <span className="text-muted-foreground text-sm">{p.period}</span>
                 </div>
                 <p className="text-sm text-muted-foreground mb-1">{p.steps}</p>
-                <p className="text-xs text-muted-foreground">{p.desc}</p>
+                <p className="text-xs text-muted-foreground mb-2">{p.desc}</p>
+                <p className="text-xs text-muted-foreground/70">Overage: {p.overage}</p>
+                {p.bullets.length > 0 && (
+                  <ul className="mt-4 space-y-1.5 text-left">
+                    {p.bullets.map((b, j) => (
+                      <li key={j} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Check className="w-3 h-3 text-primary flex-shrink-0" />
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 {p.highlighted && <span className="inline-block mt-3 text-xs font-semibold text-amber-400 uppercase tracking-wider">Most Popular</span>}
               </motion.div>
             ))}
           </div>
-          <div className="text-center mt-10">
-            <Button size="lg" onClick={() => window.location.href = "/#early-access"}>Get Early Access</Button>
+          {/* Tagline */}
+          <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mt-8 text-sm font-medium text-muted-foreground italic">
+            Privaro is not a feature. It's a deal enabler.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* Why Teams Embed Privaro */}
+      <section className="pb-20 px-6">
+        <div className="max-w-4xl mx-auto">
+          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-10">Why teams embed Privaro</motion.h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {whyEmbed.map((item, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
+                className="flex items-start gap-3 p-4 rounded-lg border border-border bg-card">
+                <Rocket className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-muted-foreground">{item}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* For AI Builders & Partners */}
+      <section className="pb-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
+              <Handshake className="h-7 w-7 text-primary" />
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">Built for AI Builders & Partners</h2>
+            <p className="text-muted-foreground max-w-xl mx-auto mb-10">
+              Integrate Privaro as a data control layer in your agents and unlock regulated use cases for your clients.
+            </p>
+          </motion.div>
+          <div className="grid sm:grid-cols-2 gap-4 text-left max-w-2xl mx-auto mb-10">
+            {partnerBenefits.map((item, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }}
+                className="flex items-start gap-3 p-3">
+                <Check className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-muted-foreground">{item}</p>
+              </motion.div>
+            ))}
+          </div>
+          <Button size="lg" onClick={() => window.location.href = "/#early-access"}>Request Partner Access</Button>
+        </div>
+      </section>
+
+      {/* Typical Use Cases */}
+      <section className="pb-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold mb-8">Typical use cases</motion.h2>
+          <div className="flex flex-wrap justify-center gap-4">
+            {useCases.map((uc, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="flex items-center gap-2 px-5 py-3 rounded-lg border border-border bg-card">
+                <Target className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                <span className="text-sm text-muted-foreground">{uc}</span>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
