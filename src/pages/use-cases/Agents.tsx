@@ -172,7 +172,8 @@ const AgentsPage = () => {
       {/* Pricing */}
       <section className="pb-12 px-6">
         <div className="max-w-5xl mx-auto">
-          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-12">{t("agents.pricing")}</motion.h2>
+          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-3">{t("agents.pricing")}</motion.h2>
+          <p className="text-sm text-muted-foreground text-center mb-12">{t("agents.pricing.context")}</p>
           <div className="grid md:grid-cols-3 gap-6">
             {pricing.map((p, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
