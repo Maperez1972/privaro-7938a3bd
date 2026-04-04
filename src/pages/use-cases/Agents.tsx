@@ -222,6 +222,7 @@ const AgentsPage = () => {
       {/* For AI Builders & Partners */}
       <section className="pb-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
+          <p className="text-xs text-muted-foreground/60 mb-8 tracking-wide uppercase">{t("agents.builders.proof")}</p>
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
               <Handshake className="h-7 w-7 text-primary" />
