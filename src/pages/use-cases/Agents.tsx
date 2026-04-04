@@ -73,7 +73,19 @@ const AgentsPage = () => {
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               {t("agents.hero.subtitle")}
             </p>
+            <p className="text-base text-muted-foreground/80 max-w-2xl mx-auto mt-4">
+              {t("agents.hero.trigger")}
+            </p>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Core tagline */}
+      <section className="pb-12 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-lg md:text-xl font-semibold italic text-muted-foreground">
+            {t("agents.tagline")}
+          </motion.p>
         </div>
       </section>
 
@@ -128,7 +140,8 @@ const AgentsPage = () => {
       {/* Without vs With Privaro */}
       <section className="pb-20 px-6">
         <div className="max-w-5xl mx-auto">
-          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-12">{t("agents.comparison.title")}</motion.h2>
+          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-3">{t("agents.comparison.title")}</motion.h2>
+          <p className="text-sm text-muted-foreground text-center mb-12">{t("agents.comparison.subtitle")}</p>
           <div className="grid md:grid-cols-2 gap-6">
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="p-6 rounded-xl border border-destructive/30 bg-destructive/5">
               <h3 className="text-lg font-semibold mb-4 text-destructive">{t("agents.comparison.without")}</h3>
@@ -159,7 +172,8 @@ const AgentsPage = () => {
       {/* Pricing */}
       <section className="pb-12 px-6">
         <div className="max-w-5xl mx-auto">
-          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-12">{t("agents.pricing")}</motion.h2>
+          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-3">{t("agents.pricing")}</motion.h2>
+          <p className="text-sm text-muted-foreground text-center mb-12">{t("agents.pricing.context")}</p>
           <div className="grid md:grid-cols-3 gap-6">
             {pricing.map((p, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
@@ -186,9 +200,6 @@ const AgentsPage = () => {
               </motion.div>
             ))}
           </div>
-          <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mt-8 text-sm font-medium text-muted-foreground italic">
-            {t("agents.tagline")}
-          </motion.p>
         </div>
       </section>
 
@@ -211,6 +222,7 @@ const AgentsPage = () => {
       {/* For AI Builders & Partners */}
       <section className="pb-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
+          <p className="text-xs text-muted-foreground/60 mb-8 tracking-wide uppercase">{t("agents.builders.proof")}</p>
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
               <Handshake className="h-7 w-7 text-primary" />
