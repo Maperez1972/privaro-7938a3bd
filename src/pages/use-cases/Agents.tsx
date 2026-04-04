@@ -200,9 +200,6 @@ const AgentsPage = () => {
               </motion.div>
             ))}
           </div>
-          <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mt-8 text-sm font-medium text-muted-foreground italic">
-            {t("agents.tagline")}
-          </motion.p>
         </div>
       </section>
 
