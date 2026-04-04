@@ -73,7 +73,19 @@ const AgentsPage = () => {
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               {t("agents.hero.subtitle")}
             </p>
+            <p className="text-base text-muted-foreground/80 max-w-2xl mx-auto mt-4">
+              {t("agents.hero.trigger")}
+            </p>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Core tagline */}
+      <section className="pb-12 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-lg md:text-xl font-semibold italic text-muted-foreground">
+            {t("agents.tagline")}
+          </motion.p>
         </div>
       </section>
 
