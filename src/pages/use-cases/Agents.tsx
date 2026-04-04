@@ -140,7 +140,8 @@ const AgentsPage = () => {
       {/* Without vs With Privaro */}
       <section className="pb-20 px-6">
         <div className="max-w-5xl mx-auto">
-          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-12">{t("agents.comparison.title")}</motion.h2>
+          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-3">{t("agents.comparison.title")}</motion.h2>
+          <p className="text-sm text-muted-foreground text-center mb-12">{t("agents.comparison.subtitle")}</p>
           <div className="grid md:grid-cols-2 gap-6">
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="p-6 rounded-xl border border-destructive/30 bg-destructive/5">
               <h3 className="text-lg font-semibold mb-4 text-destructive">{t("agents.comparison.without")}</h3>
