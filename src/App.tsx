@@ -69,6 +69,7 @@ const App = () => (
     <LanguageProvider>
       <AuthProvider>
         <TooltipProvider>
+          <LangSync />
           <Toaster />
           <Sonner />
           <BrowserRouter>
