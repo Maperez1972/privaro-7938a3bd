@@ -44,6 +44,7 @@ const Auth = () => {
     setLoading(true);
     const metadata: Record<string, string> = {
       full_name: fullName,
+      preferred_lang: lang,
     };
     if (!invitationToken) {
       metadata.organization_name = orgName;
