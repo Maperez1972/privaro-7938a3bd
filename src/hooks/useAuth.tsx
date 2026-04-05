@@ -33,20 +33,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setTimeout(async () => {
             const { data: profileData } = await supabase
               .from("profiles")
-              .select("id, org_id, full_name")
+              .select("id, org_id, full_name, preferred_lang" as any)
               .eq("id", session.user.id)
               .single();
-            // Try to fetch preferred_lang separately (column may not exist yet)
-            let preferred_lang: string | undefined;
-            try {
-              const { data: langData } = await supabase
-                .from("profiles")
-                .select("preferred_lang" as any)
-                .eq("id", session.user.id)
-                .single();
-              preferred_lang = (langData as any)?.preferred_lang;
-            } catch { /* column may not exist yet */ }
-            setProfile(profileData ? { ...profileData, preferred_lang } : null);
+            setProfile(profileData as unknown as AuthContextType["profile"]);
             const { data: rolesData } = await supabase
               .from("user_roles")
               .select("role")
