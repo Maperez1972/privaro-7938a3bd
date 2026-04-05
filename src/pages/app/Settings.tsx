@@ -122,7 +122,37 @@ const Settings = () => {
         </CardContent>
       </Card>
 
-      {/* Organization */}
+      {/* Language */}
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Globe className="w-4 h-4 text-primary" />
+            {lang === "es" ? "Idioma" : "Language"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            {(["en", "es"] as Language[]).map((l) => (
+              <Button
+                key={l}
+                size="sm"
+                variant={lang === l ? "default" : "outline"}
+                disabled={savingLang}
+                onClick={async () => {
+                  setSavingLang(true);
+                  await setLangAndPersist(l);
+                  setSavingLang(false);
+                  toast.success(l === "es" ? "Idioma actualizado" : "Language updated");
+                }}
+                className="gap-2"
+              >
+                {l === "en" ? "🇬🇧 English" : "🇪🇸 Español"}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="border-border bg-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
