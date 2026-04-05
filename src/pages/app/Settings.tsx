@@ -13,11 +13,13 @@ import type { Language } from "@/context/LanguageContext";
 
 const Settings = () => {
   const { user, profile, roles, signOut } = useAuth();
+  const { lang, setLangAndPersist } = useLanguage();
   const [fullName, setFullName] = useState(profile?.full_name ?? "");
   const [saving, setSaving] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [savingLang, setSavingLang] = useState(false);
 
   // Fetch org details
   const { data: org, isLoading: orgLoading } = useQuery({
