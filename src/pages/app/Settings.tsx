@@ -6,16 +6,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { User, Building2, Shield, Key, Save, Loader2, RotateCcw } from "lucide-react";
+import { User, Building2, Shield, Key, Save, Loader2, RotateCcw, Globe } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/context/LanguageContext";
+import type { Language } from "@/context/LanguageContext";
 
 const Settings = () => {
   const { user, profile, roles, signOut } = useAuth();
+  const { lang, setLangAndPersist } = useLanguage();
   const [fullName, setFullName] = useState(profile?.full_name ?? "");
   const [saving, setSaving] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [savingLang, setSavingLang] = useState(false);
 
   // Fetch org details
   const { data: org, isLoading: orgLoading } = useQuery({
@@ -118,7 +122,37 @@ const Settings = () => {
         </CardContent>
       </Card>
 
-      {/* Organization */}
+      {/* Language */}
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Globe className="w-4 h-4 text-primary" />
+            {lang === "es" ? "Idioma" : "Language"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            {(["en", "es"] as Language[]).map((l) => (
+              <Button
+                key={l}
+                size="sm"
+                variant={lang === l ? "default" : "outline"}
+                disabled={savingLang}
+                onClick={async () => {
+                  setSavingLang(true);
+                  await setLangAndPersist(l);
+                  setSavingLang(false);
+                  toast.success(l === "es" ? "Idioma actualizado" : "Language updated");
+                }}
+                className="gap-2"
+              >
+                {l === "en" ? "🇬🇧 English" : "🇪🇸 Español"}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="border-border bg-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">

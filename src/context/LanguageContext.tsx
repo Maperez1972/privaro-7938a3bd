@@ -12,6 +12,7 @@ function detectInitialLang(): Language {
 interface LanguageContextType {
   lang: Language;
   setLang: (l: Language) => void;
+  setLangAndPersist: (l: Language) => Promise<void>;
   t: (key: string) => string;
 }
 
@@ -631,12 +632,32 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem("privaro-lang", l);
   };
 
+  const setLangAndPersist = async (l: Language) => {
+    setLang(l);
+    // Try to persist to DB (will silently fail if column doesn't exist)
+    try {
+      const { createClient } = await import("@supabase/supabase-js");
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          await supabase
+            .from("profiles")
+            .update({ preferred_lang: l } as any)
+            .eq("id", session.user.id);
+        }
+      }
+    } catch { /* DB column may not exist yet */ }
+  };
+
   const t = (key: string): string => {
     return translations[lang][key] ?? translations["en"][key] ?? key;
   };
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t }}>
+    <LanguageContext.Provider value={{ lang, setLang, setLangAndPersist, t }}>
       {children}
     </LanguageContext.Provider>
   );
