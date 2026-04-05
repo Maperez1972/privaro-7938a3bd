@@ -1,43 +1,177 @@
+import { useLanguage } from "@/context/LanguageContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Heart, FileSearch, Hospital, Lock } from "lucide-react";
+import { Shield, Heart, Hospital, Lock, CheckCircle2, XCircle, ArrowRight, Search, Eye, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
 const HealthPage = () => {
+  const { t } = useLanguage();
+
   const features = [
-    { icon: Heart, title: "PHI Protection", desc: "Automatically detect and tokenize protected health information before AI processing." },
-    { icon: FileSearch, title: "Clinical Research", desc: "Analyze patient data for research insights without exposing individual records." },
-    { icon: Hospital, title: "HIPAA Compliance", desc: "Full compliance with healthcare privacy regulations across all AI interactions." },
-    { icon: Lock, title: "De-identification Engine", desc: "Advanced NLP-based de-identification that preserves clinical context." },
+    { icon: Heart, titleKey: "health.feat1.title", descKey: "health.feat1.desc" },
+    { icon: Shield, titleKey: "health.feat2.title", descKey: "health.feat2.desc" },
+    { icon: Hospital, titleKey: "health.feat3.title", descKey: "health.feat3.desc" },
+    { icon: Lock, titleKey: "health.feat4.title", descKey: "health.feat4.desc" },
+  ];
+
+  const workflows = [
+    "health.workflow1", "health.workflow2", "health.workflow3", "health.workflow4", "health.workflow5",
+  ];
+
+  const without = ["health.without1", "health.without2", "health.without3", "health.without4"];
+  const withP = ["health.with1", "health.with2", "health.with3", "health.with4"];
+
+  const steps = [
+    { icon: Search, numKey: "01", titleKey: "health.step1.title", descKey: "health.step1.desc" },
+    { icon: ShieldCheck, numKey: "02", titleKey: "health.step2.title", descKey: "health.step2.desc" },
+    { icon: Eye, numKey: "03", titleKey: "health.step3.title", descKey: "health.step3.desc" },
   ];
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
-      <section className="pt-32 pb-20 px-6">
+
+      {/* HERO */}
+      <section className="pt-32 pb-16 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl md:text-5xl font-bold mb-6">
-            AI Privacy for <span className="text-primary">Healthcare</span>
+            {t("health.hero.title")}
           </motion.h1>
-          <p className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Enable AI-powered diagnostics, research, and patient care while safeguarding protected health information.
-          </p>
-        </div>
-        <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 mt-12">
-          {features.map((f, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-              className="p-6 rounded-xl border border-border bg-card">
-              <f.icon className="h-10 w-10 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">{f.title}</h3>
-              <p className="text-muted-foreground">{f.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-        <div className="text-center mt-16">
-          <Button size="lg" onClick={() => window.location.href = "/#beta"}>Request Early Access</Button>
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+            {t("health.hero.subtitle")}
+          </motion.p>
+          <motion.ul initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="flex flex-col items-center gap-2 mb-10 text-sm text-muted-foreground">
+            <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />{t("health.hero.bullet1")}</li>
+            <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />{t("health.hero.bullet2")}</li>
+            <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />{t("health.hero.bullet3")}</li>
+          </motion.ul>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button size="lg" onClick={() => window.location.href = "/#beta"}>{t("health.hero.cta1")}</Button>
+            <Button size="lg" variant="outline" onClick={() => document.getElementById("health-how")?.scrollIntoView({ behavior: "smooth" })}>
+              {t("health.hero.cta2")} <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          </motion.div>
         </div>
       </section>
+
+      {/* TRIGGER */}
+      <section className="py-12 px-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-3xl mx-auto text-center">
+          <p className="text-base md:text-lg text-muted-foreground italic border-l-2 border-primary pl-6 text-left">
+            {t("health.trigger")}
+          </p>
+        </motion.div>
+      </section>
+
+      {/* WHY HEALTHCARE TEAMS USE PRIVARO */}
+      <section className="py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-3xl md:text-4xl font-bold text-center mb-12">
+            {t("health.why.title")}
+          </motion.h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            {features.map((f, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="p-6 rounded-xl border border-border bg-card">
+                <f.icon className="h-10 w-10 text-primary mb-4" />
+                <h3 className="text-xl font-semibold mb-2">{t(f.titleKey)}</h3>
+                <p className="text-muted-foreground">{t(f.descKey)}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* TYPICAL HEALTHCARE WORKFLOWS */}
+      <section className="py-20 px-6 bg-muted/20">
+        <div className="max-w-3xl mx-auto">
+          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-3xl md:text-4xl font-bold text-center mb-10">
+            {t("health.workflows.title")}
+          </motion.h2>
+          <div className="space-y-4">
+            {workflows.map((wk, i) => (
+              <motion.div key={i} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
+                className="flex items-start gap-3 p-4 rounded-lg border border-border bg-card">
+                <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                <span className="text-foreground">{t(wk)}</span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* WITHOUT VS WITH */}
+      <section className="py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("health.vs.title")}</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">{t("health.vs.subtitle")}</p>
+          </motion.div>
+          <div className="grid md:grid-cols-2 gap-8">
+            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="p-6 rounded-xl border border-destructive/30 bg-card">
+              <h3 className="text-lg font-semibold text-destructive mb-4">{t("health.vs.without")}</h3>
+              <ul className="space-y-3">
+                {without.map((w, i) => (
+                  <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                    <XCircle className="w-4 h-4 text-destructive mt-1 flex-shrink-0" />
+                    <span>{t(w)}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="p-6 rounded-xl border border-primary/30 bg-card">
+              <h3 className="text-lg font-semibold text-primary mb-4">{t("health.vs.with")}</h3>
+              <ul className="space-y-3">
+                {withP.map((w, i) => (
+                  <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                    <CheckCircle2 className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
+                    <span>{t(w)}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section id="health-how" className="py-20 px-6 bg-muted/20">
+        <div className="max-w-5xl mx-auto">
+          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-3xl md:text-4xl font-bold text-center mb-12">
+            {t("health.how.title")}
+          </motion.h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {steps.map((s, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.12 }}
+                className="relative p-6 rounded-xl border border-border bg-card">
+                <span className="text-5xl font-extrabold absolute top-4 right-4 text-primary/10">{s.numKey}</span>
+                <s.icon className="w-8 h-8 text-primary mb-4" />
+                <h3 className="text-lg font-semibold mb-2">{t(s.titleKey)}</h3>
+                <p className="text-sm text-muted-foreground">{t(s.descKey)}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CREDIBILITY */}
+      <section className="py-20 px-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-3xl mx-auto text-center">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">{t("health.cred.title")}</h2>
+          <p className="text-muted-foreground">{t("health.cred.desc")}</p>
+        </motion.div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="py-20 px-6 bg-muted/20">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("health.cta.title")}</h2>
+          <p className="text-muted-foreground mb-8">{t("health.cta.desc")}</p>
+          <Button size="lg" onClick={() => window.location.href = "/#beta"}>{t("health.cta.button")}</Button>
+        </motion.div>
+      </section>
+
       <Footer />
     </div>
   );
