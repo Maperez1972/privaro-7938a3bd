@@ -12,6 +12,7 @@ function detectInitialLang(): Language {
 interface LanguageContextType {
   lang: Language;
   setLang: (l: Language) => void;
+  setLangAndPersist: (l: Language) => Promise<void>;
   t: (key: string) => string;
 }
 
