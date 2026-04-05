@@ -6,8 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { User, Building2, Shield, Key, Save, Loader2, RotateCcw } from "lucide-react";
+import { User, Building2, Shield, Key, Save, Loader2, RotateCcw, Globe } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/context/LanguageContext";
+import type { Language } from "@/context/LanguageContext";
 
 const Settings = () => {
   const { user, profile, roles, signOut } = useAuth();
