@@ -41,7 +41,7 @@ const controlIds = [
 ];
 const controlStatuses: ("implemented" | "progress")[] = [
   "implemented", "implemented", "implemented", "implemented",
-  "implemented", "implemented", "implemented", "progress",
+  "implemented", "implemented", "implemented", "implemented",
 ];
 
 const regNames = ["GDPR Art.5", "GDPR Art.9", "GDPR Art.30", "EU AI Act", "PSD2", "HIPAA", "ISO 27001:2022", "SOC2 Type I"];
@@ -49,7 +49,7 @@ const regStatuses: ("covered" | "inprogress")[] = [
   "covered", "covered", "covered", "covered", "covered", "covered", "inprogress", "inprogress",
 ];
 
-const pillarIcons = ["🔐", "⛓️", "🛡️", "⚙️", "🤖", "🌍"];
+const pillarIcons = ["🔐", "⛓️", "🛡️", "⚙️", "🤖", "🌍", "🔑"];
 const docIcons = ["📋", "🔒", "✅", "🚨", "♻️", "📄"];
 const docIds = [
   "POL-001 · v1.0 · March 2026",
@@ -57,7 +57,7 @@ const docIds = [
   "POL-003 · v1.0 · March 2026 · 83% implemented",
   "POL-004 · v1.0 · March 2026 · GDPR Art.33 compliant",
   "POL-005 · v1.0 · March 2026 · RTO < 4h · RPO < 1h",
-  "Available upon request · GDPR Art.28 compliant",
+  "DPA-001 · v1.0 · 2026 · GDPR Art.28 compliant · Available upon request",
 ];
 
 const Security = () => {
@@ -207,6 +207,27 @@ const Security = () => {
         </div>
       </FadeSection>
 
+      {/* NLP PRIVACY ENGINE */}
+      <FadeSection className="py-16 border-b border-border">
+        <div className="max-w-[1100px] mx-auto px-8">
+          <SectionHeader label={t("secpage.nlp.label")} title={t("secpage.nlp.title")} desc={t("secpage.nlp.desc")} />
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={stagger}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8"
+          >
+            {[1, 2, 3].map((n) => (
+              <motion.div key={n} variants={fadeUp} className="bg-card border border-border rounded-xl p-7">
+                <h3 className="text-sm font-bold text-primary mb-3">{t(`secpage.nlp.tier${n}.title`)}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t(`secpage.nlp.tier${n}.desc`)}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </FadeSection>
+
       {/* COMPLIANCE */}
       <FadeSection className="py-16 border-b border-border">
         <div className="max-w-[1100px] mx-auto px-8">
@@ -317,7 +338,7 @@ const Security = () => {
             <p className="text-muted-foreground mb-8 max-w-md mx-auto">{t("secpage.cta.desc")}</p>
             <div className="flex flex-wrap justify-center gap-3">
               <Button asChild>
-                <a href="mailto:hello@icommunity.io">
+                <a href="mailto:info@privaro.ai">
                   <Mail className="w-4 h-4" />
                   {t("secpage.cta.contact")}
                 </a>
