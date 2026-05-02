@@ -49,7 +49,7 @@ const regStatuses: ("covered" | "inprogress")[] = [
   "covered", "covered", "covered", "covered", "covered", "covered", "inprogress", "inprogress",
 ];
 
-const pillarIcons = ["🔐", "⛓️", "🛡️", "⚙️", "🤖", "🌍"];
+const pillarIcons = ["🔐", "⛓️", "🛡️", "⚙️", "🤖", "🌍", "🔑"];
 const docIcons = ["📋", "🔒", "✅", "🚨", "♻️", "📄"];
 const docIds = [
   "POL-001 · v1.0 · March 2026",
@@ -57,7 +57,7 @@ const docIds = [
   "POL-003 · v1.0 · March 2026 · 83% implemented",
   "POL-004 · v1.0 · March 2026 · GDPR Art.33 compliant",
   "POL-005 · v1.0 · March 2026 · RTO < 4h · RPO < 1h",
-  "Available upon request · GDPR Art.28 compliant",
+  "DPA-001 · v1.0 · 2026 · GDPR Art.28 compliant · Available upon request",
 ];
 
 const Security = () => {
