@@ -317,7 +317,7 @@ const Security = () => {
             <p className="text-muted-foreground mb-8 max-w-md mx-auto">{t("secpage.cta.desc")}</p>
             <div className="flex flex-wrap justify-center gap-3">
               <Button asChild>
-                <a href="mailto:hello@icommunity.io">
+                <a href="mailto:info@privaro.ai">
                   <Mail className="w-4 h-4" />
                   {t("secpage.cta.contact")}
                 </a>
