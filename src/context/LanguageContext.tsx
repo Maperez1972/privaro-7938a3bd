@@ -709,7 +709,7 @@ const translations: Record<Language, Record<string, string>> = {
     "secpage.pillar6.title": "Residencia de datos en la UE",
     "secpage.pillar6.desc": "Toda la infraestructura se aloja en regiones de la UE por defecto. Base de datos en eu-central-1, proxy en europe-west4. Ningún dato sale de la UE sin configuración explícita del cliente.",
     "secpage.pillar7.title": "BYOK — Clave Propia del Cliente",
-    "secpage.pillar7.desc": "Los clientes enterprise gestionan sus propias claves de cifrado. Privaro nunca almacena el material de clave — solo una referencia segura. Cada organización puede rotar, revocar y auditar claves de forma independiente.",
+    "secpage.pillar7.desc": "Los clientes enterprise gestionan sus propias claves de cifrado. Privaro nunca almacena el material de clave — solo una referencia segura. Cada organización puede rotar, revocar y auditar claves de forma independiente desde el panel de administración.",
     "secpage.nlp.label": "Motor NLP de Privacidad",
     "secpage.nlp.title": "Pipeline de detección en dos capas",
     "secpage.nlp.desc": "Combina regex determinista con modelos neuronales de NLP para maximizar la cobertura en PII estructurado y la precisión en entidades no estructuradas.",
