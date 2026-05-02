@@ -41,7 +41,7 @@ const controlIds = [
 ];
 const controlStatuses: ("implemented" | "progress")[] = [
   "implemented", "implemented", "implemented", "implemented",
-  "implemented", "implemented", "implemented", "progress",
+  "implemented", "implemented", "implemented", "implemented",
 ];
 
 const regNames = ["GDPR Art.5", "GDPR Art.9", "GDPR Art.30", "EU AI Act", "PSD2", "HIPAA", "ISO 27001:2022", "SOC2 Type I"];
