@@ -207,6 +207,27 @@ const Security = () => {
         </div>
       </FadeSection>
 
+      {/* NLP PRIVACY ENGINE */}
+      <FadeSection className="py-16 border-b border-border">
+        <div className="max-w-[1100px] mx-auto px-8">
+          <SectionHeader label={t("secpage.nlp.label")} title={t("secpage.nlp.title")} desc={t("secpage.nlp.desc")} />
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={stagger}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8"
+          >
+            {[1, 2, 3].map((n) => (
+              <motion.div key={n} variants={fadeUp} className="bg-card border border-border rounded-xl p-7">
+                <h3 className="text-sm font-bold text-primary mb-3">{t(`secpage.nlp.tier${n}.title`)}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t(`secpage.nlp.tier${n}.desc`)}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </FadeSection>
+
       {/* COMPLIANCE */}
       <FadeSection className="py-16 border-b border-border">
         <div className="max-w-[1100px] mx-auto px-8">
