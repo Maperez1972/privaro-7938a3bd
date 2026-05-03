@@ -650,7 +650,7 @@ const translations: Record<Language, Record<string, string>> = {
     "assessment.form.submit": "Request AI Risk Assessment",
     "assessment.form.sending": "Sending...",
     "assessment.form.disclaimer": "No commitment. We'll contact you within 24 hours.",
-    "assessment.form.error": "Something went wrong. Please try again or email info@privaro.ai.",
+    "assessment.form.error": "Something went wrong. Please try again or email hello@icommunity.io.",
     "assessment.form.thanks.title": "Thank you",
     "assessment.form.thanks.body": "We've received your request. Our team will contact you within 24 hours to schedule your AI Risk Assessment.",
 
@@ -1063,7 +1063,7 @@ const translations: Record<Language, Record<string, string>> = {
     "assessment.form.submit": "Solicitar Evaluación de Riesgo IA",
     "assessment.form.sending": "Enviando...",
     "assessment.form.disclaimer": "Sin compromiso. Te contactaremos en menos de 24 horas.",
-    "assessment.form.error": "Algo ha fallado. Inténtalo de nuevo o escribe a info@privaro.ai.",
+    "assessment.form.error": "Algo ha fallado. Inténtalo de nuevo o escribe a hello@icommunity.io.",
     "assessment.form.thanks.title": "Gracias",
     "assessment.form.thanks.body": "Hemos recibido tu solicitud. Nuestro equipo te contactará en menos de 24 horas para programar tu Evaluación de Riesgo IA.",
 
