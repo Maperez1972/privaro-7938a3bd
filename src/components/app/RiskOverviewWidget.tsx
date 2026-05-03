@@ -93,16 +93,19 @@ export function useRiskOverview() {
   });
 
   const topRisk = useQuery({
-    queryKey: ["top-risk-events", orgId],
+    queryKey: ["top-risk-events-7d", orgId],
     enabled: !!orgId,
     refetchInterval: 30000,
     queryFn: async (): Promise<TopRiskEvent[]> => {
+      const since = new Date();
+      since.setDate(since.getDate() - 7);
       const { data } = await (supabase
         .from("audit_logs")
         .select("id, entity_type, risk_score, created_at, pipelines(name)") as any)
         .eq("org_id", orgId!)
         .not("risk_score", "is", null)
-        .gt("risk_score", 0)
+        .gte("risk_score", 0.4)
+        .gte("created_at", since.toISOString())
         .order("risk_score", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(5);
@@ -179,7 +182,7 @@ export const RiskOverviewWidget = () => {
       {/* Top Risk Events */}
       <Card className="border-border bg-card">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Top Risk Events</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">Top Risk Events <span className="text-xs font-normal opacity-60 ml-1">· last 7 days</span></CardTitle>
         </CardHeader>
         <CardContent>
           {topRisk.isLoading ? (
