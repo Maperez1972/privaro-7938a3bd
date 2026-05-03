@@ -86,9 +86,9 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-5 lg:gap-6">
           {navLinks.map((link) =>
             link.href.includes('#') ? (
-              <a key={link.href} href={link.href} onClick={(e) => handleHashLink(e, link.href)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</a>
+              <a key={link.href} href={link.href} onClick={(e) => handleHashLink(e, link.href)} className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap">{link.label}</a>
             ) : (
-              <Link key={link.href} to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link>
+              <Link key={link.href} to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap">{link.label}</Link>
             )
           )}
 
