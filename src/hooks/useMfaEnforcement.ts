@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -13,6 +13,9 @@ export type MfaStatus = {
 
 export function useMfaEnforcement() {
   const navigate = useNavigate();
+  const navigateRef = useRef(navigate);
+  const hasChecked = useRef(false);
+
   const [status, setStatus] = useState<MfaStatus>({
     checked: false,
     required: false,
@@ -22,21 +25,31 @@ export function useMfaEnforcement() {
     factorId: null,
   });
 
+  // Keep navigateRef current without re-triggering effect
   useEffect(() => {
+    navigateRef.current = navigate;
+  }, [navigate]);
+
+  useEffect(() => {
+    // Only run once per mount — prevent loops with onboarding redirect
+    if (hasChecked.current) return;
+    hasChecked.current = true;
+
     const check = async () => {
-      console.log('[MFA] Starting check...');
+      console.log("[MFA] Starting check...");
+
       const { data: { session } } = await supabase.auth.getSession();
-      console.log('[MFA] Session:', session ? 'exists' : 'null');
+      console.log("[MFA] Session:", session ? "exists" : "null");
       if (!session) return;
 
-      console.log('[MFA] Calling enforce-mfa...');
+      console.log("[MFA] Calling enforce-mfa...");
       const { data, error } = await supabase.functions.invoke("enforce-mfa", {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
-      console.log('[MFA] Result:', data, error);
+      console.log("[MFA] Result:", JSON.stringify(data), error);
 
       if (error || !data) {
-        console.log('[MFA] Error or no data — skipping redirect');
+        console.log("[MFA] Error or no data — skipping redirect");
         return;
       }
 
@@ -54,13 +67,18 @@ export function useMfaEnforcement() {
       }
 
       if (data.mfa_required && !data.mfa_enrolled) {
-        navigate("/app/setup-mfa");
+        console.log("[MFA] Redirecting to setup-mfa");
+        navigateRef.current("/app/setup-mfa");
       } else if (data.mfa_required && data.mfa_enrolled && !data.mfa_verified) {
-        navigate("/app/verify-mfa");
+        console.log("[MFA] Redirecting to verify-mfa");
+        navigateRef.current("/app/verify-mfa");
+      } else {
+        console.log("[MFA] No redirect needed — access granted");
       }
     };
+
     check();
-  }, [navigate]);
+  }, []); // Empty deps — run only on mount
 
   return status;
 }
