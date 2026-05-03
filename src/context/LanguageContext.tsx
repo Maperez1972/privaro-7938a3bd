@@ -23,6 +23,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.howItWorks": "How It Works",
     "nav.security": "Security",
     "nav.partners": "Partners",
+    "nav.pricing": "Pricing",
     "nav.usecases": "Use Cases",
     "nav.usecases.legal": "Legal",
     "nav.usecases.health": "Healthcare",
@@ -753,7 +754,7 @@ const translations: Record<Language, Record<string, string>> = {
     "partners.frameworks": "Already building with",
   },
   es: {
-    "nav.problem": "Problema", "nav.solution": "Solución", "nav.howItWorks": "Cómo Funciona", "nav.security": "Seguridad", "nav.partners": "Partners", "nav.usecases": "Casos de Uso", "nav.usecases.legal": "Legal", "nav.usecases.health": "Salud", "nav.usecases.consulting": "Fintech y Finanzas", "nav.cta": "Solicitar Demo", "nav.assessment": "Evaluación de Riesgo IA",
+    "nav.problem": "Problema", "nav.solution": "Solución", "nav.howItWorks": "Cómo Funciona", "nav.security": "Seguridad", "nav.partners": "Partners", "nav.pricing": "Precios", "nav.usecases": "Casos de Uso", "nav.usecases.legal": "Legal", "nav.usecases.health": "Salud", "nav.usecases.consulting": "Fintech y Finanzas", "nav.cta": "Solicitar Demo", "nav.assessment": "Evaluación de Riesgo IA",
     "hero.badge": "AI Governance Infrastructure", "hero.title1": "Controla lo que tu equipo", "hero.title2": "envía a la IA", "hero.subtitle": "Tu equipo ya usa IA con datos reales — sin visibilidad ni control. Privaro intercepta y protege los datos sensibles antes de que lleguen a cualquier modelo de IA.", "hero.cta1": "Evaluar mi riesgo con IA", "hero.cta2": "Ver Cómo Funciona", "hero.disclaimer": "Sin integración requerida para empezar.",
     "urgency.title": "La Adopción de IA Crece Más Rápido que los Controles de Cumplimiento.", "urgency.body1": "Las organizaciones adoptan IA más rápido de lo que pueden gobernarla. La mayoría carece de visibilidad y control sobre qué datos envían sus empleados a los sistemas de IA.", "urgency.body2": "La arquitectura de privacidad debe existir antes del escalado de IA.",
     "problem.label": "El Problema", "problem.title1": "Tus Empleados Usan IA —", "problem.title2": "Sin Governance", "problem.p1": "Los empleados usan cada vez más herramientas de IA para analizar documentos, resumir informes y procesar información de clientes. En la mayoría de organizaciones, no hay visibilidad sobre qué datos se envían a sistemas de IA externos.", "problem.p2": "Bajo el RGPD y regulaciones sectoriales, la responsabilidad recae completamente en tu organización.", "problem.p3": "Los modelos de IA son poderosos — pero no fueron diseñados como infraestructura de privacidad.", "problem.example": "Ejemplo: Revisión de contratos → nombres de clientes, IBANs, datos médicos → inferencia en modelo externo.",
