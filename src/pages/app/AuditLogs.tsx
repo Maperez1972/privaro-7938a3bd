@@ -119,6 +119,15 @@ const AuditLogs = () => {
   const [exporting, setExporting] = useState(false);
   const [generatingReport, setGeneratingReport] = useState(false);
   const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
+  const [reportFrom, setReportFrom] = useState(() => {
+    const d = new Date();
+    d.setDate(1);
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString().slice(0, 10);
+  });
+  const [reportTo, setReportTo] = useState(() => {
+    return new Date().toISOString().slice(0, 10);
+  });
 
   const handleExport = async () => {
     if (!orgId) return;
