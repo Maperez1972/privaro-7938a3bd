@@ -144,7 +144,7 @@ export function useDashboardTimeSeries() {
 
       const { data: logs } = await supabase
         .from("audit_logs")
-        .select("created_at, event_type, action_taken")
+        .select("created_at, event_type, action_taken, severity")
         .eq("org_id", orgId!)
         .gte("created_at", since.toISOString())
         .order("created_at", { ascending: true });
@@ -165,10 +165,13 @@ export function useDashboardTimeSeries() {
         const entry = dayMap.get(key);
         if (entry) {
           entry.requests++;
-          if (log.event_type === "pii_masked" || log.event_type === "pii_leaked") {
+          // PII Detected: any event where PII was actually found (not clean requests)
+          const hasPii = log.event_type !== "request_clean" && log.event_type !== "relay_complete";
+          if (hasPii) {
             entry.detected++;
           }
-          if (log.action_taken !== "leaked") {
+          // PII Protected: events where action was tokenised or anonymised (real masking)
+          if (log.action_taken === "tokenised" || log.action_taken === "anonymised" || log.action_taken === "blocked") {
             entry.protected++;
           }
         }
