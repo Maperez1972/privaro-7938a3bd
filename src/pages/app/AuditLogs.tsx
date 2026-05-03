@@ -233,7 +233,7 @@ const AuditLogs = () => {
         dpoEmail: org?.gdpr_dpo_email || "",
       });
 
-      downloadHtml(html, `privaro-dpo-report-${new Date().toISOString().slice(0, 10)}.html`);
+      downloadHtml(html, `privaro-dpo-report-${reportFrom}-to-${reportTo}.html`);
       toast.success("DPO Report downloaded — open in browser to print as PDF");
     } catch {
       toast.error("Failed to generate report");
