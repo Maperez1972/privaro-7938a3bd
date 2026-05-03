@@ -32,7 +32,7 @@ const HeroSection = () => {
         </p>
         <div className="hero-fade-in flex flex-col items-center justify-center gap-2" style={{ animationDelay: '0.5s' }}>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="#early-access" className="px-8 py-3.5 rounded-md bg-primary text-primary-foreground font-semibold text-base hover:opacity-90 transition-opacity glow-border">{t("hero.cta1")}</a>
+            <Link to="/ai-risk-assessment" className="px-8 py-3.5 rounded-md bg-primary text-primary-foreground font-semibold text-base hover:opacity-90 transition-opacity glow-border">{t("hero.cta1")}</Link>
             <a href="#how-it-works" className="px-8 py-3.5 rounded-md border border-border text-foreground font-medium text-base hover:bg-secondary transition-colors">{t("hero.cta2")}</a>
           </div>
           <p className="text-sm text-muted-foreground mt-2">{t("hero.disclaimer")}</p>
