@@ -24,14 +24,21 @@ export function useMfaEnforcement() {
 
   useEffect(() => {
     const check = async () => {
+      console.log('[MFA] Starting check...');
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('[MFA] Session:', session ? 'exists' : 'null');
       if (!session) return;
 
+      console.log('[MFA] Calling enforce-mfa...');
       const { data, error } = await supabase.functions.invoke("enforce-mfa", {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
+      console.log('[MFA] Result:', data, error);
 
-      if (error || !data) return;
+      if (error || !data) {
+        console.log('[MFA] Error or no data — skipping redirect');
+        return;
+      }
 
       setStatus({
         checked: true,
