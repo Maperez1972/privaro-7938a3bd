@@ -118,6 +118,11 @@ const Navbar = () => {
             <span className="font-medium uppercase tracking-wide">{lang === "en" ? "ES" : "EN"}</span>
           </button>
 
+          <Link to="/ai-risk-assessment" className="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-md border border-primary/40 text-primary text-sm font-medium hover:bg-primary/10 transition-colors">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            AI Risk Assessment
+          </Link>
+
           <a href="/#early-access" onClick={(e) => handleHashLink(e, '/#early-access')} className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-md hover:opacity-90 transition-opacity">{t("nav.cta")}</a>
         </div>
 
