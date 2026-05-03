@@ -37,6 +37,7 @@ const AdminSettings = lazy(() => import("./pages/app/admin/AdminSettings"));
 const AdminPolicyPresets = lazy(() => import("./pages/app/admin/AdminPolicyPresets"));
 const AdminVault = lazy(() => import("./pages/app/admin/AdminVault"));
 const AdminEncryptionKeys = lazy(() => import("./pages/app/admin/AdminEncryptionKeys"));
+const AdminLeads = lazy(() => import("./pages/app/admin/AdminLeads"));
 const Onboarding = lazy(() => import("./pages/app/Onboarding"));
 const AgentRuns = lazy(() => import("./pages/app/AgentRuns"));
 
@@ -105,6 +106,7 @@ const App = () => (
                 <Route path="onboarding" element={<Onboarding />} />
                 {/* Admin/DPO routes */}
                 <Route path="admin/audit-logs" element={<AdminDpoRoute><AuditLogs /></AdminDpoRoute>} />
+                <Route path="admin/leads" element={<AdminDpoRoute><AdminLeads /></AdminDpoRoute>} />
                 {/* Admin only routes */}
                 <Route path="admin/providers" element={<AdminRoute><AdminProviders /></AdminRoute>} />
                 <Route path="admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />

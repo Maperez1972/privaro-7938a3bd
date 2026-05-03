@@ -16,6 +16,7 @@ const navItems = [
 ];
 const onboardingItem = { label: "Onboarding", icon: Rocket, href: "/app/onboarding" };
 const adminDpoItems = [
+  { label: "Leads", icon: Users, href: "/app/admin/leads" },
   { label: "Audit Logs", icon: FileText, href: "/app/admin/audit-logs" },
   { label: "Encryption Keys", icon: Lock, href: "/app/admin/encryption-keys" },
 ];
