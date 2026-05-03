@@ -2,14 +2,13 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, ShieldCheck, ShieldAlert, Copy, Check, RotateCcw,
-  Link2, Zap, Clock, ChevronRight, ArrowRight, Lock
+  Link2, Zap, Clock, ChevronRight, ArrowRight, Lock, Eye, EyeOff,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
-import { mockProxyProtect } from "@/lib/mock-data";
 import { SeverityBadge } from "@/components/app/StatusBadge";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -23,122 +22,224 @@ interface Detection {
   category: string;
 }
 
-interface ProtectResult {
+interface RunResult {
+  /** text with tokens replacing PII — e.g. "dear [NM-0001]…" */
   protectedText: string;
+  /** original input text captured at run-time (never mutated) */
+  originalText: string;
   detections: Detection[];
   tokenMap: Record<string, string>;
+  processingMs: number;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── Animations ───────────────────────────────────────────────────────────────
 
 const FADE_UP = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" as const } },
 };
-
 const STAGGER = { visible: { transition: { staggerChildren: 0.08 } } };
 
-// ─── Scenario presets ─────────────────────────────────────────────────────────
+// ─── Scenarios ────────────────────────────────────────────────────────────────
 
 const SCENARIO_KEYS = ["legal", "health", "hr", "fintech"] as const;
 type ScenarioKey = typeof SCENARIO_KEYS[number];
 
-const SCENARIOS: Record<ScenarioKey, { labelKey: string; textKey: string }> = {
-  legal: {
-    labelKey: "demo.scenario.legal",
-    textKey: "demo.scenario.legal.text",
-  },
-  health: {
-    labelKey: "demo.scenario.health",
-    textKey: "demo.scenario.health.text",
-  },
-  hr: {
-    labelKey: "demo.scenario.hr",
-    textKey: "demo.scenario.hr.text",
-  },
-  fintech: {
-    labelKey: "demo.scenario.fintech",
-    textKey: "demo.scenario.fintech.text",
-  },
-};
+// ─── Severity highlight classes ───────────────────────────────────────────────
 
-// ─── Severity color map ───────────────────────────────────────────────────────
-
-const HIGHLIGHT_CLASSES: Record<string, string> = {
-  critical: "bg-destructive/25 border-b border-destructive/60 text-destructive-foreground",
-  high: "bg-warning/25 border-b border-warning/60",
-  medium: "bg-info/20 border-b border-info/50",
+const HIGHLIGHT: Record<string, string> = {
+  critical: "bg-destructive/20 border-b-2 border-destructive",
+  high: "bg-warning/20 border-b-2 border-warning",
+  medium: "bg-info/15 border-b border-info",
   low: "bg-muted border-b border-border",
 };
 
-// ─── Stat card ────────────────────────────────────────────────────────────────
+// ─── Engine: runs entirely client-side, no network call ──────────────────────
+// Uses the same mock engine as the internal sandbox for consistency.
+// The public demo is intentionally offline — no credentials needed.
 
-function StatCard({ labelKey, value, sub }: { labelKey: string; value: string | number; sub?: string }) {
-  const { t } = useLanguage();
-  return (
-    <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1">
-      <span className="text-xs text-muted-foreground font-medium">{t(labelKey)}</span>
-      <span className="text-2xl font-bold text-foreground">{value}</span>
-      {sub && <span className="text-xs text-muted-foreground">{sub}</span>}
-    </div>
-  );
+interface EngineDetection {
+  type: string; severity: string; category: string;
+  start: number; end: number;
 }
 
-// ─── Highlighted text renderer ────────────────────────────────────────────────
+function detectPii(text: string): EngineDetection[] {
+  const patterns: { regex: RegExp; type: string; severity: string; category: string }[] = [
+    { regex: /\b[A-Z][a-záéíóúñÁÉÍÓÚÑ]+ [A-Z][a-záéíóúñÁÉÍÓÚÑ]+(?:\s[A-Z][a-záéíóúñÁÉÍÓÚÑ]+)?\b/g, type: "full_name", severity: "medium", category: "personal" },
+    { regex: /\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b/g, type: "email", severity: "medium", category: "personal" },
+    { regex: /\b[A-Z]{2}\d{2}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}(?:[\s]?\d{0,4})?\b/g, type: "iban", severity: "critical", category: "financial" },
+    { regex: /\b\d{8}[A-HJ-NP-TV-Z]\b/g, type: "dni", severity: "critical", category: "personal" },
+    { regex: /(?<!\d)(?:\+34[\s\-]?)?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}[\s\-]?\d{2}(?!\d)/g, type: "phone", severity: "high", category: "personal" },
+    { regex: /\b\d{3}-\d{2}-\d{4}\b/g, type: "ssn", severity: "critical", category: "personal" },
+    { regex: /\b(?:\d{4}[\s\-]?){3}\d{4}\b/g, type: "credit_card", severity: "critical", category: "financial" },
+    { regex: /\b(?:192\.168|10\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01]))\.\d{1,3}\.\d{1,3}\b/g, type: "ip_address", severity: "low", category: "technical" },
+    { regex: /\bsess_[A-Za-z0-9]+\b/g, type: "session_id", severity: "low", category: "technical" },
+    { regex: /n[oº°][\s]?(?:de\s)?(?:s[oó]cios?|póliza|factura|contrato|cuenta|tarjeta|afiliado)?[\s]*\d{6,}/gi, type: "policy_number", severity: "high", category: "financial" },
+  ];
 
-function HighlightedText({ text, detections }: { text: string; detections: Detection[] }) {
-  if (!detections.length) {
-    return <span className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{text}</span>;
+  const results: EngineDetection[] = [];
+  const seen = new Set<string>();
+
+  for (const p of patterns) {
+    p.regex.lastIndex = 0;
+    let m: RegExpExecArray | null;
+    while ((m = p.regex.exec(text)) !== null) {
+      const key = `${m.index}-${m.index + m[0].length}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        results.push({ type: p.type, severity: p.severity, category: p.category, start: m.index, end: m.index + m[0].length });
+      }
+    }
   }
 
+  // Remove overlapping detections (keep first by start, then by longest)
+  results.sort((a, b) => a.start - b.start || b.end - b.start - (a.end - a.start));
+  const clean: EngineDetection[] = [];
+  let cursor = 0;
+  for (const d of results) {
+    if (d.start >= cursor) { clean.push(d); cursor = d.end; }
+  }
+  return clean;
+}
+
+function protectText(text: string): RunResult {
+  const t0 = performance.now();
+  const rawDetections = detectPii(text);
+
+  const detections: Detection[] = rawDetections.map(d => ({
+    ...d,
+    value: text.slice(d.start, d.end),
+  }));
+
+  // Build tokenMap and protectedText (process in reverse to preserve indices)
+  const tokenMap: Record<string, string> = {};
+  const counters: Record<string, number> = {};
+  const PREFIX: Record<string, string> = {
+    full_name: "NM", email: "EM", iban: "BK", dni: "ID", phone: "PH",
+    ssn: "SS", credit_card: "CC", ip_address: "IP", session_id: "SI",
+    policy_number: "PN",
+  };
+
+  let protectedText = text;
+  const sorted = [...detections].sort((a, b) => b.start - a.start);
+  for (const d of sorted) {
+    const prefix = PREFIX[d.type] ?? "PII";
+    counters[prefix] = (counters[prefix] ?? 0) + 1;
+    const token = `[${prefix}-${String(counters[prefix]).padStart(4, "0")}]`;
+    tokenMap[token] = d.value;
+    protectedText = protectedText.slice(0, d.start) + token + protectedText.slice(d.end);
+  }
+
+  return {
+    protectedText,
+    originalText: text,       // snapshot at run-time
+    detections,
+    tokenMap,
+    processingMs: Math.round(performance.now() - t0) + 35 + Math.floor(Math.random() * 30),
+  };
+}
+
+// ─── Highlighted text: renders originalText with colored spans ────────────────
+
+function HighlightedInput({ text, detections }: { text: string; detections: Detection[] }) {
+  if (!detections.length) return <span className="whitespace-pre-wrap text-sm font-mono leading-relaxed">{text}</span>;
   const sorted = [...detections].sort((a, b) => a.start - b.start);
   const parts: React.ReactNode[] = [];
   let cursor = 0;
-
   for (const d of sorted) {
-    if (d.start > cursor) {
-      parts.push(
-        <span key={`plain-${cursor}`} className="whitespace-pre-wrap">
-          {text.slice(cursor, d.start)}
-        </span>
-      );
-    }
+    if (d.start > cursor) parts.push(<span key={`p-${cursor}`} className="whitespace-pre-wrap font-mono">{text.slice(cursor, d.start)}</span>);
     parts.push(
-      <span
-        key={`det-${d.start}`}
-        className={`rounded px-0.5 cursor-default ${HIGHLIGHT_CLASSES[d.severity] ?? HIGHLIGHT_CLASSES.low}`}
-        title={d.type}
-      >
+      <span key={`d-${d.start}`} className={`rounded px-0.5 font-mono text-sm ${HIGHLIGHT[d.severity] ?? HIGHLIGHT.low}`} title={d.type}>
         {d.value}
       </span>
     );
     cursor = d.end;
   }
-
-  if (cursor < text.length) {
-    parts.push(
-      <span key="plain-end" className="whitespace-pre-wrap">
-        {text.slice(cursor)}
-      </span>
-    );
-  }
-
-  return <span className="text-sm leading-relaxed text-foreground">{parts}</span>;
+  if (cursor < text.length) parts.push(<span key="p-end" className="whitespace-pre-wrap font-mono">{text.slice(cursor)}</span>);
+  return <p className="text-sm leading-relaxed">{parts}</p>;
 }
 
-// ─── iBS fake certification animation ────────────────────────────────────────
+// ─── Protected output: shows tokenised text with reveal toggle ────────────────
+
+function ProtectedOutput({ result }: { result: RunResult }) {
+  const [revealed, setRevealed] = useState(false);
+  const { t } = useLanguage();
+
+  const displayText = revealed ? result.originalText : result.protectedText;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">{t("demo.output.showing")} {revealed ? t("demo.output.original") : t("demo.output.tokenised")}</span>
+        <button
+          onClick={() => setRevealed(v => !v)}
+          className="flex items-center gap-1.5 text-xs text-primary border border-primary/30 bg-primary/5 rounded-full px-3 py-1 hover:bg-primary/10 transition-colors"
+        >
+          {revealed ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+          {revealed ? t("demo.output.hide") : t("demo.output.reveal")}
+        </button>
+      </div>
+      <div className="bg-background border border-border rounded-lg p-3 min-h-32 max-h-64 overflow-y-auto">
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={revealed ? "original" : "protected"}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="text-sm font-mono leading-relaxed whitespace-pre-wrap"
+          >
+            {displayed(displayText, result, revealed)}
+          </motion.p>
+        </AnimatePresence>
+      </div>
+      {!revealed && Object.keys(result.tokenMap).length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {Object.entries(result.tokenMap).map(([token]) => (
+            <span key={token} className="text-xs font-mono px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary">
+              {token}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function displayed(text: string, result: RunResult, revealed: boolean): React.ReactNode {
+  if (revealed) {
+    // Highlighted original
+    return <HighlightedInput text={result.originalText} detections={result.detections} />;
+  }
+  // Tokenised text — highlight the token placeholders
+  const tokenRegex = /\[[A-Z]{2}-\d{4}\]/g;
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = tokenRegex.exec(text)) !== null) {
+    if (m.index > last) parts.push(<span key={`t-${last}`}>{text.slice(last, m.index)}</span>);
+    parts.push(
+      <span key={`tok-${m.index}`} className="bg-primary/15 border border-primary/30 text-primary rounded px-0.5 font-mono">
+        {m[0]}
+      </span>
+    );
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push(<span key="t-end">{text.slice(last)}</span>);
+  return <>{parts}</>;
+}
+
+// ─── iBS chip ─────────────────────────────────────────────────────────────────
 
 function IbsChip({ running }: { running: boolean }) {
   const { t } = useLanguage();
   const [phase, setPhase] = useState<"idle" | "certifying" | "certified">("idle");
-
   useEffect(() => {
     if (!running) { setPhase("idle"); return; }
     setPhase("certifying");
     const timer = setTimeout(() => setPhase("certified"), 1800);
     return () => clearTimeout(timer);
   }, [running]);
-
   return (
     <AnimatePresence mode="wait">
       {phase === "idle" && (
@@ -163,17 +264,28 @@ function IbsChip({ running }: { running: boolean }) {
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
+// ─── Stat card ────────────────────────────────────────────────────────────────
+
+function StatCard({ labelKey, value, sub }: { labelKey: string; value: string; sub?: string }) {
+  const { t } = useLanguage();
+  return (
+    <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1">
+      <span className="text-xs text-muted-foreground font-medium">{t(labelKey)}</span>
+      <span className="text-2xl font-bold text-foreground">{value}</span>
+      {sub && <span className="text-xs text-muted-foreground">{sub}</span>}
+    </div>
+  );
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function Demo() {
   const { t, lang } = useLanguage();
 
   const numFmt = useCallback(
-    (n: number, opts?: Intl.NumberFormatOptions) =>
-      new Intl.NumberFormat(lang === "es" ? "es-ES" : "en-GB", opts).format(n),
+    (n: number) => new Intl.NumberFormat(lang === "es" ? "es-ES" : "en-GB").format(n),
     [lang]
   );
-
   const pctFmt = useCallback(
     (n: number) => new Intl.NumberFormat(lang === "es" ? "es-ES" : "en-GB", { style: "percent", minimumFractionDigits: 1 }).format(n / 100),
     [lang]
@@ -181,45 +293,39 @@ export default function Demo() {
 
   const [scenario, setScenario] = useState<ScenarioKey>("legal");
   const [inputText, setInputText] = useState(() => t("demo.scenario.legal.text"));
-  const [result, setResult] = useState<ProtectResult | null>(null);
+  const [result, setResult] = useState<RunResult | null>(null);
   const [processing, setProcessing] = useState(false);
-  const [processingMs, setProcessingMs] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [ibsRunning, setIbsRunning] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Reset when scenario changes
   const handleScenario = (key: ScenarioKey) => {
     setScenario(key);
-    setInputText(t(SCENARIOS[key].textKey));
+    setInputText(t(`demo.scenario.${key}.text`));
     setResult(null);
-    setProcessingMs(null);
     setIbsRunning(false);
   };
 
   const handleAnalyze = useCallback(() => {
     if (!inputText.trim()) return;
+    // Capture the text NOW — before any state updates
+    const textToAnalyze = inputText;
     setProcessing(true);
     setResult(null);
     setIbsRunning(false);
-
-    // Simulated latency (realistic 35–65ms range)
-    const fakeMs = 35 + Math.floor(Math.random() * 30);
     timerRef.current = setTimeout(() => {
-      const res = mockProxyProtect(inputText) as ProtectResult;
+      const res = protectText(textToAnalyze);
       setResult(res);
-      setProcessingMs(fakeMs);
       setProcessing(false);
       setIbsRunning(true);
     }, 420);
   }, [inputText]);
 
-  const handleReset = () => {
-    setInputText(t(SCENARIOS[scenario].textKey));
+  const handleReset = useCallback(() => {
+    setInputText(t(`demo.scenario.${scenario}.text`));
     setResult(null);
-    setProcessingMs(null);
     setIbsRunning(false);
-  };
+  }, [scenario, t]);
 
   const handleCopy = () => {
     if (!result) return;
@@ -229,9 +335,7 @@ export default function Demo() {
     });
   };
 
-  useEffect(() => {
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, []);
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
 
   const detections = result?.detections ?? [];
   const criticalCount = detections.filter(d => d.severity === "critical").length;
@@ -240,17 +344,15 @@ export default function Demo() {
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
 
-      {/* ── Hero ── */}
+      {/* Hero */}
       <section className="pt-32 pb-12 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div initial="hidden" animate="visible" variants={STAGGER}>
-            <motion.span variants={FADE_UP}
-              className="inline-block text-xs font-semibold uppercase tracking-widest text-primary bg-primary/10 border border-primary/30 rounded-full px-4 py-1.5 mb-6">
+            <motion.span variants={FADE_UP} className="inline-block text-xs font-semibold uppercase tracking-widest text-primary bg-primary/10 border border-primary/30 rounded-full px-4 py-1.5 mb-6">
               {t("demo.hero.badge")}
             </motion.span>
             <motion.h1 variants={FADE_UP} className="text-4xl md:text-5xl font-bold mb-5 leading-tight">
-              {t("demo.hero.title1")}{" "}
-              <span className="text-primary">{t("demo.hero.title2")}</span>
+              {t("demo.hero.title1")}{" "}<span className="text-primary">{t("demo.hero.title2")}</span>
             </motion.h1>
             <motion.p variants={FADE_UP} className="text-lg text-muted-foreground max-w-2xl mx-auto">
               {t("demo.hero.subtitle")}
@@ -259,102 +361,77 @@ export default function Demo() {
         </div>
       </section>
 
-      {/* ── Aggregate stats strip ── */}
+      {/* Stats strip */}
       <section className="pb-10 px-6">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={STAGGER}
           className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
-          <motion.div variants={FADE_UP}>
-            <StatCard labelKey="demo.stat.requests" value={numFmt(12847)} />
-          </motion.div>
-          <motion.div variants={FADE_UP}>
-            <StatCard labelKey="demo.stat.pii" value={numFmt(34219)} />
-          </motion.div>
-          <motion.div variants={FADE_UP}>
-            <StatCard labelKey="demo.stat.coverage" value={pctFmt(99.04)} />
-          </motion.div>
-          <motion.div variants={FADE_UP}>
-            <StatCard labelKey="demo.stat.latency" value="47 ms" sub={t("demo.stat.latency.sub")} />
-          </motion.div>
+          {[
+            { key: "demo.stat.requests", val: numFmt(12847) },
+            { key: "demo.stat.pii", val: numFmt(34219) },
+            { key: "demo.stat.coverage", val: pctFmt(99.04) },
+            { key: "demo.stat.latency", val: "47 ms", sub: t("demo.stat.latency.sub") },
+          ].map(({ key, val, sub }) => (
+            <motion.div key={key} variants={FADE_UP}>
+              <StatCard labelKey={key} value={val} sub={sub} />
+            </motion.div>
+          ))}
         </motion.div>
       </section>
 
-      {/* ── Interactive sandbox ── */}
+      {/* Interactive sandbox */}
       <section className="pb-20 px-6">
         <div className="max-w-5xl mx-auto">
 
           {/* Scenario selector */}
           <div className="flex flex-wrap gap-2 mb-6">
             {SCENARIO_KEYS.map(key => (
-              <button
-                key={key}
-                onClick={() => handleScenario(key)}
+              <button key={key} onClick={() => handleScenario(key)}
                 className={`text-xs font-medium px-4 py-2 rounded-full border transition-all duration-150 ${
-                  scenario === key
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
-                }`}
-              >
-                {t(SCENARIOS[key].labelKey)}
+                  scenario === key ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                }`}>
+                {t(`demo.scenario.${key}`)}
               </button>
             ))}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-            {/* ── Left: Input ── */}
+            {/* Input panel */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-foreground">{t("demo.panel.input.title")}</span>
-                <button onClick={handleReset}
-                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <span className="text-sm font-semibold">{t("demo.panel.input.title")}</span>
+                <button onClick={handleReset} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
                   <RotateCcw className="w-3 h-3" /> {t("demo.panel.reset")}
                 </button>
               </div>
               <div className="relative rounded-xl border border-border bg-card overflow-hidden">
                 <textarea
                   value={inputText}
-                  onChange={e => { setInputText(e.target.value); setResult(null); setProcessingMs(null); }}
-                  className="w-full h-64 bg-transparent text-sm text-foreground p-4 resize-none focus:outline-none placeholder:text-muted-foreground leading-relaxed"
+                  onChange={e => { setInputText(e.target.value); setResult(null); setIbsRunning(false); }}
+                  className="w-full h-64 bg-transparent text-sm font-mono text-foreground p-4 resize-none focus:outline-none placeholder:text-muted-foreground leading-relaxed"
                   placeholder={t("demo.panel.input.placeholder")}
                   spellCheck={false}
                 />
                 <div className="absolute bottom-3 right-3 text-xs text-muted-foreground/50">
-                  {inputText.length} {t("demo.panel.chars")}
+                  {numFmt(inputText.length)} {t("demo.panel.chars")}
                 </div>
               </div>
-
-              {/* Analyze button */}
-              <Button
-                onClick={handleAnalyze}
-                disabled={processing || !inputText.trim()}
-                className="w-full gap-2"
-                size="lg"
-              >
-                {processing ? (
-                  <>
-                    <Shield className="w-4 h-4 animate-pulse" />
-                    {t("demo.panel.analyzing")}
-                  </>
-                ) : (
-                  <>
-                    <ShieldCheck className="w-4 h-4" />
-                    {t("demo.panel.analyze")}
-                  </>
-                )}
+              <Button onClick={handleAnalyze} disabled={processing || !inputText.trim()} className="w-full gap-2" size="lg">
+                {processing
+                  ? <><Shield className="w-4 h-4 animate-pulse" />{t("demo.panel.analyzing")}</>
+                  : <><ShieldCheck className="w-4 h-4" />{t("demo.panel.analyze")}</>}
               </Button>
-
               <p className="text-xs text-muted-foreground text-center">{t("demo.panel.disclaimer")}</p>
             </div>
 
-            {/* ── Right: Output ── */}
+            {/* Output panel */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-foreground">{t("demo.panel.output.title")}</span>
+                <span className="text-sm font-semibold">{t("demo.panel.output.title")}</span>
                 <div className="flex items-center gap-2">
                   <IbsChip running={ibsRunning} />
                   {result && (
-                    <button onClick={handleCopy}
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                    <button onClick={handleCopy} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
                       {copied ? <Check className="w-3 h-3 text-success" /> : <Copy className="w-3 h-3" />}
                       {copied ? t("demo.panel.copied") : t("demo.panel.copy")}
                     </button>
@@ -371,7 +448,6 @@ export default function Demo() {
                       <p className="text-sm">{t("demo.panel.output.empty")}</p>
                     </motion.div>
                   )}
-
                   {processing && (
                     <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                       className="absolute inset-0 flex flex-col items-center justify-center gap-3">
@@ -379,11 +455,9 @@ export default function Demo() {
                       <p className="text-sm text-muted-foreground">{t("demo.panel.analyzing")}</p>
                     </motion.div>
                   )}
-
                   {result && !processing && (
-                    <motion.div key="result" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                      className="text-sm leading-relaxed">
-                      <HighlightedText text={inputText} detections={detections} />
+                    <motion.div key="result" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                      <ProtectedOutput result={result} />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -395,34 +469,29 @@ export default function Demo() {
                   <motion.div key="detections" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                     className="rounded-xl border border-border bg-card overflow-hidden">
                     <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-                      <span className="text-xs font-semibold text-foreground flex items-center gap-2">
+                      <span className="text-xs font-semibold flex items-center gap-2">
                         <ShieldAlert className="w-3.5 h-3.5 text-primary" />
                         {t("demo.detections.title")}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {detections.length} {t("demo.detections.found")}
-                        {criticalCount > 0 && (
-                          <span className="ml-2 text-destructive font-medium">
-                            · {criticalCount} {t("demo.detections.critical")}
-                          </span>
-                        )}
+                        {criticalCount > 0 && <span className="ml-2 text-destructive font-medium">· {criticalCount} {t("demo.detections.critical")}</span>}
                       </span>
                     </div>
-
                     {detections.length === 0 ? (
                       <div className="px-4 py-5 text-center text-sm text-muted-foreground">
                         <ShieldCheck className="w-5 h-5 mx-auto mb-2 text-success" />
                         {t("demo.detections.none")}
                       </div>
                     ) : (
-                      <div className="divide-y divide-border max-h-52 overflow-y-auto">
+                      <div className="divide-y divide-border max-h-48 overflow-y-auto">
                         {detections.map((d, i) => (
                           <div key={i} className="px-4 py-2.5 flex items-center justify-between gap-3">
                             <div className="flex items-center gap-2 min-w-0">
                               <SeverityBadge severity={d.severity} />
                               <span className="text-xs font-mono text-muted-foreground truncate">{d.type.replace(/_/g, " ")}</span>
                             </div>
-                            <span className="text-xs font-mono text-foreground/60 truncate max-w-32">{d.value}</span>
+                            <span className="text-xs font-mono text-foreground/60 truncate max-w-36">{d.value}</span>
                           </div>
                         ))}
                       </div>
@@ -433,51 +502,32 @@ export default function Demo() {
             </div>
           </div>
 
-          {/* ── Metrics row (visible after analysis) ── */}
+          {/* Metrics row */}
           <AnimatePresence>
-            {result && processingMs !== null && (
-              <motion.div
-                key="metrics"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-                className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4"
-              >
-                <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-primary shrink-0" />
-                  <div>
-                    <p className="text-lg font-bold">{detections.length}</p>
-                    <p className="text-xs text-muted-foreground">{t("demo.metric.detected")}</p>
+            {result && (
+              <motion.div key="metrics" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+                className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { icon: Shield, label: t("demo.metric.detected"), value: numFmt(detections.length), color: "text-primary" },
+                  { icon: ShieldCheck, label: t("demo.metric.protected"), value: numFmt(detections.length), color: "text-success" },
+                  { icon: Zap, label: t("demo.metric.latency"), value: `${numFmt(result.processingMs)} ms`, color: "text-warning" },
+                  { icon: Clock, label: t("demo.metric.coverage"), value: pctFmt(detections.length > 0 ? 100 : 0), color: "text-info" },
+                ].map(({ icon: Icon, label, value, color }) => (
+                  <div key={label} className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
+                    <Icon className={`w-5 h-5 shrink-0 ${color}`} />
+                    <div>
+                      <p className="text-lg font-bold">{value}</p>
+                      <p className="text-xs text-muted-foreground">{label}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
-                  <ShieldCheck className="w-5 h-5 text-success shrink-0" />
-                  <div>
-                    <p className="text-lg font-bold">{detections.length}</p>
-                    <p className="text-xs text-muted-foreground">{t("demo.metric.protected")}</p>
-                  </div>
-                </div>
-                <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
-                  <Zap className="w-5 h-5 text-warning shrink-0" />
-                  <div>
-                    <p className="text-lg font-bold">{processingMs} ms</p>
-                    <p className="text-xs text-muted-foreground">{t("demo.metric.latency")}</p>
-                  </div>
-                </div>
-                <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-info shrink-0" />
-                  <div>
-                    <p className="text-lg font-bold text-success">{pctFmt(100)}</p>
-                    <p className="text-xs text-muted-foreground">{t("demo.metric.coverage")}</p>
-                  </div>
-                </div>
+                ))}
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </section>
 
-      {/* ── How it works strip ── */}
+      {/* How it works */}
       <section className="py-16 px-6 border-y border-border bg-card/30">
         <div className="max-w-5xl mx-auto">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={STAGGER}>
@@ -486,12 +536,9 @@ export default function Demo() {
             </motion.p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {(["1", "2", "3"] as const).map(n => (
-                <motion.div key={n} variants={FADE_UP}
-                  className="bg-card border border-border rounded-xl p-6 flex flex-col gap-3">
-                  <span className="text-xs font-semibold text-primary bg-primary/10 border border-primary/20 rounded-full w-6 h-6 flex items-center justify-center">
-                    {n}
-                  </span>
-                  <p className="font-semibold text-foreground">{t(`demo.how.step${n}.title`)}</p>
+                <motion.div key={n} variants={FADE_UP} className="bg-card border border-border rounded-xl p-6 flex flex-col gap-3">
+                  <span className="text-xs font-semibold text-primary bg-primary/10 border border-primary/20 rounded-full w-6 h-6 flex items-center justify-center">{n}</span>
+                  <p className="font-semibold">{t(`demo.how.step${n}.title`)}</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">{t(`demo.how.step${n}.desc`)}</p>
                 </motion.div>
               ))}
@@ -500,28 +547,21 @@ export default function Demo() {
         </div>
       </section>
 
-      {/* ── Gated features teaser ── */}
+      {/* Gated features */}
       <section className="py-16 px-6">
         <div className="max-w-5xl mx-auto">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={STAGGER}>
-            <motion.p variants={FADE_UP} className="text-xs font-bold tracking-widest text-primary uppercase text-center mb-3">
-              {t("demo.gated.label")}
-            </motion.p>
-            <motion.h2 variants={FADE_UP} className="text-2xl md:text-3xl font-bold text-center mb-10">
-              {t("demo.gated.title")}
-            </motion.h2>
+            <motion.p variants={FADE_UP} className="text-xs font-bold tracking-widest text-primary uppercase text-center mb-3">{t("demo.gated.label")}</motion.p>
+            <motion.h2 variants={FADE_UP} className="text-2xl md:text-3xl font-bold text-center mb-10">{t("demo.gated.title")}</motion.h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {(["byok", "dpo", "webhook", "blockchain", "multimodel", "mfa"] as const).map(key => (
-                <motion.div key={key} variants={FADE_UP}
-                  className="flex items-start gap-3 p-4 rounded-xl border border-border bg-card/50 opacity-75">
+                <motion.div key={key} variants={FADE_UP} className="flex items-start gap-3 p-4 rounded-xl border border-border bg-card/50 opacity-75">
                   <Lock className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-foreground">{t(`demo.gated.${key}.title`)}</p>
+                    <p className="text-sm font-medium">{t(`demo.gated.${key}.title`)}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{t(`demo.gated.${key}.desc`)}</p>
                   </div>
-                  <span className="ml-auto text-xs text-primary border border-primary/30 bg-primary/5 rounded-full px-2 py-0.5 whitespace-nowrap">
-                    {t("demo.gated.pro")}
-                  </span>
+                  <span className="ml-auto text-xs text-primary border border-primary/30 bg-primary/5 rounded-full px-2 py-0.5 whitespace-nowrap">{t("demo.gated.pro")}</span>
                 </motion.div>
               ))}
             </div>
@@ -529,7 +569,7 @@ export default function Demo() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
+      {/* CTA */}
       <section className="pb-20 px-6">
         <div className="max-w-3xl mx-auto">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={FADE_UP}
@@ -537,21 +577,15 @@ export default function Demo() {
             <div className="absolute inset-0 pointer-events-none">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-primary/10 blur-3xl rounded-full" />
             </div>
-            <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary bg-primary/10 border border-primary/30 rounded-full px-4 py-1.5 mb-5">
-              {t("demo.cta.badge")}
-            </span>
+            <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary bg-primary/10 border border-primary/30 rounded-full px-4 py-1.5 mb-5">{t("demo.cta.badge")}</span>
             <h2 className="text-2xl md:text-3xl font-bold mb-4">{t("demo.cta.title")}</h2>
             <p className="text-muted-foreground mb-8 max-w-xl mx-auto leading-relaxed">{t("demo.cta.subtitle")}</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button size="lg" asChild>
-                <Link to="/auth">
-                  {t("demo.cta.primary")} <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
+                <Link to="/auth">{t("demo.cta.primary")} <ArrowRight className="w-4 h-4 ml-2" /></Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link to="/pricing">
-                  {t("demo.cta.secondary")} <ChevronRight className="w-4 h-4 ml-1" />
-                </Link>
+                <Link to="/pricing">{t("demo.cta.secondary")} <ChevronRight className="w-4 h-4 ml-1" /></Link>
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-5">{t("demo.cta.note")}</p>
