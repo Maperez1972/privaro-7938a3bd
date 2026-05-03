@@ -63,37 +63,82 @@ interface EngineDetection {
   start: number; end: number;
 }
 
+// ─── Stopwords: capitalized words that are NOT names ─────────────────────────
+const NAME_STOP = new Set([
+  "Dear","Best","Please","Her","His","The","This","That","Patient","Transfer",
+  "Regards","March","April","May","June","July","August","September","October",
+  "November","December","Hello","Hola","Estimado","Estimada","Atentamente",
+  "Clinical","Insurance","Emergency","Contact","Diagnosis","Salary","Bank",
+  "Transaction","Alert","Session","Screening","Candidate","Current","Type",
+  "Adeslas","LinkedIn","Note","Details","Account","Third","Birthday","DOB",
+  "Admission","Consultation","Follow","Please","New","Next","Last","First",
+  "Second","Third","Fourth","For","From","With","Without","About","After",
+  "Before","Between","During","Into","Over","Under","Until","Upon","Within",
+]);
+
 function detectPii(text: string): EngineDetection[] {
-  const patterns: { regex: RegExp; type: string; severity: string; category: string }[] = [
-    { regex: /\b[A-Z][a-záéíóúñÁÉÍÓÚÑ]+ [A-Z][a-záéíóúñÁÉÍÓÚÑ]+(?:\s[A-Z][a-záéíóúñÁÉÍÓÚÑ]+)?\b/g, type: "full_name", severity: "medium", category: "personal" },
-    { regex: /\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b/g, type: "email", severity: "medium", category: "personal" },
-    { regex: /\b[A-Z]{2}\d{2}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}[\s]?\d{4}(?:[\s]?\d{0,4})?\b/g, type: "iban", severity: "critical", category: "financial" },
-    { regex: /\b\d{8}[A-HJ-NP-TV-Z]\b/g, type: "dni", severity: "critical", category: "personal" },
-    { regex: /(?<!\d)(?:\+34[\s\-]?)?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}[\s\-]?\d{2}(?!\d)/g, type: "phone", severity: "high", category: "personal" },
+  const results: EngineDetection[] = [];
+
+  // ── 1) Names (two-pass: titles + plain multi-word) ────────────────────────
+  const NAME_RE = /[A-ZÁÉÍÓÚÀÈÌÒÙÑÇ][a-záéíóúàèìòùñç]{1,}(?:\s+[A-ZÁÉÍÓÚÀÈÌÒÙÑÇ][a-záéíóúàèìòùñç]{2,}){1,3}/gu;
+  const TITLE_RE = /\b(Dr|Dra|Mr|Mrs|Ms|Sr|Sra|Prof)\.?\s+([A-ZÁÉÍÓÚÀÈÌÒÙÑÇ][a-záéíóúàèìòùñç]+(?:\s+[A-ZÁÉÍÓÚÀÈÌÒÙÑÇ][a-záéíóúàèìòùñç]+){0,2})/g;
+
+  // Pass 1: titled names ("Dr. García", "Sr. López")
+  let tm: RegExpExecArray | null;
+  while ((tm = TITLE_RE.exec(text)) !== null) {
+    results.push({ type: "full_name", severity: "medium", category: "personal", start: tm.index, end: tm.index + tm[0].length });
+  }
+
+  // Pass 2: plain multi-word names — skip stopwords at start of each match
+  let nm: RegExpExecArray | null;
+  NAME_RE.lastIndex = 0;
+  while ((nm = NAME_RE.exec(text)) !== null) {
+    const words = nm[0].split(" ");
+    // Find first non-stop word
+    let skip = 0;
+    while (skip < words.length - 1 && NAME_STOP.has(words[skip])) skip++;
+    if (skip >= words.length - 1) continue; // all stopwords
+    const skipChars = words.slice(0, skip).join(" ").length + (skip > 0 ? 1 : 0);
+    const start = nm.index + skipChars;
+    const nameStr = words.slice(skip).join(" ");
+    results.push({ type: "full_name", severity: "medium", category: "personal", start, end: start + nameStr.length });
+  }
+
+  // ── 2) Non-name patterns ───────────────────────────────────────────────────
+  const simplePatterns: { regex: RegExp; type: string; severity: string; category: string }[] = [
+    // Email
+    { regex: /[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/g, type: "email", severity: "medium", category: "personal" },
+    // IBAN — ES91 2100 0418 4502 0005 1332 (with or without spaces)
+    { regex: /\b[A-Z]{2}\d{2}(?:\s?\d{4}){4,6}\b/g, type: "iban", severity: "critical", category: "financial" },
+    // DNI / NIE Spain — 8 digits + letter (upper OR lower, user may edit)
+    { regex: /\b\d{8}[A-Za-z]\b/g, type: "dni", severity: "critical", category: "personal" },
+    // Phone — 612-34-5678 | 612 34 56 78 | 699-12-34-56 | 611-98-76-54
+    { regex: /(?<!\d)(?:\+\d{1,3}[\s\-]?)?(?:\d{3}[\s\-]?\d{2}[\s\-]?\d{2}[\s\-]?\d{2}|\d{3}[\s\-]?\d{3}[\s\-]?\d{3})(?!\d)/g, type: "phone", severity: "high", category: "personal" },
+    // SSN US format
     { regex: /\b\d{3}-\d{2}-\d{4}\b/g, type: "ssn", severity: "critical", category: "personal" },
+    // Credit card
     { regex: /\b(?:\d{4}[\s\-]?){3}\d{4}\b/g, type: "credit_card", severity: "critical", category: "financial" },
+    // Private IP
     { regex: /\b(?:192\.168|10\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01]))\.\d{1,3}\.\d{1,3}\b/g, type: "ip_address", severity: "low", category: "technical" },
+    // Session token
     { regex: /\bsess_[A-Za-z0-9]+\b/g, type: "session_id", severity: "low", category: "technical" },
+    // Policy / contract numbers
     { regex: /n[oº°][\s]?(?:de\s)?(?:s[oó]cios?|póliza|factura|contrato|cuenta|tarjeta|afiliado)?[\s]*\d{6,}/gi, type: "policy_number", severity: "high", category: "financial" },
   ];
 
-  const results: EngineDetection[] = [];
-  const seen = new Set<string>();
-
-  for (const p of patterns) {
+  for (const p of simplePatterns) {
     p.regex.lastIndex = 0;
     let m: RegExpExecArray | null;
     while ((m = p.regex.exec(text)) !== null) {
-      const key = `${m.index}-${m.index + m[0].length}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        results.push({ type: p.type, severity: p.severity, category: p.category, start: m.index, end: m.index + m[0].length });
-      }
+      results.push({ type: p.type, severity: p.severity, category: p.category, start: m.index, end: m.index + m[0].length });
     }
   }
 
-  // Remove overlapping detections (keep first by start, then by longest)
-  results.sort((a, b) => a.start - b.start || b.end - b.start - (a.end - a.start));
+  // ── Deduplicate & sort — longest match wins on overlap ────────────────────
+  results.sort((a, b) => {
+    if (a.start !== b.start) return a.start - b.start;
+    return (b.end - b.start) - (a.end - a.start); // longer first at same start
+  });
   const clean: EngineDetection[] = [];
   let cursor = 0;
   for (const d of results) {
