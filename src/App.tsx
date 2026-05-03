@@ -23,6 +23,7 @@ const Security = lazy(() => import("./pages/Security"));
 const AIRiskAssessmentPage = lazy(() => import("./pages/AIRiskAssessment"));
 const PartnersPage = lazy(() => import("./pages/Partners"));
 const PricingPage = lazy(() => import("./pages/Pricing"));
+const DemoPage = lazy(() => import("./pages/Demo"));
 const AppLayout = lazy(() => import("./components/app/AppLayout"));
 const Chat = lazy(() => import("./pages/app/Chat"));
 const Dashboard = lazy(() => import("./pages/app/Dashboard"));
@@ -93,6 +94,7 @@ const App = () => (
               <Route path="/ai-risk-assessment" element={<AIRiskAssessmentPage />} />
               <Route path="/partners" element={<PartnersPage />} />
               <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/demo" element={<DemoPage />} />
 
               {/* Auth */}
               <Route path="/auth" element={<Auth />} />

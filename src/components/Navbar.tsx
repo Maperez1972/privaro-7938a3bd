@@ -70,6 +70,7 @@ const Navbar = () => {
     { label: t("nav.solution"), href: "/#solution" },
     { label: t("nav.howItWorks"), href: "/#how-it-works" },
     { label: t("nav.security"), href: "/security" },
+    { label: t("nav.demo"), href: "/demo" },
     { label: t("nav.pricing"), href: "/pricing" },
     { label: t("nav.partners"), href: "/partners" },
   ];
