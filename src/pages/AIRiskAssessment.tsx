@@ -2,43 +2,44 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Eye, AlertTriangle, FileText, Shield,
   Plug, Search, BarChart,
   Users, EyeOff, Scale,
 } from "lucide-react";
 
-const whatYouGet = [
-  { icon: Eye, title: "Real AI usage visibility", desc: "See exactly what data your team is sending to AI tools — not assumptions, real data." },
-  { icon: AlertTriangle, title: "Sensitive data detection", desc: "PII, financial identifiers, contracts, health data — classified by risk level." },
-  { icon: FileText, title: "Audit-ready report", desc: "Structured findings with risk levels, affected workflows, and remediation priorities." },
-  { icon: Shield, title: "GDPR & EU AI Act gap analysis", desc: "Identify compliance gaps before a regulator does." },
-];
-
-const steps = [
-  { icon: Plug, title: "Connect or simulate", desc: "Connect your AI tools or simulate workflows. No complex integration required to get started." },
-  { icon: Search, title: "Privaro analyses", desc: "The privacy engine scans prompts and interactions. PII detected, classified, and risk-scored." },
-  { icon: BarChart, title: "You receive the report", desc: "Structured findings in 1-2 weeks. Risk levels, affected data types, and clear next steps." },
-];
-
-const whyMatters = [
-  { icon: Users, title: "Employees are already using AI", desc: "Teams across legal, finance, and operations use AI daily — with real data, outside controlled systems." },
-  { icon: EyeOff, title: "No visibility by default", desc: "Standard AI tools have no data governance layer. What gets sent — stays sent." },
-  { icon: Scale, title: "Regulatory pressure is increasing", desc: "GDPR enforcement on AI interactions is active. EU AI Act enters into force progressively 2025-2026." },
-];
-
-const roleOptions = ["CISO", "CTO", "DPO", "Legal", "Compliance", "Other"];
-const sizeOptions = ["1-50", "51-200", "201-1000", "1000+"];
-
 const AIRiskAssessmentPage = () => {
+  const { t } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [role, setRole] = useState("");
   const [companySize, setCompanySize] = useState("");
+
+  const whatYouGet = [
+    { icon: Eye, title: t("assessment.what.1.title"), desc: t("assessment.what.1.desc") },
+    { icon: AlertTriangle, title: t("assessment.what.2.title"), desc: t("assessment.what.2.desc") },
+    { icon: FileText, title: t("assessment.what.3.title"), desc: t("assessment.what.3.desc") },
+    { icon: Shield, title: t("assessment.what.4.title"), desc: t("assessment.what.4.desc") },
+  ];
+
+  const steps = [
+    { icon: Plug, title: t("assessment.step1.title"), desc: t("assessment.step1.desc") },
+    { icon: Search, title: t("assessment.step2.title"), desc: t("assessment.step2.desc") },
+    { icon: BarChart, title: t("assessment.step3.title"), desc: t("assessment.step3.desc") },
+  ];
+
+  const whyMatters = [
+    { icon: Users, title: t("assessment.why.1.title"), desc: t("assessment.why.1.desc") },
+    { icon: EyeOff, title: t("assessment.why.2.title"), desc: t("assessment.why.2.desc") },
+    { icon: Scale, title: t("assessment.why.3.title"), desc: t("assessment.why.3.desc") },
+  ];
+
+  const roleOptions = ["CISO", "CTO", "DPO", "Legal", "Compliance", t("assessment.form.role.other")];
+  const sizeOptions = ["1-50", "51-200", "201-1000", "1000+"];
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -62,7 +63,7 @@ const AIRiskAssessmentPage = () => {
       setSubmitted(true);
     } catch (err) {
       console.error("Error sending assessment request:", err);
-      setError("Something went wrong. Please try again or email info@privaro.ai.");
+      setError(t("assessment.form.error"));
     } finally {
       setSending(false);
     }
@@ -77,26 +78,23 @@ const AIRiskAssessmentPage = () => {
         <div className="max-w-4xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-6">
-              Free Assessment
+              {t("assessment.badge")}
             </span>
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-              See what data your team is already sending to <span className="text-primary">AI</span>
+              {t("assessment.hero.title1")} <span className="text-primary">{t("assessment.hero.title2")}</span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Most companies have no visibility into what their employees paste into AI tools.
-              <br />We do — in 1-2 weeks.
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto whitespace-pre-line">
+              {t("assessment.hero.subtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
               <a href="#assessment-form" className="px-8 py-3.5 rounded-md bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
-                Start Risk Assessment
+                {t("assessment.hero.cta1")}
               </a>
               <a href="#sample-report" className="px-8 py-3.5 rounded-md border border-border bg-card text-foreground font-semibold hover:bg-secondary/50 transition-colors">
-                See a sample report
+                {t("assessment.hero.cta2")}
               </a>
             </div>
-            <p className="text-sm text-muted-foreground/80 mt-4">
-              No commitment. No complex integration required.
-            </p>
+            <p className="text-sm text-muted-foreground/80 mt-4">{t("assessment.hero.disclaimer")}</p>
           </motion.div>
         </div>
       </section>
@@ -105,7 +103,7 @@ const AIRiskAssessmentPage = () => {
       <section className="pb-20 px-6">
         <div className="max-w-5xl mx-auto">
           <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-12">
-            What the assessment gives you
+            {t("assessment.what.title")}
           </motion.h2>
           <div className="grid md:grid-cols-2 gap-6">
             {whatYouGet.map((item, i) => (
@@ -126,11 +124,11 @@ const AIRiskAssessmentPage = () => {
       <section className="pb-20 px-6">
         <div className="max-w-5xl mx-auto">
           <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-3">
-            Simple. No disruption.
+            {t("assessment.how.title")}
           </motion.h2>
           <div className="flex justify-center mb-12">
             <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5">
-              Completed in 1–2 weeks
+              {t("assessment.how.timeframe")}
             </span>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -140,7 +138,7 @@ const AIRiskAssessmentPage = () => {
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-5">
                   <s.icon className="h-6 w-6 text-primary" />
                 </div>
-                <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">Step {i + 1}</p>
+                <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">{t("assessment.step.label")} {i + 1}</p>
                 <h3 className="text-lg font-semibold mb-2">{s.title}</h3>
                 <p className="text-sm text-muted-foreground">{s.desc}</p>
               </motion.div>
@@ -153,21 +151,19 @@ const AIRiskAssessmentPage = () => {
       <section id="sample-report" className="pb-20 px-6 scroll-mt-24">
         <div className="max-w-3xl mx-auto">
           <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-12">
-            What you'll see
+            {t("assessment.sample.title")}
           </motion.h2>
           <div className="rounded-xl border border-border bg-card p-8 font-mono text-sm">
-            <p className="text-primary font-bold mb-4">── AI Risk Assessment Sample ─────────────────</p>
+            <p className="text-primary font-bold mb-4">{t("assessment.sample.header")}</p>
             <div className="space-y-3 text-muted-foreground">
-              <p><span className="text-red-400 font-bold">● HIGH RISK</span>   23% of prompts contained sensitive data</p>
-              <p><span className="text-orange-400 font-bold">● MEDIUM  </span>   12% included financial identifiers (IBAN, salary)</p>
-              <p><span className="text-yellow-400 font-bold">● MEDIUM  </span>   8% contained contract or legal document excerpts</p>
-              <p><span className="text-blue-400 font-bold">● LOW     </span>   5% involved personal identifiers (names, emails)</p>
-              <p className="pt-3 border-t border-border text-xs">Workflows affected: CRM analysis, contract review, financial reporting</p>
-              <p className="text-xs">Recommended: Immediate tokenisation policy for finance and legal workflows</p>
+              <p><span className="text-red-400 font-bold">● {t("assessment.sample.high")}</span>   {t("assessment.sample.line1")}</p>
+              <p><span className="text-orange-400 font-bold">● {t("assessment.sample.medium")}  </span>   {t("assessment.sample.line2")}</p>
+              <p><span className="text-yellow-400 font-bold">● {t("assessment.sample.medium")}  </span>   {t("assessment.sample.line3")}</p>
+              <p><span className="text-blue-400 font-bold">● {t("assessment.sample.low")}     </span>   {t("assessment.sample.line4")}</p>
+              <p className="pt-3 border-t border-border text-xs">{t("assessment.sample.workflows")}</p>
+              <p className="text-xs">{t("assessment.sample.recommended")}</p>
             </div>
-            <p className="text-xs text-muted-foreground/60 mt-4 italic">
-              * Illustrative sample. Actual results vary by organisation — but exposure is almost always present.
-            </p>
+            <p className="text-xs text-muted-foreground/60 mt-4 italic">{t("assessment.sample.disclaimer")}</p>
           </div>
         </div>
       </section>
@@ -176,7 +172,7 @@ const AIRiskAssessmentPage = () => {
       <section className="pb-20 px-6">
         <div className="max-w-5xl mx-auto">
           <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold text-center mb-12">
-            You can't control what you can't see
+            {t("assessment.why.title")}
           </motion.h2>
           <div className="grid md:grid-cols-3 gap-6">
             {whyMatters.map((c, i) => (
@@ -199,58 +195,52 @@ const AIRiskAssessmentPage = () => {
         <div className="relative max-w-2xl mx-auto">
           <div className="text-center mb-10">
             <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-3xl md:text-4xl font-bold mb-4">
-              Start with <span className="text-gradient">visibility</span>
+              {t("assessment.form.title1")} <span className="text-gradient">{t("assessment.form.title2")}</span>
             </motion.h2>
-            <p className="text-muted-foreground">
-              Fill in the form and we'll reach out within 24 hours to schedule your assessment.
-            </p>
+            <p className="text-muted-foreground">{t("assessment.form.subtitle")}</p>
           </div>
           {submitted ? (
             <div className="p-8 rounded-lg border border-primary/30 bg-card text-center glow-border">
-              <h3 className="text-2xl font-bold mb-3 text-foreground">Thank you</h3>
-              <p className="text-muted-foreground">
-                We've received your request. Our team will contact you within 24 hours to schedule your AI Risk Assessment.
-              </p>
+              <h3 className="text-2xl font-bold mb-3 text-foreground">{t("assessment.form.thanks.title")}</h3>
+              <p className="text-muted-foreground">{t("assessment.form.thanks.body")}</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="p-8 rounded-lg border border-border bg-card space-y-5">
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">Name</label>
+                <label className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.name")}</label>
                 <input name="name" type="text" required className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
               </div>
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">Company</label>
+                <label className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.company")}</label>
                 <input name="company" type="text" required className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
               </div>
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">Role</label>
+                <label className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.role")}</label>
                 <Select required value={role} onValueChange={setRole}>
-                  <SelectTrigger className="w-full bg-surface border-border text-foreground"><SelectValue placeholder="Select your role" /></SelectTrigger>
+                  <SelectTrigger className="w-full bg-surface border-border text-foreground"><SelectValue placeholder={t("assessment.form.role.placeholder")} /></SelectTrigger>
                   <SelectContent>{roleOptions.map((r) => (<SelectItem key={r} value={r}>{r}</SelectItem>))}</SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">Work email</label>
+                <label className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.email")}</label>
                 <input name="email" type="email" required className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
               </div>
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">Company size <span className="text-muted-foreground/60">(optional)</span></label>
+                <label className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.size")} <span className="text-muted-foreground/60">({t("assessment.form.optional")})</span></label>
                 <Select value={companySize} onValueChange={setCompanySize}>
-                  <SelectTrigger className="w-full bg-surface border-border text-foreground"><SelectValue placeholder="Select company size" /></SelectTrigger>
+                  <SelectTrigger className="w-full bg-surface border-border text-foreground"><SelectValue placeholder={t("assessment.form.size.placeholder")} /></SelectTrigger>
                   <SelectContent>{sizeOptions.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}</SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">What AI tools does your team use? <span className="text-muted-foreground/60">(optional)</span></label>
+                <label className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.tools")} <span className="text-muted-foreground/60">({t("assessment.form.optional")})</span></label>
                 <textarea name="aiTools" rows={3} className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none" />
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
               <button type="submit" disabled={sending} className="w-full py-3 rounded-md bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity disabled:opacity-50">
-                {sending ? "Sending..." : "Request AI Risk Assessment"}
+                {sending ? t("assessment.form.sending") : t("assessment.form.submit")}
               </button>
-              <p className="text-xs text-muted-foreground text-center">
-                No commitment. We'll contact you within 24 hours.
-              </p>
+              <p className="text-xs text-muted-foreground text-center">{t("assessment.form.disclaimer")}</p>
             </form>
           )}
         </div>
@@ -260,13 +250,11 @@ const AIRiskAssessmentPage = () => {
       <section className="py-20 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-2xl md:text-3xl font-bold mb-4">
-            Privaro is the governance layer for enterprise AI.
+            {t("assessment.cta.title")}
           </motion.h2>
-          <p className="text-muted-foreground mb-8">
-            Control what reaches your AI models. Audit every interaction. Deploy in minutes.
-          </p>
+          <p className="text-muted-foreground mb-8">{t("assessment.cta.subtitle")}</p>
           <a href="#assessment-form" className="inline-block px-8 py-3.5 rounded-md bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
-            Run AI Risk Assessment
+            {t("assessment.cta.button")}
           </a>
         </div>
       </section>
