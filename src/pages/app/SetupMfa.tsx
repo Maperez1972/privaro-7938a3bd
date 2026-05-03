@@ -1,46 +1,69 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { Shield, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Copy, Check } from "lucide-react";
-import logoPrivaro from "@/assets/logo-privaro.webp";
+import { supabase } from "@/integrations/supabase/client";
 
 const SetupMfa = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [factorId, setFactorId] = useState<string | null>(null);
-  const [qrCode, setQrCode] = useState<string>("");
-  const [secret, setSecret] = useState<string>("");
+  const [qrCode, setQrCode] = useState("");
+  const [secret, setSecret] = useState("");
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [enrolling, setEnrolling] = useState(true);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const enroll = async () => {
+    const prepare = async () => {
       try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { navigate("/auth"); return; }
+
+        // Step 1: call enforce-mfa?action=enroll to clear any stale unverified factors
+        // This bypasses the AAL2 requirement that Supabase enforces client-side
+        await supabase.functions.invoke("enforce-mfa", {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+          body: null,
+        });
+
+        // The invoke above uses POST by default — use fetch directly for query param
+        await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/enforce-mfa?action=enroll`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+              "Content-Type": "application/json",
+              apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+            },
+          }
+        );
+
+        // Step 2: now enroll client-side (stale factors cleared)
         const { data, error } = await supabase.auth.mfa.enroll({
           factorType: "totp",
           friendlyName: `Privaro Admin ${Date.now()}`,
         });
+
         if (error) throw error;
+
         setFactorId(data.id);
         setQrCode(data.totp.qr_code);
         setSecret(data.totp.secret);
         localStorage.setItem("privaro_mfa_factor_id", data.id);
       } catch (err: any) {
-        toast({ title: "Error", description: err.message, variant: "destructive" });
+        toast({ title: "Error setting up MFA", description: err.message, variant: "destructive" });
       } finally {
         setEnrolling(false);
       }
     };
-    enroll();
-  }, [toast]);
+    prepare();
+  }, [navigate, toast]);
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,76 +86,67 @@ const SetupMfa = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
-        <div className="flex justify-center mb-8">
-          <img src={logoPrivaro} alt="Privaro" className="h-20" />
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-4">
+            <Shield className="w-7 h-7 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold text-foreground">Set up two-factor authentication</h1>
+          <p className="text-muted-foreground mt-2 text-sm">
+            Scan the QR code with your authenticator app (Google Authenticator, Authy, or similar).
+          </p>
+          <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400">
+            Required for admin accounts
+          </span>
         </div>
-        <Card className="border-border bg-card">
-          <CardHeader className="text-center">
-            <div className="flex justify-center mb-2">
-              <Shield className="w-8 h-8 text-primary" />
-            </div>
-            <CardTitle className="text-xl">Set up two-factor authentication</CardTitle>
-            <CardDescription>
-              Scan the QR code with your authenticator app (Google Authenticator, Authy, or similar).
-            </CardDescription>
-            <div className="flex justify-center pt-2">
-              <Badge variant="outline" className="border-amber-500/40 text-amber-400 bg-amber-500/10">
-                Required for admin accounts
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
-              <li>Scan QR</li>
-              <li>Enter code</li>
-              <li>Confirm</li>
-            </ol>
 
-            {enrolling ? (
-              <p className="text-center text-muted-foreground text-sm py-8">Generating secret...</p>
-            ) : (
-              <>
-                {qrCode && (
-                  <div className="flex justify-center bg-white p-4 rounded-md">
-                    <img src={qrCode} alt="MFA QR code" className="w-48 h-48" />
+        <div className="bg-card border border-border rounded-xl p-8">
+          <ol className="text-sm text-muted-foreground mb-6 space-y-1">
+            <li>1. Scan QR</li>
+            <li>2. Enter code</li>
+            <li>3. Confirm</li>
+          </ol>
+
+          {enrolling ? (
+            <p className="text-center text-muted-foreground text-sm py-8">Preparing MFA setup...</p>
+          ) : (
+            <form onSubmit={handleVerify} className="space-y-5">
+              {qrCode && (
+                <div className="flex justify-center">
+                  <img src={qrCode} alt="MFA QR Code" className="w-48 h-48 rounded-lg border border-border" />
+                </div>
+              )}
+              {secret && (
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground text-center">Or enter this code manually</p>
+                  <div className="flex items-center gap-2 bg-surface border border-border rounded-md px-3 py-2">
+                    <code className="flex-1 text-xs font-mono text-foreground break-all">{secret}</code>
+                    <button type="button" onClick={copySecret} className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors">
+                      {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                    </button>
                   </div>
-                )}
-                {secret && (
-                  <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground">Or enter this code manually</Label>
-                    <div className="flex gap-2">
-                      <Input readOnly value={secret} className="font-mono text-xs" />
-                      <Button type="button" variant="outline" size="icon" onClick={copySecret}>
-                        {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-                <form onSubmit={handleVerify} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="code">Verification code</Label>
-                    <Input
-                      id="code"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={6}
-                      autoFocus
-                      value={code}
-                      onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      placeholder="123456"
-                      className="text-center text-xl tracking-[0.5em] font-mono"
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading || code.length !== 6}>
-                    {loading ? "Verifying..." : "Confirm"}
-                  </Button>
-                </form>
-              </>
-            )}
-          </CardContent>
-        </Card>
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label>Verification code</Label>
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder="123456"
+                  className="text-center text-xl tracking-[0.5em] font-mono"
+                  autoFocus
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading || code.length !== 6}>
+                {loading ? "Verifying..." : "Confirm"}
+              </Button>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );
