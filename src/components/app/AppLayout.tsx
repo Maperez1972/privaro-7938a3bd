@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useMfaEnforcement } from "@/hooks/useMfaEnforcement";
 import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, ChevronDown, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logoPrivaro from "@/assets/logo-privaro.webp";
@@ -41,6 +42,7 @@ const AppLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, profile, roles, hasRole, signOut } = useAuth();
+  useMfaEnforcement();
   const isAdmin = hasRole("admin");
   const isDpo = hasRole("dpo");
   const showAdminSection = isAdmin || isDpo;
