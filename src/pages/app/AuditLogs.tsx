@@ -119,6 +119,15 @@ const AuditLogs = () => {
   const [exporting, setExporting] = useState(false);
   const [generatingReport, setGeneratingReport] = useState(false);
   const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
+  const [reportFrom, setReportFrom] = useState(() => {
+    const d = new Date();
+    d.setDate(1);
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString().slice(0, 10);
+  });
+  const [reportTo, setReportTo] = useState(() => {
+    return new Date().toISOString().slice(0, 10);
+  });
 
   const handleExport = async () => {
     if (!orgId) return;
@@ -204,6 +213,15 @@ const AuditLogs = () => {
         query = query.or(`entity_type.ilike.%${s}%,event_type.ilike.%${s}%,action_taken.ilike.%${s}%`);
       }
 
+      // Filter by selected period
+      const fromDate = new Date(reportFrom);
+      fromDate.setHours(0, 0, 0, 0);
+      const toDate = new Date(reportTo);
+      toDate.setHours(23, 59, 59, 999);
+      query = query
+        .gte("created_at", fromDate.toISOString())
+        .lte("created_at", toDate.toISOString());
+
       const { data: rows, error } = await query;
       if (error) throw error;
       if (!rows?.length) { toast.info("No logs for report"); return; }
@@ -215,7 +233,7 @@ const AuditLogs = () => {
         dpoEmail: org?.gdpr_dpo_email || "",
       });
 
-      downloadHtml(html, `privaro-dpo-report-${new Date().toISOString().slice(0, 10)}.html`);
+      downloadHtml(html, `privaro-dpo-report-${reportFrom}-to-${reportTo}.html`);
       toast.success("DPO Report downloaded — open in browser to print as PDF");
     } catch {
       toast.error("Failed to generate report");
@@ -242,11 +260,32 @@ const AuditLogs = () => {
         </TabsList>
 
         <TabsContent value="logs" className="space-y-4">
-          <div className="flex justify-end gap-2">
-            <Button size="sm" variant="outline" className="gap-2" onClick={handleDpoReport} disabled={generatingReport}>
-              {generatingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-              DPO Report
-            </Button>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <div className="flex items-center gap-2">
+              <Input
+                type="date"
+                value={reportFrom}
+                onChange={(e) => setReportFrom(e.target.value)}
+                className="w-36 text-xs"
+              />
+              <span className="text-muted-foreground text-xs">→</span>
+              <Input
+                type="date"
+                value={reportTo}
+                onChange={(e) => setReportTo(e.target.value)}
+                className="w-36 text-xs"
+              />
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-2"
+                onClick={handleDpoReport}
+                disabled={generatingReport}
+              >
+                {generatingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                DPO Report
+              </Button>
+            </div>
             <Button size="sm" variant="outline" className="gap-2" onClick={handleExport} disabled={exporting}>
               {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               Export CSV
