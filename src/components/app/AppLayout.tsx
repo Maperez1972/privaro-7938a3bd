@@ -58,7 +58,10 @@ const AppLayout = () => {
   }, []);
 
   // Auto-redirect to onboarding if not completed
+  // Skip if user is in MFA flow (setup-mfa or verify-mfa take priority)
   useEffect(() => {
+    const mfaRoutes = ["/app/setup-mfa", "/app/verify-mfa"];
+    if (mfaRoutes.includes(location.pathname)) return;
     if (!onboardingDone && location.pathname !== "/app/onboarding") {
       navigate("/app/onboarding", { replace: true });
     }
