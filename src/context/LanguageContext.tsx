@@ -27,6 +27,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.usecases.health": "Healthcare",
     "nav.usecases.consulting": "Fintech & Finance",
     "nav.cta": "Request Demo",
+    "nav.assessment": "AI Risk Assessment",
     "hero.badge": "AI Governance Infrastructure",
     "hero.title1": "Control what your team",
     "hero.title2": "sends to AI",
