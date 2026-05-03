@@ -164,8 +164,10 @@ const Sandbox = () => {
   const enrichDetections = (dets: any[], sourceText: string): Detection[] =>
     dets.map((d: any) => ({
       ...d,
-      value: (d.start != null && d.end != null) ? sourceText.slice(d.start, d.end) : (d.token ?? "[protected]"),
-      category: ["iban", "credit_card"].includes(d.type) ? "financial" : d.type === "health_record" ? "special" : "personal",
+      // If value is missing (real proxy may omit it), recompute from source indices
+      value: d.value ?? ((d.start != null && d.end != null) ? sourceText.slice(d.start, d.end) : (d.token ?? "[protected]")),
+      // Preserve category from pii-engine; only fallback if missing
+      category: d.category ?? (["iban", "credit_card"].includes(d.type) ? "financial" : d.type === "health_record" ? "special" : "personal"),
     }));
 
   const simulateIbsCertification = async (logIds: string[]) => {

@@ -33,39 +33,8 @@ export const mockPolicyRules = [
   { id: "rule-006", entity_type: "phone_number", category: "personal", action: "tokenise", is_enabled: false, regulation_ref: "GDPR Art.5", priority: 30 },
 ];
 
-export const mockProxyDetect = (text: string) => {
-  const detections: Array<{ type: string; value: string; start: number; end: number; severity: string; category: string }> = [];
-  const patterns: Array<{ regex: RegExp; type: string; severity: string; category: string }> = [
-    { regex: /\b[A-Z][a-záéíóúñ]+ [A-Z][a-záéíóúñ]+\b/g, type: "full_name", severity: "medium", category: "personal" },
-    { regex: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, type: "email", severity: "medium", category: "personal" },
-    { regex: /\b[A-Z]{2}\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\b/g, type: "iban", severity: "critical", category: "financial" },
-    { regex: /\b\d{8}[A-Z]\b/g, type: "dni", severity: "critical", category: "personal" },
-    { regex: /\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b/g, type: "ssn", severity: "critical", category: "personal" },
-  ];
+import { detectPii, protectText } from "@/lib/pii-engine";
 
-  for (const p of patterns) {
-    let match;
-    while ((match = p.regex.exec(text)) !== null) {
-      detections.push({ type: p.type, value: match[0], start: match.index, end: match.index + match[0].length, severity: p.severity, category: p.category });
-    }
-  }
-  return detections;
-};
+export const mockProxyDetect = (text: string) => detectPii(text);
 
-export const mockProxyProtect = (text: string) => {
-  const detections = mockProxyDetect(text);
-  let protectedText = text;
-  const tokenMap: Record<string, string> = {};
-  const counters: Record<string, number> = {};
-
-  const sorted = [...detections].sort((a, b) => b.start - a.start);
-  for (const d of sorted) {
-    const prefix = d.type === "full_name" ? "NM" : d.type === "email" ? "EM" : d.type === "iban" ? "BK" : d.type === "dni" ? "ID" : d.type === "ssn" ? "SS" : "PII";
-    counters[prefix] = (counters[prefix] || 0) + 1;
-    const token = `[${prefix}-${String(counters[prefix]).padStart(4, "0")}]`;
-    tokenMap[token] = d.value;
-    protectedText = protectedText.slice(0, d.start) + token + protectedText.slice(d.end);
-  }
-
-  return { protectedText, detections, tokenMap, auditLogId: null, requestId: null };
-};
+export const mockProxyProtect = (text: string) => protectText(text);
