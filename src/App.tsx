@@ -40,6 +40,8 @@ const AdminEncryptionKeys = lazy(() => import("./pages/app/admin/AdminEncryption
 const AdminLeads = lazy(() => import("./pages/app/admin/AdminLeads"));
 const Onboarding = lazy(() => import("./pages/app/Onboarding"));
 const AgentRuns = lazy(() => import("./pages/app/AgentRuns"));
+const SetupMfa = lazy(() => import("./pages/app/SetupMfa"));
+const VerifyMfa = lazy(() => import("./pages/app/VerifyMfa"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1 } },
@@ -104,6 +106,8 @@ const App = () => (
                 <Route path="agent-runs" element={<AgentRuns />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="onboarding" element={<Onboarding />} />
+                <Route path="setup-mfa" element={<SetupMfa />} />
+                <Route path="verify-mfa" element={<VerifyMfa />} />
                 {/* Admin/DPO routes */}
                 <Route path="admin/audit-logs" element={<AdminDpoRoute><AuditLogs /></AdminDpoRoute>} />
                 <Route path="admin/leads" element={<AdminDpoRoute><AdminLeads /></AdminDpoRoute>} />
