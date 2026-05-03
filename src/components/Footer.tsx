@@ -22,6 +22,9 @@ const Footer = () => {
           <a href="/privacy" className={linkClass}>{t("footer.privacy")}</a>
           <a href="/terms" className={linkClass}>{t("footer.terms")}</a>
           <a href="/security" className={linkClass}>Security</a>
+          <a href="https://status.privaro.ai" target="_blank" rel="noopener noreferrer" className={linkClass}>
+            {t("footer.status")}
+          </a>
           <a href="mailto:contact@privaro.ai" className={linkClass}>{t("footer.contact")}</a>
         </div>
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
