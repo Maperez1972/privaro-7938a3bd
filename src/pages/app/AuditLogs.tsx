@@ -213,6 +213,15 @@ const AuditLogs = () => {
         query = query.or(`entity_type.ilike.%${s}%,event_type.ilike.%${s}%,action_taken.ilike.%${s}%`);
       }
 
+      // Filter by selected period
+      const fromDate = new Date(reportFrom);
+      fromDate.setHours(0, 0, 0, 0);
+      const toDate = new Date(reportTo);
+      toDate.setHours(23, 59, 59, 999);
+      query = query
+        .gte("created_at", fromDate.toISOString())
+        .lte("created_at", toDate.toISOString());
+
       const { data: rows, error } = await query;
       if (error) throw error;
       if (!rows?.length) { toast.info("No logs for report"); return; }
