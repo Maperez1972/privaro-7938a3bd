@@ -199,8 +199,34 @@ const Onboarding = () => {
     window.dispatchEvent(new Event("storage"));
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     markOnboardingDone();
+
+    // Trigger welcome email (fire and forget — non-fatal)
+    if (apiKey && orgId) {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          const lang = localStorage.getItem("privaro-lang") === "es" ? "es" : "en";
+          fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({
+              org_id: orgId,
+              api_key: apiKey,
+              pipeline_id: existingPipeline?.id ?? "",
+              lang,
+            }),
+          }).catch(() => {});
+        }
+      } catch {
+        // non-fatal
+      }
+    }
+
     navigate("/app/dashboard");
   };
 
