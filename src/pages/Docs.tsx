@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Copy, Check, ArrowRight, Terminal, Shield, Zap, BookOpen, ExternalLink } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/context/LanguageContext";
@@ -123,6 +124,7 @@ export default function Docs() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Seo title="Docs — Privaro API & SDK Reference" description="Quickstart, API reference and SDK guides. Integrate Privaro in less than an hour with Python or Node." path="/docs" />
       <Navbar />
 
       {/* Hero */}

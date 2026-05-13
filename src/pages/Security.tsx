@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Download, Mail } from "lucide-react";
@@ -113,6 +114,7 @@ const Security = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Seo title="Security & Compliance — Privaro" description="How Privaro protects sensitive data: encryption, audit trails, GDPR, EU AI Act, and SOC2-ready controls for enterprise AI." path="/security" />
       <Navbar />
 
       {/* HERO */}

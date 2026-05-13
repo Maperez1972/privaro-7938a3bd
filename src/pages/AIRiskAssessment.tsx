@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import Footer from "@/components/Footer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -71,6 +72,7 @@ const AIRiskAssessmentPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Seo title="Free AI Risk Assessment — Privaro" description="Get a free AI privacy risk assessment for your organization. Identify exposure across LLM workflows in minutes." path="/ai-risk-assessment" />
       <Navbar />
 
       {/* Hero */}

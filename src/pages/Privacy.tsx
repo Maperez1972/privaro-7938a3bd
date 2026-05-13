@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -6,6 +7,7 @@ const Privacy = () => {
   const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Seo title="Privacy Policy — Privaro" description="Privaro privacy policy. How we collect, process and protect personal data in line with GDPR." path="/privacy" />
       <Navbar />
       <main className="max-w-3xl mx-auto px-6 py-24">
         <h1 className="text-3xl font-bold mb-8">{t("privacy.title")}</h1>

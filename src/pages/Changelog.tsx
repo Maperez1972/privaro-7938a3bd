@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/context/LanguageContext";
 import { ArrowRight } from "lucide-react";
@@ -164,6 +165,7 @@ export default function Changelog() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Seo title="Changelog — Privaro Product Updates" description="Latest releases, features and improvements to the Privaro AI privacy platform." path="/changelog" />
       <Navbar />
 
       <section className="pt-32 pb-12 px-6">

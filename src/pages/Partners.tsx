@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -88,6 +89,7 @@ const Partners = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Seo title="Partner Program — Privaro for Resellers & Integrators" description="Join the Privaro partner program. Reseller, integrator and consultancy tiers for AI privacy and compliance." path="/partners" />
       <Navbar />
 
       {/* Hero */}

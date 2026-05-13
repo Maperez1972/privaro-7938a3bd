@@ -1,5 +1,6 @@
 import { useLanguage } from "@/context/LanguageContext";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import Footer from "@/components/Footer";
 import { Shield, FileText, Scale, Lock, CheckCircle2, XCircle, ArrowRight, Search, Eye, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ const LegalPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Seo title="AI Privacy for Legal Teams — Privaro" description="Protect privileged client data when law firms use AI. Tokenize names, contracts and case data before they reach the LLM." path="/use-cases/legal" />
       <Navbar />
 
       {/* HERO */}
