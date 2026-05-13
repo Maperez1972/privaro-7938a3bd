@@ -5,6 +5,7 @@ import {
   Link2, Zap, Clock, ChevronRight, ArrowRight, Lock, Eye, EyeOff,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -242,6 +243,7 @@ export default function Demo() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Seo title="Live Demo — See Privaro Detect PII in Real Time" description="Try Privaro live. Paste a prompt and watch our engine detect, tokenize and anonymize sensitive data before it hits the LLM." path="/demo" />
       <Navbar />
 
       {/* Hero */}

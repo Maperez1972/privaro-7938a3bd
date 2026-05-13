@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Minus, ChevronDown, ChevronUp, Zap, Shield, Building2, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -284,6 +285,20 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Seo
+        title="Pricing — Privaro AI Privacy Proxy"
+        description="Plans for teams adopting AI safely. Starter, Pro and Enterprise tiers with PII detection, BYOK and EU-hosted infrastructure."
+        path="/pricing"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: c.faqs.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }}
+      />
       <Navbar />
 
       {/* Hero */}

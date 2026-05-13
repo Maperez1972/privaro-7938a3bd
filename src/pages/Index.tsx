@@ -1,6 +1,7 @@
 import { useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import HeroSection from "@/components/HeroSection";
 
 const UrgencySection = lazy(() => import("@/components/UrgencySection"));
@@ -32,6 +33,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Seo title="Privaro — Privacy Infrastructure for Enterprise AI" description="Detect and anonymize sensitive data before it reaches AI models. GDPR & EU AI Act ready proxy for OpenAI, Anthropic, and more." path="/" />
       <Navbar />
       <HeroSection />
       <Suspense fallback={null}>

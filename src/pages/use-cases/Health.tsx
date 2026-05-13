@@ -1,5 +1,6 @@
 import { useLanguage } from "@/context/LanguageContext";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import Footer from "@/components/Footer";
 import { Shield, Heart, Hospital, Lock, CheckCircle2, XCircle, ArrowRight, Search, Eye, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ const HealthPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Seo title="AI Privacy for Healthcare — Privaro" description="Anonymize PHI and patient identifiers before they reach AI models. HIPAA and GDPR-aware proxy for healthcare." path="/use-cases/health" />
       <Navbar />
 
       {/* HERO */}

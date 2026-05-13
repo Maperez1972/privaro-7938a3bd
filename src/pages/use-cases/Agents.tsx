@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import Footer from "@/components/Footer";
 import { Bot, Shield, Zap, Code2, X, Check, ArrowRight, Rocket, Handshake, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,7 @@ const AgentsPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Seo title="AI Privacy for Autonomous Agents — Privaro" description="Govern data flowing between AI agents. Apply policies, audit decisions and prevent leaks across multi-agent workflows." path="/use-cases/agents" />
       <Navbar />
 
       {/* Hero */}

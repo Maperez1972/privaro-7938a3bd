@@ -1,5 +1,6 @@
 import { useLanguage } from "@/context/LanguageContext";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import Footer from "@/components/Footer";
 import { CreditCard, BarChart3, ShieldCheck, Fingerprint, CheckCircle2, XCircle, ArrowRight, Search, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ const FintechPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Seo title="AI Privacy for Fintech & Banking — Privaro" description="Detect and mask PCI, IBAN and customer data before AI calls. Compliance-ready proxy for fintech and banking teams." path="/use-cases/fintech" />
       <Navbar />
 
       {/* HERO */}
