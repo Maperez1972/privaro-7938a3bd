@@ -1,0 +1,26 @@
+# Privaro
+
+> Privacy infrastructure for enterprise AI. Privaro is a proxy that detects and anonymizes sensitive data (PII, financial, health, contracts) before prompts reach LLMs like OpenAI, Anthropic and Gemini, with full audit trails for GDPR and the EU AI Act.
+
+## Pages
+
+- [Home](/): Overview of the Privaro AI privacy proxy.
+- [Pricing](/pricing): Starter, Pro and Enterprise plans.
+- [Security](/security): Encryption, audit, GDPR and EU AI Act controls.
+- [Live Demo](/demo): Interactive PII detection and tokenization demo.
+- [Docs](/docs): Quickstart, API reference and SDK guides.
+- [Changelog](/changelog): Product updates and releases.
+- [Partners](/partners): Reseller, integrator and consultancy program.
+- [AI Risk Assessment](/ai-risk-assessment): Free AI privacy risk assessment.
+
+## Use Cases
+
+- [Legal](/use-cases/legal): AI privacy for law firms and in-house legal.
+- [Fintech](/use-cases/fintech): PCI, IBAN and customer data protection for financial services.
+- [Healthcare](/use-cases/health): PHI anonymization for healthcare AI.
+- [AI Agents](/use-cases/agents): Governance for autonomous and multi-agent systems.
+
+## Optional
+
+- [Privacy Policy](/privacy)
+- [Terms of Service](/terms)
