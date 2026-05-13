@@ -285,7 +285,20 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="Pricing — Privaro AI Privacy Proxy" description="Plans for teams adopting AI safely. Starter, Pro and Enterprise tiers with PII detection, BYOK and EU-hosted infrastructure." path="/pricing" />
+      <Seo
+        title="Pricing — Privaro AI Privacy Proxy"
+        description="Plans for teams adopting AI safely. Starter, Pro and Enterprise tiers with PII detection, BYOK and EU-hosted infrastructure."
+        path="/pricing"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: c.faqs.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }}
+      />
       <Navbar />
 
       {/* Hero */}
