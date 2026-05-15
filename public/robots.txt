@@ -12,5 +12,10 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /auth
+Disallow: /email-confirmed
+Disallow: /reset-password
+Disallow: /app
+Disallow: /chat
 
 Sitemap: https://privaro.ai/sitemap.xml
