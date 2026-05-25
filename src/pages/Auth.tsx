@@ -10,6 +10,7 @@ import { Shield, Eye, EyeOff } from "lucide-react";
 import logoPrivaro from "@/assets/logo-privaro.webp";
 import { useLanguage } from "@/context/LanguageContext";
 import type { Language } from "@/context/LanguageContext";
+import Seo from "@/components/Seo";
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
