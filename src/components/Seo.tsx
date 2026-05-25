@@ -6,11 +6,12 @@ interface SeoProps {
   path: string;
   ogType?: "website" | "article";
   jsonLd?: object | object[];
+  noindex?: boolean;
 }
 
 const SITE = "https://privaro.ai";
 
-export default function Seo({ title, description, path, ogType = "website", jsonLd }: SeoProps) {
+export default function Seo({ title, description, path, ogType = "website", jsonLd, noindex = false }: SeoProps) {
   const url = `${SITE}${path}`;
   const ldArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   return (
@@ -24,6 +25,7 @@ export default function Seo({ title, description, path, ogType = "website", json
       <meta property="og:type" content={ogType} />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
+      {noindex && <meta name="robots" content="noindex, nofollow" />}
       {ldArray.map((ld, i) => (
         <script key={i} type="application/ld+json">{JSON.stringify(ld)}</script>
       ))}
