@@ -63,6 +63,7 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Seo title="Reset password — Privaro" description="Set a new password for your Privaro account to regain access to your AI governance workspace." path="/reset-password" noindex />
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <img src={logoPrivaro} alt="Privaro" className="h-20" />
