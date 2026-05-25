@@ -5,6 +5,31 @@ import { useMfaEnforcement } from "@/hooks/useMfaEnforcement";
 import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, ChevronDown, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logoPrivaro from "@/assets/logo-privaro.webp";
+import Seo from "@/components/Seo";
+
+const ROUTE_META: Record<string, { title: string; description: string }> = {
+  "/app/chat": { title: "Conversations — Privaro", description: "Run AI conversations through Privaro's privacy proxy with detection, tokenization, and audit logging." },
+  "/app/dashboard": { title: "Dashboard — Privaro", description: "Monitor AI privacy posture: requests, detections, policy actions, and risk score across your organization." },
+  "/app/pipelines": { title: "AI Pipelines — Privaro", description: "Configure AI pipelines, route requests to providers, and attach detection and policy controls." },
+  "/app/sandbox": { title: "PII Sandbox — Privaro", description: "Test PII detection and policy actions on sample prompts before deploying to production pipelines." },
+  "/app/policies": { title: "Policy Engine — Privaro", description: "Define policies that tokenize, anonymize, or block sensitive data before it reaches AI models." },
+  "/app/agent-runs": { title: "Agent Runs — Privaro", description: "Inspect AI agent runs, verify governance evidence, and review per-step policy decisions." },
+  "/app/settings": { title: "Settings — Privaro", description: "Manage your Privaro account, language, profile, and workspace preferences." },
+  "/app/onboarding": { title: "Onboarding — Privaro", description: "Complete your Privaro onboarding to start governing enterprise AI." },
+  "/app/setup-mfa": { title: "Set up MFA — Privaro", description: "Enable multi-factor authentication on your Privaro account." },
+  "/app/verify-mfa": { title: "Verify MFA — Privaro", description: "Verify your multi-factor authentication code to continue." },
+  "/app/admin/leads": { title: "Leads — Privaro Admin", description: "Review demo and tech-brief leads captured from the Privaro site." },
+  "/app/admin/audit-logs": { title: "Audit Logs — Privaro Admin", description: "Review the full audit log of AI requests, detections, policy decisions, and token access." },
+  "/app/admin/encryption-keys": { title: "Encryption Keys — Privaro Admin", description: "Manage bring-your-own encryption keys (BYOK) used to protect the token vault." },
+  "/app/admin/providers": { title: "LLM Providers — Privaro Admin", description: "Configure LLM provider connections and credentials available to your organization." },
+  "/app/admin/users": { title: "Users — Privaro Admin", description: "Invite teammates, manage roles, and control access to the Privaro workspace." },
+  "/app/admin/vault": { title: "Tokens Vault — Privaro Admin", description: "Inspect tokenized values stored in the vault and audit controlled reveal actions." },
+  "/app/admin/policy-presets": { title: "Policy Presets — Privaro Admin", description: "Manage reusable policy presets that can be applied across pipelines." },
+  "/app/admin/api-keys": { title: "API Keys — Privaro Admin", description: "Issue and rotate API keys for programmatic access to the Privaro proxy." },
+  "/app/admin/billing": { title: "Billing — Privaro Admin", description: "Manage your Privaro subscription, invoices, and usage." },
+  "/app/admin/settings": { title: "Admin Settings — Privaro Admin", description: "Configure organization-wide Privaro settings, data retention, and integrations." },
+};
+const DEFAULT_META = { title: "Privaro workspace", description: "Privaro enterprise AI privacy workspace." };
 
 const navItems = [
   { label: "Conversations", icon: MessageSquare, href: "/app/chat" },
@@ -108,6 +133,12 @@ const AppLayout = () => {
 
   return (
     <div className="h-screen bg-background flex overflow-hidden">
+      <Seo
+        title={(ROUTE_META[location.pathname] ?? DEFAULT_META).title}
+        description={(ROUTE_META[location.pathname] ?? DEFAULT_META).description}
+        path={location.pathname}
+        noindex
+      />
       <aside className={cn("min-h-0 flex flex-col border-r border-border bg-sidebar transition-all duration-200", collapsed ? "w-16" : "w-60")}>
         <div className="h-16 flex items-center px-3 border-b border-border">
           {!collapsed && <img src={logoPrivaro} alt="Privaro" className="h-12" />}

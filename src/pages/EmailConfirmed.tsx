@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import logoPrivaro from "@/assets/logo-privaro.webp";
 import { useLanguage } from "@/context/LanguageContext";
+import Seo from "@/components/Seo";
 
 const EmailConfirmed = () => {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ const EmailConfirmed = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Seo title="Email confirmed — Privaro" description="Your email has been confirmed. Redirecting to sign in to your Privaro workspace." path="/email-confirmed" noindex />
       <div className="w-full max-w-md text-center">
         <div className="flex justify-center mb-8">
           <img src={logoPrivaro} alt="Privaro" className="h-20" />

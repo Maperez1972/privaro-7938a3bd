@@ -10,6 +10,7 @@ import { Shield, Eye, EyeOff } from "lucide-react";
 import logoPrivaro from "@/assets/logo-privaro.webp";
 import { useLanguage } from "@/context/LanguageContext";
 import type { Language } from "@/context/LanguageContext";
+import Seo from "@/components/Seo";
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -91,8 +92,15 @@ const Auth = () => {
     forgot: { title: t("auth.forgot"), desc: t("auth.forgot.desc") },
   };
 
+  const seoCopy = {
+    login: { title: "Sign in — Privaro", desc: "Sign in to your Privaro account to manage AI privacy policies, pipelines, and audit logs." },
+    signup: { title: "Create your Privaro account", desc: "Start governing enterprise AI with Privaro — detection, tokenization, and audit-ready logs." },
+    forgot: { title: "Reset your Privaro password", desc: "Request a password reset link for your Privaro account." },
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
+      <Seo title={seoCopy[mode].title} description={seoCopy[mode].desc} path="/auth" noindex />
       <button
         onClick={() => setLang(lang === "en" ? "es" : "en")}
         className="absolute top-4 right-4 px-3 py-1.5 text-sm font-medium rounded-md border border-border bg-card text-foreground hover:bg-accent transition-colors"
