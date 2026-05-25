@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import logoPrivaro from "@/assets/logo-privaro.webp";
 import { useLanguage } from "@/context/LanguageContext";
+import Seo from "@/components/Seo";
 
 const EmailConfirmed = () => {
   const navigate = useNavigate();
