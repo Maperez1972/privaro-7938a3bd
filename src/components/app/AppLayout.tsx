@@ -133,6 +133,12 @@ const AppLayout = () => {
 
   return (
     <div className="h-screen bg-background flex overflow-hidden">
+      <Seo
+        title={(ROUTE_META[location.pathname] ?? DEFAULT_META).title}
+        description={(ROUTE_META[location.pathname] ?? DEFAULT_META).description}
+        path={location.pathname}
+        noindex
+      />
       <aside className={cn("min-h-0 flex flex-col border-r border-border bg-sidebar transition-all duration-200", collapsed ? "w-16" : "w-60")}>
         <div className="h-16 flex items-center px-3 border-b border-border">
           {!collapsed && <img src={logoPrivaro} alt="Privaro" className="h-12" />}
