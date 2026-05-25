@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Shield, Eye, EyeOff, AlertTriangle } from "lucide-react";
 import logoPrivaro from "@/assets/logo-privaro.webp";
 import { useLanguage } from "@/context/LanguageContext";
+import Seo from "@/components/Seo";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
