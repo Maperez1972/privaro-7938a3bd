@@ -1,14 +1,34 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /auth
+Disallow: /email-confirmed
+Disallow: /reset-password
+Disallow: /app
+Disallow: /chat
 
 User-agent: Bingbot
 Allow: /
+Disallow: /auth
+Disallow: /email-confirmed
+Disallow: /reset-password
+Disallow: /app
+Disallow: /chat
 
 User-agent: Twitterbot
 Allow: /
+Disallow: /auth
+Disallow: /email-confirmed
+Disallow: /reset-password
+Disallow: /app
+Disallow: /chat
 
 User-agent: facebookexternalhit
 Allow: /
+Disallow: /auth
+Disallow: /email-confirmed
+Disallow: /reset-password
+Disallow: /app
+Disallow: /chat
 
 User-agent: *
 Allow: /
