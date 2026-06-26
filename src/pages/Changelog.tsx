@@ -26,7 +26,24 @@ interface Entry {
 
 const ENTRIES: Entry[] = [
   {
-    date: "2025-05-01",
+    date: "2026-05-01",
+    versionKey: "changelog.v09.version",
+    titleKey: "changelog.v09.title",
+    descKey: "changelog.v09.desc",
+    tags: ["feature", "fix", "security"],
+    itemKeys: [
+      "changelog.v09.i1",
+      "changelog.v09.i2",
+      "changelog.v09.i3",
+      "changelog.v09.i4",
+      "changelog.v09.i5",
+      "changelog.v09.i6",
+      "changelog.v09.i7",
+      "changelog.v09.i8",
+    ],
+  },
+  {
+    date: "2026-05-01",
     versionKey: "changelog.v08.version",
     titleKey: "changelog.v08.title",
     descKey: "changelog.v08.desc",
@@ -39,7 +56,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    date: "2025-04-15",
+    date: "2026-04-01",
     versionKey: "changelog.v07.version",
     titleKey: "changelog.v07.title",
     descKey: "changelog.v07.desc",
@@ -52,7 +69,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    date: "2025-03-28",
+    date: "2026-03-01",
     versionKey: "changelog.v06.version",
     titleKey: "changelog.v06.title",
     descKey: "changelog.v06.desc",
@@ -64,7 +81,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    date: "2025-03-10",
+    date: "2026-03-01",
     versionKey: "changelog.v05.version",
     titleKey: "changelog.v05.title",
     descKey: "changelog.v05.desc",
@@ -77,7 +94,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    date: "2025-02-20",
+    date: "2026-02-01",
     versionKey: "changelog.v04.version",
     titleKey: "changelog.v04.title",
     descKey: "changelog.v04.desc",
@@ -89,7 +106,7 @@ const ENTRIES: Entry[] = [
     ],
   },
   {
-    date: "2025-02-01",
+    date: "2026-02-01",
     versionKey: "changelog.v03.version",
     titleKey: "changelog.v03.title",
     descKey: "changelog.v03.desc",
