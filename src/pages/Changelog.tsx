@@ -123,7 +123,7 @@ function EntryCard({ entry, index }: { entry: Entry; index: number }) {
   const { t, lang } = useLanguage();
 
   const dateStr = new Intl.DateTimeFormat(lang === "es" ? "es-ES" : "en-GB", {
-    year: "numeric", month: "long", day: "numeric",
+    year: "numeric", month: "long",
   }).format(new Date(entry.date));
 
   return (
