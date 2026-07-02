@@ -155,6 +155,17 @@ const AppLayout = () => {
           <nav ref={navRef} className="h-full overflow-y-auto py-4 px-2 space-y-1">
             {navItems.map((item) => renderNavItem(item))}
             {!onboardingDone && renderNavItem(onboardingItem)}
+            {isPartner && (
+              <>
+                <div className="my-3 border-t border-border" />
+                {!collapsed && (
+                  <div className="px-3 py-1">
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Partner</span>
+                  </div>
+                )}
+                {renderNavItem({ label: "Mis clientes", icon: Building2, href: "/app/partner/clients" })}
+              </>
+            )}
             {showAdminSection && (
               <>
                 <div className="my-3 border-t border-border" />
