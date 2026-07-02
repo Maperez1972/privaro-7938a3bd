@@ -73,7 +73,8 @@ const AppLayout = () => {
   const isAdmin = hasRole("admin");
   const isDpo = hasRole("dpo");
   const showAdminSection = isAdmin || isDpo;
-  const { data: partnerData } = usePartnerData();
+  const canCheckPartnerSection = !!user && !["/app/setup-mfa", "/app/verify-mfa"].includes(location.pathname);
+  const { data: partnerData } = usePartnerData({ enabled: canCheckPartnerSection, suppressErrors: true });
   const isPartner = !!partnerData;
 
   const [onboardingDone, setOnboardingDone] = useState(
