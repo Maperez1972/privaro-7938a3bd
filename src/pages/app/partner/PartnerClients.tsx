@@ -83,23 +83,26 @@ const PartnerClients = () => {
     return <div className="p-8 text-muted-foreground">Cargando datos de partner...</div>;
   }
 
-  // Not a partner org — hide section entirely
+  // Not a partner org (or edge function unavailable) — show friendly empty state
   if (!data) {
-    if (isError) {
-      // Unexpected error (not the 403 case, which returns null)
-      return (
-        <div className="p-6">
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>No se pudo cargar</AlertTitle>
-            <AlertDescription>{error?.message || "Error inesperado."}</AlertDescription>
-          </Alert>
-        </div>
-      );
-    }
-    // 403 not_a_partner_organization → redirect out
-    navigate("/app", { replace: true });
-    return null;
+    return (
+      <div className="p-6">
+        <Seo title="Mis clientes — Privaro Partners" description="Gestiona los clientes finales de tu integración partner con Privaro." path="/app/partner/clients" noindex />
+        <Card className="p-8 text-center space-y-3">
+          <Building2 className="h-10 w-10 text-muted-foreground mx-auto" />
+          <h1 className="text-xl font-semibold">Sección solo para partners</h1>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            Esta organización no está marcada como partner. Los partners (ISVs que embeben Privaro en su producto) pueden dar de alta clientes finales y gestionar sus API keys desde aquí.
+          </p>
+          {isError && (
+            <p className="text-xs text-muted-foreground">
+              {error?.message ? `Detalle: ${error.message}` : null}
+            </p>
+          )}
+          <Button variant="outline" onClick={() => navigate("/app")}>Volver al dashboard</Button>
+        </Card>
+      </div>
+    );
   }
 
   const resetForm = () => {

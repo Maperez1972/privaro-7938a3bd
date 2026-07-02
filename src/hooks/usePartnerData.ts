@@ -37,7 +37,6 @@ export const usePartnerData = () =>
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke(FN, { method: "GET" });
       if (error) {
-        // Supabase edge invoke wraps non-2xx into error. Try to detect 403 not_a_partner_organization.
         const ctx: any = (error as any).context;
         let body: any = null;
         try {
@@ -47,8 +46,12 @@ export const usePartnerData = () =>
             try { body = JSON.parse(t); } catch { body = { error: t }; }
           }
         } catch { /* ignore */ }
+        // Expected 403 for non-partner orgs → hide section.
         if (body?.error === "not_a_partner_organization") return null;
-        throw new Error(body?.error || error.message);
+        // Any other error (network / function missing / unexpected) → degrade
+        // gracefully: hide the section instead of blocking the user with an error.
+        console.warn("[partner-sub-accounts] hidden:", body?.error || error.message);
+        return null;
       }
       return data as PartnerData;
     },
