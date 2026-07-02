@@ -39,6 +39,7 @@ export const usePartnerData = () =>
       if (error) {
         const ctx: any = (error as any).context;
         let body: any = null;
+        let status: number | undefined = ctx?.status;
         try {
           if (ctx && typeof ctx.json === "function") body = await ctx.json();
           else if (ctx && typeof ctx.text === "function") {
@@ -46,12 +47,13 @@ export const usePartnerData = () =>
             try { body = JSON.parse(t); } catch { body = { error: t }; }
           }
         } catch { /* ignore */ }
-        // Expected 403 for non-partner orgs → hide section.
-        if (body?.error === "not_a_partner_organization") return null;
-        // Any other error (network / function missing / unexpected) → degrade
-        // gracefully: hide the section instead of blocking the user with an error.
-        console.warn("[partner-sub-accounts] hidden:", body?.error || error.message);
-        return null;
+        // Expected 403 for non-partner orgs → hide section silently.
+        if (status === 403 || body?.error === "not_a_partner_organization") return null;
+        // Real backend failure — surface it so the page can show a clear message
+        // (and the sidebar hides the entry because data stays undefined).
+        const code = body?.error || error.message || "unknown_error";
+        console.error("[partner-sub-accounts] failed:", status, code);
+        throw new Error(code);
       }
       return data as PartnerData;
     },
