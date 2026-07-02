@@ -78,7 +78,7 @@ const readFunctionError = async (error: Error) => {
 
 export const usePartnerData = (options: PartnerDataOptions = {}) =>
   useQuery<PartnerData | null, Error>({
-    queryKey: ["partner-sub-accounts"],
+    queryKey: ["partner-sub-accounts", options.suppressErrors ? "optional" : "required"],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke(FN, { method: "GET" });
       if (error) {
