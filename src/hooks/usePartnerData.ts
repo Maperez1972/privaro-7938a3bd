@@ -31,32 +31,74 @@ export type NewSubAccountResult = {
 
 const FN = "partner-sub-accounts";
 
-export const usePartnerData = () =>
+type FunctionErrorContext = {
+  status?: number;
+  json?: () => Promise<unknown>;
+  text?: () => Promise<string>;
+};
+
+type FunctionErrorWithContext = Error & { context?: FunctionErrorContext };
+
+type PartnerDataOptions = {
+  enabled?: boolean;
+  suppressErrors?: boolean;
+};
+
+const normalizeErrorBody = (value: unknown): { error?: string } | null => {
+  if (!value) return null;
+  if (typeof value === "string") return { error: value };
+  if (typeof value === "object" && "error" in value) {
+    const errorValue = (value as { error?: unknown }).error;
+    return { error: typeof errorValue === "string" ? errorValue : String(errorValue ?? "unknown_error") };
+  }
+  return { error: String(value) };
+};
+
+const readFunctionError = async (error: Error) => {
+  const ctx = (error as FunctionErrorWithContext).context;
+  let body: { error?: string } | null = null;
+
+  try {
+    if (ctx && typeof ctx.json === "function") {
+      body = normalizeErrorBody(await ctx.json());
+    } else if (ctx && typeof ctx.text === "function") {
+      const text = await ctx.text();
+      try {
+        body = normalizeErrorBody(JSON.parse(text));
+      } catch {
+        body = normalizeErrorBody(text);
+      }
+    }
+  } catch {
+    body = null;
+  }
+
+  return { status: ctx?.status, body };
+};
+
+export const usePartnerData = (options: PartnerDataOptions = {}) =>
   useQuery<PartnerData | null, Error>({
     queryKey: ["partner-sub-accounts"],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke(FN, { method: "GET" });
       if (error) {
-        const ctx: any = (error as any).context;
-        let body: any = null;
-        let status: number | undefined = ctx?.status;
-        try {
-          if (ctx && typeof ctx.json === "function") body = await ctx.json();
-          else if (ctx && typeof ctx.text === "function") {
-            const t = await ctx.text();
-            try { body = JSON.parse(t); } catch { body = { error: t }; }
-          }
-        } catch { /* ignore */ }
+        const { status, body } = await readFunctionError(error);
         // Expected 403 for non-partner orgs → hide section silently.
         if (status === 403 || body?.error === "not_a_partner_organization") return null;
-        // Real backend failure — surface it so the page can show a clear message
-        // (and the sidebar hides the entry because data stays undefined).
+
         const code = body?.error || error.message || "unknown_error";
-        console.error("[partner-sub-accounts] failed:", status, code);
+
+        if (options.suppressErrors) {
+          console.warn("[partner-sub-accounts] unavailable:", status, code);
+          return null;
+        }
+
+        // Real backend failure — surface it so the page can show a clear message.
         throw new Error(code);
       }
       return data as PartnerData;
     },
+    enabled: options.enabled ?? true,
     retry: false,
     staleTime: 60_000,
   });
