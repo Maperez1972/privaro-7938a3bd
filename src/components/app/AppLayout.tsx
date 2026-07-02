@@ -2,10 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useMfaEnforcement } from "@/hooks/useMfaEnforcement";
-import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, ChevronDown, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot, Lock } from "lucide-react";
+import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, ChevronDown, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot, Lock, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logoPrivaro from "@/assets/logo-privaro.webp";
 import Seo from "@/components/Seo";
+import { usePartnerData } from "@/hooks/usePartnerData";
 
 const ROUTE_META: Record<string, { title: string; description: string }> = {
   "/app/chat": { title: "Conversations — Privaro", description: "Run AI conversations through Privaro's privacy proxy with detection, tokenization, and audit logging." },
@@ -19,6 +20,7 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
   "/app/setup-mfa": { title: "Set up MFA — Privaro", description: "Enable multi-factor authentication on your Privaro account." },
   "/app/verify-mfa": { title: "Verify MFA — Privaro", description: "Verify your multi-factor authentication code to continue." },
   "/app/admin/leads": { title: "Leads — Privaro Admin", description: "Review demo and tech-brief leads captured from the Privaro site." },
+  "/app/partner/clients": { title: "Mis clientes — Privaro Partners", description: "Gestiona los clientes finales de tu integración partner con Privaro." },
   "/app/admin/audit-logs": { title: "Audit Logs — Privaro Admin", description: "Review the full audit log of AI requests, detections, policy decisions, and token access." },
   "/app/admin/encryption-keys": { title: "Encryption Keys — Privaro Admin", description: "Manage bring-your-own encryption keys (BYOK) used to protect the token vault." },
   "/app/admin/providers": { title: "LLM Providers — Privaro Admin", description: "Configure LLM provider connections and credentials available to your organization." },
@@ -71,6 +73,8 @@ const AppLayout = () => {
   const isAdmin = hasRole("admin");
   const isDpo = hasRole("dpo");
   const showAdminSection = isAdmin || isDpo;
+  const { data: partnerData } = usePartnerData();
+  const isPartner = !!partnerData;
 
   const [onboardingDone, setOnboardingDone] = useState(
     () => localStorage.getItem("privaro-onboarding-done") === "true"
