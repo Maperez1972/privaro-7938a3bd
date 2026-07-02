@@ -111,7 +111,7 @@ const COPY = {
         features: [
           "Requests ilimitadas",
           "White-label / embedded en tu producto",
-          "Revenue share para ISVs — 20–30%",
+          "Tarifa fija basada en volumen (estándar) — revenue share disponible para ISVs en fase temprana",
           "Instancia dedicada en tu VPC",
           "ISMS ISO 27001:2022 docs incluidos",
           "Soporte Slack dedicado",
@@ -225,7 +225,7 @@ const COPY = {
         features: [
           "Unlimited requests",
           "White-label / embedded in your product",
-          "Revenue share for ISVs — 20–30%",
+          "Volume-based fixed fee (standard) — revenue share available for early-stage ISVs",
           "Dedicated instance in your VPC",
           "ISMS ISO 27001:2022 docs included",
           "Dedicated Slack support",
