@@ -166,6 +166,8 @@ const AppLayout = () => {
                 {renderNavItem({ label: "Mis clientes", icon: Building2, href: "/app/partner/clients" })}
               </>
             )}
+            {/* Admin fallback: always give admins access to the partner clients view */}
+            {!isPartner && isAdmin && renderNavItem({ label: "Partner clients", icon: Building2, href: "/app/partner/clients" }, true)}
             {showAdminSection && (
               <>
                 <div className="my-3 border-t border-border" />
