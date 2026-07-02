@@ -112,11 +112,7 @@ export const useCreateSubAccount = () => {
         body: input,
       });
       if (error) {
-        const ctx: any = (error as any).context;
-        let body: any = null;
-        try {
-          if (ctx && typeof ctx.json === "function") body = await ctx.json();
-        } catch { /* ignore */ }
+        const { body } = await readFunctionError(error);
         throw new Error(body?.error || error.message || "Failed to create client");
       }
       return data as NewSubAccountResult;
