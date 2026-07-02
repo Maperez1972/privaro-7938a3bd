@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useMfaEnforcement } from "@/hooks/useMfaEnforcement";
-import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, ChevronDown, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot, Lock, Building2 } from "lucide-react";
+import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, ChevronDown, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot, Lock, Building2, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logoPrivaro from "@/assets/logo-privaro.webp";
 import Seo from "@/components/Seo";
@@ -120,7 +120,7 @@ const AppLayout = () => {
     };
   }, [collapsed, onboardingDone, showAdminSection, isAdmin, location.pathname]);
 
-  const renderNavItem = (item: { label: string; icon: any; href: string }, showBadge?: boolean) => {
+  const renderNavItem = (item: { label: string; icon: LucideIcon; href: string }, showBadge?: boolean) => {
     const isActive = item.href === "/app" ? location.pathname === "/app" : location.pathname.startsWith(item.href);
     const Icon = item.icon;
     return (
