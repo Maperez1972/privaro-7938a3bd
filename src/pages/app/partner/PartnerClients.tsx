@@ -83,7 +83,26 @@ const PartnerClients = () => {
     return <div className="p-8 text-muted-foreground">Cargando datos de partner...</div>;
   }
 
-  // Not a partner org (or edge function unavailable) — show friendly empty state
+  if (isError) {
+    return (
+      <div className="p-6">
+        <Seo title="Mis clientes — Privaro Partners" description="Gestiona los clientes finales de tu integración partner con Privaro." path="/app/partner/clients" noindex />
+        <Card className="p-8 text-center space-y-3">
+          <AlertTriangle className="h-10 w-10 text-destructive mx-auto" />
+          <h1 className="text-xl font-semibold">No se pudo cargar</h1>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            No se han podido cargar los datos de facturación del partner. Revisa que esta organización tenga configuración de billing activa e inténtalo de nuevo.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {error?.message ? `Detalle: ${error.message}` : null}
+          </p>
+          <Button variant="outline" onClick={() => navigate("/app")}>Volver al dashboard</Button>
+        </Card>
+      </div>
+    );
+  }
+
+  // Not a partner org — show friendly empty state
   if (!data) {
     return (
       <div className="p-6">
@@ -94,11 +113,6 @@ const PartnerClients = () => {
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
             Esta organización no está marcada como partner. Los partners (ISVs que embeben Privaro en su producto) pueden dar de alta clientes finales y gestionar sus API keys desde aquí.
           </p>
-          {isError && (
-            <p className="text-xs text-muted-foreground">
-              {error?.message ? `Detalle: ${error.message}` : null}
-            </p>
-          )}
           <Button variant="outline" onClick={() => navigate("/app")}>Volver al dashboard</Button>
         </Card>
       </div>
@@ -127,8 +141,8 @@ const PartnerClients = () => {
       setDialogOpen(false);
       resetForm();
       setCreated(result);
-    } catch (err: any) {
-      setFormError(err?.message || "No se pudo crear el cliente.");
+    } catch (err: unknown) {
+      setFormError(err instanceof Error ? err.message : "No se pudo crear el cliente.");
     }
   };
 
