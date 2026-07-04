@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "privaro-mcp",
+      "version": "0.1.0",
+      "title": "Privaro"
+    },
+    "tools": [
+      {
+        "name": "detect_pii",
+        "title": "Detect PII in text",
+        "description": "Scan a block of text with Privaro's PII detection engine. Returns detected entities (names, emails, IBAN, DNI, phone, SSN, credit cards, IPs, session IDs, policy numbers) and an optional tokenized/protected version of the text.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Raw text to scan for sensitive data."
+            },
+            "protect": {
+              "type": "boolean",
+              "default": false,
+              "description": "If true, also return the text with detected entities replaced by Privaro tokens."
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "describe_privaro",
+        "title": "About Privaro",
+        "description": "Return a structured overview of the Privaro platform: what it does, who it's for, its core components, and useful URLs.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
