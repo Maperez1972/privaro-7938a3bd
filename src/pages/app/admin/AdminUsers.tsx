@@ -68,7 +68,7 @@ const AdminUsers = () => {
     mutationFn: async ({ userId, newRole }: { userId: string; newRole: string }) => {
       // Delete existing role and insert new one
       await supabase.from("user_roles").delete().eq("user_id", userId);
-      const { error } = await supabase.from("user_roles").insert({
+      const { error } = await (supabase as any).from("user_roles").insert({
         user_id: userId,
         org_id: orgId!,
         role: newRole as "admin" | "dpo" | "developer" | "viewer",
