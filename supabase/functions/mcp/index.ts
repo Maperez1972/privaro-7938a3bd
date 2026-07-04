@@ -272,8 +272,78 @@ var detect_pii_default = defineTool({
   }
 });
 
-// src/lib/mcp/tools/describe-privaro.ts
+// src/lib/mcp/tools/protect-text.ts
 import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z2 } from "npm:zod@^3.25.76";
+var protect_text_default = defineTool2({
+  name: "protect_text",
+  title: "Tokenize sensitive data in text",
+  description: "Replace every detected sensitive entity in a block of text with a Privaro token (e.g. [NM-0001], [EM-0001]). Returns the protected text, the token \u2192 original value map, detections, and processing time. Use this to sanitize prompts before sending them to an LLM.",
+  inputSchema: {
+    text: z2.string().min(1).describe("Raw text to sanitize.")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: ({ text }) => {
+    const r = protectText(text);
+    return {
+      content: [{ type: "text", text: r.protectedText }],
+      structuredContent: {
+        protectedText: r.protectedText,
+        originalText: r.originalText,
+        detections: r.detections,
+        tokenMap: r.tokenMap,
+        processingMs: r.processingMs
+      }
+    };
+  }
+});
+
+// src/lib/mcp/tools/risk-score.ts
+import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z3 } from "npm:zod@^3.25.76";
+var SEVERITY_WEIGHT = {
+  critical: 40,
+  high: 20,
+  medium: 10,
+  low: 3
+};
+var risk_score_default = defineTool3({
+  name: "assess_risk",
+  title: "Assess privacy risk of text",
+  description: "Score the privacy/compliance risk of a block of text based on detected sensitive entities. Returns a 0\u2013100 risk score, a risk level (none/low/medium/high/critical), and a breakdown by severity and category.",
+  inputSchema: {
+    text: z3.string().min(1).describe("Text to assess.")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: ({ text }) => {
+    const detections = detectPii(text);
+    let score = 0;
+    const bySeverity = {};
+    const byCategory = {};
+    for (const d of detections) {
+      score += SEVERITY_WEIGHT[d.severity] ?? 5;
+      bySeverity[d.severity] = (bySeverity[d.severity] ?? 0) + 1;
+      byCategory[d.category] = (byCategory[d.category] ?? 0) + 1;
+    }
+    score = Math.min(100, score);
+    const level = score === 0 ? "none" : score < 15 ? "low" : score < 40 ? "medium" : score < 70 ? "high" : "critical";
+    const summary = {
+      score,
+      level,
+      totalDetections: detections.length,
+      bySeverity,
+      byCategory,
+      recommendation: level === "none" ? "Safe to send to an LLM without transformation." : level === "low" ? "Consider tokenizing before sending to third-party LLMs." : level === "medium" ? "Tokenize sensitive entities and log the interaction." : "Tokenize or block. Do not send raw text to external providers."
+    };
+    return {
+      content: [{ type: "text", text: JSON.stringify(summary, null, 2) }],
+      structuredContent: summary
+    };
+  }
+});
+
+// src/lib/mcp/tools/describe-privaro.ts
+import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.20.0";
 var OVERVIEW = {
   product: "Privaro",
   tagline: "AI privacy governance infrastructure for regulated enterprises.",
@@ -298,7 +368,7 @@ var OVERVIEW = {
     docs: "https://privaro.ai/docs"
   }
 };
-var describe_privaro_default = defineTool2({
+var describe_privaro_default = defineTool4({
   name: "describe_privaro",
   title: "About Privaro",
   description: "Return a structured overview of the Privaro platform: what it does, who it's for, its core components, and useful URLs.",
@@ -310,13 +380,324 @@ var describe_privaro_default = defineTool2({
   })
 });
 
+// src/lib/mcp/tools/list-regulations.ts
+import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.20.0";
+var REGULATIONS = [
+  {
+    id: "gdpr",
+    name: "GDPR",
+    region: "EU",
+    scope: "Personal data of EU residents",
+    privaro_support: ["detection", "tokenization", "audit trail", "DPO reports", "right to be forgotten via vault purge"]
+  },
+  {
+    id: "hipaa",
+    name: "HIPAA",
+    region: "US",
+    scope: "Protected Health Information (PHI)",
+    privaro_support: ["PHI detection", "de-identification", "access audit logs"]
+  },
+  {
+    id: "pci_dss",
+    name: "PCI-DSS",
+    region: "Global",
+    scope: "Cardholder data",
+    privaro_support: ["credit card detection", "tokenization", "vault encryption AES-256"]
+  },
+  {
+    id: "lopdgdd",
+    name: "LOPDGDD",
+    region: "ES",
+    scope: "Spanish data protection (DNI, NIE, IBAN)",
+    privaro_support: ["DNI/NIE detection", "IBAN detection", "AEPD-ready audit"]
+  },
+  {
+    id: "eu_ai_act",
+    name: "EU AI Act",
+    region: "EU",
+    scope: "High-risk AI system governance",
+    privaro_support: ["policy engine", "human-in-the-loop reveal", "immutable audit"]
+  },
+  {
+    id: "soc2",
+    name: "SOC 2",
+    region: "Global",
+    scope: "Security, availability, confidentiality",
+    privaro_support: ["access controls", "audit logs", "encryption at rest"]
+  }
+];
+var list_regulations_default = defineTool5({
+  name: "list_regulations",
+  title: "List supported regulations",
+  description: "Return the list of privacy and AI regulations Privaro helps organizations comply with (GDPR, HIPAA, PCI-DSS, LOPDGDD, EU AI Act, SOC 2), including region, scope, and how Privaro supports each.",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: () => ({
+    content: [{ type: "text", text: JSON.stringify(REGULATIONS, null, 2) }],
+    structuredContent: { regulations: REGULATIONS }
+  })
+});
+
+// src/lib/mcp/tools/list-providers.ts
+import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.20.0";
+var PROVIDERS = [
+  { id: "openai", name: "OpenAI", models: ["gpt-5", "gpt-5-mini", "gpt-4o", "gpt-4o-mini"], modes: ["chat", "embeddings", "images"] },
+  { id: "anthropic", name: "Anthropic", models: ["claude-sonnet-4.5", "claude-haiku-4.5", "claude-opus-4"], modes: ["chat"] },
+  { id: "google", name: "Google", models: ["gemini-3-flash", "gemini-3-pro", "gemini-2.5-flash", "gemini-2.5-pro"], modes: ["chat", "multimodal"] },
+  { id: "mistral", name: "Mistral", models: ["mistral-large", "mistral-medium"], modes: ["chat"] },
+  { id: "azure_openai", name: "Azure OpenAI", models: ["gpt-4o", "gpt-4-turbo"], modes: ["chat", "embeddings"] },
+  { id: "aws_bedrock", name: "AWS Bedrock", models: ["claude", "titan", "llama"], modes: ["chat", "embeddings"] }
+];
+var list_providers_default = defineTool6({
+  name: "list_ai_providers",
+  title: "List supported AI providers",
+  description: "Return the list of LLM providers and model families the Privaro AI Proxy can route traffic to, including supported modes (chat, embeddings, images).",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: () => ({
+    content: [{ type: "text", text: JSON.stringify(PROVIDERS, null, 2) }],
+    structuredContent: { providers: PROVIDERS }
+  })
+});
+
+// src/lib/mcp/tools/list-use-cases.ts
+import { defineTool as defineTool7 } from "npm:@lovable.dev/mcp-js@0.20.0";
+var USE_CASES = [
+  {
+    id: "legal",
+    industry: "Legal",
+    problem: "Law firms cannot use ChatGPT/Claude on client documents without leaking privileged information.",
+    privaro_solution: "Detect client names, case IDs, contract clauses; tokenize before sending to the LLM; reveal only for authorized lawyers with audit.",
+    url: "https://privaro.ai/use-cases/legal"
+  },
+  {
+    id: "fintech",
+    industry: "Fintech & Banking",
+    problem: "IBAN, credit card numbers, and customer PII cannot reach third-party LLMs under PCI-DSS/GDPR.",
+    privaro_solution: "Real-time detection + tokenization of financial identifiers, full audit trail for compliance teams.",
+    url: "https://privaro.ai/use-cases/fintech"
+  },
+  {
+    id: "health",
+    industry: "Healthcare",
+    problem: "Patient records contain PHI that cannot be exposed to public LLMs under HIPAA.",
+    privaro_solution: "PHI detection (diagnoses, patient IDs, insurance numbers), de-identification, controlled reveal.",
+    url: "https://privaro.ai/use-cases/health"
+  },
+  {
+    id: "agents",
+    industry: "AI Agents",
+    problem: "Autonomous agents exchange sensitive data across tools without governance.",
+    privaro_solution: "Policy engine sits between agents and providers; every interaction is inspected, tokenized, and logged.",
+    url: "https://privaro.ai/use-cases/agents"
+  }
+];
+var list_use_cases_default = defineTool7({
+  name: "list_use_cases",
+  title: "List Privaro use cases",
+  description: "Return the main industry use cases Privaro is designed for (Legal, Fintech, Healthcare, AI Agents), each with the problem, the Privaro solution, and a reference URL.",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: () => ({
+    content: [{ type: "text", text: JSON.stringify(USE_CASES, null, 2) }],
+    structuredContent: { useCases: USE_CASES }
+  })
+});
+
+// src/lib/mcp/tools/pricing.ts
+import { defineTool as defineTool8 } from "npm:@lovable.dev/mcp-js@0.20.0";
+var PRICING = {
+  currency: "EUR",
+  plans: [
+    {
+      id: "starter",
+      name: "Starter",
+      target: "Small teams evaluating AI governance",
+      price_month: 99,
+      included_requests: 1e4,
+      features: ["PII detection", "Tokenization", "Basic audit logs", "1 AI provider"]
+    },
+    {
+      id: "business",
+      name: "Business",
+      target: "Growing companies with compliance needs",
+      price_month: 499,
+      included_requests: 1e5,
+      features: ["All Starter features", "Multiple providers", "Custom policies", "Role-based access", "GDPR/HIPAA reports"]
+    },
+    {
+      id: "enterprise",
+      name: "Enterprise",
+      target: "Regulated enterprises (banks, health, legal)",
+      price_month: "custom",
+      included_requests: "unlimited",
+      features: [
+        "All Business features",
+        "BYOK encryption",
+        "Blockchain audit certification",
+        "SSO/SAML",
+        "Dedicated support",
+        "On-prem/private cloud"
+      ]
+    }
+  ],
+  addons: [
+    { id: "blockchain_audit", name: "Blockchain audit certification", price_month: 199 },
+    { id: "byok", name: "Bring Your Own Key (AES-256)", price_month: 149 }
+  ],
+  url: "https://privaro.ai/pricing"
+};
+var pricing_default = defineTool8({
+  name: "get_pricing",
+  title: "Get Privaro pricing",
+  description: "Return Privaro's public pricing plans (Starter, Business, Enterprise), included request volumes, key features, and available add-ons.",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: () => ({
+    content: [{ type: "text", text: JSON.stringify(PRICING, null, 2) }],
+    structuredContent: PRICING
+  })
+});
+
+// src/lib/mcp/tools/recommend-policy.ts
+import { defineTool as defineTool9 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z4 } from "npm:zod@^3.25.76";
+var ACTION_BY_SEVERITY = {
+  critical: "block",
+  high: "tokenize",
+  medium: "tokenize",
+  low: "allow"
+};
+var recommend_policy_default = defineTool9({
+  name: "recommend_policy",
+  title: "Recommend a Privaro policy for a text sample",
+  description: "Analyze a text sample and return a suggested Privaro policy: per detected entity type, the recommended action (allow / tokenize / anonymize / block), plus the recommended regulations to enable.",
+  inputSchema: {
+    text: z4.string().min(1).describe("Representative text sample from the workload."),
+    context: z4.enum(["internal", "external_llm", "public_agent"]).default("external_llm").describe("Where the sanitized text will be sent. External LLMs get stricter defaults.")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: ({ text, context }) => {
+    const detections = detectPii(text);
+    const perType = {};
+    for (const d of detections) {
+      const base = ACTION_BY_SEVERITY[d.severity] ?? "tokenize";
+      const action = context === "internal" && base !== "block" ? "allow" : base;
+      const existing = perType[d.type];
+      perType[d.type] = {
+        count: (existing?.count ?? 0) + 1,
+        severity: d.severity,
+        category: d.category,
+        action
+      };
+    }
+    const regulations = /* @__PURE__ */ new Set();
+    for (const d of detections) {
+      if (d.category === "financial") regulations.add("pci_dss");
+      if (d.category === "personal") {
+        regulations.add("gdpr");
+        if (d.type === "dni") regulations.add("lopdgdd");
+        if (d.type === "ssn") regulations.add("hipaa");
+      }
+    }
+    const summary = {
+      context,
+      totalDetections: detections.length,
+      policy: Object.entries(perType).map(([type, v]) => ({ entity_type: type, ...v })),
+      recommended_regulations: [...regulations]
+    };
+    return {
+      content: [{ type: "text", text: JSON.stringify(summary, null, 2) }],
+      structuredContent: summary
+    };
+  }
+});
+
+// src/lib/mcp/tools/explain-token.ts
+import { defineTool as defineTool10 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z5 } from "npm:zod@^3.25.76";
+var PREFIXES = {
+  NM: { type: "full_name", description: "Person full name" },
+  EM: { type: "email", description: "Email address" },
+  BK: { type: "iban", description: "IBAN / bank account" },
+  ID: { type: "dni", description: "Spanish DNI / NIE" },
+  PH: { type: "phone", description: "Phone number" },
+  SS: { type: "ssn", description: "US Social Security Number" },
+  CC: { type: "credit_card", description: "Credit card number" },
+  IP: { type: "ip_address", description: "Private IP address" },
+  SI: { type: "session_id", description: "Session or API token" },
+  PN: { type: "policy_number", description: "Policy / contract / invoice number" }
+};
+var explain_token_default = defineTool10({
+  name: "explain_token",
+  title: "Explain a Privaro token",
+  description: "Given a Privaro token like [NM-0001] or [BK-0007], return which entity type it represents. Reveal of the original value requires an authenticated request through the Privaro dashboard and is not exposed via MCP.",
+  inputSchema: {
+    token: z5.string().regex(/^\[[A-Z]{2}-\d{4,}\]$/).describe("A Privaro token, e.g. [NM-0001].")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: ({ token }) => {
+    const prefix = token.slice(1, 3);
+    const info = PREFIXES[prefix];
+    if (!info) {
+      return {
+        content: [{ type: "text", text: `Unknown Privaro token prefix: ${prefix}` }],
+        isError: true
+      };
+    }
+    const out = { token, prefix, ...info, reveal: "Requires authenticated reveal in the Privaro dashboard." };
+    return {
+      content: [{ type: "text", text: JSON.stringify(out, null, 2) }],
+      structuredContent: out
+    };
+  }
+});
+
+// src/lib/mcp/tools/list-entity-types.ts
+import { defineTool as defineTool11 } from "npm:@lovable.dev/mcp-js@0.20.0";
+var ENTITY_TYPES = [
+  { type: "full_name", severity: "medium", category: "personal", token_prefix: "NM" },
+  { type: "email", severity: "medium", category: "personal", token_prefix: "EM" },
+  { type: "phone", severity: "high", category: "personal", token_prefix: "PH" },
+  { type: "dni", severity: "critical", category: "personal", token_prefix: "ID", note: "Spanish DNI/NIE" },
+  { type: "ssn", severity: "critical", category: "personal", token_prefix: "SS", note: "US SSN" },
+  { type: "iban", severity: "critical", category: "financial", token_prefix: "BK" },
+  { type: "credit_card", severity: "critical", category: "financial", token_prefix: "CC" },
+  { type: "policy_number", severity: "high", category: "financial", token_prefix: "PN" },
+  { type: "ip_address", severity: "low", category: "technical", token_prefix: "IP" },
+  { type: "session_id", severity: "low", category: "technical", token_prefix: "SI" }
+];
+var list_entity_types_default = defineTool11({
+  name: "list_entity_types",
+  title: "List detectable entity types",
+  description: "Return every entity type the Privaro detection engine currently recognizes, with its severity, category, and token prefix.",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: () => ({
+    content: [{ type: "text", text: JSON.stringify(ENTITY_TYPES, null, 2) }],
+    structuredContent: { entityTypes: ENTITY_TYPES }
+  })
+});
+
 // src/lib/mcp/index.ts
 var mcp_default = defineMcp({
   name: "privaro-mcp",
   title: "Privaro",
-  version: "0.1.0",
-  instructions: "Privaro MCP server. Use `detect_pii` to scan arbitrary text for sensitive entities (names, emails, IBAN, DNI, phone, SSN, credit cards, IPs, session IDs, policy numbers) and optionally return a tokenized version. Use `describe_privaro` to fetch a structured overview of the platform.",
-  tools: [detect_pii_default, describe_privaro_default]
+  version: "0.2.0",
+  instructions: "Privaro MCP server \u2014 AI privacy governance infrastructure. Detection & sanitization: `detect_pii`, `protect_text` (tokenize sensitive entities before sending prompts to an LLM), `assess_risk` (0\u2013100 privacy risk score), `recommend_policy` (suggest actions per entity type). Metadata: `describe_privaro`, `list_use_cases`, `get_pricing`, `list_regulations`, `list_ai_providers`, `list_entity_types`, `explain_token`. Use these tools to sanitize user input before calling external models, or to answer questions about Privaro's product, coverage, and compliance scope.",
+  tools: [
+    detect_pii_default,
+    protect_text_default,
+    risk_score_default,
+    recommend_policy_default,
+    explain_token_default,
+    list_entity_types_default,
+    describe_privaro_default,
+    list_use_cases_default,
+    list_regulations_default,
+    list_providers_default,
+    pricing_default
+  ]
 });
 
 // lovable-mcp-supabase-entry.ts

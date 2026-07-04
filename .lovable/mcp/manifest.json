@@ -8,7 +8,7 @@
   "mcp": {
     "server": {
       "name": "privaro-mcp",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "title": "Privaro"
     },
     "tools": [
@@ -44,9 +44,203 @@
         "outputSchema": null
       },
       {
+        "name": "protect_text",
+        "title": "Tokenize sensitive data in text",
+        "description": "Replace every detected sensitive entity in a block of text with a Privaro token (e.g. [NM-0001], [EM-0001]). Returns the protected text, the token → original value map, detections, and processing time. Use this to sanitize prompts before sending them to an LLM.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Raw text to sanitize."
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "assess_risk",
+        "title": "Assess privacy risk of text",
+        "description": "Score the privacy/compliance risk of a block of text based on detected sensitive entities. Returns a 0–100 risk score, a risk level (none/low/medium/high/critical), and a breakdown by severity and category.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Text to assess."
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "recommend_policy",
+        "title": "Recommend a Privaro policy for a text sample",
+        "description": "Analyze a text sample and return a suggested Privaro policy: per detected entity type, the recommended action (allow / tokenize / anonymize / block), plus the recommended regulations to enable.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Representative text sample from the workload."
+            },
+            "context": {
+              "type": "string",
+              "enum": [
+                "internal",
+                "external_llm",
+                "public_agent"
+              ],
+              "default": "external_llm",
+              "description": "Where the sanitized text will be sent. External LLMs get stricter defaults."
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "explain_token",
+        "title": "Explain a Privaro token",
+        "description": "Given a Privaro token like [NM-0001] or [BK-0007], return which entity type it represents. Reveal of the original value requires an authenticated request through the Privaro dashboard and is not exposed via MCP.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string",
+              "pattern": "^\\[[A-Z]{2}-\\d{4,}\\]$",
+              "description": "A Privaro token, e.g. [NM-0001]."
+            }
+          },
+          "required": [
+            "token"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_entity_types",
+        "title": "List detectable entity types",
+        "description": "Return every entity type the Privaro detection engine currently recognizes, with its severity, category, and token prefix.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
         "name": "describe_privaro",
         "title": "About Privaro",
         "description": "Return a structured overview of the Privaro platform: what it does, who it's for, its core components, and useful URLs.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_use_cases",
+        "title": "List Privaro use cases",
+        "description": "Return the main industry use cases Privaro is designed for (Legal, Fintech, Healthcare, AI Agents), each with the problem, the Privaro solution, and a reference URL.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_regulations",
+        "title": "List supported regulations",
+        "description": "Return the list of privacy and AI regulations Privaro helps organizations comply with (GDPR, HIPAA, PCI-DSS, LOPDGDD, EU AI Act, SOC 2), including region, scope, and how Privaro supports each.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_ai_providers",
+        "title": "List supported AI providers",
+        "description": "Return the list of LLM providers and model families the Privaro AI Proxy can route traffic to, including supported modes (chat, embeddings, images).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_pricing",
+        "title": "Get Privaro pricing",
+        "description": "Return Privaro's public pricing plans (Starter, Business, Enterprise), included request volumes, key features, and available add-ons.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
