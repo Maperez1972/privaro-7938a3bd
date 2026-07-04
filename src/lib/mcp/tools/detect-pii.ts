@@ -1,6 +1,6 @@
 import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
-import { detectPii, protectText } from "@/lib/pii-engine";
+import { detectPii, protectText } from "../../pii-engine";
 
 export default defineTool({
   name: "detect_pii",
