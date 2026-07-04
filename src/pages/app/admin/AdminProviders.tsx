@@ -194,7 +194,7 @@ const AdminProviders = () => {
       if (newModels.trim()) {
         updates.available_models = newModels.split(",").map((m) => m.trim()).filter(Boolean);
       }
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("llm_providers")
         .update(updates)
         .eq("id", selectedProvider.id);

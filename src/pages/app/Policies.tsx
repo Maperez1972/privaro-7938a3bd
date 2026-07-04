@@ -293,7 +293,7 @@ const Policies = () => {
           is_enabled: r.is_enabled ?? true,
           updated_by: user?.id,
         }));
-        const { error } = await supabase.from("policy_rules").insert(rows);
+        const { error } = await (supabase as any).from("policy_rules").insert(rows);
         if (error) {
           toast({ title: "Import error", description: error.message, variant: "destructive" });
         } else {
