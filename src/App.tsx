@@ -61,18 +61,19 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { hasRole, loading } = useAuth();
-  if (loading) return null;
+  const { hasRole, loading, rolesLoaded, user } = useAuth();
+  if (loading || (user && !rolesLoaded)) return null;
   if (!hasRole("admin")) return <Navigate to="/app" replace />;
   return <>{children}</>;
 };
 
 const AdminDpoRoute = ({ children }: { children: React.ReactNode }) => {
-  const { hasRole, loading } = useAuth();
-  if (loading) return null;
+  const { hasRole, loading, rolesLoaded, user } = useAuth();
+  if (loading || (user && !rolesLoaded)) return null;
   if (!hasRole("admin") && !hasRole("dpo")) return <Navigate to="/app" replace />;
   return <>{children}</>;
 };
+
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
