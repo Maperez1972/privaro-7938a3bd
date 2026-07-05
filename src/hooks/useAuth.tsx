@@ -8,13 +8,14 @@ interface AuthContextType {
   loading: boolean;
   profile: { id: string; org_id: string; full_name: string; preferred_lang?: string } | null;
   roles: string[];
+  rolesLoaded: boolean;
   signOut: () => Promise<void>;
   hasRole: (role: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null, session: null, loading: true, profile: null,
-  roles: [], signOut: async () => {}, hasRole: () => false,
+  roles: [], rolesLoaded: false, signOut: async () => {}, hasRole: () => false,
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -23,6 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<AuthContextType["profile"]>(null);
   const [roles, setRoles] = useState<string[]>([]);
+  const [rolesLoaded, setRolesLoaded] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -30,6 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
+          setRolesLoaded(false);
           setTimeout(async () => {
             const { data: profileData } = await supabase
               .from("profiles")
@@ -42,16 +45,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               .select("role")
               .eq("user_id", session.user.id);
             setRoles(rolesData?.map((r) => r.role) ?? []);
+            setRolesLoaded(true);
           }, 0);
         } else {
           setProfile(null);
           setRoles([]);
+          setRolesLoaded(true);
         }
         setLoading(false);
       }
     );
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) setLoading(false);
+      if (!session) { setLoading(false); setRolesLoaded(true); }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -60,10 +65,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const hasRole = (role: string) => roles.includes(role);
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, profile, roles, signOut, hasRole }}>
+    <AuthContext.Provider value={{ user, session, loading, profile, roles, rolesLoaded, signOut, hasRole }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
 
 export const useAuth = () => useContext(AuthContext);
