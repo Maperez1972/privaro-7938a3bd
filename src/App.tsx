@@ -146,6 +146,7 @@ const App = () => (
                 <Route path="admin/policy-presets" element={<AdminRoute><AdminPolicyPresets /></AdminRoute>} />
                 <Route path="admin/billing" element={<AdminRoute><AdminBilling /></AdminRoute>} />
                 <Route path="admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
+                <Route path="platform-admin" element={<PlatformAdmin />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />
