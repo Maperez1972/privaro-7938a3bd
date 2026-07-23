@@ -203,9 +203,14 @@ const Partners = () => {
           </motion.h2>
           <p className="text-sm text-muted-foreground text-center mb-12">{t("partners.pricing.subtitle")}</p>
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="p-6 rounded-xl border border-border bg-card">
-              <h3 className="text-lg font-semibold mb-3">{t("partners.pricing.rev.title")}</h3>
-              <p className="text-2xl font-bold mb-1">{t("partners.pricing.rev.price")}</p>
+            <div className="p-6 rounded-xl border border-primary/50 bg-primary/5 ring-1 ring-primary/20">
+              <div className="flex items-center gap-2 mb-3">
+                <h3 className="text-lg font-semibold">{t("partners.pricing.rev.title")}</h3>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-primary bg-primary/10 border border-primary/30 rounded-full px-2 py-0.5">
+                  {t("partners.pricing.rev.best")}
+                </span>
+              </div>
+              <p className="text-3xl font-bold mb-1 text-primary">{t("partners.pricing.rev.price")}</p>
               <p className="text-sm text-muted-foreground mb-5">{t("partners.pricing.rev.desc1")}<br />{t("partners.pricing.rev.desc2")}</p>
               <ul className="space-y-2 mb-4">
                 {[t("partners.pricing.rev.b1"), t("partners.pricing.rev.b2"), t("partners.pricing.rev.b3")].map((b) => (
@@ -214,11 +219,10 @@ const Partners = () => {
                   </li>
                 ))}
               </ul>
-              <p className="text-xs text-muted-foreground/80 pt-3 border-t border-border">{t("partners.pricing.rev.best")}</p>
             </div>
-            <div className="p-6 rounded-xl border border-primary/50 bg-primary/5 ring-1 ring-primary/20">
+            <div className="p-6 rounded-xl border border-border bg-card">
               <h3 className="text-lg font-semibold mb-3">{t("partners.pricing.use.title")}</h3>
-              <p className="text-2xl font-bold mb-1">€0.0015 <span className="text-sm font-normal text-muted-foreground">{t("partners.pricing.use.unit")}</span></p>
+              <p className="text-2xl font-bold mb-1">{t("partners.pricing.use.unit")}</p>
               <p className="text-sm text-muted-foreground mb-5">{t("partners.pricing.use.desc")}</p>
               <ul className="space-y-2 mb-4">
                 {[t("partners.pricing.use.b1"), t("partners.pricing.use.b2"), t("partners.pricing.use.b3")].map((b) => (
@@ -227,7 +231,7 @@ const Partners = () => {
                   </li>
                 ))}
               </ul>
-              <p className="text-xs text-muted-foreground/80 pt-3 border-t border-primary/20">{t("partners.pricing.use.best")}</p>
+              <p className="text-xs text-muted-foreground/80 pt-3 border-t border-border">{t("partners.pricing.use.best")}</p>
             </div>
           </div>
           <p className="text-sm text-muted-foreground text-center mt-8 max-w-2xl mx-auto">
