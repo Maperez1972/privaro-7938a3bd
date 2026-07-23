@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setTimeout(async () => {
             const { data: profileData } = await supabase
               .from("profiles")
-              .select("id, org_id, full_name, preferred_lang" as any)
+              .select("id, org_id, full_name, preferred_lang, is_platform_admin" as any)
               .eq("id", session.user.id)
               .single();
             setProfile(profileData as unknown as AuthContextType["profile"]);
