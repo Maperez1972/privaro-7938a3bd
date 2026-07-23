@@ -47,6 +47,72 @@ const API_KEY_PATTERNS: Record<string, { regex: RegExp; hint: string }> = {
   custom: { regex: /^.{8,}$/, hint: "At least 8 characters" },
 };
 
+const getNestedEncryptionError = (payload: unknown): string | null => {
+  if (!payload || typeof payload !== "object") return null;
+
+  const body = payload as Record<string, unknown>;
+  const detail = body.detail;
+  if (typeof detail === "string") {
+    try {
+      const parsed = JSON.parse(detail) as unknown;
+      return getNestedEncryptionError(parsed) ?? detail;
+    } catch {
+      return detail;
+    }
+  }
+
+  if (detail && typeof detail === "object") {
+    const nested = getNestedEncryptionError(detail);
+    if (nested) return nested;
+  }
+
+  const error = body.error;
+  if (typeof error === "string") return error;
+
+  const message = body.message;
+  if (typeof message === "string") return message;
+
+  return null;
+};
+
+const encryptProviderKey = async (body: { provider: string; raw_key: string; base_url?: string }) => {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+  if (sessionError || !sessionData.session?.access_token) {
+    throw new Error("Authentication session not available. Please sign in again.");
+  }
+
+  const response = await fetch(`${supabaseUrl}/functions/v1/encrypt-provider-key`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: supabasePublishableKey,
+      Authorization: `Bearer ${sessionData.session.access_token}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  const contentType = response.headers.get("content-type") ?? "";
+  const payload: unknown = contentType.includes("application/json") ? await response.json() : await response.text();
+
+  if (!response.ok) {
+    const detail = getNestedEncryptionError(payload);
+    if (detail === "server_misconfigured") {
+      throw new Error("Encryption service is misconfigured. The provider API key was not saved.");
+    }
+    throw new Error(detail || "Failed to encrypt provider API key");
+  }
+
+  if (payload && typeof payload === "object") {
+    const result = payload as Record<string, unknown>;
+    if (result.success === false) {
+      throw new Error(getNestedEncryptionError(result) || "Failed to encrypt provider API key");
+    }
+  }
+};
+
 const regionColors: Record<string, string> = {
   EU: "bg-green-500/15 text-green-400 border-green-500/30",
   US: "bg-amber-500/15 text-amber-400 border-amber-500/30",
@@ -200,15 +266,11 @@ const AdminProviders = () => {
         if (!pattern.regex.test(apiKey)) {
           throw new Error(`Invalid API key format for ${provider}. ${pattern.hint}`);
         }
-        const { data, error: fnError } = await supabase.functions.invoke("encrypt-provider-key", {
-          body: {
-            provider,
-            raw_key: apiKey,
-            base_url: selectedProvider.base_url ?? undefined,
-          },
+        await encryptProviderKey({
+          provider,
+          raw_key: apiKey,
+          base_url: selectedProvider.base_url ?? undefined,
         });
-        if (fnError) throw new Error(fnError.message || "Failed to encrypt API key");
-        if (!data?.success) throw new Error(data?.error || data?.message || "Failed to encrypt API key");
       }
     },
     onSuccess: () => {
