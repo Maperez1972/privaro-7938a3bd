@@ -31,10 +31,51 @@ const AdminBilling = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("organizations")
-        .select("name, plan, streaming_enabled" as any)
+        .select("name, plan, streaming_enabled, org_type, billing_account_id" as any)
         .eq("id", orgId!)
         .single();
       return data as any;
+    },
+  });
+
+  const billingAccountId = org?.billing_account_id as string | undefined;
+  const orgType = org?.org_type as string | undefined;
+
+  const { data: billing } = useQuery({
+    queryKey: ["admin-billing-account", billingAccountId],
+    enabled: !!billingAccountId,
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("billing_accounts")
+        .select("plan, requests_used, requests_limit, discount_phase, billing_cycle_start")
+        .eq("id", billingAccountId!)
+        .maybeSingle();
+      return data as {
+        plan: string;
+        requests_used: number;
+        requests_limit: number;
+        discount_phase: string;
+        billing_cycle_start: string;
+      } | null;
+    },
+  });
+
+  const cycleStart = (() => {
+    const d = new Date();
+    return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1)).toISOString().slice(0, 10);
+  })();
+
+  const { data: ownUsage } = useQuery({
+    queryKey: ["admin-own-usage", orgId, cycleStart],
+    enabled: !!orgId && orgType === "sub_account",
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("org_usage_monthly")
+        .select("requests_used")
+        .eq("org_id", orgId!)
+        .eq("cycle_start", cycleStart)
+        .maybeSingle();
+      return (data as { requests_used: number } | null) ?? { requests_used: 0 };
     },
   });
 
