@@ -29,6 +29,7 @@ const Footer = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+          <a href="/blog" className={linkClass}>Blog</a>
           <a href="/privacy" className={linkClass}>{t("footer.privacy")}</a>
           <a href="/terms" className={linkClass}>{t("footer.terms")}</a>
           <a href="/security" className={linkClass}>Security</a>

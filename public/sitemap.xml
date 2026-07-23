@@ -16,6 +16,11 @@
   <url><loc>https://privaro.ai/use-cases/fintech</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://privaro.ai/use-cases/health</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://privaro.ai/use-cases/agents</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://privaro.ai/blog</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://privaro.ai/blog/gdpr-checklist-llm-apps</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://privaro.ai/blog/eu-ai-act-compliance-saas</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://privaro.ai/blog/mask-pii-before-openai</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://privaro.ai/blog/openai-vs-anthropic-data-privacy</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://privaro.ai/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://privaro.ai/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>

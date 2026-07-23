@@ -30,6 +30,8 @@ const AIGovernancePlatform = lazy(() => import("./pages/AIGovernancePlatform"));
 const AIComplianceSoftware = lazy(() => import("./pages/AIComplianceSoftware"));
 const EnterpriseAISecurity = lazy(() => import("./pages/EnterpriseAISecurity"));
 const PiiDetectionApi = lazy(() => import("./pages/PiiDetectionApi"));
+const BlogIndex = lazy(() => import("./pages/blog/BlogIndex"));
+const BlogPost = lazy(() => import("./pages/blog/BlogPost"));
 const AppLayout = lazy(() => import("./components/app/AppLayout"));
 const Chat = lazy(() => import("./pages/app/Chat"));
 const Dashboard = lazy(() => import("./pages/app/Dashboard"));
@@ -109,6 +111,8 @@ const App = () => (
               <Route path="/ai-compliance-software" element={<AIComplianceSoftware />} />
               <Route path="/enterprise-ai-security" element={<EnterpriseAISecurity />} />
               <Route path="/pii-detection-api" element={<PiiDetectionApi />} />
+              <Route path="/blog" element={<BlogIndex />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
 
               {/* Auth */}
               <Route path="/auth" element={<Auth />} />
