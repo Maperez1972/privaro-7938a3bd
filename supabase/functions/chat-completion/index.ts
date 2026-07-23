@@ -322,7 +322,42 @@ serve(async (req) => {
       );
     }
 
-    const apiKey = provider.api_key_encrypted;
+    const internalSecret = Deno.env.get("INTERNAL_NOTIFY_SECRET");
+    if (!internalSecret) {
+      return new Response(
+        JSON.stringify({ error: `No active provider or API key for ${pipeline.llm_provider}` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    let apiKey: string;
+    try {
+      const decryptRes = await fetch("https://api.privaro.ai/internal/decrypt-provider-key", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Internal-Secret": internalSecret },
+        body: JSON.stringify({ encrypted: provider.api_key_encrypted }),
+      });
+      if (!decryptRes.ok) {
+        return new Response(
+          JSON.stringify({ error: `No active provider or API key for ${pipeline.llm_provider}` }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      const decrypted = await decryptRes.json();
+      if (!decrypted?.raw_key || typeof decrypted.raw_key !== "string") {
+        return new Response(
+          JSON.stringify({ error: `No active provider or API key for ${pipeline.llm_provider}` }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      apiKey = decrypted.raw_key;
+    } catch {
+      return new Response(
+        JSON.stringify({ error: `No active provider or API key for ${pipeline.llm_provider}` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const model = pipeline.llm_model;
     const fullMessages = [systemMessage, ...messages];
 
