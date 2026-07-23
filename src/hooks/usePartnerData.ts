@@ -80,28 +80,41 @@ export const usePartnerData = (options: PartnerDataOptions = {}) =>
   useQuery<PartnerData | null, Error>({
     queryKey: ["partner-sub-accounts", options.suppressErrors ? "optional" : "required"],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke(FN, { method: "GET" });
-      if (error) {
-        const { status, body } = await readFunctionError(error);
-        // Expected 403 for non-partner orgs → hide section silently.
-        if (status === 403 || body?.error === "not_a_partner_organization") return null;
+      // Use raw fetch instead of supabase.functions.invoke so an expected 403
+      // (non-partner org) is handled as data — not thrown/logged as a runtime error.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return null;
 
-        const code = body?.error || error.message || "unknown_error";
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${FN}`;
+      const res = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+      });
 
+      if (res.status === 403) return null;
+
+      if (!res.ok) {
+        let body: { error?: string } | null = null;
+        try { body = normalizeErrorBody(await res.json()); } catch { /* ignore */ }
+        if (body?.error === "not_a_partner_organization") return null;
+        const code = body?.error || `http_${res.status}`;
         if (options.suppressErrors) {
-          console.warn("[partner-sub-accounts] unavailable:", status, code);
+          console.warn("[partner-sub-accounts] unavailable:", res.status, code);
           return null;
         }
-
-        // Real backend failure — surface it so the page can show a clear message.
         throw new Error(code);
       }
-      return data as PartnerData;
+
+      return (await res.json()) as PartnerData;
     },
     enabled: options.enabled ?? true,
     retry: false,
     staleTime: 60_000,
   });
+
 
 export const useCreateSubAccount = () => {
   const qc = useQueryClient();
