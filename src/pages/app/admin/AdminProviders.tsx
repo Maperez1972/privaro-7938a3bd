@@ -212,10 +212,13 @@ const AdminProviders = () => {
     queryKey: ["llm-providers", orgId],
     enabled: !!orgId,
     queryFn: async () => {
+      // Rely on RLS for scoping instead of filtering by org_id in the client:
+      // the encrypt-provider-key edge function may persist rows under a
+      // different org_id shape (e.g. null / service org), and RLS already
+      // restricts what an admin can read.
       const { data, error } = await (supabase
         .from("llm_providers")
         .select("id, org_id, provider, display_name, is_active, api_key_encrypted, api_key_hint, base_url, available_models, data_region, gdpr_compliant, provider_risk_level, model_class, eu_residency, training_disabled, enterprise_agreement, approved_special_categories, approved_for_agents, created_at, updated_at") as any)
-        .eq("org_id", orgId!)
         .order("provider");
       if (error) throw error;
       return data as LlmProvider[];
