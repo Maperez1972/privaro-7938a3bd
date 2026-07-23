@@ -1,9 +1,9 @@
 /**
- * encrypt-provider-key — Edge Function v2 (DIAGNOSTIC — temporary)
+ * encrypt-provider-key — Edge Function v4 (stable, final)
  *
  * Fixes a real security bug: AdminProviders.tsx was saving LLM provider API
  * keys as PLAINTEXT into llm_providers.api_key_encrypted. This Edge
- * Function is the missing link — the frontend must call THIS instead of
+ * Function is the missing link — the frontend calls THIS instead of
  * writing api_key_encrypted directly.
  *
  * Flow: authenticated admin's raw key -> this function -> proxy's
@@ -12,9 +12,12 @@
  * result. The raw key exists in memory for the duration of this one
  * request and is never returned or logged.
  *
- * Downstream encryption-service failures are returned as handled business
- * errors (`success: false`) instead of 5xx responses so the admin UI can show
- * a visible, actionable error without triggering Lovable's runtime overlay.
+ * History: v2/v3 were temporary diagnostic builds (surfaced proxy error
+ * detail in the response) used to chase a server_misconfigured issue that
+ * turned out to be a Railway env var propagation problem, not a code bug.
+ * Resolved 2026-07-23 — reverted to quiet, generic error responses here,
+ * since leaking internal error detail to the browser isn't appropriate
+ * for a production credential-handling endpoint.
  *
  * Auth: standard Supabase user JWT. Caller must be admin of the org they're
  * configuring a provider for.
@@ -38,25 +41,6 @@ const json = (data: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" },
   });
 
-const handledEncryptionError = (error: string, message: string) =>
-  json({ success: false, error, message }, 200);
-
-const readProxyError = (text: string) => {
-  try {
-    const parsed = JSON.parse(text) as Record<string, unknown>;
-    const detail = parsed.detail;
-    if (detail && typeof detail === "object") {
-      const nestedError = (detail as Record<string, unknown>).error;
-      if (typeof nestedError === "string") return nestedError;
-    }
-    if (typeof parsed.error === "string") return parsed.error;
-  } catch {
-    // Ignore malformed proxy payloads; callers only need a safe error class.
-  }
-
-  return "proxy_error";
-};
-
 const PROXY_URL = "https://api.privaro.ai";
 
 Deno.serve(async (req) => {
@@ -72,10 +56,8 @@ Deno.serve(async (req) => {
     const internalSecret = Deno.env.get("INTERNAL_NOTIFY_SECRET");
 
     if (!internalSecret) {
-      return handledEncryptionError(
-        "edge_function_misconfigured",
-        "Provider API key was not saved because the encryption function is missing its internal secret."
-      );
+      console.error("[encrypt-provider-key] INTERNAL_NOTIFY_SECRET not configured");
+      return json({ error: "server_misconfigured" }, 500);
     }
 
     const authClient = createClient(supabaseUrl, anonKey, {
@@ -117,23 +99,14 @@ Deno.serve(async (req) => {
         body: JSON.stringify({ raw_key }),
       });
     } catch (fetchErr) {
-      return handledEncryptionError(
-        "encryption_service_unavailable",
-        "Provider API key was not saved because the encryption service is unavailable."
-      );
+      console.error("[encrypt-provider-key] fetch to proxy failed:", fetchErr);
+      return json({ error: "encryption_failed" }, 502);
     }
 
     if (!encryptRes.ok) {
       const errText = await encryptRes.text();
-      const proxyError = readProxyError(errText);
-      const error = proxyError === "server_misconfigured"
-        ? "encryption_service_misconfigured"
-        : "encryption_service_unavailable";
-
-      return handledEncryptionError(
-        error,
-        "Provider API key was not saved because the encryption service is not configured correctly."
-      );
+      console.error("[encrypt-provider-key] proxy encryption failed:", encryptRes.status, errText);
+      return json({ error: "encryption_failed" }, 502);
     }
 
     const { encrypted } = await encryptRes.json();
@@ -146,23 +119,26 @@ Deno.serve(async (req) => {
       .eq("provider", provider)
       .maybeSingle();
 
-    const updatePayload: Record<string, unknown> = {
-      api_key_encrypted: encrypted,
-      api_key_hint: apiKeyHint,
-      is_active: true,
-    };
+    const updatePayload: Record<string, unknown> = { api_key_encrypted: encrypted, api_key_hint: apiKeyHint, is_active: true };
     if (base_url) updatePayload.base_url = base_url;
 
     if (existing) {
       const { error: updateError } = await supabase.from("llm_providers").update(updatePayload).eq("id", existing.id);
-      if (updateError) return json({ error: "save_failed", detail: updateError.message }, 500);
+      if (updateError) {
+        console.error("[encrypt-provider-key] update failed:", updateError);
+        return json({ error: "save_failed", detail: updateError.message }, 500);
+      }
     } else {
       const { error: insertError } = await supabase.from("llm_providers").insert({ org_id: orgId, provider, ...updatePayload });
-      if (insertError) return json({ error: "save_failed", detail: insertError.message }, 500);
+      if (insertError) {
+        console.error("[encrypt-provider-key] insert failed:", insertError);
+        return json({ error: "save_failed", detail: insertError.message }, 500);
+      }
     }
 
     return json({ success: true, api_key_hint: apiKeyHint });
   } catch (e) {
-    return json({ error: "internal_error", detail: e?.message ?? String(e) }, 500);
+    console.error("[encrypt-provider-key] UNCAUGHT:", e);
+    return json({ error: "internal_error" }, 500);
   }
 });
