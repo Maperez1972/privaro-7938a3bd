@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 export type SubAccount = { id: string; name: string; created_at: string };
 export type PartnerBilling = {
@@ -44,6 +45,8 @@ type PartnerDataOptions = {
   suppressErrors?: boolean;
 };
 
+type OrganizationPartnerFlag = { org_type?: string | null };
+
 const normalizeErrorBody = (value: unknown): { error?: string } | null => {
   if (!value) return null;
   if (typeof value === "string") return { error: value };
@@ -76,14 +79,32 @@ const readFunctionError = async (error: Error) => {
   return { status: ctx?.status, body };
 };
 
-export const usePartnerData = (options: PartnerDataOptions = {}) =>
-  useQuery<PartnerData | null, Error>({
-    queryKey: ["partner-sub-accounts", options.suppressErrors ? "optional" : "required"],
+export const usePartnerData = (options: PartnerDataOptions = {}) => {
+  const { session, profile, rolesLoaded, hasRole } = useAuth();
+  const orgId = profile?.org_id ?? null;
+  const isAdmin = hasRole("admin");
+
+  return useQuery<PartnerData | null, Error>({
+    queryKey: ["partner-sub-accounts", orgId, options.suppressErrors ? "optional" : "required"],
     queryFn: async () => {
-      // Use raw fetch instead of supabase.functions.invoke so an expected 403
-      // (non-partner org) is handled as data — not thrown/logged as a runtime error.
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return null;
+      if (!session || !orgId || !isAdmin) return null;
+
+      const { data: orgData, error: orgError } = await supabase
+        .from("organizations")
+        .select("org_type")
+        .eq("id", orgId)
+        .maybeSingle();
+
+      if (orgError) {
+        if (options.suppressErrors) {
+          console.warn("[partner-sub-accounts] unable to check organization type:", orgError.message);
+          return null;
+        }
+        throw new Error(orgError.message);
+      }
+
+      const organization = orgData as unknown as OrganizationPartnerFlag | null;
+      if (organization?.org_type !== "partner") return null;
 
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${FN}`;
       const res = await fetch(url, {
@@ -110,25 +131,39 @@ export const usePartnerData = (options: PartnerDataOptions = {}) =>
 
       return (await res.json()) as PartnerData;
     },
-    enabled: options.enabled ?? true,
+    enabled: (options.enabled ?? true) && rolesLoaded && !!session && !!orgId,
     retry: false,
     staleTime: 60_000,
   });
+};
 
 
 export const useCreateSubAccount = () => {
   const qc = useQueryClient();
+  const { session } = useAuth();
+
   return useMutation<NewSubAccountResult, Error, NewSubAccountInput>({
     mutationFn: async (input) => {
-      const { data, error } = await supabase.functions.invoke(FN, {
+      if (!session) throw new Error("not_authenticated");
+
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${FN}`;
+      const res = await fetch(url, {
         method: "POST",
-        body: input,
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(input),
       });
-      if (error) {
-        const { body } = await readFunctionError(error);
-        throw new Error(body?.error || error.message || "Failed to create client");
+
+      if (!res.ok) {
+        let body: { error?: string } | null = null;
+        try { body = normalizeErrorBody(await res.json()); } catch { /* ignore */ }
+        throw new Error(body?.error || `http_${res.status}`);
       }
-      return data as NewSubAccountResult;
+
+      return (await res.json()) as NewSubAccountResult;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["partner-sub-accounts"] });
