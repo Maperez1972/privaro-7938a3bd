@@ -194,12 +194,12 @@ const COPY = {
     ctaFoot: "No credit card · No commitment · Cancel anytime",
     plans: [
       {
-        key: "starter" as PlanKey, icon: Zap, name: "Starter",
-        monthlyPrice: 99, annualPrice: 79,
-        desc: "For teams starting to use LLMs with customer data.",
+        key: "starter" as PlanKey, icon: Zap, name: "Tier 1 — Starter",
+        monthlyPrice: 150, annualPrice: 120,
+        desc: "For small teams starting to use LLMs with customer data.",
         cta: "Start 14-day free trial", ctaVariant: "outline" as const, ctaHref: "/auth", highlight: false,
         features: [
-          "50,000 requests / month",
+          "100,000 requests / month",
           "PII detection: email, phone, name, national ID",
           "Real-time audit dashboard",
           "1 LLM provider (OpenAI or Anthropic)",
@@ -216,9 +216,9 @@ const COPY = {
         ],
       },
       {
-        key: "pro" as PlanKey, icon: Shield, name: "Pro", badge: "Most popular",
-        monthlyPrice: 499, annualPrice: 399,
-        desc: "For SaaS with regulated clients or in sectors with active GDPR obligations.",
+        key: "pro" as PlanKey, icon: Shield, name: "Tier 3 — Business", badge: "Recommended start",
+        monthlyPrice: 400, annualPrice: 320,
+        desc: "Recommended starting plan for SaaS and teams with active GDPR obligations.",
         cta: "Start 14-day free trial", ctaVariant: "default" as const, ctaHref: "/auth", highlight: true,
         features: [
           "500,000 requests / month",
@@ -236,10 +236,10 @@ const COPY = {
       {
         key: "enterprise" as PlanKey, icon: Building2, name: "Enterprise / ISV",
         monthlyPrice: null, annualPrice: null,
-        desc: "For ISVs who want to embed Privaro in their product or companies with advanced compliance requirements.",
+        desc: "For volumes >5M req/mo, ISVs embedding Privaro and advanced compliance.",
         cta: "Talk to us", ctaVariant: "outline" as const, ctaHref: "/partners", highlight: false,
         features: [
-          "Unlimited requests",
+          "Custom volume (>5M requests/month)",
           "White-label / embedded in your product",
           "Volume-based fixed fee (standard) — revenue share available for early-stage ISVs",
           "Dedicated instance in your VPC",
@@ -251,8 +251,24 @@ const COPY = {
         ],
       },
     ] as Plan[],
+    tiersKicker: "Full catalog",
+    tiersTitle: "All 6 tiers",
+    tiersSubtitle: "Pick the volume that matches your traffic. Change tier anytime with no migration.",
+    tiersHeaderTier: "Plan",
+    tiersHeaderRequests: "Requests / month",
+    tiersHeaderPrice: "Monthly price",
+    tiersHeaderTarget: "Best for",
+    tiersFoot: "Need more than 5M requests/month, white-label or a dedicated instance? Talk to us for a custom Enterprise plan.",
+    tiers: [
+      { id: "Tier 1", name: "Starter", price: "€150", requests: "100,000", target: "Small teams evaluating", highlight: false },
+      { id: "Tier 2", name: "Growth", price: "€250", requests: "250,000", target: "Startups in production", highlight: false },
+      { id: "Tier 3", name: "Business", price: "€400", requests: "500,000", target: "Recommended starting plan", highlight: true },
+      { id: "Tier 4", name: "Scale", price: "€700", requests: "1,000,000", target: "Active compliance", highlight: false },
+      { id: "Tier 5", name: "Enterprise", price: "€1,250", requests: "2,000,000", target: "Regulated (banking, health, legal)", highlight: false },
+      { id: "Tier 6", name: "Enterprise+", price: "€2,500", requests: "5,000,000", target: "High volume / multi-tenant", highlight: false },
+    ],
     featureComparison: [
-      { label: "Monthly requests", starter: "50,000", pro: "500,000", enterprise: "Unlimited" },
+      { label: "Monthly requests", starter: "100,000", pro: "500,000", enterprise: ">5M / custom" },
       { label: "Basic PII detection", starter: true, pro: true, enterprise: true },
       { label: "Customizable PII entities", starter: false, pro: true, enterprise: true },
       { label: "Audit dashboard", starter: true, pro: true, enterprise: true },
