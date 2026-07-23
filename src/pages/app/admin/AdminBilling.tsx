@@ -152,15 +152,18 @@ const AdminBilling = () => {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const usagePercent = settings
-    ? Math.min(100, Math.round((Number(settings.requests_used) / Number(settings.requests_limit)) * 100))
+  const usagePercent = billing && billing.requests_limit
+    ? Math.min(100, Math.round((Number(billing.requests_used) / Number(billing.requests_limit)) * 100))
     : 0;
 
   const usageColor = usagePercent >= 90 ? "text-red-400" : usagePercent >= 70 ? "text-amber-400" : "text-green-400";
 
-  const renewalDate = settings?.billing_cycle_start
-    ? new Date(new Date(settings.billing_cycle_start).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
+  const renewalDate = billing?.billing_cycle_start
+    ? new Date(new Date(billing.billing_cycle_start).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
     : "—";
+
+  const isSubAccount = orgType === "sub_account";
+  const planLabel = (billing?.plan ?? org?.plan ?? "pilot") as string;
 
   return (
     <div className="p-6 space-y-6">
@@ -186,23 +189,54 @@ const AdminBilling = () => {
               <CardTitle className="text-base">{t("app.admin.billing.currentPlan")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Badge className={planColors[org?.plan ?? "pilot"] ?? planColors.pilot}>
-                  {org?.plan?.toUpperCase() ?? "PILOT"}
+              <div className="flex items-center gap-3 flex-wrap">
+                <Badge className={planColors[planLabel] ?? planColors.pilot}>
+                  {planLabel.toUpperCase()}
                 </Badge>
+                {billing?.discount_phase && (
+                  <Badge variant="outline" className="capitalize">
+                    Fase: {billing.discount_phase.replace("_", " ")}
+                  </Badge>
+                )}
                 <span className="text-sm text-muted-foreground">{t("app.admin.billing.renewal")}: {renewalDate}</span>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">{t("app.admin.billing.apiRequests")}</span>
+                  <span className="font-medium">
+                    {isSubAccount ? "Consumo agregado del partner" : t("app.admin.billing.apiRequests")}
+                  </span>
                   <span className={usageColor}>
-                    {Number(settings?.requests_used ?? 0).toLocaleString()} / {Number(settings?.requests_limit ?? 10000).toLocaleString()} ({usagePercent}%)
+                    {Number(billing?.requests_used ?? 0).toLocaleString()} / {Number(billing?.requests_limit ?? 0).toLocaleString()} ({usagePercent}%)
                   </span>
                 </div>
                 <Progress value={usagePercent} className="h-2" />
+                {isSubAccount && (
+                  <p className="text-xs text-muted-foreground">
+                    Este total incluye el consumo de todas las organizaciones del partner, no solo el tuyo.
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
+
+          {isSubAccount && (
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle className="text-base">Tu consumo este mes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold tabular-nums">
+                    {Number(ownUsage?.requests_used ?? 0).toLocaleString()}
+                  </span>
+                  <span className="text-sm text-muted-foreground">peticiones</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Ciclo actual desde {new Date(cycleStart).toLocaleDateString()}. Solo tu organización.
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Security Settings */}
           <Card className="border-border bg-card">
