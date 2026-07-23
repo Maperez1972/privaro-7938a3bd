@@ -150,7 +150,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Authenticate user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(
@@ -163,7 +162,6 @@ Deno.serve(async (req) => {
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Verify JWT
     const authClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -177,7 +175,6 @@ Deno.serve(async (req) => {
     }
     const userId = claims.claims.sub as string;
 
-    // Check admin role
     const supabase = createClient(supabaseUrl, serviceKey);
     const { data: roleData } = await supabase
       .from("user_roles")
@@ -201,7 +198,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check for existing report for this period
     if (!force_regenerate) {
       const { data: existing } = await supabase
         .from("dpo_reports")
@@ -220,7 +216,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    // If force_regenerate, delete old reports for this period
     if (force_regenerate) {
       await supabase
         .from("dpo_reports")
@@ -230,24 +225,21 @@ Deno.serve(async (req) => {
         .eq("period_end", period_end);
     }
 
-    // Get org info
     const { data: org } = await supabase
       .from("organizations")
-      .select("name, gdpr_dpo_email")
+      .select("name, gdpr_dpo_email, org_type, parent_org_id")
       .eq("id", org_id)
       .single();
 
     const orgName = org?.name || "Unknown Organization";
     const dpoEmail = org?.gdpr_dpo_email || "";
 
-    // Format period label
     const periodDate = new Date(period_start + "T00:00:00Z");
     const periodLabel = periodDate.toLocaleString("en-US", {
       month: "long",
       year: "numeric",
     });
 
-    // Create initial dpo_reports row as "generating"
     const { data: report, error: insertError } = await supabase
       .from("dpo_reports")
       .insert({
@@ -263,7 +255,6 @@ Deno.serve(async (req) => {
     if (insertError) throw insertError;
     const reportId = report.id;
 
-    // Fetch audit logs for the period
     const { data: logs, error: logsError } = await supabase
       .from("audit_logs")
       .select(
@@ -279,7 +270,6 @@ Deno.serve(async (req) => {
 
     const auditLogs: AuditLogRow[] = logs || [];
 
-    // Generate HTML
     const html = generateReportHtml(
       auditLogs,
       orgName,
@@ -289,7 +279,6 @@ Deno.serve(async (req) => {
     );
     const htmlBytes = new TextEncoder().encode(html);
 
-    // Compute stats
     const certifiedCount = auditLogs.filter(
       (l) => l.ibs_status === "certified" && l.ibs_certification_hash
     ).length;
@@ -297,7 +286,6 @@ Deno.serve(async (req) => {
       (l) => l.risk_score != null && l.risk_score >= 0.7
     ).length;
 
-    // Upload to storage
     const storagePath = `${org_id}/${period_start}_${period_end}.html`;
     const { error: uploadError } = await supabase.storage
       .from("dpo-reports")
@@ -308,7 +296,6 @@ Deno.serve(async (req) => {
 
     if (uploadError) throw uploadError;
 
-    // Update report row to "ready"
     const { error: updateError } = await supabase
       .from("dpo_reports")
       .update({
@@ -323,6 +310,50 @@ Deno.serve(async (req) => {
       .eq("id", reportId);
 
     if (updateError) throw updateError;
+
+    if (org?.org_type === "sub_account" && org?.parent_org_id) {
+      try {
+        const { data: hooks } = await supabase
+          .from("org_webhooks")
+          .select("id, url, secret")
+          .eq("org_id", org.parent_org_id)
+          .eq("is_active", true)
+          .contains("events", ["dpo_report.generated"]);
+
+        for (const hook of hooks || []) {
+          const payload = JSON.stringify({
+            event: "dpo_report.generated",
+            org_id,
+            org_name: orgName,
+            report_id: reportId,
+            period_label: periodLabel,
+            period_start,
+            period_end,
+            event_count: auditLogs.length,
+            certified_count: certifiedCount,
+            high_risk_count: highRiskCount,
+            generated_at: new Date().toISOString(),
+          });
+
+          const headers: Record<string, string> = { "Content-Type": "application/json" };
+          if (hook.secret) {
+            const key = await crypto.subtle.importKey(
+              "raw", new TextEncoder().encode(hook.secret),
+              { name: "HMAC", hash: "SHA-256" }, false, ["sign"],
+            );
+            const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
+            const hex = [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+            headers["X-Privaro-Signature"] = `sha256=${hex}`;
+          }
+
+          fetch(hook.url, { method: "POST", headers, body: payload }).catch((e) =>
+            console.error("[generate-dpo-report] webhook delivery failed:", hook.url, e)
+          );
+        }
+      } catch (e) {
+        console.error("[generate-dpo-report] partner webhook lookup failed (non-fatal):", e);
+      }
+    }
 
     return new Response(
       JSON.stringify({ success: true, report_id: reportId, events: auditLogs.length }),
