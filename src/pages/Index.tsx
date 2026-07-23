@@ -33,7 +33,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="Privaro — Privacy Infrastructure for Enterprise AI" description="Detect and anonymize sensitive data before it reaches AI models. GDPR & EU AI Act ready proxy for OpenAI, Anthropic, and more." path="/" />
+      <Seo title="AI Governance Platform for Enterprise Privacy — Privaro" description="Privaro is the AI governance and compliance platform that detects PII, masks prompts and audits LLM traffic. GDPR & EU AI Act ready proxy for OpenAI, Anthropic and Gemini." path="/" />
       <Navbar />
       <HeroSection />
       <Suspense fallback={null}>
