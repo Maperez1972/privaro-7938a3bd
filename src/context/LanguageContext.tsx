@@ -30,6 +30,10 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.usecases.consulting": "Fintech & Finance",
     "nav.cta": "Request Demo",
     "nav.assessment": "AI Risk Assessment",
+    "nav.product": "Product",
+    "nav.resources": "Resources",
+    "nav.blog": "Blog",
+
     "hero.badge": "AI Governance Platform",
     "hero.title1": "The AI Governance Platform",
     "hero.title2": "for enterprise privacy",
