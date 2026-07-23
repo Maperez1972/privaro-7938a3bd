@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Loader2, GripVertical } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface PresetRule {
   entity_type: string;
@@ -73,6 +74,7 @@ const emptyRule: PresetRule = {
 const AdminPolicyPresets = () => {
   const { profile } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [presets, setPresets] = useState<Preset[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -170,11 +172,11 @@ const AdminPolicyPresets = () => {
 
   const handleSave = async () => {
     if (!form.name.trim() || !form.slug.trim()) {
-      toast({ title: "Validation", description: "Name and slug are required", variant: "destructive" });
+      toast({ title: t("app.admin.policyPresets.validation"), description: t("app.admin.policyPresets.nameSlugRequired"), variant: "destructive" });
       return;
     }
     if (form.rules.some((r) => !r.entity_type.trim())) {
-      toast({ title: "Validation", description: "All rules need an entity type", variant: "destructive" });
+      toast({ title: t("app.admin.policyPresets.validation"), description: t("app.admin.policyPresets.entityTypeRequired"), variant: "destructive" });
       return;
     }
 
@@ -212,7 +214,7 @@ const AdminPolicyPresets = () => {
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: editId ? "Preset updated" : "Preset created" });
+      toast({ title: editId ? t("app.admin.policyPresets.presetUpdated") : t("app.admin.policyPresets.presetCreated") });
       setDialogOpen(false);
       fetchPresets();
     }
@@ -229,7 +231,7 @@ const AdminPolicyPresets = () => {
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Preset deleted" });
+      toast({ title: t("app.admin.policyPresets.presetDeleted") });
       setDeleteTarget(null);
       fetchPresets();
     }
@@ -239,13 +241,13 @@ const AdminPolicyPresets = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Policy Presets</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("app.admin.policyPresets.title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage industry-specific policy templates
+            {t("app.admin.policyPresets.subtitle")}
           </p>
         </div>
         <Button onClick={openCreate} size="sm" className="gap-1.5">
-          <Plus className="w-4 h-4" /> New Preset
+          <Plus className="w-4 h-4" /> {t("app.admin.policyPresets.newPreset")}
         </Button>
       </div>
 
@@ -264,9 +266,9 @@ const AdminPolicyPresets = () => {
       ) : presets.length === 0 ? (
         <Card className="border-border bg-card">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <p className="text-muted-foreground text-sm">No presets yet</p>
+            <p className="text-muted-foreground text-sm">{t("app.admin.policyPresets.noPresets")}</p>
             <Button onClick={openCreate} variant="outline" size="sm" className="mt-3 gap-1.5">
-              <Plus className="w-4 h-4" /> Create first preset
+              <Plus className="w-4 h-4" /> {t("app.admin.policyPresets.createFirst")}
             </Button>
           </CardContent>
         </Card>
@@ -298,7 +300,7 @@ const AdminPolicyPresets = () => {
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Badge variant="secondary" className="text-[10px] capitalize">{preset.sector}</Badge>
                     <span>·</span>
-                    <span>{rules.length} rules</span>
+                    <span>{rules.length} {t("app.admin.policyPresets.rules")}</span>
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {rules.slice(0, 5).map((r) => (
@@ -321,38 +323,38 @@ const AdminPolicyPresets = () => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="bg-card border-border max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editId ? "Edit Preset" : "New Preset"}</DialogTitle>
+            <DialogTitle>{editId ? t("app.admin.policyPresets.editPreset") : t("app.admin.policyPresets.newPreset")}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
             {/* Basic fields */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs">Name</Label>
+                <Label className="text-xs">{t("app.admin.apiKeys.name")}</Label>
                 <Input
                   value={form.name}
                   onChange={(e) => updateForm("name", e.target.value)}
-                  placeholder="Legal Mode"
+                  placeholder={t("app.admin.policyPresets.namePlaceholder")}
                   className="h-9"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Slug</Label>
+                <Label className="text-xs">{t("app.admin.policyPresets.slug")}</Label>
                 <Input
                   value={form.slug}
                   onChange={(e) => updateForm("slug", e.target.value)}
-                  placeholder="legal-mode"
+                  placeholder={t("app.admin.policyPresets.slugPlaceholder")}
                   className="h-9 font-mono text-xs"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs">Description</Label>
+              <Label className="text-xs">{t("app.admin.policyPresets.description")}</Label>
               <Textarea
                 value={form.description}
                 onChange={(e) => updateForm("description", e.target.value)}
-                placeholder="Pre-configured rules for law firms and legal departments..."
+                placeholder={t("app.admin.policyPresets.descriptionPlaceholder")}
                 rows={2}
                 className="text-sm"
               />
@@ -360,7 +362,7 @@ const AdminPolicyPresets = () => {
 
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs">Sector</Label>
+                <Label className="text-xs">{t("app.admin.policyPresets.sector")}</Label>
                 <Select value={form.sector} onValueChange={(v) => updateForm("sector", v)}>
                   <SelectTrigger className="h-9 capitalize">
                     <SelectValue />
@@ -373,7 +375,7 @@ const AdminPolicyPresets = () => {
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Icon</Label>
+                <Label className="text-xs">{t("app.admin.policyPresets.icon")}</Label>
                 <Select value={form.icon} onValueChange={(v) => updateForm("icon", v)}>
                   <SelectTrigger className="h-9">
                     <SelectValue />
@@ -386,7 +388,7 @@ const AdminPolicyPresets = () => {
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Color</Label>
+                <Label className="text-xs">{t("app.admin.policyPresets.color")}</Label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
@@ -402,9 +404,9 @@ const AdminPolicyPresets = () => {
             {/* Rules editor */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-xs font-semibold">Rules ({form.rules.length})</Label>
+                <Label className="text-xs font-semibold">{t("app.admin.policyPresets.rules")} ({form.rules.length})</Label>
                 <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={addRule}>
-                  <Plus className="w-3 h-3" /> Add Rule
+                  <Plus className="w-3 h-3" /> {t("app.admin.policyPresets.addRule")}
                 </Button>
               </div>
 
@@ -414,16 +416,16 @@ const AdminPolicyPresets = () => {
                     <GripVertical className="w-3.5 h-3.5 mt-2.5 text-muted-foreground/40 flex-shrink-0" />
                     <div className="flex-1 grid grid-cols-4 gap-2">
                       <div className="space-y-1">
-                        <Label className="text-[10px] text-muted-foreground">Entity Type</Label>
+                        <Label className="text-[10px] text-muted-foreground">{t("app.admin.policyPresets.entityType")}</Label>
                         <Input
                           value={rule.entity_type}
                           onChange={(e) => updateRule(idx, "entity_type", e.target.value)}
-                          placeholder="dni"
+                          placeholder={t("app.admin.policyPresets.entityTypePlaceholder")}
                           className="h-7 text-xs font-mono"
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-[10px] text-muted-foreground">Category</Label>
+                        <Label className="text-[10px] text-muted-foreground">{t("app.admin.policyPresets.category")}</Label>
                         <Select value={rule.category} onValueChange={(v) => updateRule(idx, "category", v)}>
                           <SelectTrigger className="h-7 text-xs capitalize">
                             <SelectValue />
@@ -436,7 +438,7 @@ const AdminPolicyPresets = () => {
                         </Select>
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-[10px] text-muted-foreground">Action</Label>
+                        <Label className="text-[10px] text-muted-foreground">{t("app.admin.policyPresets.action")}</Label>
                         <Select value={rule.action} onValueChange={(v) => updateRule(idx, "action", v)}>
                           <SelectTrigger className="h-7 text-xs capitalize">
                             <SelectValue />
@@ -449,11 +451,11 @@ const AdminPolicyPresets = () => {
                         </Select>
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-[10px] text-muted-foreground">Regulation</Label>
+                        <Label className="text-[10px] text-muted-foreground">{t("app.admin.policyPresets.regulation")}</Label>
                         <Input
                           value={rule.regulation_ref || ""}
                           onChange={(e) => updateRule(idx, "regulation_ref", e.target.value)}
-                          placeholder="GDPR Art.5"
+                          placeholder={t("app.admin.policyPresets.regulationPlaceholder")}
                           className="h-7 text-xs"
                         />
                       </div>
@@ -476,11 +478,11 @@ const AdminPolicyPresets = () => {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={saving}>
-              Cancel
+              {t("app.admin.common.cancel")}
             </Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
-              {editId ? "Update" : "Create"}
+              {editId ? t("app.admin.common.update") : t("app.admin.common.create")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -490,16 +492,16 @@ const AdminPolicyPresets = () => {
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {deleteTarget?.icon} {deleteTarget?.name}?</AlertDialogTitle>
+            <AlertDialogTitle>{t("app.admin.policyPresets.deleteConfirmTitle")} {deleteTarget?.icon} {deleteTarget?.name}?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this preset. Organizations currently using these rules won't be affected, but the preset will no longer be available for quick setup.
+              {t("app.admin.policyPresets.deleteConfirmDesc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>{t("app.admin.common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               {deleting && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
-              Delete
+              {t("app.admin.common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import logoPrivaro from "@/assets/logo-privaro.webp";
 import Seo from "@/components/Seo";
 import { usePartnerData } from "@/hooks/usePartnerData";
+import { useLanguage } from "@/context/LanguageContext";
 
 const ROUTE_META: Record<string, { title: string; description: string }> = {
   "/app/chat": { title: "Conversations — Privaro", description: "Run AI conversations through Privaro's privacy proxy with detection, tokenization, and audit logging." },
@@ -34,28 +35,28 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
 const DEFAULT_META = { title: "Privaro workspace", description: "Privaro enterprise AI privacy workspace." };
 
 const navItems = [
-  { label: "Conversations", icon: MessageSquare, href: "/app/chat" },
-  { label: "Dashboard", icon: LayoutDashboard, href: "/app/dashboard" },
-  { label: "AI Pipelines", icon: Zap, href: "/app/pipelines" },
-  { label: "PII Sandbox", icon: FlaskConical, href: "/app/sandbox" },
-  { label: "Policy Engine", icon: ShieldCheck, href: "/app/policies" },
-  { label: "Agent Runs", icon: Bot, href: "/app/agent-runs" },
-  { label: "Settings", icon: Settings, href: "/app/settings" },
+  { labelKey: "app.layout.nav.conversations", icon: MessageSquare, href: "/app/chat" },
+  { labelKey: "app.layout.nav.dashboard", icon: LayoutDashboard, href: "/app/dashboard" },
+  { labelKey: "app.layout.nav.pipelines", icon: Zap, href: "/app/pipelines" },
+  { labelKey: "app.layout.nav.sandbox", icon: FlaskConical, href: "/app/sandbox" },
+  { labelKey: "app.layout.nav.policies", icon: ShieldCheck, href: "/app/policies" },
+  { labelKey: "app.layout.nav.agentRuns", icon: Bot, href: "/app/agent-runs" },
+  { labelKey: "app.layout.nav.settings", icon: Settings, href: "/app/settings" },
 ];
-const onboardingItem = { label: "Onboarding", icon: Rocket, href: "/app/onboarding" };
+const onboardingItem = { labelKey: "app.layout.nav.onboarding", icon: Rocket, href: "/app/onboarding" };
 const adminDpoItems = [
-  { label: "Leads", icon: Users, href: "/app/admin/leads" },
-  { label: "Audit Logs", icon: FileText, href: "/app/admin/audit-logs" },
-  { label: "Encryption Keys", icon: Lock, href: "/app/admin/encryption-keys" },
+  { labelKey: "app.layout.nav.leads", icon: Users, href: "/app/admin/leads" },
+  { labelKey: "app.layout.nav.auditLogs", icon: FileText, href: "/app/admin/audit-logs" },
+  { labelKey: "app.layout.nav.encryptionKeys", icon: Lock, href: "/app/admin/encryption-keys" },
 ];
 const adminOnlyItems = [
-  { label: "LLM Providers", icon: Cpu, href: "/app/admin/providers" },
-  { label: "Users", icon: Users, href: "/app/admin/users" },
-  { label: "Tokens Vault", icon: KeyRound, href: "/app/admin/vault" },
-  { label: "Policy Presets", icon: ShieldCheck, href: "/app/admin/policy-presets" },
-  { label: "API Keys", icon: Key, href: "/app/admin/api-keys" },
-  { label: "Billing", icon: CreditCard, href: "/app/admin/billing" },
-  { label: "Admin Settings", icon: Settings2, href: "/app/admin/settings" },
+  { labelKey: "app.layout.nav.llmProviders", icon: Cpu, href: "/app/admin/providers" },
+  { labelKey: "app.layout.nav.users", icon: Users, href: "/app/admin/users" },
+  { labelKey: "app.layout.nav.tokensVault", icon: KeyRound, href: "/app/admin/vault" },
+  { labelKey: "app.layout.nav.policyPresets", icon: ShieldCheck, href: "/app/admin/policy-presets" },
+  { labelKey: "app.layout.nav.apiKeys", icon: Key, href: "/app/admin/api-keys" },
+  { labelKey: "app.layout.nav.billing", icon: CreditCard, href: "/app/admin/billing" },
+  { labelKey: "app.layout.nav.adminSettings", icon: Settings2, href: "/app/admin/settings" },
 ];
 
 const AppLayout = () => {
@@ -68,6 +69,7 @@ const AppLayout = () => {
   const navRef = useRef<HTMLElement | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { user, profile, roles, hasRole, signOut } = useAuth();
   useMfaEnforcement();
   const isAdmin = hasRole("admin");
@@ -120,7 +122,7 @@ const AppLayout = () => {
     };
   }, [collapsed, onboardingDone, showAdminSection, isAdmin, location.pathname]);
 
-  const renderNavItem = (item: { label: string; icon: LucideIcon; href: string }, showBadge?: boolean) => {
+  const renderNavItem = (item: { labelKey: string; icon: LucideIcon; href: string }, showBadge?: boolean) => {
     const isActive = item.href === "/app" ? location.pathname === "/app" : location.pathname.startsWith(item.href);
     const Icon = item.icon;
     return (
@@ -128,8 +130,8 @@ const AppLayout = () => {
         <Icon className="w-4 h-4 flex-shrink-0" />
         {!collapsed && (
           <>
-            <span>{item.label}</span>
-            {showBadge && <span className="ml-auto text-[9px] font-bold bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full leading-none">NEW</span>}
+            <span>{t(item.labelKey)}</span>
+            {showBadge && <span className="ml-auto text-[9px] font-bold bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full leading-none">{t("app.layout.nav.new")}</span>}
           </>
         )}
       </Link>
@@ -161,14 +163,14 @@ const AppLayout = () => {
                 <div className="my-3 border-t border-border" />
                 {!collapsed && (
                   <div className="px-3 py-1">
-                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Partner</span>
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{t("app.layout.nav.partnerSection")}</span>
                   </div>
                 )}
-                {renderNavItem({ label: "Mis clientes", icon: Building2, href: "/app/partner/clients" })}
+                {renderNavItem({ labelKey: "app.layout.nav.myClients", icon: Building2, href: "/app/partner/clients" })}
               </>
             )}
             {/* Admin fallback: always give admins access to the partner clients view */}
-            {!isPartner && isAdmin && renderNavItem({ label: "Partner clients", icon: Building2, href: "/app/partner/clients" }, true)}
+            {!isPartner && isAdmin && renderNavItem({ labelKey: "app.layout.nav.partnerClients", icon: Building2, href: "/app/partner/clients" }, true)}
             {showAdminSection && (
               <>
                 <div className="my-3 border-t border-border" />
@@ -177,7 +179,7 @@ const AppLayout = () => {
                     onClick={() => { const next = !adminExpanded; setAdminExpanded(next); localStorage.setItem("privaro-admin-expanded", String(next)); }}
                     className="flex items-center justify-between w-full px-3 py-1 group hover:bg-secondary/30 rounded-md transition-colors"
                   >
-                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Admin</span>
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{t("app.layout.nav.adminSection")}</span>
                     <ChevronDown className={cn("w-3 h-3 text-muted-foreground transition-transform duration-200", !adminExpanded && "-rotate-90")} />
                   </button>
                 )}
@@ -213,10 +215,10 @@ const AppLayout = () => {
             {!collapsed && (
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-foreground truncate">{profile?.full_name ?? user?.email}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{roles[0] ?? "viewer"}</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{roles[0] ?? t("app.layout.role.viewer")}</p>
               </div>
             )}
-            <button onClick={signOut} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive transition-colors" title="Sign out"><LogOut className="w-4 h-4" /></button>
+            <button onClick={signOut} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive transition-colors" title={t("app.layout.signOut")}><LogOut className="w-4 h-4" /></button>
           </div>
         </div>
       </aside>

@@ -28,6 +28,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Plus, GitBranch, MoreVertical, Pencil, Play, Pause, Archive, Trash2, ChevronDown } from "lucide-react";
 import PipelinePoliciesSection from "@/components/app/pipeline/PipelinePoliciesSection";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Pipeline {
   id: string;
@@ -45,6 +46,7 @@ interface Pipeline {
 }
 
 const Pipelines = () => {
+  const { t } = useLanguage();
   const { profile } = useAuth();
   const { toast } = useToast();
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
@@ -134,7 +136,7 @@ const Pipelines = () => {
 
   const handleCreate = async (form: PipelineFormData) => {
     if (!profile?.org_id) {
-      toast({ title: "Error", description: "No organization found", variant: "destructive" });
+      toast({ title: t("app.pipelines.toast.error"), description: t("app.pipelines.toast.noOrg"), variant: "destructive" });
       return;
     }
 
@@ -151,9 +153,9 @@ const Pipelines = () => {
 
     setSaving(false);
     if (error) {
-      toast({ title: "Error creating pipeline", description: error.message, variant: "destructive" });
+      toast({ title: t("app.pipelines.toast.createError"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Pipeline created" });
+      toast({ title: t("app.pipelines.toast.created") });
       setDialogOpen(false);
       fetchPipelines();
     }
@@ -177,9 +179,9 @@ const Pipelines = () => {
 
     setSaving(false);
     if (error) {
-      toast({ title: "Error updating pipeline", description: error.message, variant: "destructive" });
+      toast({ title: t("app.pipelines.toast.updateError"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Pipeline updated" });
+      toast({ title: t("app.pipelines.toast.updated") });
       setEditPipeline(null);
       fetchPipelines();
     }
@@ -192,9 +194,9 @@ const Pipelines = () => {
       .eq("id", pipe.id);
 
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("app.pipelines.toast.error"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: `Pipeline ${newStatus}` });
+      toast({ title: `${t("app.pipelines.toast.statusPrefix")} ${newStatus}` });
       fetchPipelines();
     }
   };
@@ -203,9 +205,9 @@ const Pipelines = () => {
     if (!deleteTarget) return;
     const { error } = await supabase.from("pipelines").delete().eq("id", deleteTarget.id);
     if (error) {
-      toast({ title: "Error deleting pipeline", description: error.message, variant: "destructive" });
+      toast({ title: t("app.pipelines.toast.deleteError"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Pipeline deleted" });
+      toast({ title: t("app.pipelines.toast.deleted") });
       fetchPipelines();
     }
     setDeleteTarget(null);
@@ -219,26 +221,26 @@ const Pipelines = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">AI Pipelines</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("app.pipelines.title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage your AI integrations and privacy configurations
+            {t("app.pipelines.subtitle")}
           </p>
         </div>
         <Button size="sm" className="gap-2" onClick={() => setDialogOpen(true)}>
           <Plus className="w-4 h-4" />
-          New Pipeline
+          {t("app.pipelines.button.new")}
         </Button>
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground text-sm">Loading pipelines…</div>
+        <div className="text-center py-12 text-muted-foreground text-sm">{t("app.pipelines.loading")}</div>
       ) : pipelines.length === 0 ? (
         <Card className="border-border bg-card">
           <CardContent className="flex flex-col items-center justify-center py-16 gap-3">
             <GitBranch className="w-10 h-10 text-muted-foreground" />
-            <p className="text-muted-foreground text-sm">No pipelines yet</p>
+            <p className="text-muted-foreground text-sm">{t("app.pipelines.empty")}</p>
             <Button size="sm" onClick={() => setDialogOpen(true)}>
-              Create your first pipeline
+              {t("app.pipelines.button.createFirst")}
             </Button>
           </CardContent>
         </Card>
@@ -270,13 +272,13 @@ const Pipelines = () => {
                             const prov = llmProviders?.[pipe.llm_provider];
                             if (!prov) return null;
                             if (prov.provider_risk_level === "high") {
-                              return <Badge variant="outline" className="bg-destructive/15 text-destructive border-destructive/30 text-[10px] px-1.5 py-0">⚠ High Risk Provider</Badge>;
+                              return <Badge variant="outline" className="bg-destructive/15 text-destructive border-destructive/30 text-[10px] px-1.5 py-0">⚠ {t("app.pipelines.badge.highRisk")}</Badge>;
                             }
                             if (prov.provider_risk_level === "medium" && !prov.eu_residency) {
-                              return <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-[10px] px-1.5 py-0">Non-EU Provider</Badge>;
+                              return <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-[10px] px-1.5 py-0">{t("app.pipelines.badge.nonEu")}</Badge>;
                             }
                             if (prov.eu_residency && prov.training_disabled) {
-                              return <Badge variant="outline" className="bg-success/15 text-success border-success/30 text-[10px] px-1.5 py-0">EU · Training Disabled</Badge>;
+                              return <Badge variant="outline" className="bg-success/15 text-success border-success/30 text-[10px] px-1.5 py-0">{t("app.pipelines.badge.euTrainingDisabled")}</Badge>;
                             }
                             return null;
                           })()}
@@ -294,22 +296,22 @@ const Pipelines = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-44">
                           <DropdownMenuItem onClick={() => openEdit(pipe)}>
-                            <Pencil className="w-3.5 h-3.5 mr-2" /> Edit
+                            <Pencil className="w-3.5 h-3.5 mr-2" /> {t("app.pipelines.menu.edit")}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           {pipe.status !== "active" && (
                             <DropdownMenuItem onClick={() => handleStatusChange(pipe, "active")}>
-                              <Play className="w-3.5 h-3.5 mr-2" /> Activate
+                              <Play className="w-3.5 h-3.5 mr-2" /> {t("app.pipelines.menu.activate")}
                             </DropdownMenuItem>
                           )}
                           {pipe.status !== "paused" && pipe.status !== "archived" && (
                             <DropdownMenuItem onClick={() => handleStatusChange(pipe, "paused")}>
-                              <Pause className="w-3.5 h-3.5 mr-2" /> Pause
+                              <Pause className="w-3.5 h-3.5 mr-2" /> {t("app.pipelines.menu.pause")}
                             </DropdownMenuItem>
                           )}
                           {pipe.status !== "archived" && (
                             <DropdownMenuItem onClick={() => handleStatusChange(pipe, "archived")}>
-                              <Archive className="w-3.5 h-3.5 mr-2" /> Archive
+                              <Archive className="w-3.5 h-3.5 mr-2" /> {t("app.pipelines.menu.archive")}
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuSeparator />
@@ -317,7 +319,7 @@ const Pipelines = () => {
                             onClick={() => setDeleteTarget(pipe)}
                             className="text-destructive focus:text-destructive"
                           >
-                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+                            <Trash2 className="w-3.5 h-3.5 mr-2" /> {t("app.pipelines.menu.delete")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -326,23 +328,23 @@ const Pipelines = () => {
 
                   <div className="grid grid-cols-6 gap-4 mt-5 pt-4 border-t border-border">
                     <div>
-                      <p className="text-xs text-muted-foreground">Requests</p>
+                      <p className="text-xs text-muted-foreground">{t("app.pipelines.stat.requests")}</p>
                       <p className="text-sm font-semibold">{pipe.total_requests.toLocaleString()}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">PII Detected</p>
+                      <p className="text-xs text-muted-foreground">{t("app.pipelines.stat.piiDetected")}</p>
                       <p className="text-sm font-semibold">{pipe.total_pii_detected.toLocaleString()}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Protected</p>
+                      <p className="text-xs text-muted-foreground">{t("app.pipelines.stat.protected")}</p>
                       <p className="text-sm font-semibold">{pipe.total_pii_masked.toLocaleString()}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Coverage</p>
+                      <p className="text-xs text-muted-foreground">{t("app.pipelines.stat.coverage")}</p>
                       <p className="text-sm font-semibold text-success">{coverage}%</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Avg Risk</p>
+                      <p className="text-xs text-muted-foreground">{t("app.pipelines.stat.avgRisk")}</p>
                       {(() => {
                         const avgRisk = riskScores?.[pipe.id];
                         if (avgRisk == null) return <p className="text-sm font-semibold text-muted-foreground">—</p>;
@@ -352,7 +354,7 @@ const Pipelines = () => {
                       })()}
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Latency</p>
+                      <p className="text-xs text-muted-foreground">{t("app.pipelines.stat.latency")}</p>
                       <p className="text-sm font-semibold">{pipe.avg_latency_ms}ms</p>
                     </div>
                   </div>
@@ -366,7 +368,7 @@ const Pipelines = () => {
                       onClick={() => setExpandedPipeline(expandedPipeline === pipe.id ? null : pipe.id)}
                     >
                       <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expandedPipeline === pipe.id ? "rotate-180" : ""}`} />
-                      Pipeline Policies
+                      {t("app.pipelines.button.policies")}
                     </Button>
                   </div>
 
@@ -416,15 +418,15 @@ const Pipelines = () => {
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete pipeline?</AlertDialogTitle>
+            <AlertDialogTitle>{t("app.pipelines.delete.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete <strong>{deleteTarget?.name}</strong> and all associated data. This action cannot be undone.
+              {t("app.pipelines.delete.descPrefix")} <strong>{deleteTarget?.name}</strong> {t("app.pipelines.delete.descSuffix")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("app.pipelines.delete.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+              {t("app.pipelines.delete.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

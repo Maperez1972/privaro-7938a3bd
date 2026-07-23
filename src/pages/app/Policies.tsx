@@ -36,6 +36,7 @@ import PolicyPresetPanel from "@/components/app/PolicyPresetPanel";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, MoreVertical, Pencil, Trash2, Download, Upload, Info, Zap } from "lucide-react";
 import { PaginationControls, paginate } from "@/components/app/PaginationControls";
+import { useLanguage } from "@/context/LanguageContext";
 
 const actionColors: Record<string, string> = {
   tokenise: "bg-primary/15 text-primary border-primary/30",
@@ -63,6 +64,7 @@ interface PipelineRuleRow extends PolicyRule {
 }
 
 const Policies = () => {
+  const { t } = useLanguage();
   const { profile, user } = useAuth();
   const { toast } = useToast();
   const [rules, setRules] = useState<PolicyRule[]>([]);
@@ -172,9 +174,9 @@ const Policies = () => {
     });
     setSaving(false);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("app.policies.toast.error"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Rule created" });
+      toast({ title: t("app.policies.toast.created") });
       setDialogOpen(false);
       localStorage.removeItem("privaro-lastPreset");
       setActivePreset(null);
@@ -203,14 +205,14 @@ const Policies = () => {
 
     setSaving(false);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("app.policies.toast.error"), description: error.message, variant: "destructive" });
       return;
     }
     if (!updatedRule) {
-      toast({ title: "Update blocked", description: "No tienes permisos UPDATE para esta regla (RLS).", variant: "destructive" });
+      toast({ title: t("app.policies.toast.updateBlocked"), description: t("app.policies.toast.updateBlockedDesc"), variant: "destructive" });
       return;
     }
-    toast({ title: "Rule updated" });
+    toast({ title: t("app.policies.toast.updated") });
     setEditRule(null);
     localStorage.removeItem("privaro-lastPreset");
     setActivePreset(null);
@@ -228,11 +230,11 @@ const Policies = () => {
       .maybeSingle();
 
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("app.policies.toast.error"), description: error.message, variant: "destructive" });
       return;
     }
     if (!updatedRule) {
-      toast({ title: "Update blocked", description: "No tienes permisos UPDATE para esta regla (RLS).", variant: "destructive" });
+      toast({ title: t("app.policies.toast.updateBlocked"), description: t("app.policies.toast.updateBlockedDesc"), variant: "destructive" });
       return;
     }
     setRules((prev) => prev.map((r) => r.id === rule.id ? { ...r, is_enabled: !r.is_enabled } : r));
@@ -242,9 +244,9 @@ const Policies = () => {
     if (!deleteTarget) return;
     const { error } = await supabase.from("policy_rules").delete().eq("id", deleteTarget.id);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("app.policies.toast.error"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Rule deleted" });
+      toast({ title: t("app.policies.toast.deleted") });
       localStorage.removeItem("privaro-lastPreset");
       setActivePreset(null);
       fetchRules();
@@ -267,7 +269,7 @@ const Policies = () => {
     a.download = `privaro-policy-rules-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: "Rules exported", description: `${rules.length} rules downloaded as JSON` });
+    toast({ title: t("app.policies.toast.exported"), description: `${rules.length} ${t("app.policies.toast.exportedDesc")}` });
   };
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -295,15 +297,15 @@ const Policies = () => {
         }));
         const { error } = await (supabase as any).from("policy_rules").insert(rows);
         if (error) {
-          toast({ title: "Import error", description: error.message, variant: "destructive" });
+          toast({ title: t("app.policies.toast.importError"), description: error.message, variant: "destructive" });
         } else {
           localStorage.removeItem("privaro-lastPreset");
           setActivePreset(null);
-          toast({ title: "Rules imported", description: `${rows.length} rules loaded` });
+          toast({ title: t("app.policies.toast.imported"), description: `${rows.length} ${t("app.policies.toast.importedDesc")}` });
           fetchRules();
         }
       } catch {
-        toast({ title: "Invalid file", description: "Could not parse the JSON file", variant: "destructive" });
+        toast({ title: t("app.policies.toast.invalidFile"), description: t("app.policies.toast.invalidFileDesc"), variant: "destructive" });
       }
     };
     reader.readAsText(file);
@@ -327,17 +329,17 @@ const Policies = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Policy Engine</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("app.policies.title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Configure GDPR-aligned privacy rules for PII handling
+            {t("app.policies.subtitle")}
           </p>
         </div>
       </div>
 
       <Tabs defaultValue="org-rules" className="w-full">
         <TabsList>
-          <TabsTrigger value="org-rules">Org Rules</TabsTrigger>
-          <TabsTrigger value="pipeline-rules">Pipeline Rules</TabsTrigger>
+          <TabsTrigger value="org-rules">{t("app.policies.tab.orgRules")}</TabsTrigger>
+          <TabsTrigger value="pipeline-rules">{t("app.policies.tab.pipelineRules")}</TabsTrigger>
         </TabsList>
 
         {/* ─── ORG RULES TAB ─── */}
@@ -346,7 +348,7 @@ const Policies = () => {
           <div className="flex items-start gap-2.5 p-3 rounded-lg bg-primary/5 border border-primary/20">
             <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
             <p className="text-xs text-muted-foreground">
-              These rules apply to <strong className="text-foreground">all pipelines</strong> as fallback. Pipeline-specific rules take precedence. Use the Pipelines section to configure per-pipeline policies.
+              {t("app.policies.infoBanner.part1")} <strong className="text-foreground">{t("app.policies.infoBanner.allPipelines")}</strong> {t("app.policies.infoBanner.part2")}
             </p>
           </div>
 
@@ -355,15 +357,15 @@ const Policies = () => {
             {rules.length > 0 && (
               <>
                 <Button size="sm" variant="outline" className="gap-2" onClick={handleExport}>
-                  <Download className="w-4 h-4" /> Export
+                  <Download className="w-4 h-4" /> {t("app.policies.button.export")}
                 </Button>
                 <Button size="sm" variant="outline" className="gap-2" onClick={() => fileInputRef.current?.click()}>
-                  <Upload className="w-4 h-4" /> Import
+                  <Upload className="w-4 h-4" /> {t("app.policies.button.import")}
                 </Button>
               </>
             )}
             <Button size="sm" className="gap-2" onClick={() => setDialogOpen(true)}>
-              <Plus className="w-4 h-4" /> New Rule
+              <Plus className="w-4 h-4" /> {t("app.policies.button.newRule")}
             </Button>
             <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
           </div>
@@ -374,12 +376,12 @@ const Policies = () => {
           )}
 
           {loading ? (
-            <div className="text-center py-12 text-muted-foreground text-sm">Loading rules…</div>
+            <div className="text-center py-12 text-muted-foreground text-sm">{t("app.policies.loadingRules")}</div>
           ) : rules.length === 0 ? (
             <Card className="border-border bg-card">
               <CardContent className="flex flex-col items-center justify-center py-16 gap-3">
-                <p className="text-muted-foreground text-sm">No org-level rules configured</p>
-                <p className="text-xs text-muted-foreground">Apply a preset above or create a custom rule</p>
+                <p className="text-muted-foreground text-sm">{t("app.policies.empty.orgRules")}</p>
+                <p className="text-xs text-muted-foreground">{t("app.policies.empty.orgRulesHint")}</p>
               </CardContent>
             </Card>
           ) : (
@@ -387,14 +389,14 @@ const Policies = () => {
               <div className="flex items-center gap-2">
                 {activePresetSlug ? (
                   <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs">
-                    {activePresetSlug} active
+                    {activePresetSlug} {t("app.policies.badge.active")}
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="bg-secondary text-muted-foreground border-border text-xs">
-                    Custom configuration
+                    {t("app.policies.badge.customConfig")}
                   </Badge>
                 )}
-                <span className="text-xs text-muted-foreground">{rules.length} rules</span>
+                <span className="text-xs text-muted-foreground">{rules.length} {t("app.policies.rulesSuffix")}</span>
               </div>
 
               <Card className="border-border bg-card">
@@ -402,12 +404,12 @@ const Policies = () => {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="text-left text-muted-foreground border-b border-border">
-                        <th className="p-4 font-medium">Enabled</th>
-                        <th className="p-4 font-medium">Priority</th>
-                        <th className="p-4 font-medium">Entity Type</th>
-                        <th className="p-4 font-medium">Category</th>
-                        <th className="p-4 font-medium">Action</th>
-                        <th className="p-4 font-medium">Regulation</th>
+                        <th className="p-4 font-medium">{t("app.policies.col.enabled")}</th>
+                        <th className="p-4 font-medium">{t("app.policies.col.priority")}</th>
+                        <th className="p-4 font-medium">{t("app.policies.col.entityType")}</th>
+                        <th className="p-4 font-medium">{t("app.policies.col.category")}</th>
+                        <th className="p-4 font-medium">{t("app.policies.col.action")}</th>
+                        <th className="p-4 font-medium">{t("app.policies.col.regulation")}</th>
                         <th className="p-4 font-medium w-10"></th>
                       </tr>
                     </thead>
@@ -437,11 +439,11 @@ const Policies = () => {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-36">
                                 <DropdownMenuItem onClick={() => setEditRule(rule)}>
-                                  <Pencil className="w-3.5 h-3.5 mr-2" /> Edit
+                                  <Pencil className="w-3.5 h-3.5 mr-2" /> {t("app.policies.menu.edit")}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => setDeleteTarget(rule)} className="text-destructive focus:text-destructive">
-                                  <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+                                  <Trash2 className="w-3.5 h-3.5 mr-2" /> {t("app.policies.menu.delete")}
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -460,28 +462,28 @@ const Policies = () => {
         {/* ─── PIPELINE RULES TAB ─── */}
         <TabsContent value="pipeline-rules" className="space-y-5 mt-4">
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">Filter by pipeline:</span>
+            <span className="text-sm text-muted-foreground">{t("app.policies.filterByPipeline")}</span>
             <Select value={pipelineFilter} onValueChange={(v) => { setPipelineFilter(v); setPipePage(0); }}>
               <SelectTrigger className="w-[200px] h-8 text-xs">
-                <SelectValue placeholder="All pipelines" />
+                <SelectValue placeholder={t("app.policies.allPipelines")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Pipelines</SelectItem>
+                <SelectItem value="all">{t("app.policies.allPipelines")}</SelectItem>
                 {pipelines.map(p => (
                   <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <span className="text-xs text-muted-foreground ml-auto">{filteredPipelineRules.length} rules</span>
+            <span className="text-xs text-muted-foreground ml-auto">{filteredPipelineRules.length} {t("app.policies.rulesSuffix")}</span>
           </div>
 
           {pipelineRulesLoading ? (
-            <div className="text-center py-12 text-muted-foreground text-sm">Loading pipeline rules…</div>
+            <div className="text-center py-12 text-muted-foreground text-sm">{t("app.policies.loadingPipelineRules")}</div>
           ) : filteredPipelineRules.length === 0 ? (
             <Card className="border-border bg-card">
               <CardContent className="flex flex-col items-center justify-center py-16 gap-3">
-                <p className="text-muted-foreground text-sm">No pipeline-specific rules</p>
-                <p className="text-xs text-muted-foreground">Configure per-pipeline rules from the Pipelines section</p>
+                <p className="text-muted-foreground text-sm">{t("app.policies.empty.pipelineRules")}</p>
+                <p className="text-xs text-muted-foreground">{t("app.policies.empty.pipelineRulesHint")}</p>
               </CardContent>
             </Card>
           ) : (
@@ -490,18 +492,18 @@ const Policies = () => {
                 <div key={pipelineName} className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Badge className="bg-blue-700/20 text-blue-400 border-blue-500/30 text-xs">{pipelineName}</Badge>
-                    <span className="text-xs text-muted-foreground">{pipeRules.length} rules</span>
+                    <span className="text-xs text-muted-foreground">{pipeRules.length} {t("app.policies.rulesSuffix")}</span>
                   </div>
                   <Card className="border-border bg-card">
                     <CardContent className="p-0">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="text-left text-muted-foreground border-b border-border">
-                            <th className="p-3 font-medium text-xs">Entity Type</th>
-                            <th className="p-3 font-medium text-xs">Action</th>
-                            <th className="p-3 font-medium text-xs">Overrides Org</th>
-                            <th className="p-3 font-medium text-xs">Priority</th>
-                            <th className="p-3 font-medium text-xs">Regulation</th>
+                            <th className="p-3 font-medium text-xs">{t("app.policies.col.entityType")}</th>
+                            <th className="p-3 font-medium text-xs">{t("app.policies.col.action")}</th>
+                            <th className="p-3 font-medium text-xs">{t("app.policies.col.overridesOrg")}</th>
+                            <th className="p-3 font-medium text-xs">{t("app.policies.col.priority")}</th>
+                            <th className="p-3 font-medium text-xs">{t("app.policies.col.regulation")}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -558,15 +560,15 @@ const Policies = () => {
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete rule?</AlertDialogTitle>
+            <AlertDialogTitle>{t("app.policies.delete.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the <strong>{deleteTarget?.entity_type}</strong> rule.
+              {t("app.policies.delete.descPrefix")} <strong>{deleteTarget?.entity_type}</strong> {t("app.policies.delete.descSuffix")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("app.policies.delete.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+              {t("app.policies.delete.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

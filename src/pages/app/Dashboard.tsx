@@ -9,8 +9,10 @@ import {
   useCoverageOverTime,
   useRecentActivity,
 } from "@/hooks/useDashboardData";
+import { useLanguage } from "@/context/LanguageContext";
 
 const Dashboard = () => {
+  const { t } = useLanguage();
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
   const { data: timeSeries, isLoading: tsLoading } = useDashboardTimeSeries();
   const { data: piiCategories, isLoading: catLoading } = usePiiByCategory();
@@ -20,9 +22,9 @@ const Dashboard = () => {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t("app.dashboard.title")}</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Real-time privacy operations overview
+          {t("app.dashboard.subtitle")}
         </p>
       </div>
 

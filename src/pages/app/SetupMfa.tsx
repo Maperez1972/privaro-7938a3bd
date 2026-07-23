@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/context/LanguageContext";
 
 const SetupMfa = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [factorId, setFactorId] = useState<string | null>(null);
@@ -57,7 +59,7 @@ const SetupMfa = () => {
         setSecret(data.totp.secret);
         localStorage.setItem("privaro_mfa_factor_id", data.id);
       } catch (err: any) {
-        toast({ title: "Error setting up MFA", description: err.message, variant: "destructive" });
+        toast({ title: t("app.mfa.setup.errorTitle"), description: err.message, variant: "destructive" });
       } finally {
         setEnrolling(false);
       }
@@ -72,10 +74,10 @@ const SetupMfa = () => {
     const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId, code });
     setLoading(false);
     if (error) {
-      toast({ title: "Verification failed", description: error.message, variant: "destructive" });
+      toast({ title: t("app.mfa.verifyFailed"), description: error.message, variant: "destructive" });
       return;
     }
-    toast({ title: "MFA enabled successfully" });
+    toast({ title: t("app.mfa.setup.enabled") });
     navigate("/app");
   };
 
@@ -92,24 +94,24 @@ const SetupMfa = () => {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-4">
             <Shield className="w-7 h-7 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Set up two-factor authentication</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t("app.mfa.setup.title")}</h1>
           <p className="text-muted-foreground mt-2 text-sm">
-            Scan the QR code with your authenticator app (Google Authenticator, Authy, or similar).
+            {t("app.mfa.setup.scanInstructions")}
           </p>
           <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400">
-            Required for admin accounts
+            {t("app.mfa.setup.requiredForAdmins")}
           </span>
         </div>
 
         <div className="bg-card border border-border rounded-xl p-8">
           <ol className="text-sm text-muted-foreground mb-6 space-y-1">
-            <li>1. Scan QR</li>
-            <li>2. Enter code</li>
-            <li>3. Confirm</li>
+            <li>1. {t("app.mfa.setup.step1")}</li>
+            <li>2. {t("app.mfa.setup.step2")}</li>
+            <li>3. {t("app.mfa.setup.step3")}</li>
           </ol>
 
           {enrolling ? (
-            <p className="text-center text-muted-foreground text-sm py-8">Preparing MFA setup...</p>
+            <p className="text-center text-muted-foreground text-sm py-8">{t("app.mfa.setup.preparing")}</p>
           ) : (
             <form onSubmit={handleVerify} className="space-y-5">
               {qrCode && (
@@ -119,7 +121,7 @@ const SetupMfa = () => {
               )}
               {secret && (
                 <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground text-center">Or enter this code manually</p>
+                  <p className="text-xs text-muted-foreground text-center">{t("app.mfa.setup.manualEntry")}</p>
                   <div className="flex items-center gap-2 bg-surface border border-border rounded-md px-3 py-2">
                     <code className="flex-1 text-xs font-mono text-foreground break-all">{secret}</code>
                     <button type="button" onClick={copySecret} className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors">
@@ -129,7 +131,7 @@ const SetupMfa = () => {
                 </div>
               )}
               <div className="space-y-2">
-                <Label>Verification code</Label>
+                <Label>{t("app.mfa.verificationCode")}</Label>
                 <Input
                   type="text"
                   inputMode="numeric"
@@ -142,7 +144,7 @@ const SetupMfa = () => {
                 />
               </div>
               <Button type="submit" className="w-full" disabled={loading || code.length !== 6}>
-                {loading ? "Verifying..." : "Confirm"}
+                {loading ? t("app.mfa.verifying") : t("app.common.confirm")}
               </Button>
             </form>
           )}

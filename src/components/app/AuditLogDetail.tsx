@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Props {
   logId: string;
@@ -17,6 +18,7 @@ interface PiiDetection {
 }
 
 export const AuditLogDetail = ({ logId, riskScore }: Props) => {
+  const { t } = useLanguage();
   const { data: detections, isLoading } = useQuery({
     queryKey: ["pii-detections", logId],
     queryFn: async (): Promise<PiiDetection[]> => {
@@ -28,7 +30,7 @@ export const AuditLogDetail = ({ logId, riskScore }: Props) => {
     },
   });
 
-  const riskLabel = riskScore == null ? "—" : riskScore >= 0.7 ? "HIGH RISK" : riskScore >= 0.4 ? "MEDIUM" : "LOW";
+  const riskLabel = riskScore == null ? "—" : riskScore >= 0.7 ? t("app.audit.detail.highRisk") : riskScore >= 0.4 ? t("app.audit.detail.medium") : t("app.audit.detail.low");
   const riskColor = riskScore == null ? "text-muted-foreground" : riskScore >= 0.7 ? "text-destructive" : riskScore >= 0.4 ? "text-amber-400" : "text-green-400";
   const riskBg = riskScore == null ? "bg-muted" : riskScore >= 0.7 ? "bg-destructive/15" : riskScore >= 0.4 ? "bg-amber-500/15" : "bg-green-500/15";
 
@@ -37,7 +39,7 @@ export const AuditLogDetail = ({ logId, riskScore }: Props) => {
       <div className="max-w-4xl space-y-4">
         {/* Risk Analysis Header */}
         <div>
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Risk Analysis</h4>
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t("app.audit.detail.riskAnalysis")}</h4>
           <div className="flex items-center gap-3">
             <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-bold ${riskBg} ${riskColor}`}>
               {riskScore != null ? `${(riskScore * 100).toFixed(1)}%` : "—"}
@@ -48,7 +50,7 @@ export const AuditLogDetail = ({ logId, riskScore }: Props) => {
 
         {/* PII Detections */}
         <div>
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">PII Detections</h4>
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t("app.audit.detail.piiDetections")}</h4>
           {isLoading ? (
             <div className="space-y-2">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -65,20 +67,20 @@ export const AuditLogDetail = ({ logId, riskScore }: Props) => {
                   <span className="font-mono bg-secondary px-1.5 py-0.5 rounded">{det.entity_type}</span>
                   <span className="text-muted-foreground">
                     · weight {(det.confidence_score * 100).toFixed(0)}%
-                    · {det.detector_version || "unknown"}
+                    · {det.detector_version || t("app.audit.detail.unknown")}
                   </span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground">No PII detections recorded for this event</p>
+            <p className="text-xs text-muted-foreground">{t("app.audit.detail.noDetections")}</p>
           )}
         </div>
 
         {/* Decision */}
         {detections && detections.length > 0 && detections[0].decision_reason && (
           <div>
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Decision</h4>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">{t("app.audit.detail.decision")}</h4>
             <p className="text-xs text-muted-foreground font-mono">{detections[0].decision_reason}</p>
           </div>
         )}

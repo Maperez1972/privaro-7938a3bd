@@ -9,6 +9,8 @@ import { AlertTriangle, ShieldAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+import { es } from "date-fns/locale";
+import { useLanguage } from "@/context/LanguageContext";
 
 const RISK_COLORS = {
   high: "#EF4444",
@@ -124,6 +126,7 @@ export function useRiskOverview() {
 }
 
 export const RiskOverviewWidget = () => {
+  const { t, lang } = useLanguage();
   const { distribution, topRisk } = useRiskOverview();
   const navigate = useNavigate();
 
@@ -132,7 +135,7 @@ export const RiskOverviewWidget = () => {
       {/* Donut Chart */}
       <Card className="border-border bg-card">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Risk Distribution</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">{t("app.dashboard.risk.distribution")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center">
           {distribution.isLoading ? (
@@ -142,7 +145,7 @@ export const RiskOverviewWidget = () => {
           ) : (distribution.data?.length ?? 0) === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <ShieldAlert className="w-8 h-8 text-muted-foreground/30 mb-3" />
-              <p className="text-sm text-muted-foreground">No risk data yet</p>
+              <p className="text-sm text-muted-foreground">{t("app.dashboard.risk.noData")}</p>
             </div>
           ) : (
             <>
@@ -182,7 +185,7 @@ export const RiskOverviewWidget = () => {
       {/* Top Risk Events */}
       <Card className="border-border bg-card">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Top Risk Events <span className="text-xs font-normal opacity-60 ml-1">· last 7 days</span></CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">{t("app.dashboard.risk.topEvents")} <span className="text-xs font-normal opacity-60 ml-1">· {t("app.dashboard.risk.last7days")}</span></CardTitle>
         </CardHeader>
         <CardContent>
           {topRisk.isLoading ? (
@@ -194,7 +197,7 @@ export const RiskOverviewWidget = () => {
           ) : (topRisk.data?.length ?? 0) === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <AlertTriangle className="w-8 h-8 text-muted-foreground/30 mb-3" />
-              <p className="text-sm text-muted-foreground">No high-risk events</p>
+              <p className="text-sm text-muted-foreground">{t("app.dashboard.risk.noHighRisk")}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -213,7 +216,7 @@ export const RiskOverviewWidget = () => {
                       <span className="text-xs text-muted-foreground truncate">· {evt.pipeline_name}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {formatDistanceToNow(new Date(evt.created_at), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(evt.created_at), { addSuffix: true, locale: lang === "es" ? es : undefined })}
                     </p>
                   </div>
                   <span className={cn(

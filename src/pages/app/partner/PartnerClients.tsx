@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
+import { es as esLocale, enUS } from "date-fns/locale";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Building2, Plus, Users, Copy, AlertTriangle, Check, Inbox } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Seo from "@/components/Seo";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   usePartnerData,
   useCreateSubAccount,
@@ -61,6 +63,7 @@ const PROVIDER_LABELS: Record<string, string> = {
 const PartnerClients = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t, lang } = useLanguage();
   const { data, isLoading, isError, error } = usePartnerData();
   const createMutation = useCreateSubAccount();
 
@@ -80,7 +83,7 @@ const PartnerClients = () => {
   const usageTone = pct >= 100 ? "danger" : pct >= 80 ? "warn" : "ok";
 
   if (isLoading) {
-    return <div className="p-8 text-muted-foreground">Cargando datos de partner...</div>;
+    return <div className="p-8 text-muted-foreground">{t("app.partner.loading")}</div>;
   }
 
   if (isError) {
@@ -89,14 +92,14 @@ const PartnerClients = () => {
         <Seo title="Mis clientes — Privaro Partners" description="Gestiona los clientes finales de tu integración partner con Privaro." path="/app/partner/clients" noindex />
         <Card className="p-8 text-center space-y-3">
           <AlertTriangle className="h-10 w-10 text-destructive mx-auto" />
-          <h1 className="text-xl font-semibold">No se pudo cargar</h1>
+          <h1 className="text-xl font-semibold">{t("app.partner.error.title")}</h1>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            No se han podido cargar los datos de facturación del partner. Revisa que esta organización tenga configuración de billing activa e inténtalo de nuevo.
+            {t("app.partner.error.description")}
           </p>
           <p className="text-xs text-muted-foreground">
-            {error?.message ? `Detalle: ${error.message}` : null}
+            {error?.message ? `${t("app.partner.error.detail")}: ${error.message}` : null}
           </p>
-          <Button variant="outline" onClick={() => navigate("/app")}>Volver al dashboard</Button>
+          <Button variant="outline" onClick={() => navigate("/app")}>{t("app.partner.backToDashboard")}</Button>
         </Card>
       </div>
     );
@@ -109,11 +112,11 @@ const PartnerClients = () => {
         <Seo title="Mis clientes — Privaro Partners" description="Gestiona los clientes finales de tu integración partner con Privaro." path="/app/partner/clients" noindex />
         <Card className="p-8 text-center space-y-3">
           <Building2 className="h-10 w-10 text-muted-foreground mx-auto" />
-          <h1 className="text-xl font-semibold">Sección solo para partners</h1>
+          <h1 className="text-xl font-semibold">{t("app.partner.notPartner.title")}</h1>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Esta organización no está marcada como partner. Los partners (ISVs que embeben Privaro en su producto) pueden dar de alta clientes finales y gestionar sus API keys desde aquí.
+            {t("app.partner.notPartner.description")}
           </p>
-          <Button variant="outline" onClick={() => navigate("/app")}>Volver al dashboard</Button>
+          <Button variant="outline" onClick={() => navigate("/app")}>{t("app.partner.backToDashboard")}</Button>
         </Card>
       </div>
     );
@@ -128,7 +131,7 @@ const PartnerClients = () => {
     e.preventDefault();
     setFormError(null);
     if (!form.name.trim() || !form.sector || !form.llm_provider || !form.llm_model) {
-      setFormError("Todos los campos son obligatorios.");
+      setFormError(t("app.partner.form.errorRequired"));
       return;
     }
     try {
@@ -142,7 +145,7 @@ const PartnerClients = () => {
       resetForm();
       setCreated(result);
     } catch (err: unknown) {
-      setFormError(err instanceof Error ? err.message : "No se pudo crear el cliente.");
+      setFormError(err instanceof Error ? err.message : t("app.partner.form.errorCreate"));
     }
   };
 
@@ -150,7 +153,7 @@ const PartnerClients = () => {
     if (!created?.api_key) return;
     await navigator.clipboard.writeText(created.api_key);
     setCopied(true);
-    toast({ title: "Copiada", description: "API key copiada al portapapeles." });
+    toast({ title: t("app.partner.toast.copiedTitle"), description: t("app.partner.toast.copiedDescription") });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -167,11 +170,11 @@ const PartnerClients = () => {
       <div>
         <div className="flex items-center gap-3">
           <Building2 className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold">Mis clientes</h1>
+          <h1 className="text-2xl font-bold">{t("app.partner.title")}</h1>
           <Badge variant="outline">{data.sub_accounts.length}</Badge>
         </div>
         <p className="text-sm text-muted-foreground mt-1">
-          Partner: <span className="text-foreground font-medium">{data.partner.name}</span>
+          {t("app.partner.label")}: <span className="text-foreground font-medium">{data.partner.name}</span>
         </p>
       </div>
 
@@ -181,22 +184,22 @@ const PartnerClients = () => {
           <div className="flex items-center gap-2">
             <Badge className="uppercase">{usage!.plan}</Badge>
             <Badge variant="outline" className="capitalize">
-              Fase: {usage!.discount_phase.replace("_", " ")}
+              {t("app.partner.usage.phase")}: {usage!.discount_phase.replace("_", " ")}
             </Badge>
             <span className="text-xs text-muted-foreground">
-              Ciclo desde {new Date(usage!.billing_cycle_start).toLocaleDateString()}
+              {t("app.partner.usage.cycleSince")} {new Date(usage!.billing_cycle_start).toLocaleDateString()}
             </span>
           </div>
           <span className="text-sm font-medium">
-            {usage!.requests_used.toLocaleString()} / {usage!.requests_limit.toLocaleString()} peticiones este ciclo
+            {usage!.requests_used.toLocaleString()} / {usage!.requests_limit.toLocaleString()} {t("app.partner.usage.requestsThisCycle")}
           </span>
         </div>
         <Progress value={pct} className={barColor} />
         {usageTone !== "ok" && (
           <p className={usageTone === "danger" ? "text-xs text-destructive" : "text-xs text-amber-500"}>
             {usageTone === "danger"
-              ? "Has superado el volumen incluido en tu plan. El tráfico sigue funcionando; revisaremos el excedente en la facturación del ciclo."
-              : "Estás cerca del volumen incluido en tu plan. El tráfico no se bloquea, es solo informativo."}
+              ? t("app.partner.usage.overLimit")
+              : t("app.partner.usage.nearLimit")}
           </p>
         )}
       </Card>
@@ -205,10 +208,10 @@ const PartnerClients = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Users className="h-5 w-5 text-muted-foreground" />
-          <h2 className="text-lg font-semibold">Clientes finales</h2>
+          <h2 className="text-lg font-semibold">{t("app.partner.finalClients")}</h2>
         </div>
         <Button onClick={() => { resetForm(); setDialogOpen(true); }}>
-          <Plus className="h-4 w-4 mr-2" /> Añadir cliente
+          <Plus className="h-4 w-4 mr-2" /> {t("app.partner.addClient")}
         </Button>
       </div>
 
@@ -216,8 +219,8 @@ const PartnerClients = () => {
         <Table>
           <TableHeader>
             <TableRow className="border-border">
-              <TableHead>Nombre</TableHead>
-              <TableHead>Fecha de alta</TableHead>
+              <TableHead>{t("app.partner.table.name")}</TableHead>
+              <TableHead>{t("app.partner.table.createdAt")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -226,10 +229,10 @@ const PartnerClients = () => {
                 <TableCell colSpan={2} className="text-center py-16">
                   <div className="flex flex-col items-center gap-2 text-muted-foreground">
                     <Inbox className="h-10 w-10" />
-                    <p className="font-medium text-foreground">Aún no tienes clientes</p>
-                    <p className="text-xs">Crea tu primer cliente para generar su API key.</p>
+                    <p className="font-medium text-foreground">{t("app.partner.empty.title")}</p>
+                    <p className="text-xs">{t("app.partner.empty.description")}</p>
                     <Button size="sm" className="mt-2" onClick={() => { resetForm(); setDialogOpen(true); }}>
-                      <Plus className="h-4 w-4 mr-2" /> Añadir cliente
+                      <Plus className="h-4 w-4 mr-2" /> {t("app.partner.addClient")}
                     </Button>
                   </div>
                 </TableCell>
@@ -239,7 +242,7 @@ const PartnerClients = () => {
                 <TableRow key={s.id} className="border-border">
                   <TableCell className="font-semibold">{s.name}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">
-                    {formatDistanceToNow(new Date(s.created_at), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(s.created_at), { addSuffix: true, locale: lang === "es" ? esLocale : enUS })}
                   </TableCell>
                 </TableRow>
               ))
@@ -252,20 +255,20 @@ const PartnerClients = () => {
       <Dialog open={dialogOpen} onOpenChange={(o) => { if (!createMutation.isPending) { setDialogOpen(o); if (!o) resetForm(); } }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Añadir cliente</DialogTitle>
+            <DialogTitle>{t("app.partner.addClient")}</DialogTitle>
             <DialogDescription>
-              Da de alta un cliente final. Se generará una API key para integrarla en tu producto.
+              {t("app.partner.dialog.description")}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="client-name">Nombre del cliente</Label>
-              <Input id="client-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ej. Acme Corp" maxLength={120} required />
+              <Label htmlFor="client-name">{t("app.partner.form.clientName")}</Label>
+              <Input id="client-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={t("app.partner.form.clientNamePlaceholder")} maxLength={120} required />
             </div>
             <div className="space-y-2">
-              <Label>Sector</Label>
+              <Label>{t("app.partner.form.sector")}</Label>
               <Select value={form.sector} onValueChange={(v) => setForm({ ...form, sector: v })}>
-                <SelectTrigger><SelectValue placeholder="Selecciona sector" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("app.partner.form.selectSector")} /></SelectTrigger>
                 <SelectContent>
                   {SECTORS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
                 </SelectContent>
@@ -273,12 +276,12 @@ const PartnerClients = () => {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>Proveedor LLM</Label>
+                <Label>{t("app.partner.form.llmProvider")}</Label>
                 <Select
                   value={form.llm_provider}
                   onValueChange={(v) => setForm({ ...form, llm_provider: v, llm_model: "" })}
                 >
-                  <SelectTrigger><SelectValue placeholder="Proveedor" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t("app.partner.form.provider")} /></SelectTrigger>
                   <SelectContent>
                     {Object.keys(PROVIDERS).map((p) => (
                       <SelectItem key={p} value={p}>{PROVIDER_LABELS[p]}</SelectItem>
@@ -287,9 +290,9 @@ const PartnerClients = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Modelo</Label>
+                <Label>{t("app.partner.form.model")}</Label>
                 <Select value={form.llm_model} onValueChange={(v) => setForm({ ...form, llm_model: v })} disabled={!form.llm_provider}>
-                  <SelectTrigger><SelectValue placeholder={form.llm_provider ? "Modelo" : "Elige proveedor"} /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={form.llm_provider ? t("app.partner.form.model") : t("app.partner.form.chooseProviderFirst")} /></SelectTrigger>
                   <SelectContent>
                     {models.map((m) => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
                   </SelectContent>
@@ -306,10 +309,10 @@ const PartnerClients = () => {
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={createMutation.isPending}>
-                Cancelar
+                {t("app.partner.form.cancel")}
               </Button>
               <Button type="submit" disabled={createMutation.isPending}>
-                {createMutation.isPending ? "Creando..." : "Crear cliente"}
+                {createMutation.isPending ? t("app.partner.form.creating") : t("app.partner.form.createClient")}
               </Button>
             </DialogFooter>
           </form>
@@ -320,22 +323,22 @@ const PartnerClients = () => {
       <Dialog open={!!created} onOpenChange={() => { /* require explicit confirmation */ }}>
         <DialogContent onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
           <DialogHeader>
-            <DialogTitle>Cliente creado</DialogTitle>
+            <DialogTitle>{t("app.partner.created.title")}</DialogTitle>
             <DialogDescription>
-              Guarda ahora la API key. Solo la verás esta vez.
+              {t("app.partner.created.description")}
             </DialogDescription>
           </DialogHeader>
 
           <Alert className="border-amber-500/40 bg-amber-500/10 text-amber-100">
             <AlertTriangle className="h-4 w-4 text-amber-400" />
-            <AlertTitle className="text-amber-300">Esta es la única vez que verás esta clave</AlertTitle>
+            <AlertTitle className="text-amber-300">{t("app.partner.created.warningTitle")}</AlertTitle>
             <AlertDescription className="text-amber-100/90">
-              Guárdala ahora en un lugar seguro. Privaro no puede volver a mostrártela.
+              {t("app.partner.created.warningDescription")}
             </AlertDescription>
           </Alert>
 
           <div className="space-y-2">
-            <Label>API key</Label>
+            <Label>{t("app.partner.created.apiKey")}</Label>
             <div className="flex gap-2">
               <Input readOnly value={created?.api_key ?? ""} className="font-mono text-xs" />
               <Button type="button" variant="outline" onClick={copyKey}>
@@ -352,7 +355,7 @@ const PartnerClients = () => {
             <Button
               onClick={() => { setCreated(null); setCopied(false); }}
             >
-              Ya la he guardado
+              {t("app.partner.created.confirmSaved")}
             </Button>
           </DialogFooter>
         </DialogContent>

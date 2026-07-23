@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ShieldCheck, ShieldAlert, Loader2 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 type AgentStep = {
   id: string;
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export default function AgentRunDetail({ agentRunId }: Props) {
+  const { t } = useLanguage();
   const [steps, setSteps] = useState<AgentStep[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -40,7 +42,7 @@ export default function AgentRunDetail({ agentRunId }: Props) {
   if (loading) {
     return (
       <div className="flex items-center gap-2 py-4 px-6 text-sm text-muted-foreground">
-        <Loader2 className="w-4 h-4 animate-spin" /> Loading steps…
+        <Loader2 className="w-4 h-4 animate-spin" /> {t("app.agentRuns.detail.loading")}
       </div>
     );
   }
@@ -48,7 +50,7 @@ export default function AgentRunDetail({ agentRunId }: Props) {
   if (steps.length === 0) {
     return (
       <div className="py-4 px-6 text-sm text-muted-foreground">
-        No steps recorded for this run.
+        {t("app.agentRuns.detail.noSteps")}
       </div>
     );
   }
@@ -56,7 +58,7 @@ export default function AgentRunDetail({ agentRunId }: Props) {
   return (
     <div className="px-6 py-4 space-y-2">
       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-        Agent Steps ({steps.length})
+        {t("app.agentRuns.detail.title")} ({steps.length})
       </p>
       <div className="grid gap-2">
         {steps.map((step) => {
@@ -89,7 +91,7 @@ export default function AgentRunDetail({ agentRunId }: Props) {
               {leaked > 0 && (
                 <div className="flex items-center gap-1">
                   <ShieldAlert className="w-3.5 h-3.5 text-destructive" />
-                  <span className="text-destructive font-medium">{leaked} leaked</span>
+                  <span className="text-destructive font-medium">{leaked} {t("app.agentRuns.detail.leaked")}</span>
                 </div>
               )}
 
@@ -110,7 +112,7 @@ export default function AgentRunDetail({ agentRunId }: Props) {
                 variant={step.gdpr_compliant ? "outline" : "destructive"}
                 className="text-[10px] px-1.5 py-0"
               >
-                {step.gdpr_compliant ? "GDPR ✓" : "GDPR ✗"}
+                {step.gdpr_compliant ? t("app.agentRuns.detail.gdprYes") : t("app.agentRuns.detail.gdprNo")}
               </Badge>
 
               {/* Latency */}

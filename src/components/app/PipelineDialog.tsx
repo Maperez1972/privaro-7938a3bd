@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, AlertTriangle } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface PipelineFormData {
   name: string;
@@ -50,6 +51,7 @@ const MODELS: Record<string, string[]> = {
 };
 
 const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: PipelineDialogProps) => {
+  const { t } = useLanguage();
   const { profile } = useAuth();
   const [form, setForm] = useState<PipelineFormData>({
     name: "",
@@ -102,15 +104,15 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-card border-border sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Pipeline" : "New Pipeline"}</DialogTitle>
+          <DialogTitle>{initialData ? t("app.pipelines.dialog.editTitle") : t("app.pipelines.dialog.newTitle")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 mt-2">
           <div className="space-y-2">
-            <Label>Name</Label>
-            <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Legal Document Review" />
+            <Label>{t("app.pipelines.dialog.name")}</Label>
+            <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={t("app.pipelines.dialog.namePlaceholder")} />
           </div>
           <div className="space-y-2">
-            <Label>Sector</Label>
+            <Label>{t("app.pipelines.dialog.sector")}</Label>
             <Select value={form.sector} onValueChange={(v) => setForm({ ...form, sector: v })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -121,7 +123,7 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>LLM Provider</Label>
+            <Label>{t("app.pipelines.dialog.provider")}</Label>
             <Select value={form.llm_provider} onValueChange={(v) => setForm({ ...form, llm_provider: v, llm_model: MODELS[v]?.[0] ?? "custom-model" })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -130,7 +132,7 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
                   const noKey = info && !info.hasKey;
                   return (
                     <SelectItem key={p} value={p} disabled={!!noKey} className={noKey ? "opacity-50" : ""}>
-                      {p.charAt(0).toUpperCase() + p.slice(1)}{noKey ? " (no API key)" : ""}
+                      {p.charAt(0).toUpperCase() + p.slice(1)}{noKey ? ` (${t("app.pipelines.dialog.noApiKey")})` : ""}
                     </SelectItem>
                   );
                 })}
@@ -139,18 +141,18 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
             {isHighRisk && (
               <div className="flex items-start gap-2 p-2.5 rounded-md bg-destructive/10 border border-destructive/20 text-xs text-destructive">
                 <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                <span><strong>High Risk Provider.</strong> This provider has not been verified for GDPR compliance. PII data may be exposed. Review the provider's Trust Posture in Admin → Providers.</span>
+                <span><strong>{t("app.pipelines.dialog.highRiskTitle")}</strong> {t("app.pipelines.dialog.highRiskDesc")}</span>
               </div>
             )}
             {isMediumNonEu && !isHighRisk && (
               <div className="flex items-start gap-2 p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400">
                 <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                <span><strong>Non-EU Provider.</strong> Data may be processed outside the EU. Consider enabling EU Data Residency in the provider settings.</span>
+                <span><strong>{t("app.pipelines.dialog.nonEuTitle")}</strong> {t("app.pipelines.dialog.nonEuDesc")}</span>
               </div>
             )}
           </div>
           <div className="space-y-2">
-            <Label>Model</Label>
+            <Label>{t("app.pipelines.dialog.model")}</Label>
             <Select value={form.llm_model} onValueChange={(v) => setForm({ ...form, llm_model: v })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -161,15 +163,15 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Endpoint URL (optional)</Label>
+            <Label>{t("app.pipelines.dialog.endpoint")}</Label>
             <Input value={form.llm_endpoint_url} onChange={(e) => setForm({ ...form, llm_endpoint_url: e.target.value })} placeholder="https://api.example.com/v1" />
           </div>
         </div>
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t("app.pipelines.dialog.cancel")}</Button>
           <Button onClick={() => onSubmit(form)} disabled={loading || !form.name}>
             {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-            {initialData ? "Save" : "Create"}
+            {initialData ? t("app.pipelines.dialog.save") : t("app.pipelines.dialog.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

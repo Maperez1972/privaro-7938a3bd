@@ -8,8 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Shield } from "lucide-react";
 import logoPrivaro from "@/assets/logo-privaro.webp";
+import { useLanguage } from "@/context/LanguageContext";
 
 const VerifyMfa = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
@@ -24,7 +26,7 @@ const VerifyMfa = () => {
       searchParams.get("factor_id") ||
       localStorage.getItem("privaro_mfa_factor_id");
     if (!fid) {
-      toast({ title: "Missing MFA factor", description: "Please sign in again.", variant: "destructive" });
+      toast({ title: t("app.mfa.missingFactorTitle"), description: t("app.mfa.missingFactorDesc"), variant: "destructive" });
       navigate("/auth");
       return;
     }
@@ -46,11 +48,11 @@ const VerifyMfa = () => {
     const { error } = await supabase.auth.mfa.verify({ factorId, challengeId, code });
     setLoading(false);
     if (error) {
-      setError("Invalid code. Please try again.");
+      setError(t("app.mfa.invalidCode"));
       setCode("");
       return;
     }
-    toast({ title: "Verified" });
+    toast({ title: t("app.mfa.verified") });
     navigate("/app");
   };
 
@@ -70,15 +72,15 @@ const VerifyMfa = () => {
             <div className="flex justify-center mb-2">
               <Shield className="w-8 h-8 text-primary" />
             </div>
-            <CardTitle className="text-xl">Enter your authentication code</CardTitle>
+            <CardTitle className="text-xl">{t("app.mfa.verify.title")}</CardTitle>
             <CardDescription>
-              Open your authenticator app and enter the 6-digit code.
+              {t("app.mfa.verify.description")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleVerify} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="code" className="sr-only">Verification code</Label>
+                <Label htmlFor="code" className="sr-only">{t("app.mfa.verificationCode")}</Label>
                 <Input
                   id="code"
                   inputMode="numeric"
@@ -93,7 +95,7 @@ const VerifyMfa = () => {
                 {error && <p className="text-sm text-destructive text-center">{error}</p>}
               </div>
               <Button type="submit" className="w-full" disabled={loading || code.length !== 6 || !challengeId}>
-                {loading ? "Verifying..." : "Verify"}
+                {loading ? t("app.mfa.verifying") : t("app.mfa.verify.button")}
               </Button>
               <div className="text-center text-sm">
                 <button
@@ -101,7 +103,7 @@ const VerifyMfa = () => {
                   onClick={handleSignOut}
                   className="text-muted-foreground hover:text-foreground hover:underline"
                 >
-                  Sign out
+                  {t("app.layout.signOut")}
                 </button>
               </div>
             </form>

@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { CalendarIcon, Filter, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/context/LanguageContext";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -40,6 +41,7 @@ interface Props {
 export { EMPTY_FILTERS };
 
 export default function AgentRunsFilters({ filters, onChange, pipelines }: Props) {
+  const { t } = useLanguage();
   const hasFilters =
     filters.status !== "all" ||
     filters.pipeline !== "all" ||
@@ -56,14 +58,14 @@ export default function AgentRunsFilters({ filters, onChange, pipelines }: Props
         onValueChange={(v) => onChange({ ...filters, status: v })}
       >
         <SelectTrigger className="w-[140px] h-9 text-xs">
-          <SelectValue placeholder="Status" />
+          <SelectValue placeholder={t("app.agentRuns.filters.status")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All statuses</SelectItem>
-          <SelectItem value="running">Running</SelectItem>
-          <SelectItem value="completed">Completed</SelectItem>
-          <SelectItem value="failed">Failed</SelectItem>
-          <SelectItem value="aborted">Aborted</SelectItem>
+          <SelectItem value="all">{t("app.agentRuns.filters.allStatuses")}</SelectItem>
+          <SelectItem value="running">{t("app.agentRuns.filters.running")}</SelectItem>
+          <SelectItem value="completed">{t("app.agentRuns.filters.completed")}</SelectItem>
+          <SelectItem value="failed">{t("app.agentRuns.filters.failed")}</SelectItem>
+          <SelectItem value="aborted">{t("app.agentRuns.filters.aborted")}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -73,10 +75,10 @@ export default function AgentRunsFilters({ filters, onChange, pipelines }: Props
         onValueChange={(v) => onChange({ ...filters, pipeline: v })}
       >
         <SelectTrigger className="w-[180px] h-9 text-xs">
-          <SelectValue placeholder="Pipeline" />
+          <SelectValue placeholder={t("app.agentRuns.filters.pipeline")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All pipelines</SelectItem>
+          <SelectItem value="all">{t("app.agentRuns.filters.allPipelines")}</SelectItem>
           {pipelines.map((p) => (
             <SelectItem key={p} value={p}>
               {p}
@@ -96,7 +98,7 @@ export default function AgentRunsFilters({ filters, onChange, pipelines }: Props
             )}
           >
             <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-            {filters.dateFrom ? format(filters.dateFrom, "dd/MM/yyyy") : "From"}
+            {filters.dateFrom ? format(filters.dateFrom, "dd/MM/yyyy") : t("app.agentRuns.filters.from")}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -121,7 +123,7 @@ export default function AgentRunsFilters({ filters, onChange, pipelines }: Props
             )}
           >
             <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-            {filters.dateTo ? format(filters.dateTo, "dd/MM/yyyy") : "To"}
+            {filters.dateTo ? format(filters.dateTo, "dd/MM/yyyy") : t("app.agentRuns.filters.to")}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -143,7 +145,7 @@ export default function AgentRunsFilters({ filters, onChange, pipelines }: Props
           className="h-9 text-xs text-muted-foreground"
           onClick={() => onChange(EMPTY_FILTERS)}
         >
-          <X className="w-3.5 h-3.5 mr-1" /> Clear
+          <X className="w-3.5 h-3.5 mr-1" /> {t("app.agentRuns.filters.clear")}
         </Button>
       )}
     </div>

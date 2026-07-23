@@ -21,24 +21,17 @@ import { generateDpoReportHtml, downloadHtml } from "@/lib/dpo-report";
 import { AuditLogDetail } from "@/components/app/AuditLogDetail";
 import { PaginationControls } from "@/components/app/PaginationControls";
 import ScheduledReports from "@/components/app/ScheduledReports";
+import { useLanguage } from "@/context/LanguageContext";
 
 const DEFAULT_pageSize = 15;
 
 const SEVERITY_OPTIONS = ["all", "critical", "high", "medium", "low"] as const;
 const IBS_STATUS_OPTIONS = ["all", "pending", "certified", "failed"] as const;
-const RISK_OPTIONS = [
-  { value: "all", label: "All risk levels" },
-  { value: "high", label: "High Risk (≥70%)" },
-  { value: "medium", label: "Medium (40–69%)" },
-  { value: "low", label: "Low (<40%)" },
-  { value: "none", label: "No score" },
-] as const;
-const SORT_OPTIONS = [
-  { value: "desc", label: "Newest first" },
-  { value: "asc", label: "Oldest first" },
-];
+const RISK_OPTION_VALUES = ["all", "high", "medium", "low", "none"] as const;
+const SORT_OPTION_VALUES = ["desc", "asc"] as const;
 
 const AuditLogs = () => {
+  const { t } = useLanguage();
   const { profile } = useAuth();
   const orgId = profile?.org_id;
 
@@ -149,7 +142,7 @@ const AuditLogs = () => {
 
       const { data: rows, error } = await query;
       if (error) throw error;
-      if (!rows?.length) { toast.info("No logs to export"); return; }
+      if (!rows?.length) { toast.info(t("app.audit.toast.noExport")); return; }
 
       const headers = ["id", "timestamp", "event_type", "entity_type", "entity_category", "action_taken", "severity", "risk_score", "pipeline_name", "sector", "llm_provider", "pipeline_stage", "processing_ms", "ibs_status", "ibs_evidence_id", "ibs_certification_hash", "ibs_network", "ibs_certified_at", "blockchain_checker_url"];
       const csv = [headers.join(","), ...rows.map((row: any) => {
@@ -187,9 +180,9 @@ const AuditLogs = () => {
       a.download = `privaro-audit-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success(`Exported ${rows.length} logs`);
+      toast.success(`${t("app.audit.toast.exported")} ${rows.length}`);
     } catch {
-      toast.error("Export failed");
+      toast.error(t("app.audit.toast.exportFailed"));
     } finally {
       setExporting(false);
     }
@@ -224,7 +217,7 @@ const AuditLogs = () => {
 
       const { data: rows, error } = await query;
       if (error) throw error;
-      if (!rows?.length) { toast.info("No logs for report"); return; }
+      if (!rows?.length) { toast.info(t("app.audit.toast.noReport")); return; }
 
       const org = (rows[0] as any).organizations;
       const html = generateDpoReportHtml({
@@ -234,9 +227,9 @@ const AuditLogs = () => {
       });
 
       downloadHtml(html, `privaro-dpo-report-${reportFrom}-to-${reportTo}.html`);
-      toast.success("DPO Report downloaded — open in browser to print as PDF");
+      toast.success(t("app.audit.toast.reportDownloaded"));
     } catch {
-      toast.error("Failed to generate report");
+      toast.error(t("app.audit.toast.reportFailed"));
     } finally {
       setGeneratingReport(false);
     }
@@ -246,17 +239,17 @@ const AuditLogs = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Audit Logs</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("app.audit.title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Immutable record of every PII event — blockchain certified
+            {t("app.audit.subtitle")}
           </p>
         </div>
       </div>
 
       <Tabs defaultValue="logs" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="logs" className="gap-2"><FileText className="w-4 h-4" /> Event Log</TabsTrigger>
-          <TabsTrigger value="reports" className="gap-2"><CalendarClock className="w-4 h-4" /> Scheduled Reports</TabsTrigger>
+          <TabsTrigger value="logs" className="gap-2"><FileText className="w-4 h-4" /> {t("app.audit.tab.eventLog")}</TabsTrigger>
+          <TabsTrigger value="reports" className="gap-2"><CalendarClock className="w-4 h-4" /> {t("app.audit.tab.scheduledReports")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="logs" className="space-y-4">
@@ -283,12 +276,12 @@ const AuditLogs = () => {
                 disabled={generatingReport}
               >
                 {generatingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-                DPO Report
+                {t("app.audit.button.dpoReport")}
               </Button>
             </div>
             <Button size="sm" variant="outline" className="gap-2" onClick={handleExport} disabled={exporting}>
               {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-              Export CSV
+              {t("app.audit.button.exportCsv")}
             </Button>
           </div>
 
@@ -297,7 +290,7 @@ const AuditLogs = () => {
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search entity, event, action..."
+            placeholder={t("app.audit.search.placeholder")}
             value={search}
             onChange={(e) => { setSearch(e.target.value); resetPage(); }}
             className="pl-9"
@@ -305,35 +298,35 @@ const AuditLogs = () => {
         </div>
         <Select value={severity} onValueChange={(v) => { setSeverity(v); resetPage(); }}>
           <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Severity" />
+            <SelectValue placeholder={t("app.audit.filter.severity")} />
           </SelectTrigger>
           <SelectContent>
             {SEVERITY_OPTIONS.map((s) => (
               <SelectItem key={s} value={s}>
-                {s === "all" ? "All severities" : s.charAt(0).toUpperCase() + s.slice(1)}
+                {s === "all" ? t("app.audit.filter.allSeverities") : s.charAt(0).toUpperCase() + s.slice(1)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={ibsStatus} onValueChange={(v) => { setIbsStatus(v); resetPage(); }}>
           <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Blockchain" />
+            <SelectValue placeholder={t("app.audit.filter.blockchain")} />
           </SelectTrigger>
           <SelectContent>
             {IBS_STATUS_OPTIONS.map((s) => (
               <SelectItem key={s} value={s}>
-                {s === "all" ? "All statuses" : s.charAt(0).toUpperCase() + s.slice(1)}
+                {s === "all" ? t("app.audit.filter.allStatuses") : s.charAt(0).toUpperCase() + s.slice(1)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={riskFilter} onValueChange={(v) => { setRiskFilter(v); resetPage(); }}>
           <SelectTrigger className="w-[170px]">
-            <SelectValue placeholder="Risk Score" />
+            <SelectValue placeholder={t("app.audit.filter.riskScore")} />
           </SelectTrigger>
           <SelectContent>
-            {RISK_OPTIONS.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            {RISK_OPTION_VALUES.map((v) => (
+              <SelectItem key={v} value={v}>{t(`app.audit.risk.${v}`)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -342,8 +335,8 @@ const AuditLogs = () => {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {SORT_OPTIONS.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            {SORT_OPTION_VALUES.map((v) => (
+              <SelectItem key={v} value={v}>{t(`app.audit.sort.${v}`)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -370,11 +363,11 @@ const AuditLogs = () => {
           ) : logs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <FileText className="w-12 h-12 text-muted-foreground/20 mb-4" />
-              <p className="text-sm font-medium text-muted-foreground">No audit logs found</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("app.audit.empty.title")}</p>
               <p className="text-xs text-muted-foreground/60 mt-1 max-w-[300px]">
                 {search || severity !== "all" || ibsStatus !== "all"
-                  ? "Try adjusting your filters to see more results."
-                  : "Go to the PII Sandbox to detect and protect sensitive data — events will appear here automatically."}
+                  ? t("app.audit.empty.filtered")
+                  : t("app.audit.empty.noFilter")}
               </p>
             </div>
           ) : (
@@ -382,16 +375,16 @@ const AuditLogs = () => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-muted-foreground border-b border-border">
-                    <th className="p-4 font-medium">Time</th>
-                    <th className="p-4 font-medium">Event</th>
-                    <th className="p-4 font-medium">Entity</th>
-                    <th className="p-4 font-medium">Category</th>
-                    <th className="p-4 font-medium">Action</th>
-                    <th className="p-4 font-medium">Severity</th>
-                    <th className="p-4 font-medium">Risk Score</th>
-                    <th className="p-4 font-medium">Stage</th>
-                    <th className="p-4 font-medium">Blockchain</th>
-                    <th className="p-4 font-medium">Latency</th>
+                    <th className="p-4 font-medium">{t("app.audit.col.time")}</th>
+                    <th className="p-4 font-medium">{t("app.audit.col.event")}</th>
+                    <th className="p-4 font-medium">{t("app.audit.col.entity")}</th>
+                    <th className="p-4 font-medium">{t("app.audit.col.category")}</th>
+                    <th className="p-4 font-medium">{t("app.audit.col.action")}</th>
+                    <th className="p-4 font-medium">{t("app.audit.col.severity")}</th>
+                    <th className="p-4 font-medium">{t("app.audit.col.riskScore")}</th>
+                    <th className="p-4 font-medium">{t("app.audit.col.stage")}</th>
+                    <th className="p-4 font-medium">{t("app.audit.col.blockchain")}</th>
+                    <th className="p-4 font-medium">{t("app.audit.col.latency")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -421,7 +414,7 @@ const AuditLogs = () => {
                               log.risk_score >= 0.4 ? "bg-amber-500/15 text-amber-400" :
                               "bg-green-500/15 text-green-400"
                             }`}>
-                              {log.risk_score >= 0.7 ? "High Risk" : log.risk_score >= 0.4 ? "Medium" : "Low"} ({(log.risk_score * 100).toFixed(0)}%)
+                              {log.risk_score >= 0.7 ? t("app.audit.risk.highLabel") : log.risk_score >= 0.4 ? t("app.audit.risk.mediumLabel") : t("app.audit.risk.lowLabel")} ({(log.risk_score * 100).toFixed(0)}%)
                             </span>
                           ) : (
                             <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-muted text-muted-foreground">—</span>
@@ -440,7 +433,7 @@ const AuditLogs = () => {
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <ExternalLink className="w-3 h-3" />
-                                verify
+                                {t("app.audit.verify")}
                               </a>
                             )}
                           </div>

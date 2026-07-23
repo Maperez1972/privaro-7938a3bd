@@ -30,10 +30,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Rocket, ArrowRight, Check, Copy, Loader2, Play, ShieldCheck, Zap, Code2 } from "lucide-react";
 import type { Preset } from "@/components/app/PolicyPresetPanel";
+import { useLanguage } from "@/context/LanguageContext";
 
 const SECTORS = ["legal", "healthcare", "fintech", "hr", "general"];
 
 const Onboarding = () => {
+  const { t } = useLanguage();
   const { profile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -148,11 +150,11 @@ const Onboarding = () => {
     setConfirmPreset(null);
 
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("app.common.error"), description: error.message, variant: "destructive" });
     } else {
       localStorage.setItem("privaro-lastPreset", confirmPreset.slug);
       setHasRules(true);
-      toast({ title: `${confirmPreset.name} applied`, description: `${rules.length} rules configured` });
+      toast({ title: `${confirmPreset.name} ${t("app.onboarding.preset.appliedSuffix")}`, description: `${rules.length} ${t("app.onboarding.preset.rulesConfiguredSuffix")}` });
     }
   };
 
@@ -174,10 +176,10 @@ const Onboarding = () => {
 
     setCreatingPipeline(false);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("app.common.error"), description: error.message, variant: "destructive" });
     } else {
       setExistingPipeline(data);
-      toast({ title: "Pipeline created" });
+      toast({ title: t("app.onboarding.pipeline.created") });
     }
   };
 
@@ -189,7 +191,7 @@ const Onboarding = () => {
       const detections = await proxyDetect("Test PII: DNI 34521789X, email test@example.com", existingPipeline?.id);
       setTestResult(JSON.stringify(detections, null, 2));
     } catch (e: any) {
-      setTestResult(`Error: ${e.message}`);
+      setTestResult(`${t("app.common.error")}: ${e.message}`);
     }
     setTesting(false);
   };
@@ -282,10 +284,10 @@ console.log(data);`;
   }'`;
 
   const steps = [
-    { label: "Welcome", icon: Rocket },
-    { label: "Policies", icon: ShieldCheck },
-    { label: "Pipeline", icon: Zap },
-    { label: "Integrate", icon: Code2 },
+    { label: t("app.onboarding.step.welcome"), icon: Rocket },
+    { label: t("app.onboarding.step.policies"), icon: ShieldCheck },
+    { label: t("app.onboarding.step.pipeline"), icon: Zap },
+    { label: t("app.onboarding.step.integrate"), icon: Code2 },
   ];
 
   return (
@@ -319,14 +321,14 @@ console.log(data);`;
               <Rocket className="w-8 h-8 text-primary" />
             </div>
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tight">Welcome to Privaro</h1>
-              <p className="text-lg text-primary font-medium">Privacy Infrastructure for Enterprise AI</p>
+              <h1 className="text-3xl font-bold tracking-tight">{t("app.onboarding.welcome.title")}</h1>
+              <p className="text-lg text-primary font-medium">{t("app.onboarding.welcome.subtitle")}</p>
             </div>
             <p className="text-muted-foreground max-w-md mx-auto">
-              Let's get your organization set up in 4 steps. Your AI interactions will be protected, tokenized, and blockchain-certified in under 5 minutes.
+              {t("app.onboarding.welcome.body")}
             </p>
             <Button size="lg" onClick={() => setStep(1)} className="gap-2">
-              Get Started <ArrowRight className="w-4 h-4" />
+              {t("app.onboarding.welcome.getStarted")} <ArrowRight className="w-4 h-4" />
             </Button>
           </CardContent>
         </Card>
@@ -336,14 +338,14 @@ console.log(data);`;
       {step === 1 && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-bold">Choose your industry preset</h2>
-            <p className="text-sm text-muted-foreground mt-1">Apply a pre-configured policy set for your industry vertical</p>
+            <h2 className="text-xl font-bold">{t("app.onboarding.policies.title")}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t("app.onboarding.policies.subtitle")}</p>
           </div>
 
           {hasRules && (
             <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/10 border border-primary/20">
               <Check className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Already configured — you can continue or apply a different preset</span>
+              <span className="text-sm font-medium text-primary">{t("app.onboarding.policies.alreadyConfigured")}</span>
             </div>
           )}
 
@@ -365,11 +367,11 @@ console.log(data);`;
                           <span className="text-lg">{preset.icon}</span>
                           <span className="font-semibold text-sm">{preset.name}</span>
                         </div>
-                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setConfirmPreset(preset)}>Apply</Button>
+                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setConfirmPreset(preset)}>{t("app.onboarding.policies.apply")}</Button>
                       </div>
                       <p className="text-xs text-muted-foreground line-clamp-2">{preset.description}</p>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{rules.length} rules</span><span>·</span><span>{preset.sector}</span>
+                        <span>{rules.length} {t("app.onboarding.policies.rules")}</span><span>·</span><span>{preset.sector}</span>
                       </div>
                       <div className="flex flex-wrap gap-1">
                         {rules.slice(0, 4).map((r) => (
@@ -386,7 +388,7 @@ console.log(data);`;
 
           <div className="flex justify-end">
             <Button onClick={() => setStep(2)} className="gap-2">
-              {hasRules ? "Continue" : "Skip"} <ArrowRight className="w-4 h-4" />
+              {hasRules ? t("app.common.continue") : t("app.common.skip")} <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
 
@@ -394,16 +396,16 @@ console.log(data);`;
           <AlertDialog open={!!confirmPreset} onOpenChange={(o) => !o && setConfirmPreset(null)}>
             <AlertDialogContent className="bg-card border-border">
               <AlertDialogHeader>
-                <AlertDialogTitle>Apply {confirmPreset?.icon} {confirmPreset?.name}?</AlertDialogTitle>
+                <AlertDialogTitle>{t("app.onboarding.policies.confirmTitle")} {confirmPreset?.icon} {confirmPreset?.name}?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will replace all current policy rules with {Array.isArray(confirmPreset?.rules) ? confirmPreset!.rules.length : 0} rules. This cannot be undone.
+                  {t("app.onboarding.policies.confirmDescPrefix")} {Array.isArray(confirmPreset?.rules) ? confirmPreset!.rules.length : 0} {t("app.onboarding.policies.confirmDescSuffix")}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={applyingPreset}>Cancel</AlertDialogCancel>
+                <AlertDialogCancel disabled={applyingPreset}>{t("app.common.cancel")}</AlertDialogCancel>
                 <AlertDialogAction onClick={handleApplyPreset} disabled={applyingPreset}>
                   {applyingPreset && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
-                  Apply Preset
+                  {t("app.onboarding.policies.applyPreset")}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -415,25 +417,25 @@ console.log(data);`;
       {step === 2 && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-bold">Create your first AI pipeline</h2>
-            <p className="text-sm text-muted-foreground mt-1">Connect Privaro to your LLM provider</p>
+            <h2 className="text-xl font-bold">{t("app.onboarding.pipeline.title")}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t("app.onboarding.pipeline.subtitle")}</p>
           </div>
 
           {existingPipeline ? (
             <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/10 border border-primary/20">
               <Check className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Pipeline active: {existingPipeline.name}</span>
+              <span className="text-sm font-medium text-primary">{t("app.onboarding.pipeline.active")}: {existingPipeline.name}</span>
             </div>
           ) : (
             <Card className="border-border bg-card">
               <CardContent className="p-5 space-y-4">
                 <div className="space-y-2">
-                  <Label>Pipeline Name</Label>
-                  <Input placeholder="My first pipeline" value={pipelineName} onChange={(e) => setPipelineName(e.target.value)} />
+                  <Label>{t("app.onboarding.pipeline.name")}</Label>
+                  <Input placeholder={t("app.onboarding.pipeline.namePlaceholder")} value={pipelineName} onChange={(e) => setPipelineName(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Sector</Label>
+                    <Label>{t("app.onboarding.pipeline.sector")}</Label>
                     <Select value={pipelineSector} onValueChange={setPipelineSector}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -442,35 +444,35 @@ console.log(data);`;
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>LLM Provider</Label>
+                    <Label>{t("app.onboarding.pipeline.llmProvider")}</Label>
                     <Select value={pipelineProvider} onValueChange={setPipelineProvider}>
-                      <SelectTrigger><SelectValue placeholder="Select provider" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("app.onboarding.pipeline.selectProvider")} /></SelectTrigger>
                       <SelectContent>
                         {providers.length > 0 ? providers.map((p) => (
                           <SelectItem key={p.provider} value={p.provider}>{p.display_name || p.provider}</SelectItem>
                         )) : (
-                          <SelectItem value="openai">OpenAI (default)</SelectItem>
+                          <SelectItem value="openai">{t("app.onboarding.pipeline.openaiDefault")}</SelectItem>
                         )}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>LLM Model</Label>
+                  <Label>{t("app.onboarding.pipeline.llmModel")}</Label>
                   <Input placeholder="gpt-4o" value={pipelineModel} onChange={(e) => setPipelineModel(e.target.value)} />
                 </div>
                 <Button onClick={handleCreatePipeline} disabled={creatingPipeline || !pipelineName.trim()} className="w-full gap-2">
                   {creatingPipeline && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Create Pipeline
+                  {t("app.onboarding.pipeline.createButton")}
                 </Button>
               </CardContent>
             </Card>
           )}
 
           <div className="flex justify-between">
-            <Button variant="ghost" onClick={() => setStep(1)}>Back</Button>
+            <Button variant="ghost" onClick={() => setStep(1)}>{t("app.common.back")}</Button>
             <Button onClick={() => setStep(3)} className="gap-2">
-              {existingPipeline ? "Continue" : "Skip"} <ArrowRight className="w-4 h-4" />
+              {existingPipeline ? t("app.common.continue") : t("app.common.skip")} <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -480,13 +482,13 @@ console.log(data);`;
       {step === 3 && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-bold">Integrate Privaro in your app</h2>
-            <p className="text-sm text-muted-foreground mt-1">Use these code snippets to start protecting PII in your AI calls</p>
+            <h2 className="text-xl font-bold">{t("app.onboarding.integrate.title")}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t("app.onboarding.integrate.subtitle")}</p>
           </div>
 
           {apiKey && (
             <div className="flex items-center gap-2 p-3 rounded-lg bg-secondary border border-border">
-              <span className="text-xs text-muted-foreground">API Key:</span>
+              <span className="text-xs text-muted-foreground">{t("app.onboarding.integrate.apiKey")}:</span>
               <code className="text-xs font-mono text-foreground">{keyDisplay}</code>
             </div>
           )}
@@ -512,7 +514,7 @@ console.log(data);`;
                     onClick={() => copyToClipboard(code, value)}
                   >
                     {copied === value ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                    {copied === value ? "Copied" : "Copy"}
+                    {copied === value ? t("app.common.copied") : t("app.common.copy")}
                   </Button>
                 </div>
               </TabsContent>
@@ -521,11 +523,11 @@ console.log(data);`;
 
           <Card className="border-border bg-card">
             <CardContent className="p-4 space-y-3">
-              <h3 className="text-sm font-semibold">Test Integration</h3>
-              <p className="text-xs text-muted-foreground">Send a test request to verify your setup is working</p>
+              <h3 className="text-sm font-semibold">{t("app.onboarding.integrate.testTitle")}</h3>
+              <p className="text-xs text-muted-foreground">{t("app.onboarding.integrate.testSubtitle")}</p>
               <Button size="sm" onClick={handleTest} disabled={testing} className="gap-2">
                 {testing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
-                Test Integration
+                {t("app.onboarding.integrate.testButton")}
               </Button>
               {testResult && (
                 <pre className="bg-secondary border border-border rounded-lg p-3 text-xs font-mono overflow-x-auto text-foreground whitespace-pre max-h-48">{testResult}</pre>
@@ -534,7 +536,7 @@ console.log(data);`;
           </Card>
 
           <div className="flex justify-between items-center">
-            <Button variant="ghost" onClick={() => setStep(2)}>Back</Button>
+            <Button variant="ghost" onClick={() => setStep(2)}>{t("app.common.back")}</Button>
             <div className="flex items-center gap-3">
               <Button
                 variant="outline"
@@ -545,10 +547,10 @@ console.log(data);`;
                 }}
                 className="text-muted-foreground"
               >
-                Don't show again
+                {t("app.onboarding.dontShowAgain")}
               </Button>
               <Button onClick={handleFinish} size="lg" className="gap-2">
-                Go to Dashboard <ArrowRight className="w-4 h-4" />
+                {t("app.onboarding.goToDashboard")} <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </div>

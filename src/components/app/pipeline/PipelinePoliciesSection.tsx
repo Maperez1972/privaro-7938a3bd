@@ -17,6 +17,7 @@ import { Plus, Trash2, Zap, Loader2 } from "lucide-react";
 import PolicyDialog, { PolicyFormData } from "@/components/app/PolicyDialog";
 import PipelinePresetModal from "./PipelinePresetModal";
 import { PaginationControls, paginate } from "@/components/app/PaginationControls";
+import { useLanguage } from "@/context/LanguageContext";
 
 const categoryColors: Record<string, string> = {
   personal: "bg-primary/15 text-primary border-primary/30",
@@ -63,6 +64,7 @@ interface Props {
 }
 
 const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: Props) => {
+  const { t } = useLanguage();
   const { profile, user } = useAuth();
   const { toast } = useToast();
   const [rules, setRules] = useState<PipelineRule[]>([]);
@@ -132,9 +134,9 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
     });
     setSaving(false);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("app.pipelines.policies.error"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Pipeline rule created" });
+      toast({ title: t("app.pipelines.policies.ruleCreated") });
       setDialogOpen(false);
       fetchRules();
     }
@@ -147,7 +149,7 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
       .update({ is_enabled: !rule.is_enabled, updated_by: user.id })
       .eq("id", rule.id);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("app.pipelines.policies.error"), description: error.message, variant: "destructive" });
     } else {
       setRules(prev => prev.map(r => r.id === rule.id ? { ...r, is_enabled: !r.is_enabled } : r));
     }
@@ -156,9 +158,9 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
   const handleDelete = async (ruleId: string) => {
     const { error } = await (supabase as any).from("policy_rules").delete().eq("id", ruleId);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("app.pipelines.policies.error"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Rule deleted" });
+      toast({ title: t("app.pipelines.policies.ruleDeleted") });
       fetchRules();
     }
   };
@@ -170,7 +172,7 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
       .update({ overrides_org: !rule.overrides_org, updated_by: user.id })
       .eq("id", rule.id);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("app.pipelines.policies.error"), description: error.message, variant: "destructive" });
     } else {
       setRules(prev => prev.map(r => r.id === rule.id ? { ...r, overrides_org: !r.overrides_org } : r));
       fetchRules();
@@ -178,7 +180,7 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
   };
 
   if (loading) {
-    return <div className="text-xs text-muted-foreground py-4 text-center">Loading pipeline policies…</div>;
+    return <div className="text-xs text-muted-foreground py-4 text-center">{t("app.pipelines.policies.loading")}</div>;
   }
 
   const { paged: pagedRules, totalPages: rulesTotalPages } = paginate(rules, rulesPage, rulesPageSize);
@@ -186,26 +188,26 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
 
   return (
     <div className="mt-4 pt-4 border-t border-border">
-      <h4 className="text-sm font-semibold mb-3">Pipeline Policies</h4>
+      <h4 className="text-sm font-semibold mb-3">{t("app.pipelines.policies.title")}</h4>
       <Tabs defaultValue="pipeline-rules" className="w-full">
         <TabsList className="h-8">
-          <TabsTrigger value="pipeline-rules" className="text-xs">Pipeline Rules</TabsTrigger>
-          <TabsTrigger value="effective" className="text-xs">Effective Policies</TabsTrigger>
+          <TabsTrigger value="pipeline-rules" className="text-xs">{t("app.pipelines.policies.pipelineRules")}</TabsTrigger>
+          <TabsTrigger value="effective" className="text-xs">{t("app.pipelines.policies.effectivePolicies")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="pipeline-rules" className="mt-3">
           <div className="flex items-center gap-2 mb-3">
             <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => setPresetModalOpen(true)}>
-              Apply Preset
+              {t("app.pipelines.policies.applyPreset")}
             </Button>
             <Button size="sm" className="text-xs h-7 gap-1" onClick={() => setDialogOpen(true)}>
-              <Plus className="w-3 h-3" /> Add Rule
+              <Plus className="w-3 h-3" /> {t("app.pipelines.policies.addRule")}
             </Button>
           </div>
 
           {rules.length === 0 ? (
             <p className="text-xs text-muted-foreground py-6 text-center">
-              No pipeline-specific rules. Org-level rules apply as fallback.
+              {t("app.pipelines.policies.noRules")}
             </p>
           ) : (
             <>
@@ -214,12 +216,12 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="text-left text-muted-foreground border-b border-border">
-                        <th className="p-3 font-medium">Entity Type</th>
-                        <th className="p-3 font-medium">Action</th>
-                        <th className="p-3 font-medium">Priority</th>
-                        <th className="p-3 font-medium">Overrides Org</th>
-                        <th className="p-3 font-medium">Regulation</th>
-                        <th className="p-3 font-medium">Enabled</th>
+                        <th className="p-3 font-medium">{t("app.pipelines.policies.entityType")}</th>
+                        <th className="p-3 font-medium">{t("app.pipelines.policies.action")}</th>
+                        <th className="p-3 font-medium">{t("app.pipelines.policies.priority")}</th>
+                        <th className="p-3 font-medium">{t("app.pipelines.policies.overridesOrg")}</th>
+                        <th className="p-3 font-medium">{t("app.pipelines.policies.regulation")}</th>
+                        <th className="p-3 font-medium">{t("app.pipelines.policies.enabled")}</th>
                         <th className="p-3 font-medium w-8"></th>
                       </tr>
                     </thead>
@@ -251,8 +253,8 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   {rule.overrides_org
-                                    ? "This rule overrides the org-level rule for the same entity type. Click to disable."
-                                    : "Click to override org-level rule for this entity type."}
+                                    ? t("app.pipelines.policies.overrideTooltipOn")
+                                    : t("app.pipelines.policies.overrideTooltipOff")}
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
@@ -279,7 +281,7 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
 
         <TabsContent value="effective" className="mt-3">
           {effective.length === 0 ? (
-            <p className="text-xs text-muted-foreground py-6 text-center">No effective policies found for this pipeline.</p>
+            <p className="text-xs text-muted-foreground py-6 text-center">{t("app.pipelines.policies.noEffective")}</p>
           ) : (
             <>
               <Card className="border-border bg-card">
@@ -288,7 +290,7 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
                     <thead>
                       <tr className="text-left text-muted-foreground border-b border-border">
                         <th className="p-3 font-medium">Source</th>
-                        <th className="p-3 font-medium">Entity Type</th>
+                        <th className="p-3 font-medium">{t("app.pipelines.policies.entityType")}</th>
                         <th className="p-3 font-medium">Action</th>
                         <th className="p-3 font-medium">Priority</th>
                         <th className="p-3 font-medium">Regulation</th>
@@ -305,7 +307,7 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
                                 <tr className={`border-b border-border/50 transition-colors ${isSuppressed ? "opacity-40 line-through" : "hover:bg-secondary/30"}`}>
                                   <td className="p-3">
                                     <Badge variant="outline" className={source === "pipeline" ? "bg-blue-700/20 text-blue-400 border-blue-500/30 text-[10px]" : "bg-secondary text-muted-foreground border-border text-[10px]"}>
-                                      {source === "pipeline" ? "Pipeline" : "Org Fallback"}
+                                      {source === "pipeline" ? t("app.pipelines.policies.pipelineSource") : t("app.pipelines.policies.orgFallback")}
                                     </Badge>
                                   </td>
                                   <td className="p-3">
@@ -325,7 +327,7 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
                                 </tr>
                               </TooltipTrigger>
                               {isSuppressed && (
-                                <TooltipContent>Suppressed by pipeline override</TooltipContent>
+                                <TooltipContent>{t("app.pipelines.policies.suppressed")}</TooltipContent>
                               )}
                             </Tooltip>
                           </TooltipProvider>

@@ -13,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Users, Plus, MoreHorizontal, Loader2, UserCheck, UserX, Copy, Link } from "lucide-react";
 import { toast } from "sonner";
 import { PaginationControls, paginate } from "@/components/app/PaginationControls";
+import { useLanguage } from "@/context/LanguageContext";
 
 const roleBadgeColors: Record<string, string> = {
   admin: "bg-purple-500/15 text-purple-400 border-purple-500/30",
@@ -31,6 +32,7 @@ interface UserRow {
 
 const AdminUsers = () => {
   const { profile, user } = useAuth();
+  const { t } = useLanguage();
   const orgId = profile?.org_id;
   const queryClient = useQueryClient();
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -77,9 +79,9 @@ const AdminUsers = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users", orgId] });
-      toast.success("Role updated");
+      toast.success(t("app.admin.users.roleUpdated"));
     },
-    onError: () => toast.error("Failed to update role"),
+    onError: () => toast.error(t("app.admin.users.roleUpdateFailed")),
   });
 
   const toggleActive = useMutation({
@@ -92,14 +94,14 @@ const AdminUsers = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users", orgId] });
-      toast.success("User status updated");
+      toast.success(t("app.admin.users.statusUpdated"));
     },
-    onError: () => toast.error("Failed to update user"),
+    onError: () => toast.error(t("app.admin.users.statusUpdateFailed")),
   });
 
   const inviteUser = useMutation({
     mutationFn: async () => {
-      if (!orgId || !inviteEmail) throw new Error("Missing data");
+      if (!orgId || !inviteEmail) throw new Error(t("app.admin.users.missingData"));
 
       const { data, error } = await (supabase.rpc as any)("create_invitation", {
         p_email: inviteEmail,
@@ -108,9 +110,9 @@ const AdminUsers = () => {
 
       if (error) {
         console.error("RPC create_invitation error:", JSON.stringify(error));
-        throw new Error(error.message || error.details || "Error calling create_invitation");
+        throw new Error(error.message || error.details || t("app.admin.users.rpcError"));
       }
-      if (!data) throw new Error("No token returned — check that create_invitation() exists and is granted to authenticated role");
+      if (!data) throw new Error(t("app.admin.users.noTokenReturned"));
       return data as string;
     },
     onSuccess: (token: string) => {
@@ -118,17 +120,17 @@ const AdminUsers = () => {
       const link = `${baseUrl}/auth?invitation_token=${token}&email=${encodeURIComponent(inviteEmail)}`;
       setInviteLink(link);
       queryClient.invalidateQueries({ queryKey: ["admin-users", orgId] });
-      toast.success(`Invitation created for ${inviteEmail}`);
+      toast.success(`${t("app.admin.users.invitationCreatedFor")} ${inviteEmail}`);
     },
     onError: (e: Error) => {
-      toast.error(e.message || "Error creating invitation");
+      toast.error(e.message || t("app.admin.users.invitationCreateError"));
     },
   });
 
   const copyLink = () => {
     if (inviteLink) {
       navigator.clipboard.writeText(inviteLink);
-      toast.success("Link copied to clipboard");
+      toast.success(t("app.admin.users.linkCopied"));
     }
   };
 
@@ -144,58 +146,58 @@ const AdminUsers = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <Users className="w-5 h-5 text-primary" /> User Management
+            <Users className="w-5 h-5 text-primary" /> {t("app.admin.users.title")}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage users, roles, and permissions
+            {t("app.admin.users.subtitle")}
           </p>
         </div>
         <Dialog open={inviteOpen} onOpenChange={(open) => { if (!open) resetInviteDialog(); else setInviteOpen(true); }}>
           <DialogTrigger asChild>
-            <Button size="sm"><Plus className="w-4 h-4 mr-1" /> Invite User</Button>
+            <Button size="sm"><Plus className="w-4 h-4 mr-1" /> {t("app.admin.users.inviteUser")}</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Invite User</DialogTitle>
+              <DialogTitle>{t("app.admin.users.inviteUser")}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-4">
               {inviteLink ? (
                 <>
-                  <p className="text-sm text-muted-foreground">Share this link with the user to join your organization:</p>
+                  <p className="text-sm text-muted-foreground">{t("app.admin.users.shareLink")}</p>
                   <div className="flex gap-2">
                     <Input value={inviteLink} readOnly className="text-xs font-mono" />
-                    <Button variant="outline" size="icon" onClick={copyLink} title="Copy link">
+                    <Button variant="outline" size="icon" onClick={copyLink} title={t("app.admin.users.copyLink")}>
                       <Copy className="w-4 h-4" />
                     </Button>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" className="flex-1" onClick={resetInviteDialog}>Close</Button>
+                    <Button variant="outline" className="flex-1" onClick={resetInviteDialog}>{t("app.admin.common.close")}</Button>
                     <Button className="flex-1" onClick={() => { setInviteLink(null); setInviteEmail(""); }}>
-                      <Plus className="w-4 h-4 mr-1" /> Invite Another
+                      <Plus className="w-4 h-4 mr-1" /> {t("app.admin.users.inviteAnother")}
                     </Button>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="space-y-2">
-                    <Label>Email</Label>
-                    <Input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="user@company.com" />
+                    <Label>{t("app.admin.leads.email")}</Label>
+                    <Input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder={t("app.admin.users.emailPlaceholder")} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Role</Label>
+                    <Label>{t("app.admin.users.role")}</Label>
                     <Select value={inviteRole} onValueChange={setInviteRole}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="viewer">Viewer</SelectItem>
-                        <SelectItem value="developer">Developer</SelectItem>
-                        <SelectItem value="dpo">DPO</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="viewer">{t("app.admin.users.roleViewer")}</SelectItem>
+                        <SelectItem value="developer">{t("app.admin.users.roleDeveloper")}</SelectItem>
+                        <SelectItem value="dpo">{t("app.admin.users.roleDpo")}</SelectItem>
+                        <SelectItem value="admin">{t("app.admin.users.roleAdmin")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <Button onClick={() => inviteUser.mutate()} disabled={!inviteEmail || inviteUser.isPending} className="w-full">
                     {inviteUser.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Link className="w-4 h-4 mr-2" />}
-                    {inviteUser.isPending ? "Creating…" : "Generate Invitation Link"}
+                    {inviteUser.isPending ? t("app.admin.users.creating") : t("app.admin.users.generateLink")}
                   </Button>
                 </>
               )}
@@ -212,10 +214,10 @@ const AdminUsers = () => {
             <Table>
               <TableHeader>
                 <TableRow className="border-border">
-                  <TableHead>Name</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Joined</TableHead>
+                  <TableHead>{t("app.admin.apiKeys.name")}</TableHead>
+                  <TableHead>{t("app.admin.users.role")}</TableHead>
+                  <TableHead>{t("app.admin.common.status")}</TableHead>
+                  <TableHead>{t("app.admin.users.joined")}</TableHead>
                   <TableHead className="w-10"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -230,9 +232,9 @@ const AdminUsers = () => {
                     </TableCell>
                     <TableCell>
                       {u.is_active ? (
-                        <span className="flex items-center gap-1 text-green-400 text-sm"><UserCheck className="w-3.5 h-3.5" /> Active</span>
+                        <span className="flex items-center gap-1 text-green-400 text-sm"><UserCheck className="w-3.5 h-3.5" /> {t("app.admin.common.active")}</span>
                       ) : (
-                        <span className="flex items-center gap-1 text-muted-foreground text-sm"><UserX className="w-3.5 h-3.5" /> Inactive</span>
+                        <span className="flex items-center gap-1 text-muted-foreground text-sm"><UserX className="w-3.5 h-3.5" /> {t("app.admin.users.inactive")}</span>
                       )}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
@@ -252,19 +254,19 @@ const AdminUsers = () => {
                               onClick={() => changeRole.mutate({ userId: u.id, newRole: role })}
                               disabled={u.role === role}
                             >
-                              Set as {role}
+                              {t("app.admin.users.setAs")} {role}
                             </DropdownMenuItem>
                           ))}
                           <DropdownMenuItem
                             onClick={() => {
                               if (u.id === user?.id) {
-                                toast.error("You cannot deactivate yourself");
+                                toast.error(t("app.admin.users.cannotDeactivateSelf"));
                                 return;
                               }
                               toggleActive.mutate({ userId: u.id, is_active: !u.is_active });
                             }}
                           >
-                            {u.is_active ? "Deactivate" : "Activate"}
+                            {u.is_active ? t("app.admin.users.deactivate") : t("app.admin.users.activate")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

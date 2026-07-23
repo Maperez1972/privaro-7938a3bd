@@ -3,11 +3,13 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PolicySummaryBadge } from "@/components/app/pipeline/PolicySummaryBadge";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Pipeline { id: string; name: string; llm_provider: string; llm_model: string; }
 interface Props { pipelines: Pipeline[]; activePipelineId: string | null; onSelect: (id: string) => void; }
 
 export function PipelineSelector({ pipelines, activePipelineId, onSelect }: Props) {
+  const { t } = useLanguage();
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
@@ -30,10 +32,10 @@ export function PipelineSelector({ pipelines, activePipelineId, onSelect }: Prop
 
   return (
     <div className="w-72 flex-shrink-0 border-l border-border flex-col bg-card/50 hidden lg:flex">
-      <div className="p-3 border-b border-border"><h2 className="text-sm font-semibold">Active Pipeline</h2><p className="text-[10px] text-muted-foreground mt-0.5">Select the AI model for this chat</p></div>
+      <div className="p-3 border-b border-border"><h2 className="text-sm font-semibold">{t("app.chat.pipelineSelector.title")}</h2><p className="text-[10px] text-muted-foreground mt-0.5">{t("app.chat.pipelineSelector.subtitle")}</p></div>
       <div className="relative flex-1 min-h-0">
         <div ref={listRef} className="h-full overflow-y-auto p-2 space-y-1.5">
-          {pipelines.length === 0 ? <p className="text-xs text-muted-foreground text-center py-8">No active pipelines</p> : pipelines.map((pipe) => {
+          {pipelines.length === 0 ? <p className="text-xs text-muted-foreground text-center py-8">{t("app.chat.pipelineSelector.none")}</p> : pipelines.map((pipe) => {
             const isActive = pipe.id === activePipelineId;
             return (
               <div key={pipe.id}>
