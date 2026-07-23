@@ -51,6 +51,9 @@ const getNestedEncryptionError = (payload: unknown): string | null => {
   if (!payload || typeof payload !== "object") return null;
 
   const body = payload as Record<string, unknown>;
+  const message = body.message;
+  if (typeof message === "string") return message;
+
   const detail = body.detail;
   if (typeof detail === "string") {
     try {
@@ -68,9 +71,6 @@ const getNestedEncryptionError = (payload: unknown): string | null => {
 
   const error = body.error;
   if (typeof error === "string") return error;
-
-  const message = body.message;
-  if (typeof message === "string") return message;
 
   return null;
 };
