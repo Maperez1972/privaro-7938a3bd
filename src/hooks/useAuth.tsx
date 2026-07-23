@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  profile: { id: string; org_id: string; full_name: string; preferred_lang?: string } | null;
+  profile: { id: string; org_id: string; full_name: string; preferred_lang?: string; is_platform_admin?: boolean } | null;
   roles: string[];
   rolesLoaded: boolean;
   signOut: () => Promise<void>;
