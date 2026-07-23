@@ -220,13 +220,14 @@ const PartnerClients = () => {
           <TableHeader>
             <TableRow className="border-border">
               <TableHead>{t("app.partner.table.name")}</TableHead>
+              <TableHead>Consumo este mes</TableHead>
               <TableHead>{t("app.partner.table.createdAt")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.sub_accounts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={2} className="text-center py-16">
+                <TableCell colSpan={3} className="text-center py-16">
                   <div className="flex flex-col items-center gap-2 text-muted-foreground">
                     <Inbox className="h-10 w-10" />
                     <p className="font-medium text-foreground">{t("app.partner.empty.title")}</p>
@@ -241,6 +242,7 @@ const PartnerClients = () => {
               data.sub_accounts.map((s) => (
                 <TableRow key={s.id} className="border-border">
                   <TableCell className="font-semibold">{s.name}</TableCell>
+                  <TableCell className="text-sm tabular-nums">{(s.requests_used_this_month ?? 0).toLocaleString()}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">
                     {formatDistanceToNow(new Date(s.created_at), { addSuffix: true, locale: lang === "es" ? esLocale : enUS })}
                   </TableCell>
