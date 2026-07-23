@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  profile: { id: string; org_id: string; full_name: string; preferred_lang?: string } | null;
+  profile: { id: string; org_id: string; full_name: string; preferred_lang?: string; is_platform_admin?: boolean } | null;
   roles: string[];
   rolesLoaded: boolean;
   signOut: () => Promise<void>;
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setTimeout(async () => {
             const { data: profileData } = await supabase
               .from("profiles")
-              .select("id, org_id, full_name, preferred_lang" as any)
+              .select("id, org_id, full_name, preferred_lang, is_platform_admin" as any)
               .eq("id", session.user.id)
               .single();
             setProfile(profileData as unknown as AuthContextType["profile"]);

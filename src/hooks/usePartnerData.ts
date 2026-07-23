@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-export type SubAccount = { id: string; name: string; created_at: string };
+export type SubAccount = { id: string; name: string; created_at: string; requests_used_this_month?: number };
 export type PartnerBilling = {
   plan: string;
   requests_used: number;

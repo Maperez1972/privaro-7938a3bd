@@ -49,6 +49,7 @@ const AdminPolicyPresets = lazy(() => import("./pages/app/admin/AdminPolicyPrese
 const AdminVault = lazy(() => import("./pages/app/admin/AdminVault"));
 const AdminEncryptionKeys = lazy(() => import("./pages/app/admin/AdminEncryptionKeys"));
 const AdminLeads = lazy(() => import("./pages/app/admin/AdminLeads"));
+const PlatformAdmin = lazy(() => import("./pages/app/admin/PlatformAdmin"));
 const PartnerClients = lazy(() => import("./pages/app/partner/PartnerClients"));
 const Onboarding = lazy(() => import("./pages/app/Onboarding"));
 const AgentRuns = lazy(() => import("./pages/app/AgentRuns"));
@@ -145,6 +146,7 @@ const App = () => (
                 <Route path="admin/policy-presets" element={<AdminRoute><AdminPolicyPresets /></AdminRoute>} />
                 <Route path="admin/billing" element={<AdminRoute><AdminBilling /></AdminRoute>} />
                 <Route path="admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
+                <Route path="platform-admin" element={<PlatformAdmin />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />
