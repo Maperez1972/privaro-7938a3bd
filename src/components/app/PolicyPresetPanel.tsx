@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronDown, Loader2 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface PresetRule {
   entity_type: string;
@@ -56,6 +57,7 @@ interface PolicyPresetPanelProps {
 }
 
 const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps) => {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [presets, setPresets] = useState<Preset[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,11 +89,11 @@ const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps)
     setApplying(false);
 
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("app.policies.toast.error"), description: error.message, variant: "destructive" });
     } else {
       const rules = Array.isArray(confirmPreset.rules) ? confirmPreset.rules : [];
       localStorage.setItem("privaro-lastPreset", confirmPreset.slug);
-      toast({ title: `${confirmPreset.name} applied`, description: `${rules.length} rules configured` });
+      toast({ title: `${confirmPreset.name} ${t("app.policies.preset.applied")}`, description: `${rules.length} ${t("app.policies.preset.rulesConfigured")}` });
       onApplied(confirmPreset.slug);
     }
 
@@ -103,8 +105,8 @@ const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps)
     return (
       <div className="space-y-3">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">Quick Setup</h2>
-          <p className="text-xs text-muted-foreground">Apply a pre-configured policy set for your industry vertical</p>
+          <h2 className="text-sm font-semibold text-foreground">{t("app.policies.preset.quickSetup")}</h2>
+          <p className="text-xs text-muted-foreground">{t("app.policies.preset.quickSetupDesc")}</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {[1, 2, 3].map((i) => (
@@ -132,8 +134,8 @@ const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps)
     <>
       <div className="space-y-3">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">Quick Setup</h2>
-          <p className="text-xs text-muted-foreground">Apply a pre-configured policy set for your industry vertical</p>
+          <h2 className="text-sm font-semibold text-foreground">{t("app.policies.preset.quickSetup")}</h2>
+          <p className="text-xs text-muted-foreground">{t("app.policies.preset.quickSetupDesc")}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -148,12 +150,12 @@ const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps)
                       <span className="font-semibold text-sm text-foreground">{preset.name}</span>
                     </div>
                     <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setConfirmPreset(preset)}>
-                      Apply
+                      {t("app.policies.preset.apply")}
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground line-clamp-2">{preset.description}</p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{rules.length} rules</span>
+                    <span>{rules.length} {t("app.policies.rulesSuffix")}</span>
                     <span>·</span>
                     <span>{preset.sector}</span>
                   </div>
@@ -179,10 +181,10 @@ const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps)
       <AlertDialog open={!!confirmPreset} onOpenChange={(open) => !open && setConfirmPreset(null)}>
         <AlertDialogContent className="bg-card border-border max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Apply {confirmPreset?.icon} {confirmPreset?.name}?</AlertDialogTitle>
+            <AlertDialogTitle>{t("app.policies.preset.applyQuestion")} {confirmPreset?.icon} {confirmPreset?.name}?</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div>
-                This will <strong>replace all current policy rules</strong> with the {confirmPreset?.name} preset ({Array.isArray(confirmPreset?.rules) ? confirmPreset.rules.length : 0} rules). This action cannot be undone.
+                {t("app.policies.preset.replaceWarningPrefix")} <strong>{t("app.policies.preset.replaceWarningBold")}</strong> {t("app.policies.preset.replaceWarningMid")} {confirmPreset?.name} ({Array.isArray(confirmPreset?.rules) ? confirmPreset.rules.length : 0} {t("app.policies.rulesSuffix")}). {t("app.policies.preset.replaceWarningSuffix")}
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -191,7 +193,7 @@ const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps)
             <CollapsibleTrigger asChild>
               <Button variant="ghost" size="sm" className="gap-1 text-xs text-muted-foreground px-0 h-auto">
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform ${previewOpen ? "rotate-180" : ""}`} />
-                Rules that will be applied
+                {t("app.policies.preset.rulesToApply")}
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -213,10 +215,10 @@ const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps)
           </Collapsible>
 
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={applying}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={applying}>{t("app.policies.dialog.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleApply} disabled={applying}>
               {applying && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
-              Apply Preset
+              {t("app.policies.preset.applyPreset")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

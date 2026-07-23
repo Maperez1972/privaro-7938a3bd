@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Eye, Trash2, KeyRound, Copy, Check, Loader2, ExternalLink } from "lucide-react";
 import { PaginationControls, paginate } from "@/components/app/PaginationControls";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface VaultToken {
   id: string;
@@ -55,8 +56,8 @@ const entityColors: Record<string, string> = {
 const getEntityBadgeClass = (type: string) =>
   entityColors[type] || "bg-muted text-muted-foreground border-border";
 
-const formatDate = (d: string | null) => {
-  if (!d) return "Never";
+const formatDate = (d: string | null, neverLabel: string) => {
+  if (!d) return neverLabel;
   return new Date(d).toLocaleString("en-GB", {
     day: "2-digit", month: "short", year: "numeric",
     hour: "2-digit", minute: "2-digit",
@@ -66,6 +67,7 @@ const formatDate = (d: string | null) => {
 const AdminVault = () => {
   const { profile } = useAuth();
   const { toast } = useToast();
+  const { t: tr } = useLanguage();
 
   const [tokens, setTokens] = useState<VaultToken[]>([]);
   const [accessLog, setAccessLog] = useState<AccessLogEntry[]>([]);
@@ -99,7 +101,7 @@ const AdminVault = () => {
       .eq("is_reversible", true)
       .order("created_at", { ascending: false });
     if (error) {
-      toast({ title: "Error loading tokens", description: error.message, variant: "destructive" });
+      toast({ title: tr("app.admin.vault.errorLoadingTokens"), description: error.message, variant: "destructive" });
     } else {
       setTokens((data as any) ?? []);
     }
@@ -116,7 +118,7 @@ const AdminVault = () => {
       .order("created_at", { ascending: false })
       .limit(100);
     if (error) {
-      toast({ title: "Error loading access log", description: error.message, variant: "destructive" });
+      toast({ title: tr("app.admin.vault.errorLoadingLog"), description: error.message, variant: "destructive" });
     } else {
       const entries = (data as AccessLogEntry[]) ?? [];
       // Resolve user names
@@ -157,7 +159,7 @@ const AdminVault = () => {
       setRevealedValue(data.value);
       fetchTokens();
     } catch (err: any) {
-      toast({ title: "Reveal failed", description: err.message, variant: "destructive" });
+      toast({ title: tr("app.admin.vault.revealFailed"), description: err.message, variant: "destructive" });
     } finally {
       setRevealing(false);
     }
@@ -190,11 +192,11 @@ const AdminVault = () => {
         throw new Error(data?.error || error?.message || "Failed to revoke token");
       }
 
-      toast({ title: "Token revoked" });
+      toast({ title: tr("app.admin.vault.tokenRevoked") });
       setTokens((prev) => prev.filter((t) => t.id !== tokenId));
       fetchAccessLog();
     } catch (err: any) {
-      toast({ title: "Revoke failed", description: err.message, variant: "destructive" });
+      toast({ title: tr("app.admin.vault.revokeFailed"), description: err.message, variant: "destructive" });
     } finally {
       setRevoking(false);
       setRevokeOpen(false);
@@ -204,42 +206,42 @@ const AdminVault = () => {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Tokens Vault</h1>
-        <p className="text-sm text-muted-foreground">Manage reversible tokens and track access history</p>
+        <h1 className="text-2xl font-bold text-foreground">{tr("app.admin.vault.title")}</h1>
+        <p className="text-sm text-muted-foreground">{tr("app.admin.vault.subtitle")}</p>
       </div>
 
       <Tabs defaultValue="tokens" onValueChange={(v) => v === "log" && fetchAccessLog()}>
         <TabsList>
-          <TabsTrigger value="tokens">Active Tokens</TabsTrigger>
-          <TabsTrigger value="log">Tokens Log</TabsTrigger>
+          <TabsTrigger value="tokens">{tr("app.admin.vault.activeTokens")}</TabsTrigger>
+          <TabsTrigger value="log">{tr("app.admin.vault.tokensLog")}</TabsTrigger>
         </TabsList>
 
         {/* TAB 1: Active Tokens */}
         <TabsContent value="tokens">
           <Card>
-            <CardHeader><CardTitle className="text-lg">Reversible Tokens</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-lg">{tr("app.admin.vault.reversibleTokens")}</CardTitle></CardHeader>
             <CardContent>
               {loadingTokens ? (
                 <div className="flex items-center justify-center py-12 text-muted-foreground">
-                  <Loader2 className="w-5 h-5 animate-spin mr-2" /> Loading…
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" /> {tr("app.admin.common.loadingEllipsis")}
                 </div>
               ) : tokens.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
                   <KeyRound className="w-10 h-10 opacity-40" />
-                  <p className="text-sm">No tokens in vault yet</p>
+                  <p className="text-sm">{tr("app.admin.vault.noTokens")}</p>
                 </div>
               ) : (
                 <>
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Token</TableHead>
-                        <TableHead>Entity Type</TableHead>
-                        <TableHead>Key ID</TableHead>
-                        <TableHead className="text-center">Reversals</TableHead>
-                        <TableHead>Last Revealed</TableHead>
-                        <TableHead>Expires</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead>{tr("app.admin.vault.token")}</TableHead>
+                        <TableHead>{tr("app.admin.vault.entityType")}</TableHead>
+                        <TableHead>{tr("app.admin.vault.keyId")}</TableHead>
+                        <TableHead className="text-center">{tr("app.admin.vault.reversals")}</TableHead>
+                        <TableHead>{tr("app.admin.vault.lastRevealed")}</TableHead>
+                        <TableHead>{tr("app.admin.vault.expires")}</TableHead>
+                        <TableHead className="text-right">{tr("app.admin.common.actions")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -253,13 +255,13 @@ const AdminVault = () => {
                           </TableCell>
                           <TableCell className="font-mono text-xs text-muted-foreground">{t.encryption_key_id}</TableCell>
                           <TableCell className="text-center">{t.reversal_count}</TableCell>
-                          <TableCell className="text-sm">{formatDate(t.last_reversed_at)}</TableCell>
-                          <TableCell className="text-sm">{formatDate(t.expires_at)}</TableCell>
+                          <TableCell className="text-sm">{formatDate(t.last_reversed_at, tr("app.admin.common.never"))}</TableCell>
+                          <TableCell className="text-sm">{formatDate(t.expires_at, tr("app.admin.common.never"))}</TableCell>
                           <TableCell className="text-right space-x-1">
-                            <Button variant="ghost" size="icon" onClick={() => openReveal(t)} title="Reveal">
+                            <Button variant="ghost" size="icon" onClick={() => openReveal(t)} title={tr("app.admin.vault.reveal")}>
                               <Eye className="w-4 h-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={() => openRevoke(t)} title="Revoke" className="text-destructive hover:text-destructive">
+                            <Button variant="ghost" size="icon" onClick={() => openRevoke(t)} title={tr("app.admin.vault.revoke")} className="text-destructive hover:text-destructive">
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </TableCell>
@@ -277,7 +279,7 @@ const AdminVault = () => {
         {/* TAB 2: Access Log */}
         <TabsContent value="log">
           <Card>
-            <CardHeader><CardTitle className="text-lg">Tokens Log</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-lg">{tr("app.admin.vault.tokensLog")}</CardTitle></CardHeader>
             <CardContent>
               {loadingLog ? (
                 <div className="flex items-center justify-center py-12 text-muted-foreground">
@@ -286,25 +288,25 @@ const AdminVault = () => {
               ) : accessLog.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
                   <KeyRound className="w-10 h-10 opacity-40" />
-                  <p className="text-sm">No access log entries yet</p>
+                  <p className="text-sm">{tr("app.admin.vault.noLogEntries")}</p>
                 </div>
               ) : (
                 <>
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Time</TableHead>
-                        <TableHead>Action</TableHead>
-                        <TableHead>Token ID</TableHead>
-                        <TableHead>User</TableHead>
-                        <TableHead>IP</TableHead>
-                        <TableHead>Blockchain</TableHead>
+                        <TableHead>{tr("app.admin.vault.time")}</TableHead>
+                        <TableHead>{tr("app.admin.policyPresets.action")}</TableHead>
+                        <TableHead>{tr("app.admin.vault.tokenId")}</TableHead>
+                        <TableHead>{tr("app.admin.vault.user")}</TableHead>
+                        <TableHead>{tr("app.admin.vault.ip")}</TableHead>
+                        <TableHead>{tr("app.admin.vault.blockchain")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {(() => { const { paged } = paginate(accessLog, logPage, logPageSize); return paged; })().map((entry) => (
                         <TableRow key={entry.id}>
-                          <TableCell className="text-sm">{formatDate(entry.created_at)}</TableCell>
+                          <TableCell className="text-sm">{formatDate(entry.created_at, tr("app.admin.common.never"))}</TableCell>
                           <TableCell>
                             <Badge variant="outline" className={entry.action === "reveal" ? "bg-blue-500/15 text-blue-400 border-blue-500/30" : entry.action === "revoked" ? "bg-red-500/15 text-red-400 border-red-500/30" : "bg-muted text-muted-foreground border-border"}>
                               {entry.action}
@@ -322,17 +324,17 @@ const AdminVault = () => {
                                 className="inline-flex items-center gap-1.5"
                               >
                                 <Badge variant="outline" className="bg-green-500/15 text-green-400 border-green-500/30 gap-1">
-                                  Certified ⛓️
+                                  {tr("app.admin.vault.certified")} ⛓️
                                   <ExternalLink className="w-3 h-3" />
                                 </Badge>
                               </a>
                             ) : entry.ibs_evidence_id ? (
                               <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
-                                Certifying…
+                                {tr("app.admin.vault.certifying")}
                               </Badge>
                             ) : (
                               <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30">
-                                Pending
+                                {tr("app.admin.vault.pending")}
                               </Badge>
                             )}
                           </TableCell>
@@ -352,9 +354,9 @@ const AdminVault = () => {
       <Dialog open={revealOpen} onOpenChange={(o) => { if (!o) setRevealOpen(false); }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Reveal Token Value</DialogTitle>
+            <DialogTitle>{tr("app.admin.vault.revealTokenValue")}</DialogTitle>
             <DialogDescription>
-              Decrypt and view the original value for this token.
+              {tr("app.admin.vault.revealDesc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -365,17 +367,17 @@ const AdminVault = () => {
                 <Badge variant="outline" className={getEntityBadgeClass(selectedToken.entity_type)}>
                   {selectedToken.entity_type}
                 </Badge>
-                <span className="text-xs text-muted-foreground">({selectedToken.reversal_count} prior reveals)</span>
+                <span className="text-xs text-muted-foreground">({selectedToken.reversal_count} {tr("app.admin.vault.priorReveals")})</span>
               </div>
 
               {revealedValue ? (
                 <div className="rounded-md border border-green-500/30 bg-green-500/10 p-4 space-y-2">
                   <p className="font-mono text-sm text-green-400 break-all select-all">{revealedValue}</p>
                   <div className="flex items-center justify-between">
-                    <p className="text-xs text-amber-400">⚠️ This value will only be shown once. Copy it now.</p>
+                    <p className="text-xs text-amber-400">⚠️ {tr("app.admin.vault.oneTimeWarning")}</p>
                     <Button variant="ghost" size="sm" onClick={handleCopy} className="gap-1.5">
                       {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                      {copied ? "Copied" : "Copy"}
+                      {copied ? tr("app.admin.vault.copied") : tr("app.admin.vault.copy")}
                     </Button>
                   </div>
                 </div>
@@ -384,7 +386,7 @@ const AdminVault = () => {
                   <DialogFooter>
                     <Button onClick={handleReveal} disabled={revealing}>
                       {revealing && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
-                      Reveal Value
+                      {tr("app.admin.vault.revealValue")}
                     </Button>
                   </DialogFooter>
                 </>
@@ -398,16 +400,16 @@ const AdminVault = () => {
       <AlertDialog open={revokeOpen} onOpenChange={setRevokeOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Revoke Token</AlertDialogTitle>
+            <AlertDialogTitle>{tr("app.admin.vault.revokeTokenTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete <span className="font-mono">{revokeToken?.token_value}</span> from the vault. This action cannot be undone.
+              {tr("app.admin.vault.revokeTokenDescPre")} <span className="font-mono">{revokeToken?.token_value}</span> {tr("app.admin.vault.revokeTokenDescPost")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{tr("app.admin.common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleRevoke} disabled={revoking} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               {revoking && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
-              Revoke
+              {tr("app.admin.vault.revoke")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

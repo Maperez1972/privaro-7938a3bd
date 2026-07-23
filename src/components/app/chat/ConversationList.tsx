@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import type { Conversation, ConversationFolder } from "@/hooks/useChat";
+import { useLanguage } from "@/context/LanguageContext";
 
 const FOLDER_COLORS = [
   "#3B82F6", "#10B981", "#F59E0B", "#EF4444",
@@ -49,8 +50,8 @@ function getFolderIcon(iconName: string, color: string) {
   }
 }
 
-function getDisplayTitle(conv: Conversation) {
-  return conv.custom_title || conv.title || "New Conversation";
+function getDisplayTitle(conv: Conversation, fallback: string) {
+  return conv.custom_title || conv.title || fallback;
 }
 
 interface Props {
@@ -119,6 +120,7 @@ function ConvItem({
   onDuplicate: (id: string) => void;
   folders: ConversationFolder[];
 }) {
+  const { t } = useLanguage();
   const [renaming, setRenaming] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -142,13 +144,13 @@ function ConvItem({
         <div className="flex-1 min-w-0">
           {renaming ? (
             <InlineRename
-              value={getDisplayTitle(conv)}
+              value={getDisplayTitle(conv, t("app.chat.list.newConversation"))}
               onSave={(v) => { onRename(conv.id, v); setRenaming(false); }}
               onCancel={() => setRenaming(false)}
             />
           ) : (
             <div className="flex items-center gap-1">
-              <p className="text-xs font-medium truncate">{getDisplayTitle(conv)}</p>
+              <p className="text-xs font-medium truncate">{getDisplayTitle(conv, t("app.chat.list.newConversation"))}</p>
               {conv.is_pinned && <Pin className="w-2.5 h-2.5 text-muted-foreground/50 flex-shrink-0" />}
             </div>
           )}
@@ -169,18 +171,18 @@ function ConvItem({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
             <DropdownMenuItem onClick={() => setRenaming(true)}>
-              <Pencil className="w-3.5 h-3.5 mr-2" /> Rename
+              <Pencil className="w-3.5 h-3.5 mr-2" /> {t("app.chat.list.rename")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onTogglePin(conv.id)}>
               {conv.is_pinned
-                ? <><PinOff className="w-3.5 h-3.5 mr-2" /> Unpin</>
-                : <><Pin className="w-3.5 h-3.5 mr-2" /> Pin</>
+                ? <><PinOff className="w-3.5 h-3.5 mr-2" /> {t("app.chat.list.unpin")}</>
+                : <><Pin className="w-3.5 h-3.5 mr-2" /> {t("app.chat.list.pin")}</>
               }
             </DropdownMenuItem>
             {folders.length > 0 && (
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>
-                  <Folder className="w-3.5 h-3.5 mr-2" /> Move to folder
+                  <Folder className="w-3.5 h-3.5 mr-2" /> {t("app.chat.list.moveToFolder")}
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
                   {folders.map(f => (
@@ -193,7 +195,7 @@ function ConvItem({
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => onMoveToFolder(conv.id, null)}>
-                        Remove from folder
+                        {t("app.chat.list.removeFromFolder")}
                       </DropdownMenuItem>
                     </>
                   )}
@@ -201,14 +203,14 @@ function ConvItem({
               </DropdownMenuSub>
             )}
             <DropdownMenuItem onClick={() => onDuplicate(conv.id)}>
-              <Copy className="w-3.5 h-3.5 mr-2" /> Duplicate
+              <Copy className="w-3.5 h-3.5 mr-2" /> {t("app.chat.list.duplicate")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => onArchive(conv.id)}>
-              <Archive className="w-3.5 h-3.5 mr-2" /> Archive
+              <Archive className="w-3.5 h-3.5 mr-2" /> {t("app.chat.list.archive")}
             </DropdownMenuItem>
             <DropdownMenuItem className="text-destructive" onClick={() => setDeleteOpen(true)}>
-              <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+              <Trash2 className="w-3.5 h-3.5 mr-2" /> {t("app.chat.list.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -217,15 +219,15 @@ function ConvItem({
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete conversation?</AlertDialogTitle>
+            <AlertDialogTitle>{t("app.chat.list.deleteConvTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this conversation and all its messages.
+              {t("app.chat.list.deleteConvDesc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("app.chat.list.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={() => onDelete(conv.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+              {t("app.chat.list.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -255,6 +257,7 @@ function FolderSection({
   onChangeFolderColor: (id: string, color: string) => void;
   onDeleteFolder: (id: string) => void;
 }) {
+  const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
   const [renamingFolder, setRenamingFolder] = useState(false);
   const [deleteFolderOpen, setDeleteFolderOpen] = useState(false);
@@ -301,11 +304,11 @@ function FolderSection({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
             <DropdownMenuItem onClick={() => setRenamingFolder(true)}>
-              <Pencil className="w-3.5 h-3.5 mr-2" /> Rename
+              <Pencil className="w-3.5 h-3.5 mr-2" /> {t("app.chat.list.rename")}
             </DropdownMenuItem>
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
-                <Palette className="w-3.5 h-3.5 mr-2" /> Color
+                <Palette className="w-3.5 h-3.5 mr-2" /> {t("app.chat.list.color")}
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent className="p-2">
                 <div className="grid grid-cols-4 gap-1.5">
@@ -324,7 +327,7 @@ function FolderSection({
             </DropdownMenuSub>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive" onClick={() => setDeleteFolderOpen(true)}>
-              <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+              <Trash2 className="w-3.5 h-3.5 mr-2" /> {t("app.chat.list.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -344,15 +347,15 @@ function FolderSection({
       <AlertDialog open={deleteFolderOpen} onOpenChange={setDeleteFolderOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete folder "{folder.name}"?</AlertDialogTitle>
+            <AlertDialogTitle>{t("app.chat.list.deleteFolderTitle").replace("{name}", folder.name)}</AlertDialogTitle>
             <AlertDialogDescription>
-              Conversations inside will be moved to "All Conversations".
+              {t("app.chat.list.deleteFolderDesc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("app.chat.list.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={() => onDeleteFolder(folder.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+              {t("app.chat.list.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -367,6 +370,7 @@ function NewFolderDialog({ open, onOpenChange, onCreate }: {
   onOpenChange: (v: boolean) => void;
   onCreate: (name: string, color: string, icon: string) => void;
 }) {
+  const { t } = useLanguage();
   const [name, setName] = useState("");
   const [color, setColor] = useState(FOLDER_COLORS[0]);
   const [icon, setIcon] = useState("folder");
@@ -384,20 +388,20 @@ function NewFolderDialog({ open, onOpenChange, onCreate }: {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm bg-card border-border">
         <DialogHeader>
-          <DialogTitle>New Folder</DialogTitle>
+          <DialogTitle>{t("app.chat.list.newFolder")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <label className="block text-xs text-muted-foreground mb-1">Name</label>
+            <label className="block text-xs text-muted-foreground mb-1">{t("app.chat.list.folderName")}</label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value.slice(0, 40))}
-              placeholder="Folder name"
+              placeholder={t("app.chat.list.folderNamePlaceholder")}
               className="h-8 text-sm"
             />
           </div>
           <div>
-            <label className="block text-xs text-muted-foreground mb-2">Color</label>
+            <label className="block text-xs text-muted-foreground mb-2">{t("app.chat.list.color")}</label>
             <div className="flex gap-2">
               {FOLDER_COLORS.map(c => (
                 <button
@@ -412,7 +416,7 @@ function NewFolderDialog({ open, onOpenChange, onCreate }: {
             </div>
           </div>
           <div>
-            <label className="block text-xs text-muted-foreground mb-2">Icon</label>
+            <label className="block text-xs text-muted-foreground mb-2">{t("app.chat.list.icon")}</label>
             <div className="flex gap-2">
               {FOLDER_ICONS.map(i => (
                 <button
@@ -429,7 +433,7 @@ function NewFolderDialog({ open, onOpenChange, onCreate }: {
             </div>
           </div>
           <Button className="w-full" size="sm" onClick={handleCreate} disabled={!name.trim()}>
-            Create Folder
+            {t("app.chat.list.createFolder")}
           </Button>
         </div>
       </DialogContent>
@@ -443,6 +447,7 @@ export function ConversationList({
   onRename, onTogglePin, onMoveToFolder, onDuplicate, loading,
   folders, onCreateFolder, onRenameFolder, onChangeFolderColor, onDeleteFolder,
 }: Props) {
+  const { t } = useLanguage();
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [showArchived, setShowArchived] = useState(
     () => localStorage.getItem("privaro-archived-expanded") === "true"
@@ -482,12 +487,12 @@ export function ConversationList({
   return (
     <div className="w-60 flex-shrink-0 border-r border-border flex flex-col bg-card/50">
       <div className="p-3 border-b border-border flex items-center justify-between">
-        <h2 className="text-sm font-semibold">Conversations</h2>
+        <h2 className="text-sm font-semibold">{t("app.chat.list.conversations")}</h2>
         <div className="flex gap-1">
-          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setFolderDialogOpen(true)} title="New folder">
+          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setFolderDialogOpen(true)} title={t("app.chat.list.newFolder")}>
             <FolderPlus className="w-3.5 h-3.5" />
           </Button>
-          <Button size="icon" variant="outline" className="h-7 w-7" onClick={onNew} title="New conversation">
+          <Button size="icon" variant="outline" className="h-7 w-7" onClick={onNew} title={t("app.chat.list.newConversationTitle")}>
             <Plus className="w-3.5 h-3.5" />
           </Button>
         </div>
@@ -496,11 +501,11 @@ export function ConversationList({
       <div className="relative flex-1 min-h-0">
         <div ref={listRef} className="h-full overflow-y-auto">
         {loading ? (
-          <p className="text-xs text-muted-foreground text-center py-8">Loading…</p>
+          <p className="text-xs text-muted-foreground text-center py-8">{t("app.chat.list.loading")}</p>
         ) : conversations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-2">
             <MessageSquare className="w-8 h-8 opacity-40" />
-            <p className="text-xs">No conversations yet</p>
+            <p className="text-xs">{t("app.chat.list.noConversations")}</p>
           </div>
         ) : (
           <>
@@ -508,7 +513,7 @@ export function ConversationList({
             {pinned.length > 0 && (
               <div>
                 <p className="text-[10px] uppercase font-semibold text-muted-foreground px-3 pt-3 pb-1 tracking-wider">
-                  Pinned
+                  {t("app.chat.list.pinned")}
                 </p>
                 {pinned.map(conv => (
                   <ConvItem
@@ -525,7 +530,7 @@ export function ConversationList({
             {hasFolders && (
               <div>
                 <p className="text-[10px] uppercase font-semibold text-muted-foreground px-3 pt-3 pb-1 tracking-wider">
-                  Folders
+                  {t("app.chat.list.folders")}
                 </p>
                 {folders.map(folder => (
                   <FolderSection
@@ -549,7 +554,7 @@ export function ConversationList({
               className={cn(dragOverAll && "bg-primary/10 rounded")}
             >
               <p className="text-[10px] uppercase font-semibold text-muted-foreground px-3 pt-3 pb-1 tracking-wider">
-                {hasFolders || pinned.length > 0 ? "All" : "Recent"}
+                {hasFolders || pinned.length > 0 ? t("app.chat.list.all") : t("app.chat.list.recent")}
               </p>
               {unfolderedUnpinned.map(conv => (
                 <ConvItem
@@ -571,7 +576,7 @@ export function ConversationList({
                   <ChevronRight className={cn("w-3 h-3 text-muted-foreground transition-transform", showArchived && "rotate-90")} />
                   <Archive className="w-3 h-3 text-muted-foreground" />
                   <span className="text-[10px] uppercase font-semibold text-muted-foreground tracking-wider">
-                    Archived
+                    {t("app.chat.list.archived")}
                   </span>
                   <span className="text-[10px] text-muted-foreground ml-auto">{archivedConversations.length}</span>
                 </button>
@@ -588,7 +593,7 @@ export function ConversationList({
                       <Archive className="w-3 h-3 text-muted-foreground" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium truncate">{getDisplayTitle(conv)}</p>
+                      <p className="text-xs font-medium truncate">{getDisplayTitle(conv, t("app.chat.list.newConversation"))}</p>
                       <p className="text-[10px] text-muted-foreground">
                         {conv.last_message_at
                           ? formatDistanceToNow(new Date(conv.last_message_at), { addSuffix: true })
@@ -599,14 +604,14 @@ export function ConversationList({
                       <button
                         className="p-1 rounded hover:bg-secondary text-muted-foreground"
                         onClick={(e) => { e.stopPropagation(); onUnarchive(conv.id); }}
-                        title="Unarchive"
+                        title={t("app.chat.list.unarchive")}
                       >
                         <ArchiveRestore className="w-3.5 h-3.5" />
                       </button>
                       <button
                         className="p-1 rounded hover:bg-secondary text-destructive"
                         onClick={(e) => { e.stopPropagation(); onDelete(conv.id); }}
-                        title="Delete permanently"
+                        title={t("app.chat.list.deletePermanently")}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

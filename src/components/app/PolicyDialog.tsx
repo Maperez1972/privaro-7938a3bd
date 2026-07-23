@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface PolicyFormData {
   entity_type: string;
@@ -66,6 +67,7 @@ interface PolicyDialogProps {
 }
 
 const PolicyDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: PolicyDialogProps) => {
+  const { t } = useLanguage();
   const [form, setForm] = useState<PolicyFormData>({
     entity_type: "full_name",
     category: "personal",
@@ -94,11 +96,11 @@ const PolicyDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: Po
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-card border-border sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Rule" : "New Rule"}</DialogTitle>
+          <DialogTitle>{initialData ? t("app.policies.dialog.editTitle") : t("app.policies.dialog.newTitle")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 mt-2">
           <div className="space-y-2">
-            <Label>Entity Type</Label>
+            <Label>{t("app.policies.dialog.entityType")}</Label>
             <Select value={form.entity_type} onValueChange={(v) => setForm({ ...form, entity_type: v })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -109,7 +111,7 @@ const PolicyDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: Po
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Category</Label>
+            <Label>{t("app.policies.dialog.category")}</Label>
             <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -120,7 +122,7 @@ const PolicyDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: Po
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Action</Label>
+            <Label>{t("app.policies.dialog.action")}</Label>
             <Select value={form.action} onValueChange={(v) => setForm({ ...form, action: v })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -131,25 +133,25 @@ const PolicyDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: Po
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Regulation Reference</Label>
-            <Input value={form.regulation_ref} onChange={(e) => setForm({ ...form, regulation_ref: e.target.value })} placeholder="e.g. GDPR Art.5" />
+            <Label>{t("app.policies.dialog.regulationRef")}</Label>
+            <Input value={form.regulation_ref} onChange={(e) => setForm({ ...form, regulation_ref: e.target.value })} placeholder={t("app.policies.dialog.regulationPlaceholder")} />
           </div>
           <div className="space-y-2">
-            <Label>Priority</Label>
+            <Label>{t("app.policies.dialog.priority")}</Label>
             <Input type="number" value={form.priority} onChange={(e) => setForm({ ...form, priority: parseInt(e.target.value) || 10 })} />
           </div>
           {form.entity_type === "custom" && (
             <div className="space-y-2">
-              <Label>Custom Pattern (regex)</Label>
+              <Label>{t("app.policies.dialog.customPattern")}</Label>
               <Input value={form.custom_pattern} onChange={(e) => setForm({ ...form, custom_pattern: e.target.value })} placeholder="\\b\\d{3}-\\d{2}-\\d{4}\\b" />
             </div>
           )}
         </div>
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t("app.policies.dialog.cancel")}</Button>
           <Button onClick={() => onSubmit(form)} disabled={loading || !form.entity_type}>
             {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-            {initialData ? "Save" : "Create"}
+            {initialData ? t("app.policies.dialog.save") : t("app.policies.dialog.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -11,10 +11,12 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { Key, Plus, Trash2, Copy, Check } from "lucide-react";
 import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/context/LanguageContext";
 
 const AdminApiKeys = () => {
   const { profile } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [keys, setKeys] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -53,7 +55,7 @@ const AdminApiKeys = () => {
       setGeneratedKey(rawKey);
       setKeys(prev => [data, ...prev]);
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: t("app.admin.common.error"), description: err.message, variant: "destructive" });
     } finally {
       setGenerating(false);
     }
@@ -76,16 +78,16 @@ const AdminApiKeys = () => {
   const revokeKey = async (id: string) => {
     const { error } = await supabase.from("api_keys").update({ is_active: false }).eq("id", id);
     if (!error) setKeys(ks => ks.map(k => k.id === id ? { ...k, is_active: false } : k));
-    else toast({ title: "Error", description: error.message, variant: "destructive" });
+    else toast({ title: t("app.admin.common.error"), description: error.message, variant: "destructive" });
   };
 
   const deleteKey = async (id: string) => {
     const { error } = await supabase.from("api_keys").delete().eq("id", id);
     if (!error) setKeys(ks => ks.filter(k => k.id !== id));
-    else toast({ title: "Error", description: error.message, variant: "destructive" });
+    else toast({ title: t("app.admin.common.error"), description: error.message, variant: "destructive" });
   };
 
-  if (loading) return <div className="p-8 text-muted-foreground">Loading API keys...</div>;
+  if (loading) return <div className="p-8 text-muted-foreground">{t("app.admin.apiKeys.loading")}</div>;
 
   return (
     <div className="p-6 space-y-6">
@@ -93,12 +95,12 @@ const AdminApiKeys = () => {
         <div>
           <div className="flex items-center gap-3">
             <Key className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl font-bold">API Keys</h1>
+            <h1 className="text-2xl font-bold">{t("app.admin.apiKeys.title")}</h1>
           </div>
-          <p className="text-sm text-muted-foreground mt-1">Manage integration API keys</p>
+          <p className="text-sm text-muted-foreground mt-1">{t("app.admin.apiKeys.subtitle")}</p>
         </div>
         <Button onClick={() => setDialogOpen(true)} className="bg-primary text-primary-foreground">
-          <Plus className="h-4 w-4 mr-2" />New API Key
+          <Plus className="h-4 w-4 mr-2" />{t("app.admin.apiKeys.newApiKey")}
         </Button>
       </div>
 
@@ -106,19 +108,19 @@ const AdminApiKeys = () => {
         <Table>
           <TableHeader>
             <TableRow className="border-border">
-              <TableHead>Name</TableHead>
-              <TableHead>Prefix</TableHead>
-              <TableHead>Permissions</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Last Used</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t("app.admin.apiKeys.name")}</TableHead>
+              <TableHead>{t("app.admin.apiKeys.prefix")}</TableHead>
+              <TableHead>{t("app.admin.apiKeys.permissions")}</TableHead>
+              <TableHead>{t("app.admin.common.status")}</TableHead>
+              <TableHead>{t("app.admin.apiKeys.lastUsed")}</TableHead>
+              <TableHead className="text-right">{t("app.admin.common.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {keys.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
-                  No API keys yet
+                  {t("app.admin.apiKeys.noKeys")}
                 </TableCell>
               </TableRow>
             ) : (() => { const { paged } = paginate(keys, keyPage, keyPageSize); return paged; })().map(k => (
@@ -139,20 +141,20 @@ const AdminApiKeys = () => {
                     variant={k.is_active ? "outline" : "secondary"}
                     className={k.is_active ? "border-green-500/50 text-green-400" : "text-muted-foreground"}
                   >
-                    {k.is_active ? "Active" : "Revoked"}
+                    {k.is_active ? t("app.admin.common.active") : t("app.admin.apiKeys.revoked")}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : "Never"}
+                  {k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : t("app.admin.common.never")}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-1">
                     {k.is_active && (
-                      <Button variant="ghost" size="icon" onClick={() => revokeKey(k.id)} title="Revoke key">
+                      <Button variant="ghost" size="icon" onClick={() => revokeKey(k.id)} title={t("app.admin.apiKeys.revokeKey")}>
                         <Key className="h-4 w-4 text-primary" />
                       </Button>
                     )}
-                    <Button variant="ghost" size="icon" onClick={() => deleteKey(k.id)} title="Delete key">
+                    <Button variant="ghost" size="icon" onClick={() => deleteKey(k.id)} title={t("app.admin.apiKeys.deleteKey")}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
@@ -167,31 +169,31 @@ const AdminApiKeys = () => {
       <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) handleCloseDialog(); else setDialogOpen(true); }}>
         <DialogContent className="max-w-md bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-foreground">{generatedKey ? "API Key Created" : "Create API Key"}</DialogTitle>
+            <DialogTitle className="text-foreground">{generatedKey ? t("app.admin.apiKeys.keyCreated") : t("app.admin.apiKeys.createKey")}</DialogTitle>
           </DialogHeader>
           {generatedKey ? (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">Copy your API key now. You won't be able to see it again.</p>
+              <p className="text-sm text-muted-foreground">{t("app.admin.apiKeys.copyNowWarning")}</p>
               <div className="flex gap-2">
                 <Input readOnly value={generatedKey} className="font-mono text-sm" />
                 <Button variant="outline" size="icon" onClick={copyKey}>
                   {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
                 </Button>
               </div>
-              <Button className="w-full" onClick={handleCloseDialog}>Done</Button>
+              <Button className="w-full" onClick={handleCloseDialog}>{t("app.admin.common.done")}</Button>
             </div>
           ) : (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">Key Name</label>
+                <label className="block text-sm text-muted-foreground mb-1.5">{t("app.admin.apiKeys.keyName")}</label>
                 <Input
-                  placeholder="e.g. Production API"
+                  placeholder={t("app.admin.apiKeys.keyNamePlaceholder")}
                   value={keyName}
                   onChange={(e) => setKeyName(e.target.value)}
                 />
               </div>
               <div>
-                <label className="block text-sm text-muted-foreground mb-2">Permissions</label>
+                <label className="block text-sm text-muted-foreground mb-2">{t("app.admin.apiKeys.permissions")}</label>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <Checkbox
@@ -210,7 +212,7 @@ const AdminApiKeys = () => {
                 </div>
               </div>
               <Button className="w-full" onClick={generateKey} disabled={!keyName.trim() || generating || (!permissions.detect && !permissions.protect)}>
-                {generating ? "Generating..." : "Generate Key"}
+                {generating ? t("app.admin.apiKeys.generating") : t("app.admin.apiKeys.generateKey")}
               </Button>
             </div>
           )}

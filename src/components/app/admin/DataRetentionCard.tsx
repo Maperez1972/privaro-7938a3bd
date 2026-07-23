@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Save, Loader2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface RetentionForm {
   audit_retention_days: number;
@@ -23,15 +24,17 @@ const DEFAULTS: RetentionForm = {
   pii_detections_retention_days: 365,
 };
 
-const FIELDS: { key: keyof RetentionForm; label: string; desc: string }[] = [
-  { key: "audit_retention_days", label: "Audit Logs", desc: "Days to retain audit log entries" },
-  { key: "token_ttl_days", label: "Tokens Vault", desc: "Days to retain tokenized values" },
-  { key: "conversations_retention_days", label: "Conversations", desc: "Days to retain chat messages" },
-  { key: "pii_detections_retention_days", label: "PII Detections", desc: "Days to retain PII detection records" },
+const FIELD_KEYS: { key: keyof RetentionForm; labelKey: string; descKey: string }[] = [
+  { key: "audit_retention_days", labelKey: "app.admin.settings.retention.auditLogs", descKey: "app.admin.settings.retention.auditLogsDesc" },
+  { key: "token_ttl_days", labelKey: "app.admin.settings.retention.tokensVault", descKey: "app.admin.settings.retention.tokensVaultDesc" },
+  { key: "conversations_retention_days", labelKey: "app.admin.settings.retention.conversations", descKey: "app.admin.settings.retention.conversationsDesc" },
+  { key: "pii_detections_retention_days", labelKey: "app.admin.settings.retention.piiDetections", descKey: "app.admin.settings.retention.piiDetectionsDesc" },
 ];
 
 export const DataRetentionCard = ({ orgId }: { orgId: string }) => {
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
+  const FIELDS = FIELD_KEYS.map(f => ({ key: f.key, label: t(f.labelKey), desc: t(f.descKey) }));
   const [form, setForm] = useState<RetentionForm>(DEFAULTS);
 
   const { data: settings } = useQuery({
@@ -67,9 +70,9 @@ export const DataRetentionCard = ({ orgId }: { orgId: string }) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["org-settings-retention", orgId] });
-      toast.success("Data retention policy saved");
+      toast.success(t("app.admin.settings.retention.saved"));
     },
-    onError: () => toast.error("Failed to save retention policy"),
+    onError: () => toast.error(t("app.admin.settings.retention.saveFailed")),
   });
 
   const { data: runs } = useQuery({
@@ -95,7 +98,7 @@ export const DataRetentionCard = ({ orgId }: { orgId: string }) => {
     <Card className="border-border bg-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Clock className="w-4 h-4 text-primary" /> Data Retention Policy
+          <Clock className="w-4 h-4 text-primary" /> {t("app.admin.settings.retention.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -111,7 +114,7 @@ export const DataRetentionCard = ({ orgId }: { orgId: string }) => {
                   onChange={(e) => setForm({ ...form, [f.key]: parseInt(e.target.value) || 0 })}
                   className="w-24"
                 />
-                <span className="text-xs text-muted-foreground">days</span>
+                <span className="text-xs text-muted-foreground">{t("app.admin.settings.retention.days")}</span>
               </div>
               <p className="text-xs text-muted-foreground">{f.desc}</p>
             </div>
@@ -120,13 +123,13 @@ export const DataRetentionCard = ({ orgId }: { orgId: string }) => {
 
         <Button size="sm" onClick={() => save.mutate()} disabled={save.isPending} className="gap-2">
           {save.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          Save Retention Policy
+          {t("app.admin.settings.retention.savePolicy")}
         </Button>
 
         {/* Retention Runs History */}
         {runs && runs.length > 0 && (
           <div className="pt-4 border-t border-border">
-            <p className="text-sm font-medium mb-3">Recent Retention Runs</p>
+            <p className="text-sm font-medium mb-3">{t("app.admin.settings.retention.recentRuns")}</p>
             <div className="space-y-2">
               {runs.map((run: any) => (
                 <div key={run.id} className="flex items-center justify-between text-xs bg-muted/50 rounded-md px-3 py-2">
@@ -137,9 +140,9 @@ export const DataRetentionCard = ({ orgId }: { orgId: string }) => {
                     </span>
                   </div>
                   <div className="flex gap-3">
-                    <Badge variant="outline" className="text-[10px]">{run.tokens_revoked} tokens</Badge>
-                    <Badge variant="outline" className="text-[10px]">{run.logs_anonymized} logs</Badge>
-                    <Badge variant="outline" className="text-[10px]">{run.messages_deleted} msgs</Badge>
+                    <Badge variant="outline" className="text-[10px]">{run.tokens_revoked} {t("app.admin.settings.retention.tokens")}</Badge>
+                    <Badge variant="outline" className="text-[10px]">{run.logs_anonymized} {t("app.admin.settings.retention.logs")}</Badge>
+                    <Badge variant="outline" className="text-[10px]">{run.messages_deleted} {t("app.admin.settings.retention.msgs")}</Badge>
                   </div>
                 </div>
               ))}

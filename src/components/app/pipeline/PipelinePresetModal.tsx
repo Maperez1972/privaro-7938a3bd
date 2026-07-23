@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface PolicyPreset {
   id: string;
@@ -43,6 +44,7 @@ interface Props {
 }
 
 const PipelinePresetModal = ({ open, onOpenChange, pipelineId, pipelineName, pipelineSector, onApplied }: Props) => {
+  const { t } = useLanguage();
   const { profile, user } = useAuth();
   const { toast } = useToast();
   const [sector, setSector] = useState(pipelineSector);
@@ -83,9 +85,9 @@ const PipelinePresetModal = ({ open, onOpenChange, pipelineId, pipelineName, pip
     setApplying(false);
 
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("app.pipelines.presetModal.error"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Preset applied", description: `${data ?? 0} pipeline rules configured` });
+      toast({ title: t("app.pipelines.presetModal.applied"), description: `${data ?? 0} ${t("app.pipelines.presetModal.rulesConfigured")}` });
       onApplied();
       onOpenChange(false);
     }
@@ -95,15 +97,15 @@ const PipelinePresetModal = ({ open, onOpenChange, pipelineId, pipelineName, pip
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-card border-border sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Apply Policy Preset to {pipelineName}</DialogTitle>
+          <DialogTitle>{t("app.pipelines.presetModal.title")} {pipelineName}</DialogTitle>
           <DialogDescription>
-            This will replace all pipeline-specific rules for this pipeline with the preset rules. Org-level rules are not affected.
+            {t("app.pipelines.presetModal.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3 mt-2">
           <div className="space-y-2">
-            <Label>Preset</Label>
+            <Label>{t("app.pipelines.presetModal.preset")}</Label>
             {loadingPresets ? (
               <Skeleton className="h-10 w-full rounded-md" />
             ) : (
@@ -133,7 +135,7 @@ const PipelinePresetModal = ({ open, onOpenChange, pipelineId, pipelineName, pip
                   };
                   return (
                     <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                      <span className="text-xs font-medium text-primary">{rules.length} rules:</span>
+                      <span className="text-xs font-medium text-primary">{rules.length} {t("app.pipelines.presetModal.rulesColon")}</span>
                       {Object.entries(counts).map(([action, count]) => (
                         <span key={action} className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${actionColors[action] || "bg-muted text-muted-foreground"}`}>
                           {count} {action}
@@ -148,10 +150,10 @@ const PipelinePresetModal = ({ open, onOpenChange, pipelineId, pipelineName, pip
         </div>
 
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={applying}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={applying}>{t("app.pipelines.presetModal.cancel")}</Button>
           <Button onClick={handleApply} disabled={applying || loadingPresets || presets.length === 0}>
             {applying && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-            Apply Preset
+            {t("app.pipelines.presetModal.applyPreset")}
           </Button>
         </DialogFooter>
       </DialogContent>

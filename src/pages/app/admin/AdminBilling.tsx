@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { CreditCard, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 const planColors: Record<string, string> = {
   pilot: "bg-blue-500/15 text-blue-400 border-blue-500/30",
@@ -20,6 +21,7 @@ const planColors: Record<string, string> = {
 
 const AdminBilling = () => {
   const { profile } = useAuth();
+  const { t } = useLanguage();
   const orgId = profile?.org_id;
   const queryClient = useQueryClient();
 
@@ -46,7 +48,7 @@ const AdminBilling = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-org", orgId] });
-      toast.success("Streaming setting updated");
+      toast.success(t("app.admin.billing.streamingUpdated"));
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -94,7 +96,7 @@ const AdminBilling = () => {
   const saveSettings = useMutation({
     mutationFn: async () => {
       if (form.audit_retention_days < 365) {
-        throw new Error("GDPR requires minimum 365 days retention");
+        throw new Error(t("app.admin.billing.gdprMinRetention"));
       }
       const { error } = await supabase
         .from("org_settings")
@@ -104,7 +106,7 @@ const AdminBilling = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["org-settings", orgId] });
-      toast.success("Settings saved");
+      toast.success(t("app.admin.billing.settingsSaved"));
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -124,10 +126,10 @@ const AdminBilling = () => {
       <div>
         <div className="flex items-center gap-3">
           <CreditCard className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold">Billing & Usage</h1>
+          <h1 className="text-2xl font-bold">{t("app.admin.billing.title")}</h1>
         </div>
         <p className="text-sm text-muted-foreground mt-1">
-          Plan, usage limits, and security configuration
+          {t("app.admin.billing.subtitle")}
         </p>
       </div>
 
@@ -140,18 +142,18 @@ const AdminBilling = () => {
           {/* Plan Card */}
           <Card className="border-border bg-card">
             <CardHeader>
-              <CardTitle className="text-base">Current Plan</CardTitle>
+              <CardTitle className="text-base">{t("app.admin.billing.currentPlan")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
                 <Badge className={planColors[org?.plan ?? "pilot"] ?? planColors.pilot}>
                   {org?.plan?.toUpperCase() ?? "PILOT"}
                 </Badge>
-                <span className="text-sm text-muted-foreground">Renewal: {renewalDate}</span>
+                <span className="text-sm text-muted-foreground">{t("app.admin.billing.renewal")}: {renewalDate}</span>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">API Requests</span>
+                  <span className="font-medium">{t("app.admin.billing.apiRequests")}</span>
                   <span className={usageColor}>
                     {Number(settings?.requests_used ?? 0).toLocaleString()} / {Number(settings?.requests_limit ?? 10000).toLocaleString()} ({usagePercent}%)
                   </span>
@@ -164,13 +166,13 @@ const AdminBilling = () => {
           {/* Security Settings */}
           <Card className="border-border bg-card">
             <CardHeader>
-              <CardTitle className="text-base">Security Configuration</CardTitle>
+              <CardTitle className="text-base">{t("app.admin.billing.securityConfig")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold">Enforce GDPR Providers</p>
-                  <p className="text-sm text-muted-foreground">Only allow GDPR-compliant LLM providers</p>
+                  <p className="font-semibold">{t("app.admin.billing.enforceGdpr")}</p>
+                  <p className="text-sm text-muted-foreground">{t("app.admin.billing.enforceGdprDesc")}</p>
                 </div>
                 <Switch
                   checked={form.enforce_gdpr_providers}
@@ -179,8 +181,8 @@ const AdminBilling = () => {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold">Sandbox Enabled</p>
-                  <p className="text-sm text-muted-foreground">Allow PII Sandbox testing</p>
+                  <p className="font-semibold">{t("app.admin.billing.sandboxEnabled")}</p>
+                  <p className="text-sm text-muted-foreground">{t("app.admin.billing.sandboxEnabledDesc")}</p>
                 </div>
                 <Switch
                   checked={form.sandbox_enabled}
@@ -189,7 +191,7 @@ const AdminBilling = () => {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold">Streaming Responses</p>
+                  <p className="font-semibold">{t("app.admin.billing.streamingResponses")}</p>
                   <p className="text-sm text-muted-foreground">
                     Permite a vuestra integración recibir las respuestas del LLM en streaming (palabra a palabra) en vez de esperar la respuesta completa. Activado por defecto.
                   </p>
@@ -203,16 +205,16 @@ const AdminBilling = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-1.5">Audit Retention (days)</Label>
+                  <Label className="mb-1.5">{t("app.admin.billing.auditRetention")}</Label>
                   <Input
                     type="number"
                     value={form.audit_retention_days}
                     onChange={(e) => setForm({ ...form, audit_retention_days: parseInt(e.target.value) || 365 })}
                   />
-                  <p className="text-xs text-muted-foreground mt-1">GDPR minimum: 365 days</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t("app.admin.billing.gdprMinLabel")}</p>
                 </div>
                 <div>
-                  <Label className="mb-1.5">Session Timeout (min)</Label>
+                  <Label className="mb-1.5">{t("app.admin.billing.sessionTimeout")}</Label>
                   <Input
                     type="number"
                     value={form.session_timeout_min}
@@ -222,7 +224,7 @@ const AdminBilling = () => {
               </div>
               <Button onClick={() => saveSettings.mutate()} disabled={saveSettings.isPending} className="gap-2">
                 {saveSettings.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                Save Changes
+                {t("app.admin.billing.saveChanges")}
               </Button>
             </CardContent>
           </Card>

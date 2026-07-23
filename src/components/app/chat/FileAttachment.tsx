@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import mammoth from "mammoth";
+import { useLanguage } from "@/context/LanguageContext";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
@@ -106,8 +107,8 @@ export function useFileAttachment() {
 
   const attachFile = useCallback(async (file: File) => {
     const ext = "." + file.name.split(".").pop()?.toLowerCase();
-    if (!ACCEPTED_TYPES.includes(file.type) && !ACCEPTED_EXTENSIONS.includes(ext)) return "Unsupported file type. Supported: TXT, CSV, PDF, JSON, MD, DOCX, XLSX, XLS, PPTX, PPT, images";
-    if (file.size > MAX_SIZE) return "File too large. Maximum size is 10MB.";
+    if (!ACCEPTED_TYPES.includes(file.type) && !ACCEPTED_EXTENSIONS.includes(ext)) return "app.chat.file.unsupportedType";
+    if (file.size > MAX_SIZE) return "app.chat.file.tooLarge";
 
     const att: FileAttachment = { file, content: "", detections: [], pages: [], scanning: true, scanned: false };
     setAttachment(att);
@@ -138,7 +139,7 @@ export function useFileAttachment() {
       return null;
     } catch {
       setAttachment(null);
-      return "Failed to read file.";
+      return "app.chat.file.readFailed";
     }
   }, []);
 
@@ -148,6 +149,7 @@ export function useFileAttachment() {
 
 /* ── Per-page detail row ── */
 function PageRow({ page }: { page: PageAnalysis }) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const hasDetections = page.detections.length > 0;
   const typeGroups = Array.from(new Set(page.detections.map((d) => d.type)));
@@ -170,7 +172,7 @@ function PageRow({ page }: { page: PageAnalysis }) {
           </Badge>
         ) : (
           <Badge className="text-[9px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30 gap-1 px-1.5 py-0">
-            <Lock className="w-2 h-2" /> Clean
+            <Lock className="w-2 h-2" /> {t("app.chat.file.clean")}
           </Badge>
         )}
       </button>
@@ -203,7 +205,7 @@ function PageRow({ page }: { page: PageAnalysis }) {
               </div>
             </>
           ) : (
-            <p className="text-[10px] text-muted-foreground pt-1.5">No sensitive data detected in this {page.label.toLowerCase()}.</p>
+            <p className="text-[10px] text-muted-foreground pt-1.5">{t("app.chat.file.noSensitiveData")} {page.label.toLowerCase()}.</p>
           )}
         </div>
       )}
@@ -215,6 +217,7 @@ function PageRow({ page }: { page: PageAnalysis }) {
 interface FilePreviewProps { attachment: FileAttachment; onRemove: () => void; }
 
 export function FilePreview({ attachment, onRemove }: FilePreviewProps) {
+  const { t } = useLanguage();
   const { file, content, detections, pages, scanning, scanned } = attachment;
   const [showDetail, setShowDetail] = useState(false);
   const [showContent, setShowContent] = useState(false);
@@ -236,22 +239,22 @@ export function FilePreview({ attachment, onRemove }: FilePreviewProps) {
             <span className="text-[10px] text-muted-foreground">{sizeStr}</span>
             {isImage && scanned && (
               <Badge className="text-[9px] bg-muted text-muted-foreground border-border gap-1 px-1.5 py-0">
-                <ImageIcon className="w-2 h-2" /> Image
+                <ImageIcon className="w-2 h-2" /> {t("app.chat.file.image")}
               </Badge>
             )}
             {!isImage && scanning && (
               <span className="text-[10px] text-amber-400 flex items-center gap-1">
-                <Loader2 className="w-2.5 h-2.5 animate-spin" /> Scanning for PII…
+                <Loader2 className="w-2.5 h-2.5 animate-spin" /> {t("app.chat.file.scanning")}
               </span>
             )}
             {!isImage && scanned && detections.length > 0 && (
               <Badge className="text-[9px] bg-amber-500/20 text-amber-400 border-amber-500/30 gap-1 px-1.5 py-0">
-                <AlertTriangle className="w-2 h-2" /> {detections.length} PII found
+                <AlertTriangle className="w-2 h-2" /> {detections.length} {t("app.chat.file.piiFound")}
               </Badge>
             )}
             {!isImage && scanned && detections.length === 0 && (
               <Badge className="text-[9px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30 gap-1 px-1.5 py-0">
-                <Lock className="w-2 h-2" /> Clean
+                <Lock className="w-2 h-2" /> {t("app.chat.file.clean")}
               </Badge>
             )}
             {!isImage && scanned && pages.length > 1 && (
@@ -269,7 +272,7 @@ export function FilePreview({ attachment, onRemove }: FilePreviewProps) {
             size="icon"
             className="h-7 w-7 flex-shrink-0 text-muted-foreground hover:text-primary"
             onClick={() => setShowContent(!showContent)}
-            title="Preview file content"
+            title={t("app.chat.file.previewContent")}
           >
             {showContent ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
           </Button>
@@ -280,7 +283,7 @@ export function FilePreview({ attachment, onRemove }: FilePreviewProps) {
             size="icon"
             className="h-7 w-7 flex-shrink-0 text-muted-foreground hover:text-primary"
             onClick={() => setShowDetail(!showDetail)}
-            title="Toggle per-page analysis"
+            title={t("app.chat.file.toggleAnalysis")}
           >
             <FileSearch className="w-3.5 h-3.5" />
           </Button>
@@ -295,13 +298,13 @@ export function FilePreview({ attachment, onRemove }: FilePreviewProps) {
         <div className="ml-2 mr-2 p-3 bg-secondary/40 border border-border/60 rounded-lg max-h-60 overflow-y-auto">
           <div className="flex items-center gap-1.5 px-1 pb-2 border-b border-border/30 mb-2">
             <Eye className="w-3 h-3 text-primary" />
-            <span className="text-[11px] font-semibold text-foreground">Content Preview</span>
+            <span className="text-[11px] font-semibold text-foreground">{t("app.chat.file.contentPreview")}</span>
             <span className="text-[10px] text-muted-foreground ml-auto">
-              {content.length.toLocaleString()} chars
+              {content.length.toLocaleString()} {t("app.chat.pastedText.chars")}
             </span>
           </div>
           <pre className="text-[11px] text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed break-words">
-            {content.length > 5000 ? content.slice(0, 5000) + "\n\n… [truncated]" : content}
+            {content.length > 5000 ? content.slice(0, 5000) + `\n\n… [${t("app.chat.file.truncated")}]` : content}
           </pre>
         </div>
       )}
@@ -311,7 +314,7 @@ export function FilePreview({ attachment, onRemove }: FilePreviewProps) {
         <div className="ml-2 mr-2 p-2 bg-secondary/40 border border-border/60 rounded-lg space-y-1.5 max-h-52 overflow-y-auto">
           <div className="flex items-center gap-1.5 px-1 pb-1 border-b border-border/30">
             <FileSearch className="w-3 h-3 text-primary" />
-            <span className="text-[11px] font-semibold text-foreground">PII Analysis by {pages[0]?.label.split(" ")[0]}</span>
+            <span className="text-[11px] font-semibold text-foreground">{t("app.chat.file.piiAnalysisBy")} {pages[0]?.label.split(" ")[0]}</span>
           </div>
           {pages.map((page) => (
             <PageRow key={page.page} page={page} />

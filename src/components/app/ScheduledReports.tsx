@@ -10,25 +10,26 @@ import { toast } from "sonner";
 import { Download, Loader2, FileText, RefreshCw, History, ChevronDown, ChevronUp } from "lucide-react";
 import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 import { formatDistanceToNow, format } from "date-fns";
+import { useLanguage } from "@/context/LanguageContext";
 
 const statusConfig = (report: any): { label: string; className: string; animate?: boolean } => {
   if (report.status === "ready" && report.contains_raw_data === false) {
-    return { label: "⚠ Anonymized data", className: "bg-amber-500/15 text-amber-400 border-amber-500/20" };
+    return { label: "app.reports.status.anonymized", className: "bg-amber-500/15 text-amber-400 border-amber-500/20" };
   }
   const map: Record<string, { label: string; className: string; animate?: boolean }> = {
-    ready: { label: "Ready", className: "bg-green-500/15 text-green-400 border-green-500/20" },
-    generating: { label: "Generating...", className: "bg-amber-500/15 text-amber-400 border-amber-500/20", animate: true },
-    failed: { label: "Failed", className: "bg-destructive/15 text-destructive border-destructive/20" },
-    expired: { label: "Expired", className: "bg-muted text-muted-foreground border-border" },
+    ready: { label: "app.reports.status.ready", className: "bg-green-500/15 text-green-400 border-green-500/20" },
+    generating: { label: "app.reports.status.generating", className: "bg-amber-500/15 text-amber-400 border-amber-500/20", animate: true },
+    failed: { label: "app.reports.status.failed", className: "bg-destructive/15 text-destructive border-destructive/20" },
+    expired: { label: "app.reports.status.expired", className: "bg-muted text-muted-foreground border-border" },
   };
   return map[report.status] ?? map.failed;
 };
 
-const versionBadge = (v: any) => {
-  if (v.is_latest) return <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">Latest</Badge>;
-  if (v.generation_type === "original") return <Badge variant="outline" className="text-xs bg-green-500/10 text-green-400 border-green-500/20">Original ✅</Badge>;
-  if (v.generation_type === "regenerated" && !v.contains_raw_data) return <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-400 border-amber-500/20">⚠ Anonymized</Badge>;
-  if (v.generation_type === "regenerated") return <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border">Regenerated</Badge>;
+const versionBadge = (v: any, t: (k: string) => string) => {
+  if (v.is_latest) return <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">{t("app.reports.version.latest")}</Badge>;
+  if (v.generation_type === "original") return <Badge variant="outline" className="text-xs bg-green-500/10 text-green-400 border-green-500/20">{t("app.reports.version.original")} ✅</Badge>;
+  if (v.generation_type === "regenerated" && !v.contains_raw_data) return <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-400 border-amber-500/20">⚠ {t("app.reports.version.anonymized")}</Badge>;
+  if (v.generation_type === "regenerated") return <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border">{t("app.reports.version.regenerated")}</Badge>;
   return null;
 };
 
@@ -43,9 +44,9 @@ const formatSize = (bytes: number | null) => {
 };
 
 /* ── History sub-row ── */
-const HistorySubTable = ({ orgId, periodLabel, onDownload, downloadingId }: {
+const HistorySubTable = ({ orgId, periodLabel, onDownload, downloadingId, t }: {
   orgId: string; periodLabel: string;
-  onDownload: (r: any) => void; downloadingId: string | null;
+  onDownload: (r: any) => void; downloadingId: string | null; t: (k: string) => string;
 }) => {
   const { data: versions, isLoading } = useQuery({
     queryKey: ["dpo-report-history", orgId, periodLabel],
@@ -66,41 +67,41 @@ const HistorySubTable = ({ orgId, periodLabel, onDownload, downloadingId }: {
   );
 
   if (!versions?.length) return (
-    <tr><td colSpan={10} className="p-4 text-xs text-muted-foreground text-center">No history found</td></tr>
+    <tr><td colSpan={10} className="p-4 text-xs text-muted-foreground text-center">{t("app.reports.history.empty")}</td></tr>
   );
 
   return (
     <tr>
       <td colSpan={10} className="p-0">
         <div className="bg-secondary/20 border-y border-border/30 px-8 py-3">
-          <p className="text-xs font-semibold text-muted-foreground mb-2">Version History — {periodLabel}</p>
+          <p className="text-xs font-semibold text-muted-foreground mb-2">{t("app.reports.history.title")} — {periodLabel}</p>
           <table className="w-full text-xs">
             <thead>
               <tr className="text-muted-foreground">
-                <th className="text-left pb-2 font-medium">Type</th>
-                <th className="text-left pb-2 font-medium">Events</th>
-                <th className="text-left pb-2 font-medium">Generated</th>
-                <th className="text-left pb-2 font-medium">Status</th>
-                <th className="text-left pb-2 font-medium">Action</th>
+                <th className="text-left pb-2 font-medium">{t("app.reports.history.col.type")}</th>
+                <th className="text-left pb-2 font-medium">{t("app.reports.history.col.events")}</th>
+                <th className="text-left pb-2 font-medium">{t("app.reports.history.col.generated")}</th>
+                <th className="text-left pb-2 font-medium">{t("app.reports.history.col.status")}</th>
+                <th className="text-left pb-2 font-medium">{t("app.reports.history.col.action")}</th>
               </tr>
             </thead>
             <tbody>
               {versions.map((v: any) => (
                 <tr key={v.id} className="border-t border-border/20">
-                  <td className="py-2 pr-4">{versionBadge(v)}</td>
+                  <td className="py-2 pr-4">{versionBadge(v, t)}</td>
                   <td className="py-2 pr-4 font-mono">{v.event_count ?? "—"}</td>
                   <td className="py-2 pr-4 text-muted-foreground">
                     {v.generated_at ? formatDistanceToNow(new Date(v.generated_at), { addSuffix: true }) : "—"}
                   </td>
                   <td className="py-2 pr-4">
-                    {v.is_latest && <span className="text-primary font-semibold">● Current</span>}
+                    {v.is_latest && <span className="text-primary font-semibold">● {t("app.reports.history.current")}</span>}
                   </td>
                   <td className="py-2">
                     {v.storage_path ? (
                       <Button size="sm" variant="ghost" className="gap-1 h-6 text-xs"
                         disabled={downloadingId === v.id} onClick={() => onDownload(v)}>
                         {downloadingId === v.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />}
-                        Download
+                        {t("app.reports.button.download")}
                       </Button>
                     ) : null}
                   </td>
@@ -116,6 +117,7 @@ const HistorySubTable = ({ orgId, periodLabel, onDownload, downloadingId }: {
 
 /* ── Main component ── */
 const ScheduledReports = () => {
+  const { t } = useLanguage();
   const { profile } = useAuth();
   const orgId = profile?.org_id;
   const queryClient = useQueryClient();
@@ -154,10 +156,10 @@ const ScheduledReports = () => {
         throw error;
       }
       console.log("generate-dpo-report response:", data);
-      toast.success("Generating report...");
+      toast.success(t("app.reports.toast.generating"));
       setTimeout(() => queryClient.invalidateQueries({ queryKey: ["dpo-reports"] }), 4000);
     } catch {
-      toast.error("Failed to trigger report generation");
+      toast.error(t("app.reports.toast.generateFailed"));
     } finally {
       setGenerating(false);
     }
@@ -180,7 +182,7 @@ const ScheduledReports = () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch {
-      toast.error("Failed to download report");
+      toast.error(t("app.reports.toast.downloadFailed"));
     } finally {
       setDownloadingId(null);
     }
@@ -211,12 +213,12 @@ const ScheduledReports = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Scheduled Reports</h2>
-          <p className="text-xs text-muted-foreground">Monthly DPO compliance reports, auto-generated on the 1st</p>
+          <h2 className="text-lg font-semibold">{t("app.reports.title")}</h2>
+          <p className="text-xs text-muted-foreground">{t("app.reports.subtitle")}</p>
         </div>
         <Button size="sm" variant="outline" className="gap-2" onClick={handleGenerate} disabled={generating}>
           {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-          Generate Now
+          {t("app.reports.button.generateNow")}
         </Button>
       </div>
 
@@ -225,9 +227,9 @@ const ScheduledReports = () => {
           {!reports?.length ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <FileText className="w-12 h-12 text-muted-foreground/20 mb-4" />
-              <p className="text-sm font-medium text-muted-foreground">No scheduled reports yet</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("app.reports.empty.title")}</p>
               <p className="text-xs text-muted-foreground/60 mt-1 max-w-[340px]">
-                Reports are generated automatically on the 1st of each month.
+                {t("app.reports.empty.desc")}
               </p>
             </div>
           ) : (
@@ -235,15 +237,15 @@ const ScheduledReports = () => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-muted-foreground border-b border-border">
-                    <th className="p-4 font-medium">Period</th>
-                    <th className="p-4 font-medium">Events</th>
-                    <th className="p-4 font-medium">Certified</th>
-                    <th className="p-4 font-medium">High Risk</th>
-                    <th className="p-4 font-medium">Size</th>
-                    <th className="p-4 font-medium">Generated</th>
-                    <th className="p-4 font-medium">Status</th>
-                    <th className="p-4 font-medium">Anonymized</th>
-                    <th className="p-4 font-medium">Action</th>
+                    <th className="p-4 font-medium">{t("app.reports.col.period")}</th>
+                    <th className="p-4 font-medium">{t("app.reports.col.events")}</th>
+                    <th className="p-4 font-medium">{t("app.reports.col.certified")}</th>
+                    <th className="p-4 font-medium">{t("app.reports.col.highRisk")}</th>
+                    <th className="p-4 font-medium">{t("app.reports.col.size")}</th>
+                    <th className="p-4 font-medium">{t("app.reports.col.generated")}</th>
+                    <th className="p-4 font-medium">{t("app.reports.col.status")}</th>
+                    <th className="p-4 font-medium">{t("app.reports.col.anonymized")}</th>
+                    <th className="p-4 font-medium">{t("app.reports.col.action")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -273,7 +275,7 @@ const ScheduledReports = () => {
                           </td>
                           <td className="p-4">
                             <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold ${st.className} ${st.animate ? "animate-pulse" : ""}`}>
-                              {st.label}
+                              {t(st.label)}
                             </span>
                           </td>
                           <td className="p-4 text-xs text-muted-foreground">
@@ -285,7 +287,7 @@ const ScheduledReports = () => {
                                 <Button size="sm" variant="ghost" className="gap-1 h-7 text-xs"
                                   disabled={downloadingId === report.id} onClick={() => handleDownload(report)}>
                                   {downloadingId === report.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />}
-                                  Download
+                                  {t("app.reports.button.download")}
                                 </Button>
                               ) : null}
                               {report.is_latest && (
@@ -305,6 +307,7 @@ const ScheduledReports = () => {
                             periodLabel={report.period_label}
                             onDownload={handleDownload}
                             downloadingId={downloadingId}
+                            t={t}
                           />
                         )}
                       </>

@@ -15,6 +15,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Separator } from "@/components/ui/separator";
 import { Cpu, Plus, Loader2, Globe, Shield, FileText, HeartPulse, Bot, Eye, EyeOff, Key, KeyRound, Zap, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/context/LanguageContext";
 
 const TEST_ENDPOINTS: Record<string, { url: string; buildHeaders: (key: string) => Record<string, string>; buildBody?: () => string; method?: string }> = {
   openai: {
@@ -114,6 +115,7 @@ const TrustPostureIcons = ({ provider }: { provider: LlmProvider }) => (
 
 const AdminProviders = () => {
   const { profile } = useAuth();
+  const { t } = useLanguage();
   const orgId = profile?.org_id;
   const queryClient = useQueryClient();
   const [selectedProvider, setSelectedProvider] = useState<LlmProvider | null>(null);
@@ -164,9 +166,9 @@ const AdminProviders = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["llm-providers", orgId] });
-      toast.success("Provider updated");
+      toast.success(t("app.admin.providers.providerUpdated"));
     },
-    onError: () => toast.error("Failed to update provider"),
+    onError: () => toast.error(t("app.admin.providers.updateFailed")),
   });
 
   const saveProvider = useMutation({
@@ -202,11 +204,11 @@ const AdminProviders = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["llm-providers", orgId] });
-      toast.success("Provider saved");
+      toast.success(t("app.admin.providers.providerSaved"));
       setSheetOpen(false);
       setApiKey("");
     },
-    onError: () => toast.error("Failed to save"),
+    onError: () => toast.error(t("app.admin.providers.saveFailed")),
   });
 
   const addCustomProvider = useMutation({
@@ -224,7 +226,7 @@ const AdminProviders = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["llm-providers", orgId] });
-      toast.success("Custom provider added");
+      toast.success(t("app.admin.providers.customProviderAdded"));
       setShowCustomForm(false);
       setCustomName("");
       setCustomBaseUrl("");
@@ -253,14 +255,14 @@ const AdminProviders = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <Cpu className="w-5 h-5 text-primary" /> LLM Providers
+            <Cpu className="w-5 h-5 text-primary" /> {t("app.admin.providers.title")}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage LLM providers and API keys for your organization
+            {t("app.admin.providers.subtitle")}
           </p>
         </div>
         <Button size="sm" variant="outline" onClick={() => setShowCustomForm(true)}>
-          <Plus className="w-4 h-4 mr-1" /> Add Custom Provider
+          <Plus className="w-4 h-4 mr-1" /> {t("app.admin.providers.addCustomProvider")}
         </Button>
       </div>
 
@@ -298,7 +300,7 @@ const AdminProviders = () => {
                       {risk.label}
                     </Badge>
                     <Badge variant="outline" className={p.gdpr_compliant ? "bg-success/15 text-success border-success/30" : "bg-amber-500/15 text-amber-400 border-amber-500/30"}>
-                      {p.gdpr_compliant ? "✅ GDPR" : "⚠️ No verificado"}
+                      {p.gdpr_compliant ? t("app.admin.providers.gdprBadge") : t("app.admin.providers.notVerifiedBadge")}
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
@@ -313,9 +315,9 @@ const AdminProviders = () => {
                             )}
                           </span>
                         </TooltipTrigger>
-                        <TooltipContent>{p.api_key_hint ? `API Key configured (${p.api_key_hint})` : "No API Key configured"}</TooltipContent>
+                        <TooltipContent>{p.api_key_hint ? `${t("app.admin.providers.apiKeyConfigured")} (${p.api_key_hint})` : t("app.admin.providers.noApiKeyConfigured")}</TooltipContent>
                       </Tooltip>
-                      <span>{p.available_models.length} model{p.available_models.length !== 1 ? "s" : ""}</span>
+                      <span>{p.available_models.length} {p.available_models.length !== 1 ? t("app.admin.providers.models") : t("app.admin.providers.model")}</span>
                     </div>
                     <TrustPostureIcons provider={p} />
                   </div>
@@ -334,13 +336,13 @@ const AdminProviders = () => {
           </SheetHeader>
           <div className="space-y-4 mt-6">
             <div className="space-y-2">
-              <Label>API Key</Label>
+              <Label>{t("app.admin.providers.apiKey")}</Label>
               <div className="relative">
                 <Input
                   type={showApiKey ? "text" : "password"}
                   value={apiKey}
                   onChange={(e) => { setApiKey(e.target.value); setTestStatus("idle"); setTestMessage(""); }}
-                  placeholder={selectedProvider?.api_key_hint ? `Current: ${selectedProvider.api_key_hint}` : "Enter API key"}
+                  placeholder={selectedProvider?.api_key_hint ? `${t("app.admin.providers.current")}: ${selectedProvider.api_key_hint}` : t("app.admin.providers.enterApiKey")}
                   className="pr-10"
                 />
                 <Button
@@ -359,7 +361,7 @@ const AdminProviders = () => {
                 const valid = pattern.regex.test(apiKey);
                 return (
                   <p className={`text-xs ${valid ? "text-success" : "text-destructive"}`}>
-                    {valid ? "✓ Valid format" : `✗ Invalid — ${pattern.hint}`}
+                    {valid ? t("app.admin.providers.validFormat") : `${t("app.admin.providers.invalidFormat")} ${pattern.hint}`}
                   </p>
                 );
               })()}
@@ -414,7 +416,7 @@ const AdminProviders = () => {
                       onClick={handleTest}
                     >
                       {testStatus === "testing" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
-                      Test Connection
+                      {t("app.admin.providers.testConnection")}
                     </Button>
                     {testStatus === "success" && (
                       <p className="text-xs text-success flex items-center gap-1">
@@ -435,10 +437,10 @@ const AdminProviders = () => {
                 checked={gdprChecked}
                 onCheckedChange={(v) => setGdprChecked(v === true)}
               />
-              <Label className="text-sm">GDPR Compliant — verified by admin</Label>
+              <Label className="text-sm">{t("app.admin.providers.gdprCompliantLabel")}</Label>
             </div>
             <div className="space-y-2">
-              <Label>Available Models (comma separated)</Label>
+              <Label>{t("app.admin.providers.availableModels")}</Label>
               <Input value={newModels} onChange={(e) => setNewModels(e.target.value)} />
             </div>
 
@@ -446,28 +448,28 @@ const AdminProviders = () => {
 
             {/* Trust Posture Section */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold">Trust Posture</h3>
+              <h3 className="text-sm font-semibold">{t("app.admin.providers.trustPosture")}</h3>
 
               <div className="space-y-2">
-                <Label className="text-xs">Provider Risk Level</Label>
+                <Label className="text-xs">{t("app.admin.providers.riskLevel")}</Label>
                 <Select value={formRiskLevel} onValueChange={setFormRiskLevel}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="low">{t("app.admin.providers.low")}</SelectItem>
+                    <SelectItem value="medium">{t("app.admin.providers.medium")}</SelectItem>
+                    <SelectItem value="high">{t("app.admin.providers.high")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs">Model Class</Label>
+                <Label className="text-xs">{t("app.admin.providers.modelClass")}</Label>
                 <Select value={formModelClass} onValueChange={setFormModelClass}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="public_api">Public API</SelectItem>
-                    <SelectItem value="enterprise">Enterprise</SelectItem>
-                    <SelectItem value="private">Private</SelectItem>
+                    <SelectItem value="public_api">{t("app.admin.providers.publicApi")}</SelectItem>
+                    <SelectItem value="enterprise">{t("app.admin.providers.enterprise")}</SelectItem>
+                    <SelectItem value="private">{t("app.admin.providers.private")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -499,7 +501,7 @@ const AdminProviders = () => {
 
             <Button onClick={() => saveProvider.mutate()} disabled={saveProvider.isPending} className="w-full">
               {saveProvider.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Save Provider
+              {t("app.admin.providers.saveProvider")}
             </Button>
           </div>
         </SheetContent>
@@ -508,25 +510,25 @@ const AdminProviders = () => {
       {/* Custom Provider Dialog */}
       {showCustomForm && (
         <Card className="border-primary/30 bg-card">
-          <CardHeader><CardTitle className="text-base">Add Custom Provider</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">{t("app.admin.providers.addCustomProvider")}</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div className="space-y-2">
-              <Label>Display Name</Label>
+              <Label>{t("app.admin.encryption.displayName")}</Label>
               <Input value={customName} onChange={(e) => setCustomName(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Base URL</Label>
-              <Input value={customBaseUrl} onChange={(e) => setCustomBaseUrl(e.target.value)} placeholder="https://api.custom-llm.com/v1" />
+              <Label>{t("app.admin.providers.baseUrl")}</Label>
+              <Input value={customBaseUrl} onChange={(e) => setCustomBaseUrl(e.target.value)} placeholder={t("app.admin.providers.baseUrlPlaceholder")} />
             </div>
             <div className="space-y-2">
-              <Label>Models (comma separated)</Label>
+              <Label>{t("app.admin.providers.modelsCommaSeparated")}</Label>
               <Input value={customModels} onChange={(e) => setCustomModels(e.target.value)} />
             </div>
             <div className="flex gap-2">
               <Button size="sm" onClick={() => addCustomProvider.mutate()} disabled={addCustomProvider.isPending || !customName}>
-                Add
+                {t("app.admin.common.add")}
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => setShowCustomForm(false)}>Cancel</Button>
+              <Button size="sm" variant="ghost" onClick={() => setShowCustomForm(false)}>{t("app.admin.common.cancel")}</Button>
             </div>
           </CardContent>
         </Card>

@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Settings2, Building2, Bell, Save, Loader2, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { DataRetentionCard } from "@/components/app/admin/DataRetentionCard";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface OrgNotification {
   id: string;
@@ -23,16 +24,17 @@ interface OrgNotification {
   channel: string;
 }
 
-const notificationLabels: Record<string, string> = {
-  incident_critical: "Critical Incidents",
-  pii_leaked: "PII Leaks Detected",
-  ibs_failed: "Blockchain Certification Failed",
-  usage_threshold: "Usage Threshold Exceeded",
-  cert_expiry: "Certificate Expiry",
+const notificationLabelKeys: Record<string, string> = {
+  incident_critical: "app.admin.settings.notif.criticalIncidents",
+  pii_leaked: "app.admin.settings.notif.piiLeaks",
+  ibs_failed: "app.admin.settings.notif.blockchainCertFailed",
+  usage_threshold: "app.admin.settings.notif.usageThresholdExceeded",
+  cert_expiry: "app.admin.settings.notif.certExpiry",
 };
 
 const AdminSettings = () => {
   const { profile } = useAuth();
+  const { t } = useLanguage();
   const orgId = profile?.org_id;
   const queryClient = useQueryClient();
 
@@ -73,9 +75,9 @@ const AdminSettings = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-org-detail", orgId] });
-      toast.success("Organization updated");
+      toast.success(t("app.admin.settings.orgUpdated"));
     },
-    onError: () => toast.error("Failed to update organization"),
+    onError: () => toast.error(t("app.admin.settings.orgUpdateFailed")),
   });
 
   // Notifications
@@ -126,9 +128,9 @@ const AdminSettings = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["org-notifications", orgId] });
-      toast.success("Notifications saved");
+      toast.success(t("app.admin.settings.notifSaved"));
     },
-    onError: () => toast.error("Failed to save notifications"),
+    onError: () => toast.error(t("app.admin.settings.notifSaveFailed")),
   });
 
   const updateNotif = (type: string, field: string, value: unknown) => {
@@ -165,10 +167,10 @@ const AdminSettings = () => {
     <div className="p-6 space-y-6 max-w-3xl">
       <div>
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Settings2 className="w-5 h-5 text-primary" /> Admin Settings
+          <Settings2 className="w-5 h-5 text-primary" /> {t("app.admin.settings.title")}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Organization configuration and notification rules
+          {t("app.admin.settings.subtitle")}
         </p>
       </div>
 
@@ -176,25 +178,25 @@ const AdminSettings = () => {
       <Card className="border-border bg-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Building2 className="w-4 h-4 text-primary" /> Organization
+            <Building2 className="w-4 h-4 text-primary" /> {t("app.admin.settings.organization")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label>Name</Label>
+              <Label>{t("app.admin.settings.name")}</Label>
               <Input value={orgForm.name} onChange={(e) => setOrgForm({ ...orgForm, name: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label>Slug</Label>
+              <Label>{t("app.admin.settings.slug")}</Label>
               <Input value={orgForm.slug} onChange={(e) => setOrgForm({ ...orgForm, slug: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label>DPO Email</Label>
-              <Input value={orgForm.gdpr_dpo_email} onChange={(e) => setOrgForm({ ...orgForm, gdpr_dpo_email: e.target.value })} placeholder="dpo@company.com" />
+              <Label>{t("app.admin.settings.dpoEmail")}</Label>
+              <Input value={orgForm.gdpr_dpo_email} onChange={(e) => setOrgForm({ ...orgForm, gdpr_dpo_email: e.target.value })} placeholder={t("app.admin.settings.dpoEmailPlaceholder")} />
             </div>
             <div className="space-y-2">
-              <Label>Data Region</Label>
+              <Label>{t("app.admin.settings.dataRegion")}</Label>
               <Select value={orgForm.data_region} onValueChange={(v) => setOrgForm({ ...orgForm, data_region: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -207,7 +209,7 @@ const AdminSettings = () => {
           </div>
           <Button size="sm" onClick={() => saveOrg.mutate()} disabled={saveOrg.isPending} className="gap-2">
             {saveOrg.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Save Organization
+            {t("app.admin.settings.saveOrganization")}
           </Button>
         </CardContent>
       </Card>
@@ -216,7 +218,7 @@ const AdminSettings = () => {
       <Card className="border-border bg-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Bell className="w-4 h-4 text-primary" /> Notifications
+            <Bell className="w-4 h-4 text-primary" /> {t("app.admin.settings.notifications")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -224,7 +226,7 @@ const AdminSettings = () => {
             <div key={type} className="space-y-3 pb-4 border-b border-border last:border-0 last:pb-0">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium">{notificationLabels[type] ?? type}</p>
+                  <p className="text-sm font-medium">{t(notificationLabelKeys[type] ?? type)}</p>
                 </div>
                 <Switch
                   checked={val.is_enabled}
@@ -233,16 +235,16 @@ const AdminSettings = () => {
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-xs">Threshold</Label>
+                  <Label className="text-xs">{t("app.admin.settings.threshold")}</Label>
                   <Input
                     type="number"
                     value={val.threshold ?? ""}
                     onChange={(e) => updateNotif(type, "threshold", e.target.value ? parseInt(e.target.value) : null)}
-                    placeholder="Optional"
+                    placeholder={t("app.admin.settings.optional")}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-xs">Recipients</Label>
+                  <Label className="text-xs">{t("app.admin.settings.recipients")}</Label>
                   <div className="flex flex-wrap gap-1 mb-1">
                     {val.recipients.map((email, idx) => (
                       <Badge key={idx} variant="outline" className="text-xs gap-1">
@@ -257,7 +259,7 @@ const AdminSettings = () => {
                     <Input
                       value={val.newEmail}
                       onChange={(e) => updateNotif(type, "newEmail", e.target.value)}
-                      placeholder="email@company.com"
+                      placeholder={t("app.admin.settings.emailPlaceholder")}
                       className="text-xs"
                       onKeyDown={(e) => e.key === "Enter" && addRecipient(type)}
                     />
@@ -270,11 +272,11 @@ const AdminSettings = () => {
             </div>
           ))}
           {Object.keys(notifForm).length === 0 && (
-            <p className="text-sm text-muted-foreground">No notification rules configured yet.</p>
+            <p className="text-sm text-muted-foreground">{t("app.admin.settings.noNotifRules")}</p>
           )}
           <Button onClick={() => saveNotifications.mutate()} disabled={saveNotifications.isPending} className="gap-2">
             {saveNotifications.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Save Notifications
+            {t("app.admin.settings.saveNotifications")}
           </Button>
         </CardContent>
       </Card>

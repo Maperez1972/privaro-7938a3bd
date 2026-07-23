@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import AgentRunDetail from "@/components/app/agent-runs/AgentRunDetail";
 import { supabase } from "@/integrations/supabase/client";
 import AgentRunsFilters, { EMPTY_FILTERS, type AgentRunFilters } from "@/components/app/agent-runs/AgentRunsFilters";
+import { useLanguage } from "@/context/LanguageContext";
 
 type AgentRun = {
   id: string;
@@ -146,6 +147,7 @@ function formatDuration(ms: number) {
 const DEFAULT_PAGE_SIZE = 10;
 
 const AgentRuns = () => {
+  const { t } = useLanguage();
   const { runs, loading } = useAgentRuns();
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -182,16 +184,16 @@ const AgentRuns = () => {
   const avgRisk = filtered.length > 0 ? filtered.reduce((a, r) => a + r.risk_score, 0) / filtered.length : 0;
   const certified = filtered.filter((r) => r.ibs_status === "certified").length;
 
-  if (loading) return <p className="p-6 text-muted-foreground">Cargando agent runs...</p>;
+  if (loading) return <p className="p-6 text-muted-foreground">{t("app.agentRuns.loading")}</p>;
 
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Bot className="w-6 h-6 text-primary" /> Agent Runs
+          <Bot className="w-6 h-6 text-primary" /> {t("app.agentRuns.title")}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Monitor AI agent sessions — PII governance, risk scoring &amp; blockchain certification
+          {t("app.agentRuns.subtitle")}
         </p>
       </div>
 
@@ -199,7 +201,7 @@ const AgentRuns = () => {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <Card className="border-border bg-card">
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Total Runs</p>
+            <p className="text-xs text-muted-foreground">{t("app.agentRuns.kpi.totalRuns")}</p>
             <p className="text-2xl font-bold">{filtered.length}{filtered.length !== runs.length && <span className="text-xs text-muted-foreground ml-1">/ {runs.length}</span>}</p>
           </CardContent>
         </Card>
@@ -207,7 +209,7 @@ const AgentRuns = () => {
           <CardContent className="p-4 flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-success" />
             <div>
-              <p className="text-xs text-muted-foreground">PII Masked</p>
+              <p className="text-xs text-muted-foreground">{t("app.agentRuns.kpi.piiMasked")}</p>
               <p className="text-2xl font-bold">{totalMasked}<span className="text-xs text-muted-foreground ml-1">/ {totalPii}</span></p>
             </div>
           </CardContent>
@@ -216,7 +218,7 @@ const AgentRuns = () => {
           <CardContent className="p-4 flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-destructive" />
             <div>
-              <p className="text-xs text-muted-foreground">PII Leaked</p>
+              <p className="text-xs text-muted-foreground">{t("app.agentRuns.kpi.piiLeaked")}</p>
               <p className="text-2xl font-bold">{totalLeaked}</p>
             </div>
           </CardContent>
@@ -225,7 +227,7 @@ const AgentRuns = () => {
           <CardContent className="p-4 flex items-center gap-2">
             <Activity className="w-4 h-4 text-warning" />
             <div>
-              <p className="text-xs text-muted-foreground">Avg Risk</p>
+              <p className="text-xs text-muted-foreground">{t("app.agentRuns.kpi.avgRisk")}</p>
               <p className="text-2xl font-bold">{(avgRisk * 100).toFixed(0)}%</p>
             </div>
           </CardContent>
@@ -234,7 +236,7 @@ const AgentRuns = () => {
           <CardContent className="p-4 flex items-center gap-2">
             <Clock className="w-4 h-4 text-primary" />
             <div>
-              <p className="text-xs text-muted-foreground">iBS Certified</p>
+              <p className="text-xs text-muted-foreground">{t("app.agentRuns.kpi.ibsCertified")}</p>
               <p className="text-2xl font-bold">{certified}<span className="text-xs text-muted-foreground ml-1">/ {filtered.length}</span></p>
             </div>
           </CardContent>
@@ -247,24 +249,24 @@ const AgentRuns = () => {
       {/* Table */}
       <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="text-lg">Run History</CardTitle>
-          <CardDescription>All agent sessions with PII governance metrics</CardDescription>
+          <CardTitle className="text-lg">{t("app.agentRuns.table.title")}</CardTitle>
+          <CardDescription>{t("app.agentRuns.table.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Agent</TableHead>
-                <TableHead>Pipeline</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Steps</TableHead>
-                <TableHead className="text-center">PII Detected</TableHead>
-                <TableHead className="text-center">Masked</TableHead>
-                <TableHead className="text-center">Leaked</TableHead>
-                <TableHead>Risk Score</TableHead>
-                <TableHead>Blockchain</TableHead>
-                <TableHead>Duration</TableHead>
-                <TableHead>Started</TableHead>
+                <TableHead>{t("app.agentRuns.col.agent")}</TableHead>
+                <TableHead>{t("app.agentRuns.col.pipeline")}</TableHead>
+                <TableHead>{t("app.agentRuns.col.status")}</TableHead>
+                <TableHead>{t("app.agentRuns.col.steps")}</TableHead>
+                <TableHead className="text-center">{t("app.agentRuns.col.piiDetected")}</TableHead>
+                <TableHead className="text-center">{t("app.agentRuns.col.masked")}</TableHead>
+                <TableHead className="text-center">{t("app.agentRuns.col.leaked")}</TableHead>
+                <TableHead>{t("app.agentRuns.col.riskScore")}</TableHead>
+                <TableHead>{t("app.agentRuns.col.blockchain")}</TableHead>
+                <TableHead>{t("app.agentRuns.col.duration")}</TableHead>
+                <TableHead>{t("app.agentRuns.col.started")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -311,7 +313,7 @@ const AgentRuns = () => {
                             className="text-[10px] text-primary hover:underline"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            🔗 Verify
+                            🔗 {t("app.agentRuns.verify")}
                           </a>
                         )}
                       </div>

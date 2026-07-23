@@ -7,6 +7,7 @@ import { FilePreview, FileAttachment } from "./FileAttachment";
 import { useRef, useState, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Message { id: string; role: "user" | "assistant"; content_protected: string; pii_detected: number; pii_protected: number; created_at: string; attachment_name?: string | null; attachment_type?: string | null; attachment_size?: number | null; }
 interface Pipeline { id: string; name: string; llm_provider: string; llm_model: string; }
@@ -43,6 +44,7 @@ interface Props {
 
 /** Collapsible block for long user messages */
 function CollapsibleText({ text }: { text: string }) {
+  const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
   const lines = text.split("\n");
   const preview = lines.slice(0, PASTE_PREVIEW_LINES).join("\n");
@@ -54,7 +56,7 @@ function CollapsibleText({ text }: { text: string }) {
     <div className="space-y-1">
       <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mb-1">
         <ClipboardPaste className="w-3 h-3" />
-        <span>Pasted text · {text.length.toLocaleString()} chars</span>
+        <span>{t("app.chat.pastedText.label")} · {text.length.toLocaleString()} {t("app.chat.pastedText.chars")}</span>
       </div>
       <div className="relative">
         <pre className={cn(
@@ -73,7 +75,7 @@ function CollapsibleText({ text }: { text: string }) {
         className="h-5 text-[10px] px-1.5 text-muted-foreground hover:text-foreground gap-0.5"
         onClick={() => setExpanded(!expanded)}
       >
-        {expanded ? <><ChevronUp className="w-3 h-3" /> Collapse</> : <><ChevronDown className="w-3 h-3" /> Show all</>}
+        {expanded ? <><ChevronUp className="w-3 h-3" /> {t("app.chat.collapsibleText.collapse")}</> : <><ChevronDown className="w-3 h-3" /> {t("app.chat.collapsibleText.showAll")}</>}
       </Button>
     </div>
   );
@@ -93,11 +95,12 @@ function FileChip({ name, size }: { name: string; size?: number | null }) {
 
 /** Preview of pasted text in the input area (before sending) */
 function PastedTextPreview({ pastedText, onRemove }: { pastedText: PastedText; onRemove: () => void }) {
+  const { t } = useLanguage();
   return (
     <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 border border-border/50">
       <ClipboardPaste className="w-3.5 h-3.5 text-primary shrink-0" />
       <span className="text-[11px] text-foreground truncate flex-1">
-        Pasted text · {pastedText.charCount.toLocaleString()} chars
+        {t("app.chat.pastedText.label")} · {pastedText.charCount.toLocaleString()} {t("app.chat.pastedText.chars")}
       </span>
       <Button variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground hover:text-destructive" onClick={onRemove}>
         ✕
@@ -107,6 +110,7 @@ function PastedTextPreview({ pastedText, onRemove }: { pastedText: PastedText; o
 }
 
 export function ChatArea({ messages, sending, loading, activeConversationId, activePipeline, isProxyActive, input, setInput, textareaRef, onSend, onKeyDown, messagesEndRef, attachment, onAttachFile, onRemoveAttachment, onEditMessage, pastedText, onRemovePastedText }: Props) {
+  const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragCounterRef = useRef(0);
@@ -117,7 +121,7 @@ export function ChatArea({ messages, sending, loading, activeConversationId, act
   const handleCopy = (msg: Message) => {
     navigator.clipboard.writeText(msg.content_protected);
     setCopiedId(msg.id);
-    toast.success("Copied to clipboard");
+    toast.success(t("app.chat.area.copiedToast"));
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -139,8 +143,8 @@ export function ChatArea({ messages, sending, loading, activeConversationId, act
     setEditText("");
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (!file) return; const error = await onAttachFile(file); if (error) alert(error); if (fileInputRef.current) fileInputRef.current.value = ""; };
-  const handleDrop = useCallback(async (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); dragCounterRef.current = 0; const file = e.dataTransfer.files?.[0]; if (!file) return; const error = await onAttachFile(file); if (error) alert(error); }, [onAttachFile]);
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (!file) return; const error = await onAttachFile(file); if (error) alert(t(error)); if (fileInputRef.current) fileInputRef.current.value = ""; };
+  const handleDrop = useCallback(async (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); dragCounterRef.current = 0; const file = e.dataTransfer.files?.[0]; if (!file) return; const error = await onAttachFile(file); if (error) alert(t(error)); }, [onAttachFile, t]);
   const handleDragEnter = useCallback((e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); dragCounterRef.current++; if (e.dataTransfer.types.includes("Files")) setIsDragging(true); }, []);
   const handleDragLeave = useCallback((e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); dragCounterRef.current--; if (dragCounterRef.current === 0) setIsDragging(false); }, []);
   const handleDragOver = useCallback((e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); }, []);
@@ -150,14 +154,14 @@ export function ChatArea({ messages, sending, loading, activeConversationId, act
 
   return (
     <div className="flex-1 flex flex-col min-w-0 relative" onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}>
-      {isDragging && (<div className="absolute inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center border-2 border-dashed border-primary rounded-lg m-2"><div className="flex flex-col items-center gap-2 text-primary"><Upload className="w-10 h-10" /><p className="text-sm font-medium">Drop file to attach</p></div></div>)}
+      {isDragging && (<div className="absolute inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center border-2 border-dashed border-primary rounded-lg m-2"><div className="flex flex-col items-center gap-2 text-primary"><Upload className="w-10 h-10" /><p className="text-sm font-medium">{t("app.chat.area.dropToAttach")}</p></div></div>)}
       <div className="h-14 border-b border-border flex items-center px-4 gap-3">
-        <h2 className="text-sm font-semibold">{activeConversationId ? "Conversation" : "New Conversation"}</h2>
-        {activePipeline && (<div className="flex items-center gap-2 ml-auto"><Badge variant="outline" className="text-[10px] border-emerald-500/50 text-emerald-400">{activePipeline.llm_provider}</Badge><Badge variant="outline" className="text-[10px] border-purple-500/50 text-purple-400">{activePipeline.llm_model}</Badge>{isProxyActive ? <Badge className="text-[10px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30 gap-1"><Lock className="w-2.5 h-2.5" /> Protected</Badge> : <Badge className="text-[10px] bg-amber-500/20 text-amber-400 border-amber-500/30 gap-1"><AlertTriangle className="w-2.5 h-2.5" /> Mock</Badge>}</div>)}
+        <h2 className="text-sm font-semibold">{activeConversationId ? t("app.chat.area.conversation") : t("app.chat.area.newConversation")}</h2>
+        {activePipeline && (<div className="flex items-center gap-2 ml-auto"><Badge variant="outline" className="text-[10px] border-emerald-500/50 text-emerald-400">{activePipeline.llm_provider}</Badge><Badge variant="outline" className="text-[10px] border-purple-500/50 text-purple-400">{activePipeline.llm_model}</Badge>{isProxyActive ? <Badge className="text-[10px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30 gap-1"><Lock className="w-2.5 h-2.5" /> {t("app.chat.area.protected")}</Badge> : <Badge className="text-[10px] bg-amber-500/20 text-amber-400 border-amber-500/30 gap-1"><AlertTriangle className="w-2.5 h-2.5" /> {t("app.chat.area.mock")}</Badge>}</div>)}
       </div>
       <div className="flex-1 overflow-y-auto px-4 py-4">
-        {loading ? <p className="text-center text-muted-foreground text-sm py-12">Loading messages…</p> : messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-3"><div className="w-16 h-16 rounded-2xl border border-border/60 flex items-center justify-center"><MessageSquare className="w-7 h-7 opacity-50" /></div><p className="font-medium text-sm">Start a new conversation</p></div>
+        {loading ? <p className="text-center text-muted-foreground text-sm py-12">{t("app.chat.area.loadingMessages")}</p> : messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-3"><div className="w-16 h-16 rounded-2xl border border-border/60 flex items-center justify-center"><MessageSquare className="w-7 h-7 opacity-50" /></div><p className="font-medium text-sm">{t("app.chat.area.startNewConversation")}</p></div>
         ) : (
           <div className="space-y-4 max-w-3xl mx-auto">
             {messages.map((msg) => (
@@ -169,8 +173,8 @@ export function ChatArea({ messages, sending, loading, activeConversationId, act
                       <div className="space-y-2">
                         <textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="w-full resize-none bg-background/50 border border-border rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary" rows={3} autoFocus />
                         <div className="flex gap-1.5 justify-end">
-                          <Button variant="ghost" size="sm" className="h-6 text-[11px] px-2" onClick={handleCancelEdit}>Cancel</Button>
-                          <Button size="sm" className="h-6 text-[11px] px-2" onClick={() => handleSaveEdit(msg.id)} disabled={!editText.trim()}>Save</Button>
+                          <Button variant="ghost" size="sm" className="h-6 text-[11px] px-2" onClick={handleCancelEdit}>{t("app.chat.area.cancel")}</Button>
+                          <Button size="sm" className="h-6 text-[11px] px-2" onClick={() => handleSaveEdit(msg.id)} disabled={!editText.trim()}>{t("app.chat.area.save")}</Button>
                         </div>
                       </div>
                     ) : msg.role === "assistant" ? (
@@ -182,7 +186,7 @@ export function ChatArea({ messages, sending, loading, activeConversationId, act
                     ) : (
                       <p className="whitespace-pre-wrap">{msg.content_protected}</p>
                     )}
-                    {msg.role === "user" && msg.pii_detected > 0 && editingId !== msg.id && <div className="flex items-center gap-1 mt-2"><Badge className="text-[9px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30 gap-1 px-1.5 py-0"><Lock className="w-2 h-2" /> {msg.pii_protected} protected</Badge></div>}
+                    {msg.role === "user" && msg.pii_detected > 0 && editingId !== msg.id && <div className="flex items-center gap-1 mt-2"><Badge className="text-[9px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30 gap-1 px-1.5 py-0"><Lock className="w-2 h-2" /> {msg.pii_protected} {t("app.chat.area.protectedLower")}</Badge></div>}
                   </div>
                   {editingId !== msg.id && (
                     <div className={cn("flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity", msg.role === "user" ? "justify-end" : "justify-start")}>
@@ -190,13 +194,13 @@ export function ChatArea({ messages, sending, loading, activeConversationId, act
                         <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleCopy(msg)}>
                           {copiedId === msg.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                         </Button>
-                      </TooltipTrigger><TooltipContent side="bottom" className="text-[11px]">Copy</TooltipContent></Tooltip>
+                      </TooltipTrigger><TooltipContent side="bottom" className="text-[11px]">{t("app.chat.area.copy")}</TooltipContent></Tooltip>
                       {msg.role === "user" && onEditMessage && (
                         <Tooltip><TooltipTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => handleStartEdit(msg)}>
                             <Pencil className="w-3 h-3" />
                           </Button>
-                        </TooltipTrigger><TooltipContent side="bottom" className="text-[11px]">Edit</TooltipContent></Tooltip>
+                        </TooltipTrigger><TooltipContent side="bottom" className="text-[11px]">{t("app.chat.area.edit")}</TooltipContent></Tooltip>
                       )}
                     </div>
                   )}
@@ -214,8 +218,8 @@ export function ChatArea({ messages, sending, loading, activeConversationId, act
           {pastedText && onRemovePastedText && <PastedTextPreview pastedText={pastedText} onRemove={onRemovePastedText} />}
           <div className="flex items-end gap-2">
             <input ref={fileInputRef} type="file" accept=".txt,.csv,.pdf,.json,.md,.docx,.xlsx,.xls,.pptx,.ppt,.png,.jpg,.jpeg,.webp,.gif" className="hidden" onChange={handleFileChange} />
-            <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-primary" onClick={() => fileInputRef.current?.click()} disabled={sending}><Paperclip className="w-4 h-4" /></Button></TooltipTrigger><TooltipContent>Attach file</TooltipContent></Tooltip>
-            <textarea ref={textareaRef} value={input} onChange={(e) => { setInput(e.target.value); e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px"; }} onKeyDown={onKeyDown} placeholder="Type your message here..." disabled={sending} rows={1} className="flex-1 resize-none bg-secondary border border-border rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50" />
+            <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-primary" onClick={() => fileInputRef.current?.click()} disabled={sending}><Paperclip className="w-4 h-4" /></Button></TooltipTrigger><TooltipContent>{t("app.chat.area.attachFile")}</TooltipContent></Tooltip>
+            <textarea ref={textareaRef} value={input} onChange={(e) => { setInput(e.target.value); e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px"; }} onKeyDown={onKeyDown} placeholder={t("app.chat.area.inputPlaceholder")} disabled={sending} rows={1} className="flex-1 resize-none bg-secondary border border-border rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50" />
             <Button size="icon" className="h-9 w-9" onClick={onSend} disabled={sending || (!input.trim() && !attachment && !pastedText)}><Send className="w-4 h-4" /></Button>
           </div>
         </div>

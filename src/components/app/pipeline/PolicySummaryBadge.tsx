@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { Shield, Zap, Ban } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Props {
   pipelineId: string;
@@ -18,6 +19,7 @@ interface PolicySummary {
 }
 
 export function PolicySummaryBadge({ pipelineId }: Props) {
+  const { t } = useLanguage();
   const [summary, setSummary] = useState<PolicySummary | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -38,23 +40,23 @@ export function PolicySummaryBadge({ pipelineId }: Props) {
     <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
       <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
         <Shield className="w-3 h-3" />
-        <span>{summary.total_rules} rules · {summary.pipeline_rules} pipeline · {summary.org_fallback} org</span>
+        <span>{summary.total_rules} {t("app.pipelines.policySummary.rules")} · {summary.pipeline_rules} {t("app.pipelines.policySummary.pipeline")} · {summary.org_fallback} {t("app.pipelines.policySummary.org")}</span>
       </div>
       {summary.blocked_count > 0 && (
         <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-destructive/15 text-destructive border-destructive/30">
-          <Ban className="w-2.5 h-2.5 mr-0.5" /> {summary.blocked_count} blocked
+          <Ban className="w-2.5 h-2.5 mr-0.5" /> {summary.blocked_count} {t("app.pipelines.policySummary.blocked")}
         </Badge>
       )}
       {summary.override_count > 0 && (
         <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-primary/15 text-primary border-primary/30">
-          <Zap className="w-2.5 h-2.5 mr-0.5" /> {summary.override_count} overrides
+          <Zap className="w-2.5 h-2.5 mr-0.5" /> {summary.override_count} {t("app.pipelines.policySummary.overrides")}
         </Badge>
       )}
       <button
         onClick={() => navigate("/app/pipelines")}
         className="text-[10px] text-primary hover:underline"
       >
-        View policies →
+        {t("app.pipelines.policySummary.viewPolicies")}
       </button>
     </div>
   );

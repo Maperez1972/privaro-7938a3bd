@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 25, 50];
 
@@ -14,6 +15,7 @@ interface PaginationControlsProps {
 }
 
 export const PaginationControls = ({ page, totalPages, totalItems, pageSize, onPageChange, onPageSizeChange }: PaginationControlsProps) => {
+  const { t } = useLanguage();
   if (totalItems <= Math.min(...PAGE_SIZE_OPTIONS) && !onPageSizeChange) return null;
   if (totalItems === 0) return null;
 
@@ -21,11 +23,11 @@ export const PaginationControls = ({ page, totalPages, totalItems, pageSize, onP
     <div className="flex items-center justify-between pt-3">
       <div className="flex items-center gap-3">
         <p className="text-xs text-muted-foreground">
-          Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, totalItems)} of {totalItems}
+          {t("app.common.pagination.showing")} {page * pageSize + 1}–{Math.min((page + 1) * pageSize, totalItems)} {t("app.common.pagination.of")} {totalItems}
         </p>
         {onPageSizeChange && (
           <div className="flex items-center gap-1.5">
-            <span className="text-xs text-muted-foreground">Rows:</span>
+            <span className="text-xs text-muted-foreground">{t("app.common.pagination.rows")}</span>
             <Select value={String(pageSize)} onValueChange={(v) => { onPageSizeChange(Number(v)); onPageChange(0); }}>
               <SelectTrigger className="h-7 w-[62px] text-xs">
                 <SelectValue />
