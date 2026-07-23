@@ -64,12 +64,12 @@ const COPY = {
     ctaFoot: "Sin tarjeta de crédito · Sin compromiso · Cancela cuando quieras",
     plans: [
       {
-        key: "starter" as PlanKey, icon: Zap, name: "Starter",
-        monthlyPrice: 99, annualPrice: 79,
-        desc: "Para equipos que empiezan a usar LLMs con datos de clientes.",
+        key: "starter" as PlanKey, icon: Zap, name: "Tier 1 — Starter",
+        monthlyPrice: 150, annualPrice: 120,
+        desc: "Para equipos pequeños que empiezan a usar LLMs con datos de clientes.",
         cta: "Empezar gratis 14 días", ctaVariant: "outline" as const, ctaHref: "/auth", highlight: false,
         features: [
-          "50.000 requests / mes",
+          "100.000 requests / mes",
           "Detección PII: email, teléfono, nombre, NIF/NIE",
           "Dashboard de auditoría en tiempo real",
           "1 proveedor LLM (OpenAI o Anthropic)",
@@ -86,9 +86,9 @@ const COPY = {
         ],
       },
       {
-        key: "pro" as PlanKey, icon: Shield, name: "Pro", badge: "Más elegido",
-        monthlyPrice: 499, annualPrice: 399,
-        desc: "Para SaaS con clientes regulados o en sectores con obligaciones GDPR activas.",
+        key: "pro" as PlanKey, icon: Shield, name: "Tier 3 — Business", badge: "Plan de partida",
+        monthlyPrice: 400, annualPrice: 320,
+        desc: "Plan de partida recomendado para SaaS y equipos con obligaciones GDPR activas.",
         cta: "Empezar gratis 14 días", ctaVariant: "default" as const, ctaHref: "/auth", highlight: true,
         features: [
           "500.000 requests / mes",
@@ -106,10 +106,10 @@ const COPY = {
       {
         key: "enterprise" as PlanKey, icon: Building2, name: "Enterprise / ISV",
         monthlyPrice: null, annualPrice: null,
-        desc: "Para ISVs que quieren embed Privaro en su producto o empresas con requisitos de compliance avanzados.",
+        desc: "Para volúmenes >5M req/mo, ISVs que embeben Privaro y compliance avanzado.",
         cta: "Hablar con nosotros", ctaVariant: "outline" as const, ctaHref: "/partners", highlight: false,
         features: [
-          "Requests ilimitadas",
+          "Volumen a medida (>5M requests/mes)",
           "White-label / embedded en tu producto",
           "Tarifa fija basada en volumen (estándar) — revenue share disponible para ISVs en fase temprana",
           "Instancia dedicada en tu VPC",
@@ -121,6 +121,22 @@ const COPY = {
         ],
       },
     ] as Plan[],
+    tiersKicker: "Catálogo completo",
+    tiersTitle: "Los 6 tiers disponibles",
+    tiersSubtitle: "Elige el volumen que encaja con tu tráfico. Cambia de tier en cualquier momento sin migración.",
+    tiersHeaderTier: "Plan",
+    tiersHeaderRequests: "Requests / mes",
+    tiersHeaderPrice: "Precio mensual",
+    tiersHeaderTarget: "Ideal para",
+    tiersFoot: "¿Necesitas más de 5M requests/mes, white-label o instancia dedicada? Habla con nosotros para un plan Enterprise a medida.",
+    tiers: [
+      { id: "Tier 1", name: "Starter", price: "€150", requests: "100.000", target: "Equipos pequeños evaluando", highlight: false },
+      { id: "Tier 2", name: "Growth", price: "€250", requests: "250.000", target: "Startups en producción", highlight: false },
+      { id: "Tier 3", name: "Business", price: "€400", requests: "500.000", target: "Plan de partida recomendado", highlight: true },
+      { id: "Tier 4", name: "Scale", price: "€700", requests: "1.000.000", target: "Compliance activo", highlight: false },
+      { id: "Tier 5", name: "Enterprise", price: "€1.250", requests: "2.000.000", target: "Regulados (banca, salud, legal)", highlight: false },
+      { id: "Tier 6", name: "Enterprise+", price: "€2.500", requests: "5.000.000", target: "Alto volumen / multi-tenant", highlight: false },
+    ],
     featureComparison: [
       { label: "Requests mensuales", starter: "50.000", pro: "500.000", enterprise: "Ilimitadas" },
       { label: "Detección PII básica", starter: true, pro: true, enterprise: true },
