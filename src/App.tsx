@@ -49,6 +49,7 @@ const AdminPolicyPresets = lazy(() => import("./pages/app/admin/AdminPolicyPrese
 const AdminVault = lazy(() => import("./pages/app/admin/AdminVault"));
 const AdminEncryptionKeys = lazy(() => import("./pages/app/admin/AdminEncryptionKeys"));
 const AdminLeads = lazy(() => import("./pages/app/admin/AdminLeads"));
+const PlatformAdmin = lazy(() => import("./pages/app/admin/PlatformAdmin"));
 const PartnerClients = lazy(() => import("./pages/app/partner/PartnerClients"));
 const Onboarding = lazy(() => import("./pages/app/Onboarding"));
 const AgentRuns = lazy(() => import("./pages/app/AgentRuns"));
