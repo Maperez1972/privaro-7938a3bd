@@ -31,7 +31,7 @@ const HealthPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="AI Privacy for Healthcare — Privaro" description="Anonymize PHI and patient identifiers before they reach AI models. HIPAA and GDPR-aware proxy for healthcare." path="/use-cases/health" />
+      <Seo title="AI Compliance & PHI Anonymization for Healthcare — Privaro" description="HIPAA and GDPR-aware AI governance for healthcare. Anonymize PHI and patient identifiers before any prompt reaches an LLM." path="/use-cases/health" />
       <Navbar />
 
       {/* HERO */}

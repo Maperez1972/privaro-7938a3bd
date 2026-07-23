@@ -89,7 +89,7 @@ const Partners = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="Partner Program — Privaro for Resellers & Integrators" description="Join the Privaro partner program. Reseller, integrator and consultancy tiers for AI privacy and compliance." path="/partners" />
+      <Seo title="AI Governance Partner Program for ISVs & Agencies — Privaro" description="Embed Privaro's AI compliance and PII detection API in your product. 20% recurring discount for ISVs, integrators and AI consultancies." path="/partners" />
       <Navbar />
 
       {/* Hero */}

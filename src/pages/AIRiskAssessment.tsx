@@ -72,7 +72,7 @@ const AIRiskAssessmentPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="Free AI Risk Assessment — Privaro" description="Get a free AI privacy risk assessment for your organization. Identify exposure across LLM workflows in minutes." path="/ai-risk-assessment" />
+      <Seo title="Free AI Compliance & Governance Risk Assessment — Privaro" description="Free AI governance risk assessment. Score your GDPR and EU AI Act exposure across LLM workflows in minutes and get a prioritized remediation plan." path="/ai-risk-assessment" />
       <Navbar />
 
       {/* Hero */}

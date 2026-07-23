@@ -31,7 +31,7 @@ const FintechPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="AI Privacy for Fintech & Banking — Privaro" description="Detect and mask PCI, IBAN and customer data before AI calls. Compliance-ready proxy for fintech and banking teams." path="/use-cases/fintech" />
+      <Seo title="AI DLP & Compliance for Fintech and Banking — Privaro" description="Detect and mask PCI, IBAN and customer PII before AI calls. Compliance-ready LLM proxy and AI governance for fintech, banking and payments." path="/use-cases/fintech" />
       <Navbar />
 
       {/* HERO */}

@@ -318,8 +318,8 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Seo
-        title="Pricing — Privaro AI Privacy Proxy"
-        description="Plans for teams adopting AI safely. Starter, Pro and Enterprise tiers with PII detection, BYOK and EU-hosted infrastructure."
+        title="AI Governance Platform Pricing — Privaro"
+        description="Transparent pricing for Privaro's AI compliance software and PII detection API. Starter, Business and Enterprise tiers with BYOK and EU-hosted infrastructure."
         path="/pricing"
         jsonLd={{
           "@context": "https://schema.org",

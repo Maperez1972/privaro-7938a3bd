@@ -35,7 +35,7 @@ const LegalPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="AI Privacy for Legal Teams — Privaro" description="Protect privileged client data when law firms use AI. Tokenize names, contracts and case data before they reach the LLM." path="/use-cases/legal" />
+      <Seo title="AI Compliance Software for Legal Teams — Privaro" description="AI governance for law firms and in-house legal. Tokenize privileged client data, contracts and case files before they reach any LLM. GDPR-ready." path="/use-cases/legal" />
       <Navbar />
 
       {/* HERO */}
