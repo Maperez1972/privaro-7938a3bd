@@ -12,13 +12,9 @@
  * result. The raw key exists in memory for the duration of this one
  * request and is never returned or logged.
  *
- * v2 is a TEMPORARY diagnostic build — surfaces the real proxy error
- * detail (stage, proxy_status, detail) in the response instead of a
- * generic 502, to debug a "server_misconfigured" issue currently being
- * chased (INTERNAL_NOTIFY_SECRET not resolving in this function's env,
- * despite being set for send-usage-notification). Revert to a quieter
- * error response once resolved — don't leak proxy error internals to
- * the browser in the long run.
+ * Downstream encryption-service failures are returned as handled business
+ * errors (`success: false`) instead of 5xx responses so the admin UI can show
+ * a visible, actionable error without triggering Lovable's runtime overlay.
  *
  * Auth: standard Supabase user JWT. Caller must be admin of the org they're
  * configuring a provider for.
@@ -42,6 +38,25 @@ const json = (data: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" },
   });
 
+const handledEncryptionError = (error: string, message: string) =>
+  json({ success: false, error, message }, 200);
+
+const readProxyError = (text: string) => {
+  try {
+    const parsed = JSON.parse(text) as Record<string, unknown>;
+    const detail = parsed.detail;
+    if (detail && typeof detail === "object") {
+      const nestedError = (detail as Record<string, unknown>).error;
+      if (typeof nestedError === "string") return nestedError;
+    }
+    if (typeof parsed.error === "string") return parsed.error;
+  } catch {
+    // Ignore malformed proxy payloads; callers only need a safe error class.
+  }
+
+  return "proxy_error";
+};
+
 const PROXY_URL = "https://api.privaro.ai";
 
 Deno.serve(async (req) => {
@@ -57,7 +72,10 @@ Deno.serve(async (req) => {
     const internalSecret = Deno.env.get("INTERNAL_NOTIFY_SECRET");
 
     if (!internalSecret) {
-      return json({ error: "server_misconfigured", detail: "INTERNAL_NOTIFY_SECRET not set in Supabase Edge Function secrets" }, 500);
+      return handledEncryptionError(
+        "edge_function_misconfigured",
+        "Provider API key was not saved because the encryption function is missing its internal secret."
+      );
     }
 
     const authClient = createClient(supabaseUrl, anonKey, {
@@ -99,17 +117,23 @@ Deno.serve(async (req) => {
         body: JSON.stringify({ raw_key }),
       });
     } catch (fetchErr) {
-      return json({ error: "encryption_failed", stage: "fetch_to_proxy", detail: String(fetchErr) }, 502);
+      return handledEncryptionError(
+        "encryption_service_unavailable",
+        "Provider API key was not saved because the encryption service is unavailable."
+      );
     }
 
     if (!encryptRes.ok) {
       const errText = await encryptRes.text();
-      return json({
-        error: "encryption_failed",
-        stage: "proxy_response",
-        proxy_status: encryptRes.status,
-        detail: errText,
-      }, 502);
+      const proxyError = readProxyError(errText);
+      const error = proxyError === "server_misconfigured"
+        ? "encryption_service_misconfigured"
+        : "encryption_service_unavailable";
+
+      return handledEncryptionError(
+        error,
+        "Provider API key was not saved because the encryption service is not configured correctly."
+      );
     }
 
     const { encrypted } = await encryptRes.json();
