@@ -64,12 +64,12 @@ const COPY = {
     ctaFoot: "Sin tarjeta de crédito · Sin compromiso · Cancela cuando quieras",
     plans: [
       {
-        key: "starter" as PlanKey, icon: Zap, name: "Starter",
-        monthlyPrice: 99, annualPrice: 79,
-        desc: "Para equipos que empiezan a usar LLMs con datos de clientes.",
+        key: "starter" as PlanKey, icon: Zap, name: "Tier 1 — Starter",
+        monthlyPrice: 150, annualPrice: 120,
+        desc: "Para equipos pequeños que empiezan a usar LLMs con datos de clientes.",
         cta: "Empezar gratis 14 días", ctaVariant: "outline" as const, ctaHref: "/auth", highlight: false,
         features: [
-          "50.000 requests / mes",
+          "100.000 requests / mes",
           "Detección PII: email, teléfono, nombre, NIF/NIE",
           "Dashboard de auditoría en tiempo real",
           "1 proveedor LLM (OpenAI o Anthropic)",
@@ -86,9 +86,9 @@ const COPY = {
         ],
       },
       {
-        key: "pro" as PlanKey, icon: Shield, name: "Pro", badge: "Más elegido",
-        monthlyPrice: 499, annualPrice: 399,
-        desc: "Para SaaS con clientes regulados o en sectores con obligaciones GDPR activas.",
+        key: "pro" as PlanKey, icon: Shield, name: "Tier 3 — Business", badge: "Plan de partida",
+        monthlyPrice: 400, annualPrice: 320,
+        desc: "Plan de partida recomendado para SaaS y equipos con obligaciones GDPR activas.",
         cta: "Empezar gratis 14 días", ctaVariant: "default" as const, ctaHref: "/auth", highlight: true,
         features: [
           "500.000 requests / mes",
@@ -106,10 +106,10 @@ const COPY = {
       {
         key: "enterprise" as PlanKey, icon: Building2, name: "Enterprise / ISV",
         monthlyPrice: null, annualPrice: null,
-        desc: "Para ISVs que quieren embed Privaro en su producto o empresas con requisitos de compliance avanzados.",
+        desc: "Para volúmenes >5M req/mo, ISVs que embeben Privaro y compliance avanzado.",
         cta: "Hablar con nosotros", ctaVariant: "outline" as const, ctaHref: "/partners", highlight: false,
         features: [
-          "Requests ilimitadas",
+          "Volumen a medida (>5M requests/mes)",
           "White-label / embedded en tu producto",
           "Tarifa fija basada en volumen (estándar) — revenue share disponible para ISVs en fase temprana",
           "Instancia dedicada en tu VPC",
@@ -121,8 +121,24 @@ const COPY = {
         ],
       },
     ] as Plan[],
+    tiersKicker: "Catálogo completo",
+    tiersTitle: "Los 6 tiers disponibles",
+    tiersSubtitle: "Elige el volumen que encaja con tu tráfico. Cambia de tier en cualquier momento sin migración.",
+    tiersHeaderTier: "Plan",
+    tiersHeaderRequests: "Requests / mes",
+    tiersHeaderPrice: "Precio mensual",
+    tiersHeaderTarget: "Ideal para",
+    tiersFoot: "¿Necesitas más de 5M requests/mes, white-label o instancia dedicada? Habla con nosotros para un plan Enterprise a medida.",
+    tiers: [
+      { id: "Tier 1", name: "Starter", price: "€150", requests: "100.000", target: "Equipos pequeños evaluando", highlight: false },
+      { id: "Tier 2", name: "Growth", price: "€250", requests: "250.000", target: "Startups en producción", highlight: false },
+      { id: "Tier 3", name: "Business", price: "€400", requests: "500.000", target: "Plan de partida recomendado", highlight: true },
+      { id: "Tier 4", name: "Scale", price: "€700", requests: "1.000.000", target: "Compliance activo", highlight: false },
+      { id: "Tier 5", name: "Enterprise", price: "€1.250", requests: "2.000.000", target: "Regulados (banca, salud, legal)", highlight: false },
+      { id: "Tier 6", name: "Enterprise+", price: "€2.500", requests: "5.000.000", target: "Alto volumen / multi-tenant", highlight: false },
+    ],
     featureComparison: [
-      { label: "Requests mensuales", starter: "50.000", pro: "500.000", enterprise: "Ilimitadas" },
+      { label: "Requests mensuales", starter: "100.000", pro: "500.000", enterprise: ">5M / a medida" },
       { label: "Detección PII básica", starter: true, pro: true, enterprise: true },
       { label: "Entidades PII customizables", starter: false, pro: true, enterprise: true },
       { label: "Dashboard de auditoría", starter: true, pro: true, enterprise: true },
@@ -178,12 +194,12 @@ const COPY = {
     ctaFoot: "No credit card · No commitment · Cancel anytime",
     plans: [
       {
-        key: "starter" as PlanKey, icon: Zap, name: "Starter",
-        monthlyPrice: 99, annualPrice: 79,
-        desc: "For teams starting to use LLMs with customer data.",
+        key: "starter" as PlanKey, icon: Zap, name: "Tier 1 — Starter",
+        monthlyPrice: 150, annualPrice: 120,
+        desc: "For small teams starting to use LLMs with customer data.",
         cta: "Start 14-day free trial", ctaVariant: "outline" as const, ctaHref: "/auth", highlight: false,
         features: [
-          "50,000 requests / month",
+          "100,000 requests / month",
           "PII detection: email, phone, name, national ID",
           "Real-time audit dashboard",
           "1 LLM provider (OpenAI or Anthropic)",
@@ -200,9 +216,9 @@ const COPY = {
         ],
       },
       {
-        key: "pro" as PlanKey, icon: Shield, name: "Pro", badge: "Most popular",
-        monthlyPrice: 499, annualPrice: 399,
-        desc: "For SaaS with regulated clients or in sectors with active GDPR obligations.",
+        key: "pro" as PlanKey, icon: Shield, name: "Tier 3 — Business", badge: "Recommended start",
+        monthlyPrice: 400, annualPrice: 320,
+        desc: "Recommended starting plan for SaaS and teams with active GDPR obligations.",
         cta: "Start 14-day free trial", ctaVariant: "default" as const, ctaHref: "/auth", highlight: true,
         features: [
           "500,000 requests / month",
@@ -220,10 +236,10 @@ const COPY = {
       {
         key: "enterprise" as PlanKey, icon: Building2, name: "Enterprise / ISV",
         monthlyPrice: null, annualPrice: null,
-        desc: "For ISVs who want to embed Privaro in their product or companies with advanced compliance requirements.",
+        desc: "For volumes >5M req/mo, ISVs embedding Privaro and advanced compliance.",
         cta: "Talk to us", ctaVariant: "outline" as const, ctaHref: "/partners", highlight: false,
         features: [
-          "Unlimited requests",
+          "Custom volume (>5M requests/month)",
           "White-label / embedded in your product",
           "Volume-based fixed fee (standard) — revenue share available for early-stage ISVs",
           "Dedicated instance in your VPC",
@@ -235,8 +251,24 @@ const COPY = {
         ],
       },
     ] as Plan[],
+    tiersKicker: "Full catalog",
+    tiersTitle: "All 6 tiers",
+    tiersSubtitle: "Pick the volume that matches your traffic. Change tier anytime with no migration.",
+    tiersHeaderTier: "Plan",
+    tiersHeaderRequests: "Requests / month",
+    tiersHeaderPrice: "Monthly price",
+    tiersHeaderTarget: "Best for",
+    tiersFoot: "Need more than 5M requests/month, white-label or a dedicated instance? Talk to us for a custom Enterprise plan.",
+    tiers: [
+      { id: "Tier 1", name: "Starter", price: "€150", requests: "100,000", target: "Small teams evaluating", highlight: false },
+      { id: "Tier 2", name: "Growth", price: "€250", requests: "250,000", target: "Startups in production", highlight: false },
+      { id: "Tier 3", name: "Business", price: "€400", requests: "500,000", target: "Recommended starting plan", highlight: true },
+      { id: "Tier 4", name: "Scale", price: "€700", requests: "1,000,000", target: "Active compliance", highlight: false },
+      { id: "Tier 5", name: "Enterprise", price: "€1,250", requests: "2,000,000", target: "Regulated (banking, health, legal)", highlight: false },
+      { id: "Tier 6", name: "Enterprise+", price: "€2,500", requests: "5,000,000", target: "High volume / multi-tenant", highlight: false },
+    ],
     featureComparison: [
-      { label: "Monthly requests", starter: "50,000", pro: "500,000", enterprise: "Unlimited" },
+      { label: "Monthly requests", starter: "100,000", pro: "500,000", enterprise: ">5M / custom" },
       { label: "Basic PII detection", starter: true, pro: true, enterprise: true },
       { label: "Customizable PII entities", starter: false, pro: true, enterprise: true },
       { label: "Audit dashboard", starter: true, pro: true, enterprise: true },
@@ -459,6 +491,75 @@ export default function Pricing() {
           )}
         </div>
       </section>
+
+      {/* All 6 tiers table */}
+      <section className="pb-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            variants={fadeUp}
+            className="text-center mb-10"
+          >
+            <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">{c.tiersKicker}</p>
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">{c.tiersTitle}</h2>
+            <p className="text-sm text-muted-foreground max-w-2xl mx-auto">{c.tiersSubtitle}</p>
+          </motion.div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.05 }}
+            variants={fadeUp}
+            className="overflow-x-auto rounded-xl border border-border"
+          >
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-card">
+                  <th className="text-left py-4 px-5 font-medium text-muted-foreground">{c.tiersHeaderTier}</th>
+                  <th className="text-left py-4 px-4 font-medium text-muted-foreground">{c.tiersHeaderRequests}</th>
+                  <th className="text-left py-4 px-4 font-medium text-muted-foreground">{c.tiersHeaderPrice}</th>
+                  <th className="text-left py-4 px-4 font-medium text-muted-foreground">{c.tiersHeaderTarget}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {c.tiers.map((tier, i) => (
+                  <tr
+                    key={tier.id}
+                    className={`border-b border-border last:border-0 transition-colors hover:bg-secondary/30 ${
+                      tier.highlight ? "bg-primary/5" : i % 2 === 0 ? "bg-background" : "bg-card/40"
+                    }`}
+                  >
+                    <td className="py-3.5 px-5">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-semibold ${tier.highlight ? "text-primary" : "text-muted-foreground"}`}>{tier.id}</span>
+                        <span className="text-sm font-semibold text-foreground">{tier.name}</span>
+                        {tier.highlight && (
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-primary bg-primary/10 border border-primary/30 rounded-full px-2 py-0.5">
+                            {c.plans.find((p) => p.highlight)?.badge}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 text-sm text-foreground">{tier.requests}</td>
+                    <td className="py-3.5 px-4 text-sm font-semibold text-foreground">
+                      {tier.price}
+                      <span className="text-xs font-normal text-muted-foreground"> / mo</span>
+                    </td>
+                    <td className="py-3.5 px-4 text-sm text-muted-foreground">{tier.target}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </motion.div>
+
+          <p className="text-center text-xs text-muted-foreground mt-6 max-w-2xl mx-auto">
+            {c.tiersFoot}
+          </p>
+        </div>
+      </section>
+
 
       {/* Providers strip */}
       <section className="py-10 px-6 border-y border-border bg-card/30">

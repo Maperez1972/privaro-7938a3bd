@@ -508,49 +508,32 @@ var list_use_cases_default = defineTool7({
 import { defineTool as defineTool8 } from "npm:@lovable.dev/mcp-js@0.20.1";
 var PRICING = {
   currency: "EUR",
-  plans: [
-    {
-      id: "starter",
-      name: "Starter",
-      target: "Small teams evaluating AI governance",
-      price_month: 99,
-      included_requests: 1e4,
-      features: ["PII detection", "Tokenization", "Basic audit logs", "1 AI provider"]
-    },
-    {
-      id: "business",
-      name: "Business",
-      target: "Growing companies with compliance needs",
-      price_month: 499,
-      included_requests: 1e5,
-      features: ["All Starter features", "Multiple providers", "Custom policies", "Role-based access", "GDPR/HIPAA reports"]
-    },
-    {
-      id: "enterprise",
-      name: "Enterprise",
-      target: "Regulated enterprises (banks, health, legal)",
-      price_month: "custom",
-      included_requests: "unlimited",
-      features: [
-        "All Business features",
-        "BYOK encryption",
-        "Blockchain audit certification",
-        "SSO/SAML",
-        "Dedicated support",
-        "On-prem/private cloud"
-      ]
-    }
+  billing: "monthly",
+  tiers: [
+    { id: "tier_1", name: "Tier 1 \u2014 Starter", price_month: 150, included_requests: 1e5, target: "Small teams evaluating AI governance" },
+    { id: "tier_2", name: "Tier 2 \u2014 Growth", price_month: 250, included_requests: 25e4, target: "Startups in production" },
+    { id: "tier_3", name: "Tier 3 \u2014 Business", price_month: 400, included_requests: 5e5, target: "Recommended starting plan for SaaS with GDPR obligations", recommended: true },
+    { id: "tier_4", name: "Tier 4 \u2014 Scale", price_month: 700, included_requests: 1e6, target: "Active compliance workloads" },
+    { id: "tier_5", name: "Tier 5 \u2014 Enterprise", price_month: 1250, included_requests: 2e6, target: "Regulated enterprises (banking, health, legal)" },
+    { id: "tier_6", name: "Tier 6 \u2014 Enterprise+", price_month: 2500, included_requests: 5e6, target: "High volume / multi-tenant" },
+    { id: "enterprise_custom", name: "Enterprise / ISV (custom)", price_month: "custom", included_requests: ">5M or unlimited", target: "White-label, dedicated VPC, on-prem, BYOK, SSO \u2014 talk to sales" }
   ],
+  highlighted_plans: ["tier_1", "tier_3", "enterprise_custom"],
   addons: [
     { id: "blockchain_audit", name: "Blockchain audit certification", price_month: 199 },
     { id: "byok", name: "Bring Your Own Key (AES-256)", price_month: 149 }
   ],
+  partner_program: {
+    model: "20% recurring monthly discount",
+    description: "Partners are billed at Privaro list price minus 20%, on every renewal, across all tiers. Partners monetize their end clients freely (markup, bundle, managed service).",
+    legacy_option: "Revenue share available case-by-case for pre-revenue ISVs, on request only."
+  },
   url: "https://privaro.ai/pricing"
 };
 var pricing_default = defineTool8({
   name: "get_pricing",
   title: "Get Privaro pricing",
-  description: "Return Privaro's public pricing plans (Starter, Business, Enterprise), included request volumes, key features, and available add-ons.",
+  description: "Return Privaro's public pricing: 6 monthly tiers (Starter \u20AC150 / 100k req \u2192 Enterprise+ \u20AC2,500 / 5M req), a custom Enterprise/ISV tier, add-ons (BYOK, blockchain audit) and the partner discount model (20% recurring).",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: () => ({

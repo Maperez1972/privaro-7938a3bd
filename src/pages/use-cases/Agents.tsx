@@ -38,19 +38,19 @@ const AgentsPage = () => {
 
   const pricing = [
     {
-      name: t("agents.plan1.name"), price: "€99", period: "/mo",
+      name: t("agents.plan1.name"), price: "€150", period: "/mo",
       steps: t("agents.plan1.steps"), desc: t("agents.plan1.desc"),
-      overage: "€0.0020 / step", highlighted: false, bullets: [] as string[],
+      overage: "€0.0015 / request", highlighted: false, bullets: [] as string[],
     },
     {
-      name: t("agents.plan2.name"), price: "€499", period: "/mo",
+      name: t("agents.plan2.name"), price: "€400", period: "/mo",
       steps: t("agents.plan2.steps"), desc: t("agents.plan2.desc"),
-      overage: "€0.0015 / step", highlighted: true, bullets: [] as string[],
+      overage: "€0.0008 / request", highlighted: true, bullets: [] as string[],
     },
     {
       name: t("agents.plan3.name"), price: t("agents.plan3.price"), period: "",
       steps: t("agents.plan3.steps"), desc: t("agents.plan3.desc"),
-      overage: "€0.0010 / step", highlighted: false,
+      overage: t("agents.plan3.overage"), highlighted: false,
       bullets: [t("agents.plan3.b1"), t("agents.plan3.b2"), t("agents.plan3.b3"), t("agents.plan3.b4"), t("agents.plan3.b5")],
     },
   ];
