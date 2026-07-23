@@ -29,12 +29,28 @@ const AdminBilling = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("organizations")
-        .select("name, plan")
+        .select("name, plan, streaming_enabled" as any)
         .eq("id", orgId!)
         .single();
-      return data;
+      return data as any;
     },
   });
+
+  const toggleStreaming = useMutation({
+    mutationFn: async (v: boolean) => {
+      const { error } = await supabase
+        .from("organizations")
+        .update({ streaming_enabled: v } as any)
+        .eq("id", orgId!);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-org", orgId] });
+      toast.success("Streaming setting updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["org-settings", orgId],
