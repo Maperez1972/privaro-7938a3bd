@@ -36,7 +36,15 @@ const HeroSection = () => {
             <a href="#how-it-works" className="px-8 py-3.5 rounded-md border border-border text-foreground font-medium text-base hover:bg-secondary transition-colors">{t("hero.cta2")}</a>
           </div>
           <p className="text-sm text-muted-foreground mt-2">{t("hero.disclaimer")}</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 mt-6 text-xs text-muted-foreground">
+            <span className="uppercase tracking-wider">Explore:</span>
+            <Link to="/ai-governance-platform" className="underline underline-offset-2 hover:text-foreground transition-colors">AI Governance Platform</Link>
+            <Link to="/ai-compliance-software" className="underline underline-offset-2 hover:text-foreground transition-colors">AI Compliance Software</Link>
+            <Link to="/enterprise-ai-security" className="underline underline-offset-2 hover:text-foreground transition-colors">Enterprise AI Security</Link>
+            <Link to="/pii-detection-api" className="underline underline-offset-2 hover:text-foreground transition-colors">PII Detection API</Link>
+          </div>
         </div>
+
       </div>
     </section>
   );
