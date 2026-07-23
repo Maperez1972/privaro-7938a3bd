@@ -240,7 +240,7 @@
       {
         "name": "get_pricing",
         "title": "Get Privaro pricing",
-        "description": "Return Privaro's public pricing plans (Starter, Business, Enterprise), included request volumes, key features, and available add-ons.",
+        "description": "Return Privaro's public pricing: 6 monthly tiers (Starter €150 / 100k req → Enterprise+ €2,500 / 5M req), a custom Enterprise/ISV tier, add-ons (BYOK, blockchain audit) and the partner discount model (20% recurring).",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
