@@ -1,9 +1,16 @@
 /**
- * send-usage-notification — Edge Function v1
+ * send-usage-notification — Edge Function v4
  *
- * Internal, server-to-server only. Called by privaro-proxy (Railway) when
- * increment_billing_requests() reports a quota threshold (80%) or overage
- * (100%) crossing for the FIRST time in a billing cycle.
+ * Internal, server-to-server only. Two trigger sources:
+ *  1. privaro-proxy (Railway), when increment_billing_requests() reports a
+ *     quota threshold (80%) or overage (100%) crossing for the FIRST time
+ *     in a billing cycle. type: usage_threshold | usage_overage.
+ *  2. apply_discount_reviews() (pg_cron, via pg_net), the moment a
+ *     billing_account's discount_phase flips from 'initial' to 'reviewed'.
+ *     type: discount_phase_reviewed (added 2026-07-23). This one is an
+ *     INTERNAL ops reminder (to iCommunity, not the partner) because the
+ *     Stripe coupon swap (PARTNER20 -> PARTNER15) isn't automated yet —
+ *     see PARTNER_ONBOARDING_RUNBOOK.md §3.2.
  *
  * Not user-facing, not triggered from the frontend. Auth is a shared
  * secret header (INTERNAL_NOTIFY_SECRET), not a user JWT — hence
@@ -12,13 +19,14 @@
  * POST /functions/v1/send-usage-notification
  * Headers: X-Internal-Secret: <INTERNAL_NOTIFY_SECRET>
  * Body: {
- *   org_id: string,        // owner_org_id of the billing_account (partner or direct customer)
- *   type: 'usage_threshold' | 'usage_overage',
+ *   org_id: string,
+ *   type: 'usage_threshold' | 'usage_overage' | 'discount_phase_reviewed',
  *   recipients: string[],
  *   org_name: string,
  *   plan: string,
- *   requests_used: number,
- *   requests_limit: number,
+ *   requests_used?: number,
+ *   requests_limit?: number,
+ *   stripe_customer_id?: string,   // only used by discount_phase_reviewed
  * }
  */
 
@@ -42,8 +50,32 @@ function buildSubjectAndHtml(
   plan: string,
   used: number,
   limit: number,
+  stripeCustomerId?: string,
 ): { subject: string; html: string } {
   const pct = limit > 0 ? Math.round((used / limit) * 100) : 0;
+
+  if (type === "discount_phase_reviewed") {
+    const stripeLink = stripeCustomerId
+      ? `https://dashboard.stripe.com/customers/${stripeCustomerId}`
+      : "https://dashboard.stripe.com";
+    return {
+      subject: `Acción manual pendiente — ${orgName} pasa a fase de descuento revisado`,
+      html: `
+        <div style="font-family: -apple-system, Segoe UI, sans-serif; max-width: 560px; margin: 0 auto;">
+          <div style="background:#0B1220; padding:24px; border-radius:8px 8px 0 0;">
+            <span style="color:#fff; font-size:22px; font-weight:700;">privaro</span>
+            <span style="color:#F59E0B; font-size:13px; margin-left:8px;">· aviso interno</span>
+          </div>
+          <div style="padding:24px; border:1px solid #E2E8F0; border-top:none; border-radius:0 0 8px 8px;">
+            <h2 style="color:#0B1220; margin-top:0;">Hay que cambiar el cupón de Stripe a mano</h2>
+            <p style="color:#334155;"><strong>${orgName}</strong> acaba de pasar de fase inicial a fase de revisión de descuento en Supabase (automático).</p>
+            <p style="color:#334155;">Lo que <strong>no</strong> es automático todavía: en Stripe hay que sustituir el cupón <code>PARTNER20</code> por <code>PARTNER15</code> en su suscripción.</p>
+            <p style="color:#334155;"><a href="${stripeLink}" style="color:#0D9488;">Abrir el cliente en Stripe →</a></p>
+            <p style="color:#64748b; font-size:13px;">Referencia: PARTNER_ONBOARDING_RUNBOOK.md §3.2 (privaro-proxy/docs).</p>
+          </div>
+        </div>`,
+    };
+  }
 
   if (type === "usage_overage") {
     return {
@@ -101,7 +133,7 @@ serve(async (req: Request) => {
     return json({ error: "invalid_json" }, 400);
   }
 
-  const { org_id, type, recipients, org_name, plan, requests_used, requests_limit } = body ?? {};
+  const { org_id, type, recipients, org_name, plan, requests_used, requests_limit, stripe_customer_id } = body ?? {};
 
   if (!org_id || !type || !Array.isArray(recipients) || recipients.length === 0) {
     return json({ error: "missing_fields" }, 400);
@@ -110,6 +142,7 @@ serve(async (req: Request) => {
   const { subject, html } = buildSubjectAndHtml(
     type, org_name ?? org_id, plan ?? "unknown",
     Number(requests_used ?? 0), Number(requests_limit ?? 0),
+    stripe_customer_id,
   );
 
   try {
