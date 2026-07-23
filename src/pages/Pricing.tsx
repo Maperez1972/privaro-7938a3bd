@@ -492,6 +492,75 @@ export default function Pricing() {
         </div>
       </section>
 
+      {/* All 6 tiers table */}
+      <section className="pb-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            variants={fadeUp}
+            className="text-center mb-10"
+          >
+            <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">{c.tiersKicker}</p>
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">{c.tiersTitle}</h2>
+            <p className="text-sm text-muted-foreground max-w-2xl mx-auto">{c.tiersSubtitle}</p>
+          </motion.div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.05 }}
+            variants={fadeUp}
+            className="overflow-x-auto rounded-xl border border-border"
+          >
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-card">
+                  <th className="text-left py-4 px-5 font-medium text-muted-foreground">{c.tiersHeaderTier}</th>
+                  <th className="text-left py-4 px-4 font-medium text-muted-foreground">{c.tiersHeaderRequests}</th>
+                  <th className="text-left py-4 px-4 font-medium text-muted-foreground">{c.tiersHeaderPrice}</th>
+                  <th className="text-left py-4 px-4 font-medium text-muted-foreground">{c.tiersHeaderTarget}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {c.tiers.map((tier, i) => (
+                  <tr
+                    key={tier.id}
+                    className={`border-b border-border last:border-0 transition-colors hover:bg-secondary/30 ${
+                      tier.highlight ? "bg-primary/5" : i % 2 === 0 ? "bg-background" : "bg-card/40"
+                    }`}
+                  >
+                    <td className="py-3.5 px-5">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-semibold ${tier.highlight ? "text-primary" : "text-muted-foreground"}`}>{tier.id}</span>
+                        <span className="text-sm font-semibold text-foreground">{tier.name}</span>
+                        {tier.highlight && (
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-primary bg-primary/10 border border-primary/30 rounded-full px-2 py-0.5">
+                            {c.plans.find((p) => p.highlight)?.badge}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 text-sm text-foreground">{tier.requests}</td>
+                    <td className="py-3.5 px-4 text-sm font-semibold text-foreground">
+                      {tier.price}
+                      <span className="text-xs font-normal text-muted-foreground"> / mo</span>
+                    </td>
+                    <td className="py-3.5 px-4 text-sm text-muted-foreground">{tier.target}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </motion.div>
+
+          <p className="text-center text-xs text-muted-foreground mt-6 max-w-2xl mx-auto">
+            {c.tiersFoot}
+          </p>
+        </div>
+      </section>
+
+
       {/* Providers strip */}
       <section className="py-10 px-6 border-y border-border bg-card/30">
         <div className="max-w-5xl mx-auto text-center">
