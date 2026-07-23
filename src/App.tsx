@@ -108,6 +108,7 @@ const App = () => (
               <Route path="/ai-governance-platform" element={<AIGovernancePlatform />} />
               <Route path="/ai-compliance-software" element={<AIComplianceSoftware />} />
               <Route path="/enterprise-ai-security" element={<EnterpriseAISecurity />} />
+              <Route path="/pii-detection-api" element={<PiiDetectionApi />} />
 
               {/* Auth */}
               <Route path="/auth" element={<Auth />} />
