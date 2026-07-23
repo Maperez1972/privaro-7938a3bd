@@ -124,7 +124,7 @@ export default function Docs() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="Docs — Privaro API & SDK Reference" description="Quickstart, API reference and SDK guides. Integrate Privaro in less than an hour with Python or Node." path="/docs" />
+      <Seo title="PII Detection API & LLM Proxy Docs — Privaro" description="Quickstart, REST API reference and SDK guides for the Privaro PII detection API and LLM proxy. Integrate tokenization and policy enforcement in under an hour." path="/docs" />
       <Navbar />
 
       {/* Hero */}

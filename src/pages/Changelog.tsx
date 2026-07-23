@@ -182,7 +182,7 @@ export default function Changelog() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="Changelog — Privaro Product Updates" description="Latest releases, features and improvements to the Privaro AI privacy platform." path="/changelog" />
+      <Seo title="Changelog — Privaro AI Governance Platform Updates" description="Latest releases, features and improvements to Privaro's AI governance, PII detection and LLM proxy platform." path="/changelog" />
       <Navbar />
 
       <section className="pt-32 pb-12 px-6">

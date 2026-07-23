@@ -61,7 +61,7 @@ const AgentsPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="AI Privacy for Autonomous Agents — Privaro" description="Govern data flowing between AI agents. Apply policies, audit decisions and prevent leaks across multi-agent workflows." path="/use-cases/agents" />
+      <Seo title="AI Governance for Autonomous Agents — Privaro" description="Govern data flowing between AI agents. Detect PII, apply policies, audit every step and prevent leaks across multi-agent LLM workflows." path="/use-cases/agents" />
       <Navbar />
 
       {/* Hero */}

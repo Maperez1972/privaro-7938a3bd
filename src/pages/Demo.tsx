@@ -243,7 +243,7 @@ export default function Demo() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="Live Demo — See Privaro Detect PII in Real Time" description="Try Privaro live. Paste a prompt and watch our engine detect, tokenize and anonymize sensitive data before it hits the LLM." path="/demo" />
+      <Seo title="Live PII Detection Demo — Prompt Anonymization | Privaro" description="Try Privaro live. Paste a prompt and watch our AI DLP engine detect, tokenize and anonymize PII in real time before it reaches the LLM." path="/demo" />
       <Navbar />
 
       {/* Hero */}
