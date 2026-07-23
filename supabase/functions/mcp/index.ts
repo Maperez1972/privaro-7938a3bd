@@ -3,10 +3,10 @@
 // supabase function: mcp
 // Bundled from src/lib/mcp/index.ts by @lovable.dev/mcp-js.
 // src/lib/mcp/index.ts
-import { defineMcp } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineMcp } from "npm:@lovable.dev/mcp-js@0.20.1";
 
 // src/lib/mcp/tools/detect-pii.ts
-import { defineTool } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z } from "npm:zod@^3.25.76";
 
 // src/lib/pii-engine.ts
@@ -273,7 +273,7 @@ var detect_pii_default = defineTool({
 });
 
 // src/lib/mcp/tools/protect-text.ts
-import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z2 } from "npm:zod@^3.25.76";
 var protect_text_default = defineTool2({
   name: "protect_text",
@@ -299,7 +299,7 @@ var protect_text_default = defineTool2({
 });
 
 // src/lib/mcp/tools/risk-score.ts
-import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z3 } from "npm:zod@^3.25.76";
 var SEVERITY_WEIGHT = {
   critical: 40,
@@ -343,7 +343,7 @@ var risk_score_default = defineTool3({
 });
 
 // src/lib/mcp/tools/describe-privaro.ts
-import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.20.1";
 var OVERVIEW = {
   product: "Privaro",
   tagline: "AI privacy governance infrastructure for regulated enterprises.",
@@ -381,7 +381,7 @@ var describe_privaro_default = defineTool4({
 });
 
 // src/lib/mcp/tools/list-regulations.ts
-import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.20.1";
 var REGULATIONS = [
   {
     id: "gdpr",
@@ -439,7 +439,7 @@ var list_regulations_default = defineTool5({
 });
 
 // src/lib/mcp/tools/list-providers.ts
-import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.20.1";
 var PROVIDERS = [
   { id: "openai", name: "OpenAI", models: ["gpt-5", "gpt-5-mini", "gpt-4o", "gpt-4o-mini"], modes: ["chat", "embeddings", "images"] },
   { id: "anthropic", name: "Anthropic", models: ["claude-sonnet-4.5", "claude-haiku-4.5", "claude-opus-4"], modes: ["chat"] },
@@ -461,7 +461,7 @@ var list_providers_default = defineTool6({
 });
 
 // src/lib/mcp/tools/list-use-cases.ts
-import { defineTool as defineTool7 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool7 } from "npm:@lovable.dev/mcp-js@0.20.1";
 var USE_CASES = [
   {
     id: "legal",
@@ -505,7 +505,7 @@ var list_use_cases_default = defineTool7({
 });
 
 // src/lib/mcp/tools/pricing.ts
-import { defineTool as defineTool8 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool8 } from "npm:@lovable.dev/mcp-js@0.20.1";
 var PRICING = {
   currency: "EUR",
   plans: [
@@ -560,7 +560,7 @@ var pricing_default = defineTool8({
 });
 
 // src/lib/mcp/tools/recommend-policy.ts
-import { defineTool as defineTool9 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool9 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z4 } from "npm:zod@^3.25.76";
 var ACTION_BY_SEVERITY = {
   critical: "block",
@@ -614,7 +614,7 @@ var recommend_policy_default = defineTool9({
 });
 
 // src/lib/mcp/tools/explain-token.ts
-import { defineTool as defineTool10 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool10 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z as z5 } from "npm:zod@^3.25.76";
 var PREFIXES = {
   NM: { type: "full_name", description: "Person full name" },
@@ -654,7 +654,7 @@ var explain_token_default = defineTool10({
 });
 
 // src/lib/mcp/tools/list-entity-types.ts
-import { defineTool as defineTool11 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineTool as defineTool11 } from "npm:@lovable.dev/mcp-js@0.20.1";
 var ENTITY_TYPES = [
   { type: "full_name", severity: "medium", category: "personal", token_prefix: "NM" },
   { type: "email", severity: "medium", category: "personal", token_prefix: "EM" },
@@ -701,5 +701,5 @@ var mcp_default = defineMcp({
 });
 
 // lovable-mcp-supabase-entry.ts
-import { createSupabaseHandler } from "npm:@lovable.dev/mcp-js@0.20.0/stacks/supabase";
+import { createSupabaseHandler } from "npm:@lovable.dev/mcp-js@0.20.1/stacks/supabase";
 Deno.serve(createSupabaseHandler(mcp_default, { functionName: "mcp" }));
