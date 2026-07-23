@@ -344,13 +344,15 @@ serve(async (req) => {
         );
       }
       const decrypted = await decryptRes.json();
-      if (!decrypted?.raw_key || typeof decrypted.raw_key !== "string") {
+      const candidate =
+        decrypted?.raw_key ?? decrypted?.decrypted ?? decrypted?.key ?? decrypted?.api_key ?? decrypted?.plaintext;
+      if (!candidate || typeof candidate !== "string") {
         return new Response(
           JSON.stringify({ error: `No active provider or API key for ${pipeline.llm_provider}` }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      apiKey = decrypted.raw_key;
+      apiKey = candidate;
     } catch {
       return new Response(
         JSON.stringify({ error: `No active provider or API key for ${pipeline.llm_provider}` }),
