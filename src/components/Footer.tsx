@@ -9,6 +9,14 @@ const Footer = () => {
       <div className="max-w-6xl mx-auto flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Solutions
+          </span>
+          <a href="/ai-governance-platform" className={linkClass}>AI Governance Platform</a>
+          <a href="/ai-compliance-software" className={linkClass}>AI Compliance Software</a>
+          <a href="/enterprise-ai-security" className={linkClass}>Enterprise AI Security</a>
+        </div>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Use Cases
           </span>
           <a href="/use-cases/legal" className={linkClass}>Legal</a>
@@ -18,6 +26,7 @@ const Footer = () => {
             AI Agents
           </a>
         </div>
+
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
           <a href="/privacy" className={linkClass}>{t("footer.privacy")}</a>
           <a href="/terms" className={linkClass}>{t("footer.terms")}</a>
