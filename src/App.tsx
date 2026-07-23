@@ -105,6 +105,8 @@ const App = () => (
               <Route path="/changelog" element={<ChangelogPage />} />
               <Route path="/docs" element={<DocsPage />} />
               <Route path="/ai-governance-platform" element={<AIGovernancePlatform />} />
+              <Route path="/ai-compliance-software" element={<AIComplianceSoftware />} />
+              <Route path="/enterprise-ai-security" element={<EnterpriseAISecurity />} />
 
               {/* Auth */}
               <Route path="/auth" element={<Auth />} />
