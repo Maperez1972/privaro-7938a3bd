@@ -29,12 +29,28 @@ const AdminBilling = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("organizations")
-        .select("name, plan")
+        .select("name, plan, streaming_enabled" as any)
         .eq("id", orgId!)
         .single();
-      return data;
+      return data as any;
     },
   });
+
+  const toggleStreaming = useMutation({
+    mutationFn: async (v: boolean) => {
+      const { error } = await supabase
+        .from("organizations")
+        .update({ streaming_enabled: v } as any)
+        .eq("id", orgId!);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-org", orgId] });
+      toast.success("Streaming setting updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["org-settings", orgId],
@@ -171,6 +187,20 @@ const AdminBilling = () => {
                   onCheckedChange={(v) => setForm({ ...form, sandbox_enabled: v })}
                 />
               </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold">Streaming Responses</p>
+                  <p className="text-sm text-muted-foreground">
+                    Permite a vuestra integración recibir las respuestas del LLM en streaming (palabra a palabra) en vez de esperar la respuesta completa. Activado por defecto.
+                  </p>
+                </div>
+                <Switch
+                  checked={org?.streaming_enabled ?? true}
+                  disabled={toggleStreaming.isPending}
+                  onCheckedChange={(v) => toggleStreaming.mutate(v)}
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="mb-1.5">Audit Retention (days)</Label>
