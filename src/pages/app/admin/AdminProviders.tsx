@@ -184,15 +184,6 @@ const AdminProviders = () => {
         approved_special_categories: formApprovedSpecial,
         approved_for_agents: formApprovedAgents,
       };
-      if (apiKey) {
-        const provider = selectedProvider.provider;
-        const pattern = API_KEY_PATTERNS[provider] ?? API_KEY_PATTERNS.custom;
-        if (!pattern.regex.test(apiKey)) {
-          throw new Error(`Invalid API key format for ${provider}. ${pattern.hint}`);
-        }
-        updates.api_key_encrypted = apiKey;
-        updates.api_key_hint = `...${apiKey.slice(-4)}`;
-      }
       if (newModels.trim()) {
         updates.available_models = newModels.split(",").map((m) => m.trim()).filter(Boolean);
       }
@@ -201,6 +192,24 @@ const AdminProviders = () => {
         .update(updates)
         .eq("id", selectedProvider.id);
       if (error) throw error;
+
+      // Encrypt & persist the API key via the edge function — never store raw keys.
+      if (apiKey) {
+        const provider = selectedProvider.provider;
+        const pattern = API_KEY_PATTERNS[provider] ?? API_KEY_PATTERNS.custom;
+        if (!pattern.regex.test(apiKey)) {
+          throw new Error(`Invalid API key format for ${provider}. ${pattern.hint}`);
+        }
+        const { data, error: fnError } = await supabase.functions.invoke("encrypt-provider-key", {
+          body: {
+            provider,
+            raw_key: apiKey,
+            base_url: selectedProvider.base_url ?? undefined,
+          },
+        });
+        if (fnError) throw new Error(fnError.message || "Failed to encrypt API key");
+        if (!data?.success) throw new Error(data?.error || data?.message || "Failed to encrypt API key");
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["llm-providers", orgId] });
@@ -208,7 +217,7 @@ const AdminProviders = () => {
       setSheetOpen(false);
       setApiKey("");
     },
-    onError: () => toast.error(t("app.admin.providers.saveFailed")),
+    onError: (e: Error) => toast.error(e.message || t("app.admin.providers.saveFailed")),
   });
 
   const addCustomProvider = useMutation({
