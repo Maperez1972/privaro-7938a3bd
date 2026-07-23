@@ -114,7 +114,7 @@ const Security = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="Security & Compliance — Privaro" description="How Privaro protects sensitive data: encryption, audit trails, GDPR, EU AI Act, and SOC2-ready controls for enterprise AI." path="/security" />
+      <Seo title="Enterprise AI Security & Compliance Software — Privaro" description="AI DLP and enterprise AI security controls: encryption, tokenization, audit trails and GDPR / EU AI Act / SOC2-ready compliance for LLM workloads." path="/security" jsonLd={{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is Privaro GDPR compliant?","acceptedAnswer":{"@type":"Answer","text":"Yes. Privaro tokenizes and anonymizes personal data before it reaches any LLM, keeping personal data inside the EU and providing full audit trails required under GDPR."}},{"@type":"Question","name":"Does Privaro help with the EU AI Act?","acceptedAnswer":{"@type":"Answer","text":"Privaro provides logging, risk scoring and human-in-the-loop policy controls that map directly to EU AI Act obligations for high-risk AI systems."}},{"@type":"Question","name":"How is data encrypted?","acceptedAnswer":{"@type":"Answer","text":"All tokenized values are encrypted with AES-256-GCM using per-tenant keys, with optional BYOK for enterprise customers."}}]}} />
       <Navbar />
 
       {/* HERO */}
