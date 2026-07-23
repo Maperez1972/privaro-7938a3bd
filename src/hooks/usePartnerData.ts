@@ -32,14 +32,6 @@ export type NewSubAccountResult = {
 
 const FN = "partner-sub-accounts";
 
-type FunctionErrorContext = {
-  status?: number;
-  json?: () => Promise<unknown>;
-  text?: () => Promise<string>;
-};
-
-type FunctionErrorWithContext = Error & { context?: FunctionErrorContext };
-
 type PartnerDataOptions = {
   enabled?: boolean;
   suppressErrors?: boolean;
@@ -55,28 +47,6 @@ const normalizeErrorBody = (value: unknown): { error?: string } | null => {
     return { error: typeof errorValue === "string" ? errorValue : String(errorValue ?? "unknown_error") };
   }
   return { error: String(value) };
-};
-
-const readFunctionError = async (error: Error) => {
-  const ctx = (error as FunctionErrorWithContext).context;
-  let body: { error?: string } | null = null;
-
-  try {
-    if (ctx && typeof ctx.json === "function") {
-      body = normalizeErrorBody(await ctx.json());
-    } else if (ctx && typeof ctx.text === "function") {
-      const text = await ctx.text();
-      try {
-        body = normalizeErrorBody(JSON.parse(text));
-      } catch {
-        body = normalizeErrorBody(text);
-      }
-    }
-  } catch {
-    body = null;
-  }
-
-  return { status: ctx?.status, body };
 };
 
 export const usePartnerData = (options: PartnerDataOptions = {}) => {
