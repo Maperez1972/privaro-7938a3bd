@@ -193,6 +193,21 @@ serve(async (req) => {
     return json({ error: "org_id and api_key are required" }, 400);
   }
 
+  // Fixed 2026-07-24 — real security finding: this endpoint trusted org_id
+  // from the request body with no check that it belonged to the caller.
+  // Any authenticated user (any org, any role) could set another org's
+  // welcome_email_sent / trial_started_at by just supplying its org_id.
+  const { data: callerProfile } = await supabase
+    .from("profiles")
+    .select("org_id")
+    .eq("id", user.id)
+    .single();
+
+  if (!callerProfile || callerProfile.org_id !== org_id) {
+    console.warn(`[welcome] Forbidden: user ${user.id} tried org_id ${org_id}, owns ${callerProfile?.org_id}`);
+    return json({ error: "forbidden" }, 403);
+  }
+
   // Check if already sent (idempotency)
   const { data: org } = await supabase
     .from("organizations")
