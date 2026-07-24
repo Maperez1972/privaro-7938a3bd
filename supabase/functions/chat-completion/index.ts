@@ -322,38 +322,37 @@ serve(async (req) => {
       );
     }
 
+    // Legacy fallback: rows saved before the encryption migration hold a
+    // plaintext key directly in api_key_encrypted. Detect by common
+    // provider prefixes (sk-, sk-ant-, AIza…) so those keep working
+    // until an admin re-saves the key through encrypt-provider-key.
+    const stored = provider.api_key_encrypted as string;
+    const looksLikePlaintext = /^(sk-|sk_|AIza|xai-|gsk_|Bearer\s)/i.test(stored);
+
     const internalSecret = Deno.env.get("INTERNAL_NOTIFY_SECRET");
-    if (!internalSecret) {
-      return new Response(
-        JSON.stringify({ error: `No active provider or API key for ${pipeline.llm_provider}` }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    let apiKey: string | null = null;
+
+    if (internalSecret) {
+      try {
+        const decryptRes = await fetch("https://api.privaro.ai/internal/decrypt-provider-key", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Internal-Secret": internalSecret },
+          body: JSON.stringify({ encrypted: stored }),
+        });
+        if (decryptRes.ok) {
+          const decrypted = await decryptRes.json();
+          const candidate =
+            decrypted?.raw_key ?? decrypted?.decrypted ?? decrypted?.key ?? decrypted?.api_key ?? decrypted?.plaintext;
+          if (candidate && typeof candidate === "string") apiKey = candidate;
+        }
+      } catch {
+        // fall through to legacy fallback
+      }
     }
 
-    let apiKey: string;
-    try {
-      const decryptRes = await fetch("https://api.privaro.ai/internal/decrypt-provider-key", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Internal-Secret": internalSecret },
-        body: JSON.stringify({ encrypted: provider.api_key_encrypted }),
-      });
-      if (!decryptRes.ok) {
-        return new Response(
-          JSON.stringify({ error: `No active provider or API key for ${pipeline.llm_provider}` }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      const decrypted = await decryptRes.json();
-      const candidate =
-        decrypted?.raw_key ?? decrypted?.decrypted ?? decrypted?.key ?? decrypted?.api_key ?? decrypted?.plaintext;
-      if (!candidate || typeof candidate !== "string") {
-        return new Response(
-          JSON.stringify({ error: `No active provider or API key for ${pipeline.llm_provider}` }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      apiKey = candidate;
-    } catch {
+    if (!apiKey && looksLikePlaintext) apiKey = stored;
+
+    if (!apiKey) {
       return new Response(
         JSON.stringify({ error: `No active provider or API key for ${pipeline.llm_provider}` }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
