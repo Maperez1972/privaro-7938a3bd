@@ -109,6 +109,7 @@ const App = () => (
               <Route path="/demo" element={<DemoPage />} />
               <Route path="/changelog" element={<ChangelogPage />} />
               <Route path="/docs" element={<DocsPage />} />
+              <Route path="/status" element={<StatusPage />} />
               <Route path="/ai-governance-platform" element={<AIGovernancePlatform />} />
               <Route path="/ai-compliance-software" element={<AIComplianceSoftware />} />
               <Route path="/enterprise-ai-security" element={<EnterpriseAISecurity />} />
