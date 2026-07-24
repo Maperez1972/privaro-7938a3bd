@@ -26,6 +26,7 @@ const PricingPage = lazy(() => import("./pages/Pricing"));
 const DemoPage = lazy(() => import("./pages/Demo"));
 const ChangelogPage = lazy(() => import("./pages/Changelog"));
 const DocsPage = lazy(() => import("./pages/Docs"));
+const StatusPage = lazy(() => import("./pages/Status"));
 const AIGovernancePlatform = lazy(() => import("./pages/AIGovernancePlatform"));
 const AIComplianceSoftware = lazy(() => import("./pages/AIComplianceSoftware"));
 const EnterpriseAISecurity = lazy(() => import("./pages/EnterpriseAISecurity"));
