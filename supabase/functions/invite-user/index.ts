@@ -60,6 +60,7 @@ Deno.serve(async (req) => {
       .from("user_roles")
       .select("role")
       .eq("user_id", callerId)
+      .eq("org_id", callerProfile.org_id)
       .maybeSingle();
 
     if (callerRole?.role !== "admin") {
