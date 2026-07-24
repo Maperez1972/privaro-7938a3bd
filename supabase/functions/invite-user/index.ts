@@ -102,23 +102,11 @@ Deno.serve(async (req) => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Check if user already exists
-    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-    const existingUser = existingUsers?.users?.find(
-      (u) => u.email?.toLowerCase() === email.toLowerCase()
-    );
-
-    if (existingUser) {
-      return new Response(
-        JSON.stringify({ error: "Este email ya está registrado" }),
-        {
-          status: 409,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    // Create user with inviteUserByEmail (sends magic link, no password needed)
+    // Create user with inviteUserByEmail (sends magic link).
+    // We deliberately do NOT pre-check global user existence — the previous
+    // listUsers() lookup leaked cross-org email enumeration. Supabase's native
+    // error path returns a safe generic error when the email already exists
+    // anywhere in the platform, without revealing which org owns it.
     const { data: inviteData, error: inviteError } =
       await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
         data: {
@@ -128,11 +116,12 @@ Deno.serve(async (req) => {
       });
 
     if (inviteError) {
-      console.error("Invite error:", inviteError);
+      console.error("[invite-user] invite error:", inviteError);
+      // Generic message — do not surface Supabase's raw error (may hint existence).
       return new Response(
-        JSON.stringify({ error: inviteError.message }),
+        JSON.stringify({ error: "No se pudo enviar la invitación" }),
         {
-          status: 500,
+          status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
