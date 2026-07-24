@@ -174,6 +174,7 @@ const AppLayout = () => {
             {/* Admin fallback: always give admins access to the partner clients view */}
             {!isPartner && isAdmin && renderNavItem({ labelKey: "app.layout.nav.partnerClients", icon: Building2, href: "/app/partner/clients" }, true)}
             {profile?.is_platform_admin && renderNavItem({ labelKey: "Platform admin", icon: Globe, href: "/app/platform-admin" })}
+            {profile?.is_platform_admin && platformAdminItems.map((item) => renderNavItem(item))}
             {showAdminSection && (
               <>
                 <div className="my-3 border-t border-border" />
