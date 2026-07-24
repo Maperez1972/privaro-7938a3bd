@@ -68,16 +68,32 @@ Deno.serve(async (req) => {
         message: "This view is only available to Privaro platform staff." }, 403);
     }
 
-    // All organizations with their billing_account (plan, aggregate usage).
+    // All organizations.
     const { data: orgs, error: orgsError } = await supabase
       .from("organizations")
-      .select("id, name, org_type, parent_org_id, created_at, billing_account_id, " +
-              "billing_accounts(plan, requests_used, requests_limit, discount_phase, billing_cycle_start)")
+      .select("id, name, org_type, parent_org_id, created_at, billing_account_id")
       .order("created_at", { ascending: false });
 
     if (orgsError) {
       console.error("[platform-admin-overview] orgs query failed:", orgsError);
-      return json({ error: "orgs_query_failed" }, 500);
+      return json({ error: "orgs_query_failed", detail: orgsError.message }, 500);
+    }
+
+    const billingIds = Array.from(
+      new Set((orgs || []).map((o: any) => o.billing_account_id).filter(Boolean))
+    );
+
+    const billingById = new Map<string, any>();
+    if (billingIds.length > 0) {
+      const { data: billingRows, error: billingError } = await supabase
+        .from("billing_accounts")
+        .select("id, plan, requests_used, requests_limit, discount_phase, billing_cycle_start")
+        .in("id", billingIds);
+      if (billingError) {
+        console.error("[platform-admin-overview] billing query failed:", billingError);
+        return json({ error: "billing_query_failed", detail: billingError.message }, 500);
+      }
+      for (const b of billingRows || []) billingById.set(b.id, b);
     }
 
     // Current-cycle usage per individual org (not the shared aggregate).
@@ -88,18 +104,16 @@ Deno.serve(async (req) => {
 
     if (usageError) {
       console.error("[platform-admin-overview] usage query failed:", usageError);
-      return json({ error: "usage_query_failed" }, 500);
+      return json({ error: "usage_query_failed", detail: usageError.message }, 500);
     }
 
-    // Most recent cycle_start row per org_id (usageRows is already ordered
-    // desc by cycle_start, so the first match per org_id is the current one).
     const usageByOrg = new Map<string, number>();
     for (const row of usageRows || []) {
       if (!usageByOrg.has(row.org_id)) usageByOrg.set(row.org_id, row.requests_used);
     }
 
     const result = (orgs || []).map((o: any) => {
-      const ba = Array.isArray(o.billing_accounts) ? o.billing_accounts[0] : o.billing_accounts;
+      const ba = o.billing_account_id ? billingById.get(o.billing_account_id) : null;
       return {
         id: o.id,
         name: o.name,
@@ -114,6 +128,7 @@ Deno.serve(async (req) => {
         billing_cycle_start: ba?.billing_cycle_start ?? null,
       };
     });
+
 
     return json({ organizations: result, count: result.length });
   } catch (e) {
