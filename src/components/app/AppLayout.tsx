@@ -44,8 +44,10 @@ const navItems = [
   { labelKey: "app.layout.nav.settings", icon: Settings, href: "/app/settings" },
 ];
 const onboardingItem = { labelKey: "app.layout.nav.onboarding", icon: Rocket, href: "/app/onboarding" };
-const adminDpoItems = [
+const platformAdminItems = [
   { labelKey: "app.layout.nav.leads", icon: Users, href: "/app/admin/leads" },
+];
+const adminDpoItems = [
   { labelKey: "app.layout.nav.auditLogs", icon: FileText, href: "/app/admin/audit-logs" },
   { labelKey: "app.layout.nav.encryptionKeys", icon: Lock, href: "/app/admin/encryption-keys" },
 ];
