@@ -85,8 +85,8 @@ async function fetchHealth(): Promise<Result> {
 }
 
 const Status = () => {
-  const { language } = useLanguage();
-  const c = COPY[language === "en" ? "en" : "es"];
+  const { lang } = useLanguage();
+  const c = COPY[lang === "en" ? "en" : "es"];
   const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(true);
   const mounted = useRef(true);
@@ -199,7 +199,7 @@ const Status = () => {
           <div className="text-sm text-muted-foreground">
             <p>
               {c.lastCheck}:{" "}
-              {result ? result.checkedAt.toLocaleString(language === "en" ? "en-GB" : "es-ES") : "—"}
+              {result ? result.checkedAt.toLocaleString(lang === "en" ? "en-GB" : "es-ES") : "—"}
             </p>
             <p className="mt-1">{c.autoRefresh}</p>
           </div>
