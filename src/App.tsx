@@ -144,7 +144,7 @@ const App = () => (
                 <Route path="verify-mfa" element={<VerifyMfa />} />
                 {/* Admin/DPO routes */}
                 <Route path="admin/audit-logs" element={<AdminDpoRoute><AuditLogs /></AdminDpoRoute>} />
-                <Route path="admin/leads" element={<AdminDpoRoute><AdminLeads /></AdminDpoRoute>} />
+                <Route path="admin/leads" element={<PlatformAdminRoute><AdminLeads /></PlatformAdminRoute>} />
                 <Route path="partner/clients" element={<PartnerClients />} />
                 {/* Admin only routes */}
                 <Route path="admin/providers" element={<AdminRoute><AdminProviders /></AdminRoute>} />
