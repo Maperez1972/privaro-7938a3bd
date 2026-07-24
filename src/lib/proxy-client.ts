@@ -21,27 +21,39 @@ export const tokenizePii = (text: string): { sanitized: string; detected: string
   return { sanitized, detected };
 };
 
-const DEFAULT_PIPELINE_ID = "c93aed87-b440-4de0-bb21-54a938e475f2";
+// Fixed 2026-07-24 — CRITICAL: both functions below used to call the
+// proxy directly from the browser with VITE_PROXY_API_KEY, a real
+// production key for iCommunity Labs' own pipeline embedded in the
+// shipped bundle and extractable by anyone via devtools. Routed through
+// proxy-bridge, which resolves the caller's real org_id and pipeline
+// server-side and authenticates to the proxy with an internal shared
+// secret — no hardcoded pipeline fallback needed here anymore.
+async function callProxyBridge(mode: "detect" | "protect", text: string, pipelineId?: string) {
+  const { supabase } = await import("@/integrations/supabase/client");
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData?.session?.access_token;
+  if (!token) throw new Error("No auth session");
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const res = await fetch(`${supabaseUrl}/functions/v1/proxy-bridge`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+    },
+    body: JSON.stringify({ mode, prompt: text, pipeline_id: pipelineId }),
+  });
+  if (!res.ok) throw new Error(`Proxy ${mode} failed`);
+  return res.json();
+}
 
 export const proxyDetect = async (text: string, pipelineId?: string) => {
   if (!PROXY_URL) {
     const { mockProxyDetect } = await import("@/lib/mock-data");
     return mockProxyDetect(text);
   }
-  const res = await fetch(`${PROXY_URL}/proxy/detect`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Privaro-Key": import.meta.env.VITE_PROXY_API_KEY || "",
-    },
-    body: JSON.stringify({
-      pipeline_id: pipelineId || DEFAULT_PIPELINE_ID,
-      prompt: text,
-      options: { mode: "tokenise", include_detections: true },
-    }),
-  });
-  if (!res.ok) throw new Error("Proxy detect failed");
-  const data = await res.json();
+  const data = await callProxyBridge("detect", text, pipelineId);
   return data.detections;
 };
 
@@ -50,20 +62,7 @@ export const proxyProtect = async (text: string, pipelineId?: string) => {
     const { mockProxyProtect } = await import("@/lib/mock-data");
     return mockProxyProtect(text);
   }
-  const res = await fetch(`${PROXY_URL}/proxy/protect`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Privaro-Key": import.meta.env.VITE_PROXY_API_KEY || "",
-    },
-    body: JSON.stringify({
-      prompt: text,
-      pipeline_id: pipelineId || DEFAULT_PIPELINE_ID,
-      options: { mode: "tokenise", include_detections: true, reversible: true },
-    }),
-  });
-  if (!res.ok) throw new Error("Proxy protect failed");
-  const data = await res.json();
+  const data = await callProxyBridge("protect", text, pipelineId);
   return {
     protectedText: data.protected_prompt,
     detections: data.detections,

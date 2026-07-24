@@ -17,7 +17,22 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-Deno.serve(async (_req: Request) => {
+Deno.serve(async (req: Request) => {
+  // Fixed 2026-07-24 — CRITICAL real finding: this destructive,
+  // org-wide retention job (revokes tokens, anonymizes audit logs,
+  // deletes PII detections/conversation messages/DPO reports across
+  // EVERY organization) had zero authentication — verify_jwt was false
+  // and there was no secret check at all, meaning anyone who found this
+  // URL could trigger irreversible data deletion for every customer, on
+  // demand, repeatedly. Only the daily pg_cron job should call this.
+  const internalSecret = Deno.env.get('INTERNAL_NOTIFY_SECRET');
+  const providedSecret = req.headers.get('X-Internal-Secret');
+  if (!internalSecret || providedSecret !== internalSecret) {
+    return new Response(JSON.stringify({ error: 'unauthorized' }), {
+      status: 401, headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
   const now = new Date();
   const today = now.toISOString().split('T')[0];

@@ -451,11 +451,25 @@ export function useChat() {
     let piiProtected = 0;
 
     try {
-      if (PROXY_URL) {
-        const res = await fetch(`${PROXY_URL}/proxy/protect`, {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      // Fixed 2026-07-24 — CRITICAL: this used to call the proxy directly
+      // from the browser with VITE_PROXY_API_KEY, a real production key
+      // for iCommunity Labs' own pipeline, embedded in the shipped
+      // bundle and extractable by anyone via devtools. Routed through
+      // protect-chat-message, which resolves the caller's real org_id
+      // and pipeline server-side and authenticates to the proxy with an
+      // internal shared secret — no client-visible API key involved.
+      if (PROXY_URL && token) {
+        const res = await fetch(`${supabaseUrl}/functions/v1/protect-chat-message`, {
           method: "POST",
-          headers: { "Content-Type": "application/json", "X-Privaro-Key": import.meta.env.VITE_PROXY_API_KEY || "" },
-          body: JSON.stringify({ prompt: fullText, pipeline_id: activePipelineId || "c93aed87-b440-4de0-bb21-54a938e475f2", conversation_id: convId, options: { mode: "tokenise", include_detections: true, reversible: true } }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ prompt: fullText, pipeline_id: activePipelineId, conversation_id: convId }),
         });
         const data = await res.json();
         protectedText = data.protected_prompt ?? fullText;
@@ -488,7 +502,12 @@ export function useChat() {
       ? riskScores.reduce((a: number, b: number) => a + b, 0) / riskScores.length
       : null;
 
-    const auditPipelineId = activePipelineId || "c93aed87-b440-4de0-bb21-54a938e475f2";
+    // Fixed 2026-07-24 — was falling back to iCommunity Labs' own
+    // pipeline_id ("c93aed87-...") for ANY org with no active pipeline,
+    // misattributing their audit log to a pipeline they don't own. Use
+    // null instead — a real pipeline should always exist by this point
+    // for a properly onboarded org, but this must never point elsewhere.
+    const auditPipelineId = activePipelineId || null;
 
     try {
       const { data: auditLog } = await supabase

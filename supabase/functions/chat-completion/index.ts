@@ -307,6 +307,25 @@ serve(async (req) => {
       });
     }
 
+    // Fixed 2026-07-24 — CRITICAL real finding: pipeline_id came straight
+    // from the client with no check that it belonged to the caller's own
+    // org. Any authenticated user who knew (or guessed) another org's
+    // pipeline_id could run chats through it, using that org's own
+    // decrypted LLM API key. Resolve the caller's real org and require it
+    // to match the pipeline's org before doing anything else with it.
+    const { data: callerProfile } = await adminClient
+      .from("profiles")
+      .select("org_id")
+      .eq("id", user.id)
+      .single();
+
+    if (!callerProfile?.org_id || callerProfile.org_id !== pipeline.org_id) {
+      return new Response(JSON.stringify({ error: "Pipeline not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { data: provider, error: provErr } = await adminClient
       .from("llm_providers")
       .select("api_key_encrypted, base_url, provider")
