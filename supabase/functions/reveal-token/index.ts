@@ -57,10 +57,31 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // Fixed 2026-07-24 — CRITICAL real finding: this only checked "is the
+    // caller an admin/dpo of ANY organization", then fetched and decrypted
+    // tokens_vault by token_id alone, never checking the token's org_id
+    // matched the caller's own org. Any admin/dpo who knew (or guessed) a
+    // token_id belonging to another organization could decrypt its real
+    // PII value (names, national IDs, IBANs). Same fix pattern used
+    // elsewhere today: resolve the caller's real org_id and scope both
+    // the role check and the token lookup to it.
+    const { data: callerProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("org_id")
+      .eq("id", user.id)
+      .single();
+
+    if (!callerProfile?.org_id) {
+      return new Response(JSON.stringify({ error: "Insufficient permissions" }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { data: roleData } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
+      .eq("org_id", callerProfile.org_id)
       .single();
 
     if (!roleData || !["admin", "dpo"].includes(roleData.role)) {
@@ -76,7 +97,7 @@ serve(async (req) => {
       .eq("id", token_id)
       .single();
 
-    if (tokenError || !vaultToken) {
+    if (tokenError || !vaultToken || vaultToken.org_id !== callerProfile.org_id) {
       return new Response(JSON.stringify({ error: "Token not found" }), {
         status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
