@@ -6,11 +6,27 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Fixed 2026-07-23 (was privaro-proxy-production.up.railway.app, the old
-// Railway auto-generated domain — never updated when api.privaro.ai was
-// set up as the custom domain, found during a full repo-vs-production audit).
 const PROXY_URL = "https://api.privaro.ai";
 
+/**
+ * protect-document — v2 (2026-07-23)
+ *
+ * Fixed a real per-org isolation bug: this used to authenticate to the
+ * proxy with a single shared PRIVARO_PRODUCTION_KEY for every
+ * organization, which not only broke attribution (all usage credited to
+ * one fixed org) but literally could not work for any org other than that
+ * key's owner (the proxy checks pipeline.org_id == key's org_id).
+ *
+ * Root cause: Privaro never stores a recoverable raw API key for any org
+ * (SHA-256 hashed only, by design) -- so there was no real key to look up
+ * and forward on the user's behalf. Fixed by using the same internal
+ * shared-secret pattern already used for encrypt/decrypt-provider-key:
+ * this function has ALREADY verified the calling user's identity via their
+ * Supabase session JWT and resolved their real org_id below -- it now
+ * asserts that org_id to the proxy via X-Internal-Org-Id, authenticated
+ * with X-Internal-Secret (INTERNAL_NOTIFY_SECRET) so only Privaro's own
+ * trusted Edge Functions can do this, never a customer or partner.
+ */
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -39,13 +55,12 @@ serve(async (req) => {
       });
     }
 
-    // ── Get org API key from Supabase ─────────────────────────────────────
+    // ── Resolve the user's REAL org_id ─────────────────────────────────────
     const adminClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Get user's org_id
     const { data: profile } = await adminClient
       .from("profiles")
       .select("org_id")
@@ -58,27 +73,14 @@ serve(async (req) => {
       });
     }
 
-    // Get active API key for org
-    const { data: apiKeyRecord } = await adminClient
-      .from("api_keys")
-      .select("key_prefix")
-      .eq("org_id", profile.org_id)
-      .eq("is_active", true)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
-
-    // Use production key from env as fallback
-    const privaroKey = Deno.env.get("PRIVARO_PRODUCTION_KEY") || "";
-
-    if (!privaroKey) {
-      return new Response(JSON.stringify({ error: "proxy_key_not_configured" }), {
+    const internalSecret = Deno.env.get("INTERNAL_NOTIFY_SECRET");
+    if (!internalSecret) {
+      return new Response(JSON.stringify({ error: "server_misconfigured" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // ── Forward multipart to proxy ────────────────────────────────────────
-    // The request body is already multipart/form-data — forward as-is
+    // ── Forward multipart to proxy, asserting the user's real org_id ──────
     const contentType = req.headers.get("content-type") || "";
     if (!contentType.includes("multipart/form-data")) {
       return new Response(JSON.stringify({ error: "multipart/form-data required" }), {
@@ -89,7 +91,8 @@ serve(async (req) => {
     const proxyResponse = await fetch(`${PROXY_URL}/v1/proxy/protect-document`, {
       method: "POST",
       headers: {
-        "X-Privaro-Key": privaroKey,
+        "X-Internal-Secret": internalSecret,
+        "X-Internal-Org-Id": profile.org_id,
         "content-type": contentType,
       },
       body: req.body,
@@ -97,15 +100,8 @@ serve(async (req) => {
 
     const result = await proxyResponse.json();
 
-    if (!proxyResponse.ok) {
-      return new Response(JSON.stringify(result), {
-        status: proxyResponse.status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     return new Response(JSON.stringify(result), {
-      status: 200,
+      status: proxyResponse.status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
