@@ -236,7 +236,7 @@ const AdminBilling = () => {
                   <span className="text-sm text-muted-foreground">peticiones</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Ciclo actual desde {new Date(cycleStart).toLocaleDateString()}. Solo tu organización.
+                  Ciclo actual desde {cycleStart ? new Date(cycleStart).toLocaleDateString() : "—"}. Solo tu organización.
                 </p>
               </CardContent>
             </Card>
