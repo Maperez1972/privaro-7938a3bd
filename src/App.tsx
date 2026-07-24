@@ -82,6 +82,13 @@ const AdminDpoRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const PlatformAdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { profile, loading, rolesLoaded, user } = useAuth();
+  if (loading || (user && !rolesLoaded)) return null;
+  if (!profile?.is_platform_admin) return <Navigate to="/app" replace />;
+  return <>{children}</>;
+};
+
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -137,7 +144,7 @@ const App = () => (
                 <Route path="verify-mfa" element={<VerifyMfa />} />
                 {/* Admin/DPO routes */}
                 <Route path="admin/audit-logs" element={<AdminDpoRoute><AuditLogs /></AdminDpoRoute>} />
-                <Route path="admin/leads" element={<AdminDpoRoute><AdminLeads /></AdminDpoRoute>} />
+                <Route path="admin/leads" element={<PlatformAdminRoute><AdminLeads /></PlatformAdminRoute>} />
                 <Route path="partner/clients" element={<PartnerClients />} />
                 {/* Admin only routes */}
                 <Route path="admin/providers" element={<AdminRoute><AdminProviders /></AdminRoute>} />

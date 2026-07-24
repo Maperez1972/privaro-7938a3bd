@@ -49,7 +49,7 @@ const formatExact = (iso: string) => {
 };
 
 const AdminLeads = () => {
-  useAuth();
+  const { profile } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -61,13 +61,17 @@ const AdminLeads = () => {
   const [selected, setSelected] = useState<Lead | null>(null);
 
   useEffect(() => {
+    if (!profile?.is_platform_admin) {
+      setLoading(false);
+      return;
+    }
     (supabase.from("demo_requests" as any).select("*").order("created_at", { ascending: false }) as any)
       .then(({ data, error }: any) => {
         if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
         setLeads((data as Lead[]) || []);
         setLoading(false);
       });
-  }, [toast]);
+  }, [toast, profile?.is_platform_admin]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();

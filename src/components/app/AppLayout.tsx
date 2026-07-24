@@ -44,8 +44,10 @@ const navItems = [
   { labelKey: "app.layout.nav.settings", icon: Settings, href: "/app/settings" },
 ];
 const onboardingItem = { labelKey: "app.layout.nav.onboarding", icon: Rocket, href: "/app/onboarding" };
-const adminDpoItems = [
+const platformAdminItems = [
   { labelKey: "app.layout.nav.leads", icon: Users, href: "/app/admin/leads" },
+];
+const adminDpoItems = [
   { labelKey: "app.layout.nav.auditLogs", icon: FileText, href: "/app/admin/audit-logs" },
   { labelKey: "app.layout.nav.encryptionKeys", icon: Lock, href: "/app/admin/encryption-keys" },
 ];
@@ -172,6 +174,7 @@ const AppLayout = () => {
             {/* Admin fallback: always give admins access to the partner clients view */}
             {!isPartner && isAdmin && renderNavItem({ labelKey: "app.layout.nav.partnerClients", icon: Building2, href: "/app/partner/clients" }, true)}
             {profile?.is_platform_admin && renderNavItem({ labelKey: "Platform admin", icon: Globe, href: "/app/platform-admin" })}
+            {profile?.is_platform_admin && platformAdminItems.map((item) => renderNavItem(item))}
             {showAdminSection && (
               <>
                 <div className="my-3 border-t border-border" />
