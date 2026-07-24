@@ -60,20 +60,24 @@ const AdminBilling = () => {
     },
   });
 
-  const cycleStart = (() => {
-    const d = new Date();
-    return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1)).toISOString().slice(0, 10);
-  })();
+  const cycleStart = billing?.billing_cycle_start
+    ? (() => {
+        const d = new Date(billing.billing_cycle_start);
+        return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1))
+          .toISOString()
+          .slice(0, 10);
+      })()
+    : undefined;
 
   const { data: ownUsage } = useQuery({
     queryKey: ["admin-own-usage", orgId, cycleStart],
-    enabled: !!orgId && orgType === "sub_account",
+    enabled: !!orgId && orgType === "sub_account" && !!cycleStart,
     queryFn: async () => {
       const { data } = await (supabase as any)
         .from("org_usage_monthly")
         .select("requests_used")
         .eq("org_id", orgId!)
-        .eq("cycle_start", cycleStart)
+        .eq("cycle_start", cycleStart!)
         .maybeSingle();
       return (data as { requests_used: number } | null) ?? { requests_used: 0 };
     },
@@ -232,7 +236,7 @@ const AdminBilling = () => {
                   <span className="text-sm text-muted-foreground">peticiones</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Ciclo actual desde {new Date(cycleStart).toLocaleDateString()}. Solo tu organización.
+                  Ciclo actual desde {cycleStart ? new Date(cycleStart).toLocaleDateString() : "—"}. Solo tu organización.
                 </p>
               </CardContent>
             </Card>
