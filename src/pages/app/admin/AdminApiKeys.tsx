@@ -37,22 +37,31 @@ const AdminApiKeys = () => {
     if (!keyName.trim() || !profile?.org_id) return;
     setGenerating(true);
     try {
-      const rawKey = `prvr_${crypto.randomUUID().replace(/-/g, '').slice(0, 32)}`;
-      const keyPrefix = rawKey.slice(0, 12);
-      const permMap: Record<string, string> = { detect: 'proxy:read', protect: 'proxy:write' };
-      const selectedPerms = Object.entries(permissions).filter(([, v]) => v).map(([k]) => permMap[k]);
-      const displayPerms = Object.entries(permissions).filter(([, v]) => v).map(([k]) => k);
-      const { data, error } = await supabase.from("api_keys").insert({
-        name: keyName.trim(),
-        key_hash: rawKey,
-        key_prefix: keyPrefix,
-        org_id: profile.org_id,
-        is_active: true,
-        permissions: selectedPerms,
-        display_permissions: displayPerms,
-      } as any).select().single();
-      if (error) throw error;
-      setGeneratedKey(rawKey);
+      // Fixed 2026-07-24 — CRITICAL functional bug: this used to generate
+      // the key client-side (crypto.randomUUID()) and insert the RAW
+      // value directly into key_hash with no hashing at all. The proxy's
+      // real verify_api_key() hashes the received key with SHA-256 and
+      // looks that up — so no key generated this way could ever work.
+      // Confirmed against real data: every key created here (including
+      // Octupus's own attempt) had a broken hash_len of 35-37 chars
+      // instead of a real SHA-256's 64. Moved key generation server-side
+      // to create-api-key, mirroring the correct pattern already used in
+      // partner-sub-accounts.
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const res = await fetch(`${supabaseUrl}/functions/v1/create-api-key`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ name: keyName.trim(), permissions }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to create key");
+      setGeneratedKey(data.raw_key);
       setKeys(prev => [data, ...prev]);
     } catch (err: any) {
       toast({ title: t("app.admin.common.error"), description: err.message, variant: "destructive" });
