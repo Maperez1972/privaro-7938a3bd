@@ -176,18 +176,6 @@ Deno.serve(async (req) => {
     const userId = claims.claims.sub as string;
 
     const supabase = createClient(supabaseUrl, serviceKey);
-    const { data: roleData } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    if (roleData?.role !== "admin") {
-      return new Response(
-        JSON.stringify({ error: "Forbidden: admin role required" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
 
     const { org_id, period_start, period_end, force_regenerate } = await req.json();
 
@@ -195,6 +183,26 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ error: "org_id, period_start, period_end required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Fixed 2026-07-24 — real security finding (found while fixing a
+    // reported issue in a sibling function): this only checked "is the
+    // caller an admin of ANY organization", never that they were an admin
+    // of THIS org_id. Any admin could generate and read another org's DPO
+    // audit report (PII detection metadata, risk scores, blockchain
+    // hashes). Scoped the role check to the requested org_id.
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("org_id", org_id)
+      .maybeSingle();
+
+    if (roleData?.role !== "admin") {
+      return new Response(
+        JSON.stringify({ error: "Forbidden: admin role required" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -362,7 +370,7 @@ Deno.serve(async (req) => {
   } catch (err) {
     console.error("generate-dpo-report error:", err);
     return new Response(
-      JSON.stringify({ error: err.message || "Internal error" }),
+      JSON.stringify({ error: "internal_error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

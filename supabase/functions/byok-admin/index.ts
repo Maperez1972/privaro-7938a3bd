@@ -91,7 +91,7 @@ Deno.serve(async (req: Request) => {
 
   } catch (err: any) {
     console.error('[byok-admin] ERROR:', err?.message);
-    return new Response(JSON.stringify({ error: err?.message || 'Internal error' }), {
+    return new Response(JSON.stringify({ error: 'internal_error' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

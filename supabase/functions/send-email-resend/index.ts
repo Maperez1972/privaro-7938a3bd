@@ -155,7 +155,7 @@ Deno.serve(async (req: Request) => {
 
     if (result?.error) {
       console.error('[hook] Resend error:', JSON.stringify(result.error));
-      return new Response(JSON.stringify({ error: { message: result.error.message } }), {
+      return new Response(JSON.stringify({ error: { message: 'Email delivery failed' } }), {
         status: 401, headers: { 'Content-Type': 'application/json' },
       });
     }
@@ -168,7 +168,7 @@ Deno.serve(async (req: Request) => {
 
   } catch (err: any) {
     console.error('[hook] FATAL:', err?.message);
-    return new Response(JSON.stringify({ error: { message: err?.message || 'unknown' } }), {
+    return new Response(JSON.stringify({ error: { message: 'Internal error' } }), {
       status: 401, headers: { 'Content-Type': 'application/json' },
     });
   }

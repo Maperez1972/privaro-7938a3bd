@@ -52,7 +52,8 @@ serve(async (req) => {
     .order("created_at", { ascending: true });
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    console.error("[recertify] pending audit_logs query failed:", error);
+    return new Response(JSON.stringify({ error: "internal_error" }), { status: 500 });
   }
 
   console.log(`[recertify] Found ${pending?.length || 0} pending audit logs`);

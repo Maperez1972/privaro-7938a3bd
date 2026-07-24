@@ -419,7 +419,7 @@ serve(async (req) => {
   } catch (err) {
     console.error("chat-completion error:", err);
     return new Response(
-      JSON.stringify({ error: err.message || "Internal server error" }),
+      JSON.stringify({ error: "internal_error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
