@@ -30,15 +30,30 @@ Deno.serve(async (req: Request) => {
     }
     console.log('[enforce-mfa] user:', user.email);
 
-    // 2. Get role
-    const { data: roleData } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: true })
-      .limit(1)
+    // 2. Get role for the user's CURRENT organization (profiles.org_id),
+    // not just "the oldest user_roles row". Fixed 2026-07-23 — this used
+    // to take the first row by created_at, which is wrong if a user ever
+    // ends up with more than one user_roles row (e.g. the signup trigger
+    // that assigns a default developer role, found and worked around
+    // elsewhere in the partner onboarding flow). Anchoring on
+    // profiles.org_id matches the same pattern used everywhere else in
+    // this project (get_user_org_id()).
+    const { data: profileRow } = await supabase
+      .from('profiles')
+      .select('org_id')
+      .eq('id', user.id)
       .single();
-    const userRole = roleData?.role || 'viewer';
+
+    let userRole = 'viewer';
+    if (profileRow?.org_id) {
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('org_id', profileRow.org_id)
+        .maybeSingle();
+      userRole = roleData?.role || 'viewer';
+    }
 
     // 3. Check MFA policy
     const { data: policyData } = await supabase
