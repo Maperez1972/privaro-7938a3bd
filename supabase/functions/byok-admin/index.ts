@@ -1,10 +1,9 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-// FOUND STALE 2026-07-23 during full audit — same as protect-document,
-// still points at the old Railway auto-generated domain, never updated
-// when api.privaro.ai was set up. Works today because the Railway URL
-// still resolves in parallel, but should be updated for consistency.
-const PROXY_URL = 'https://privaro-proxy-production.up.railway.app';
+// Fixed 2026-07-23 (was privaro-proxy-production.up.railway.app, the old
+// Railway auto-generated domain — never updated when api.privaro.ai was
+// set up as the custom domain, found during a full repo-vs-production audit).
+const PROXY_URL = 'https://api.privaro.ai';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') as string;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string;
 const ADMIN_API_KEY = Deno.env.get('PRIVARO_ADMIN_API_KEY') as string;

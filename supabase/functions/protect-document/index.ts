@@ -6,11 +6,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// FOUND STALE 2026-07-23 during full audit: still points at the old Railway
-// auto-generated domain, never updated when api.privaro.ai was set up.
-// Works today because the Railway URL still resolves in parallel, but
-// should be updated to https://api.privaro.ai for consistency.
-const PROXY_URL = "https://privaro-proxy-production.up.railway.app";
+// Fixed 2026-07-23 (was privaro-proxy-production.up.railway.app, the old
+// Railway auto-generated domain — never updated when api.privaro.ai was
+// set up as the custom domain, found during a full repo-vs-production audit).
+const PROXY_URL = "https://api.privaro.ai";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
