@@ -1,14 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-// Fixed 2026-07-23 (was privaro-proxy-production.up.railway.app, the old
-// Railway auto-generated domain — never updated when api.privaro.ai was
-// set up as the custom domain, found during a full repo-vs-production audit).
 const PROXY_URL = 'https://api.privaro.ai';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') as string;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string;
-const ADMIN_API_KEY = Deno.env.get('PRIVARO_ADMIN_API_KEY') as string;
-
-if (!ADMIN_API_KEY) throw new Error('PRIVARO_ADMIN_API_KEY is not set');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -42,11 +36,33 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // 3. Verificar rol admin o dpo en user_roles
+    // Fixed 2026-07-24 — CRITICAL real finding: this used ONE static
+    // global PRIVARO_ADMIN_API_KEY (owned by iCommunity Labs) for EVERY
+    // caller, regardless of their real organization. Since the proxy
+    // scopes every BYOK endpoint by the org_id resolved FROM that key,
+    // any admin/dpo of ANY client or partner org was actually viewing
+    // and managing iCommunity Labs' OWN encryption keys — able to view
+    // them, register a new one and set it as default, or deactivate the
+    // active one. Resolve the caller's REAL org_id and assert it to the
+    // proxy via the internal shared-secret mechanism instead.
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('org_id')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile?.org_id) {
+      return new Response(JSON.stringify({ error: 'org_not_found' }), {
+        status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // 3. Verificar rol admin o dpo, escopeado a la organización REAL del caller
     const { data: roleData, error: roleError } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
+      .eq('org_id', profile.org_id)
       .in('role', ['admin', 'dpo'])
       .limit(1)
       .single();
@@ -57,6 +73,13 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    const internalSecret = Deno.env.get('INTERNAL_NOTIFY_SECRET');
+    if (!internalSecret) {
+      return new Response(JSON.stringify({ error: 'server_misconfigured' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // 4. Extraer subpath: /byok-admin/{key_id?} → /v1/admin/keys/{key_id?}
     const url = new URL(req.url);
     const pathMatch = url.pathname.match(/^\/byok-admin\/?(.*)?$/);
@@ -64,14 +87,15 @@ Deno.serve(async (req: Request) => {
     const proxyPath = subPath ? `/v1/admin/keys/${subPath}` : '/v1/admin/keys';
     const proxyUrl = `${PROXY_URL}${proxyPath}${url.search}`;
 
-    console.log(`[byok-admin] ${req.method} ${proxyUrl} | user: ${user.email} | role: ${roleData.role}`);
+    console.log(`[byok-admin] ${req.method} ${proxyUrl} | user: ${user.email} | org: ${profile.org_id} | role: ${roleData.role}`);
 
-    // 5. Reenviar al proxy Railway con la admin API key
+    // 5. Reenviar al proxy con el secreto interno, asertando la organización REAL del caller
     const proxyOptions: RequestInit = {
       method: req.method,
       headers: {
         'Content-Type': 'application/json',
-        'X-Privaro-Key': ADMIN_API_KEY,
+        'X-Internal-Secret': internalSecret,
+        'X-Internal-Org-Id': profile.org_id,
       },
     };
 
