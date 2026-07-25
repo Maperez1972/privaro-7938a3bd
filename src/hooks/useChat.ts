@@ -445,7 +445,7 @@ export function useChat() {
       ? `${text}\n\n--- Attached file: ${fileAttachment.file.name} ---\n${fileAttachment.content}`
       : text;
 
-    let protectedText: string;
+    let protectedText: string = fullText;
     let detections: any[] = [];
     let piiDetected = 0;
     let piiProtected = 0;
@@ -471,6 +471,23 @@ export function useChat() {
           },
           body: JSON.stringify({ prompt: fullText, pipeline_id: activePipelineId, conversation_id: convId }),
         });
+        // Fixed 2026-07-24 — CRITICAL regression found by a follow-up scan:
+        // res.ok was never checked. On any non-2xx response (deleted/
+        // inactive pipeline, missing INTERNAL_NOTIFY_SECRET, etc.),
+        // data.protected_prompt was undefined and silently fell through
+        // to `protectedText = fullText` — the RAW message with real PII
+        // got saved to conversation_messages and forwarded to the LLM
+        // completely unmasked, mislabeled as "0 PII detected" in the
+        // audit log. A named error here (caught below) distinguishes a
+        // real protection-service failure from a genuine network error,
+        // so the former blocks sending entirely instead of silently
+        // falling back to weaker local detection.
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          const err = new Error(errBody?.error || `protect-chat-message failed (${res.status})`);
+          err.name = "ProtectionServiceError";
+          throw err;
+        }
         const data = await res.json();
         protectedText = data.protected_prompt ?? fullText;
         detections = data.detections ?? [];
@@ -481,7 +498,16 @@ export function useChat() {
       }
       piiDetected = detections.length;
       piiProtected = detections.length;
-    } catch {
+    } catch (err: any) {
+      if (err?.name === "ProtectionServiceError") {
+        console.error("[sendMessage] PII protection service failed, blocking send:", err.message);
+        toast.error("No se pudo proteger tu mensaje de forma segura. Inténtalo de nuevo en unos segundos.");
+        setSending(false);
+        return;
+      }
+      // Genuine network/connectivity failure reaching the Edge Function
+      // (not a response from it) — degrade to local detection, same
+      // behavior as before today's change.
       const mock = mockProxyProtect(fullText);
       protectedText = mock.protectedText;
       detections = mock.detections;
