@@ -125,13 +125,17 @@ Deno.serve(async (req: Request) => {
 
   try {
     const body = await req.text();
-    let parsed: any;
 
+    // Verify Supabase Auth Hook signature (standardwebhooks)
+    let parsed: any;
     try {
-      parsed = JSON.parse(body);
-    } catch (e) {
-      console.error('[hook] JSON parse error:', e?.message);
-      return new Response(JSON.stringify({ error: { message: 'Invalid JSON payload' } }), {
+      const headers = Object.fromEntries(req.headers.entries());
+      // standardwebhooks expects the secret without the "v1,whsec_" prefix stripping done internally
+      const wh = new Webhook(HOOK_SECRET.replace(/^v1,whsec_/, '').replace(/^whsec_/, ''));
+      parsed = wh.verify(body, headers);
+    } catch (e: any) {
+      console.error('[hook] signature verification failed:', e?.message);
+      return new Response(JSON.stringify({ error: { message: 'Unauthorized' } }), {
         status: 401, headers: { 'Content-Type': 'application/json' },
       });
     }
