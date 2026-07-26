@@ -1,7 +1,11 @@
 import { Resend } from "npm:resend@4.0.0";
+import { Webhook } from "npm:standardwebhooks@1.0.0";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") as string;
 if (!RESEND_API_KEY) throw new Error('RESEND_API_KEY is not set');
+
+const HOOK_SECRET = Deno.env.get("SEND_EMAIL_HOOK_SECRET") as string;
+if (!HOOK_SECRET) throw new Error('SEND_EMAIL_HOOK_SECRET is not set');
 
 const resend = new Resend(RESEND_API_KEY);
 const APP_URL = 'https://privaro.ai';
