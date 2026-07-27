@@ -83,10 +83,10 @@ const ResetPassword = () => {
                   <AlertTriangle className="w-10 h-10 text-destructive" />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Your reset link has expired. Please request a new one.
+                  {t("reset.expired")}
                 </p>
                 <Button className="w-full" onClick={() => navigate("/auth?tab=forgot")}>
-                  Request new link
+                  {t("reset.requestNew")}
                 </Button>
               </div>
             ) : !ready ? (

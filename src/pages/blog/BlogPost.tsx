@@ -3,11 +3,13 @@ import { ArrowLeft, ArrowRight, Calendar, Clock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
-import { BLOG_POSTS, getPostBySlug } from "@/content/blog-posts";
+import { getLocalizedPosts, getLocalizedPostBySlug } from "@/content/blog-posts";
+import { useLanguage } from "@/context/LanguageContext";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
-  const post = slug ? getPostBySlug(slug) : undefined;
+  const { lang, t } = useLanguage();
+  const post = slug ? getLocalizedPostBySlug(slug, lang) : undefined;
 
   if (!post) return <Navigate to="/blog" replace />;
 
@@ -36,19 +38,19 @@ const BlogPost = () => {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://privaro.ai/" },
-        { "@type": "ListItem", position: 2, name: "Blog", item: "https://privaro.ai/blog" },
+        { "@type": "ListItem", position: 1, name: t("blog.breadcrumb.home"), item: "https://privaro.ai/" },
+        { "@type": "ListItem", position: 2, name: t("blog.breadcrumb.blog"), item: "https://privaro.ai/blog" },
         { "@type": "ListItem", position: 3, name: post.title, item: url },
       ],
     },
   ];
 
-  const related = BLOG_POSTS.filter((p) => p.slug !== post.slug).slice(0, 3);
+  const related = getLocalizedPosts(lang).filter((p) => p.slug !== post.slug).slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Seo
-        title={`${post.title} | Privaro Blog`}
+        title={`${post.title} | ${t("blog.post.seoSuffix")}`}
         description={post.description}
         path={`/blog/${post.slug}`}
         ogType="article"
@@ -62,7 +64,7 @@ const BlogPost = () => {
             to="/blog"
             className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
           >
-            <ArrowLeft className="w-4 h-4" /> All posts
+            <ArrowLeft className="w-4 h-4" /> {t("blog.allPosts")}
           </Link>
 
           <div className="flex flex-wrap gap-2 mb-4">
@@ -84,7 +86,7 @@ const BlogPost = () => {
             <span className="inline-flex items-center gap-1">
               <Calendar className="w-4 h-4" />
               <time dateTime={post.date}>
-                {new Date(post.date).toLocaleDateString("en-US", {
+                {new Date(post.date).toLocaleDateString(lang === "es" ? "es-ES" : "en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
@@ -92,7 +94,7 @@ const BlogPost = () => {
               </time>
             </span>
             <span className="inline-flex items-center gap-1">
-              <Clock className="w-4 h-4" /> {post.readingTime} read
+              <Clock className="w-4 h-4" /> {post.readingTime} {t("blog.read")}
             </span>
           </div>
 
@@ -103,7 +105,7 @@ const BlogPost = () => {
       {related.length > 0 && (
         <section className="py-16 border-t border-border">
           <div className="max-w-5xl mx-auto px-6">
-            <h2 className="text-2xl font-bold mb-8">Keep reading</h2>
+            <h2 className="text-2xl font-bold mb-8">{t("blog.keepReading")}</h2>
             <div className="grid gap-4 md:grid-cols-3">
               {related.map((p) => (
                 <Link
@@ -118,7 +120,7 @@ const BlogPost = () => {
                     {p.description}
                   </p>
                   <span className="inline-flex items-center gap-1 text-xs text-primary">
-                    Read <ArrowRight className="w-3 h-3" />
+                    {t("blog.read.short")} <ArrowRight className="w-3 h-3" />
                   </span>
                 </Link>
               ))}
