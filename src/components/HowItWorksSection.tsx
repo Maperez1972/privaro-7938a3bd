@@ -129,8 +129,8 @@ const HowItWorksSection = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-muted/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative">
                   <div className="w-10 h-10 rounded-lg bg-muted/50 border border-border flex items-center justify-center mx-auto mb-3"><Server className="w-5 h-5 text-muted-foreground" /></div>
-                  <p className="text-sm font-semibold text-foreground">LLM Model</p>
-                  <p className="text-xs text-muted-foreground mt-1.5">Claude · GPT-4 · Mistral</p>
+                  <p className="text-sm font-semibold text-foreground">{t("how.agent.llm")}</p>
+                  <p className="text-xs text-muted-foreground mt-1.5">{t("how.agent.llmProviders")}</p>
                 </div>
               </motion.div>
             </div>
