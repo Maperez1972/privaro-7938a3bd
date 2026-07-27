@@ -24,15 +24,7 @@ import {
   type NewSubAccountResult,
 } from "@/hooks/usePartnerData";
 
-const SECTORS = [
-  { value: "fintech", label: "Fintech" },
-  { value: "legaltech", label: "Legaltech" },
-  { value: "healthtech", label: "Healthtech" },
-  { value: "banca", label: "Banca" },
-  { value: "seguros", label: "Seguros" },
-  { value: "rrhh", label: "RRHH" },
-  { value: "otro", label: "Otro" },
-];
+const SECTOR_VALUES = ["fintech", "legaltech", "healthtech", "banca", "seguros", "rrhh", "otro"] as const;
 
 const PROVIDERS: Record<string, { value: string; label: string }[]> = {
   openai: [
