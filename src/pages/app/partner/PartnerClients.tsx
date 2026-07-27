@@ -81,7 +81,7 @@ const PartnerClients = () => {
   if (isError) {
     return (
       <div className="p-6">
-        <Seo title="Mis clientes — Privaro Partners" description="Gestiona los clientes finales de tu integración partner con Privaro." path="/app/partner/clients" noindex />
+        <Seo title={t("app.partner.seo.title")} description={t("app.partner.seo.description")} path="/app/partner/clients" noindex />
         <Card className="p-8 text-center space-y-3">
           <AlertTriangle className="h-10 w-10 text-destructive mx-auto" />
           <h1 className="text-xl font-semibold">{t("app.partner.error.title")}</h1>
@@ -101,7 +101,7 @@ const PartnerClients = () => {
   if (!data) {
     return (
       <div className="p-6">
-        <Seo title="Mis clientes — Privaro Partners" description="Gestiona los clientes finales de tu integración partner con Privaro." path="/app/partner/clients" noindex />
+        <Seo title={t("app.partner.seo.title")} description={t("app.partner.seo.description")} path="/app/partner/clients" noindex />
         <Card className="p-8 text-center space-y-3">
           <Building2 className="h-10 w-10 text-muted-foreground mx-auto" />
           <h1 className="text-xl font-semibold">{t("app.partner.notPartner.title")}</h1>
@@ -156,7 +156,7 @@ const PartnerClients = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <Seo title="Mis clientes — Privaro Partners" description="Gestiona los clientes finales de tu integración partner con Privaro." path="/app/partner/clients" noindex />
+      <Seo title={t("app.partner.seo.title")} description={t("app.partner.seo.description")} path="/app/partner/clients" noindex />
 
       {/* Header */}
       <div>
