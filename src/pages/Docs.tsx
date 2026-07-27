@@ -82,6 +82,7 @@ console.log(result.summary());
 };
 
 function CodeBlock({ code, lang }: { code: string; lang?: string }) {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   const copy = () => {
     navigator.clipboard.writeText(code);
@@ -94,7 +95,7 @@ function CodeBlock({ code, lang }: { code: string; lang?: string }) {
         <span className="text-xs text-muted-foreground font-mono">{lang ?? "bash"}</span>
         <button onClick={copy} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
           {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
-          {copied ? "Copied" : "Copy"}
+          {copied ? t("docs.copyButton.copied") : t("docs.copyButton.copy")}
         </button>
       </div>
       <pre className="p-4 text-sm font-mono text-foreground/90 overflow-x-auto leading-relaxed">
@@ -124,7 +125,7 @@ export default function Docs() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="PII Detection API & LLM Proxy Docs — Privaro" description="Quickstart, REST API reference and SDK guides for the Privaro PII detection API and LLM proxy. Integrate tokenization and policy enforcement in under an hour." path="/docs" />
+      <Seo title={t("docs.seo.title")} description={t("docs.seo.description")} path="/docs" />
       <Navbar />
 
       {/* Hero */}

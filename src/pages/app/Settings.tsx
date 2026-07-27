@@ -127,7 +127,7 @@ const Settings = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Globe className="w-4 h-4 text-primary" />
-            {lang === "es" ? "Idioma" : "Language"}
+            {t("app.settings.language.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -142,7 +142,7 @@ const Settings = () => {
                   setSavingLang(true);
                   await setLangAndPersist(l);
                   setSavingLang(false);
-                  toast.success(l === "es" ? "Idioma actualizado" : "Language updated");
+                  toast.success(t("app.settings.toast.languageUpdated"));
                 }}
                 className="gap-2"
               >

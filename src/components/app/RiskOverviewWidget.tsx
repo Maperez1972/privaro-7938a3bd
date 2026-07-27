@@ -48,6 +48,7 @@ interface TopRiskEvent {
 
 export function useRiskOverview() {
   const { profile } = useAuth();
+  const { t } = useLanguage();
   const orgId = profile?.org_id;
   const queryClient = useQueryClient();
 
@@ -86,10 +87,10 @@ export function useRiskOverview() {
       }
 
       return [
-        { name: "High Risk", value: high, color: RISK_COLORS.high },
-        { name: "Medium", value: medium, color: RISK_COLORS.medium },
-        { name: "Low", value: low, color: RISK_COLORS.low },
-        { name: "No Score", value: none, color: RISK_COLORS.none },
+        { name: t("app.dashboard.kpi.highRisk"), value: high, color: RISK_COLORS.high },
+        { name: t("app.dashboard.risk.medium"), value: medium, color: RISK_COLORS.medium },
+        { name: t("app.dashboard.risk.low"), value: low, color: RISK_COLORS.low },
+        { name: t("app.dashboard.risk.noScore"), value: none, color: RISK_COLORS.none },
       ].filter((d) => d.value > 0);
     },
   });

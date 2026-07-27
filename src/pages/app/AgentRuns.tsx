@@ -288,7 +288,7 @@ const AgentRuns = () => {
                     <TableCell>
                       <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border capitalize", statusStyles[run.status])}>
                         {run.status === "running" && <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5 animate-pulse" />}
-                        {run.status}
+                        {t(`app.agentRuns.status.${run.status}`)}
                       </span>
                     </TableCell>
                     <TableCell className="text-center text-sm">{run.total_steps}</TableCell>

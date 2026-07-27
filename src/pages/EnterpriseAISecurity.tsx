@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/context/LanguageContext";
 import { Lock, AlertTriangle, ShieldCheck, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
 
 const EnterpriseAISecurity = () => {
+  const { t } = useLanguage();
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -31,69 +33,65 @@ const EnterpriseAISecurity = () => {
         <div className="max-w-3xl mx-auto px-6">
           <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border border-border bg-surface/50 text-sm text-muted-foreground">
             <Lock className="w-4 h-4 text-primary" />
-            Enterprise AI Security
+            {t("entSec.badge")}
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.1] mb-6">
-            Enterprise AI Security: a practical guide for regulated organizations
+            {t("entSec.title")}
           </h1>
           <p className="text-lg text-muted-foreground mb-10 leading-relaxed">
-            Employees in legal, fintech and healthcare are already using LLMs at work. This guide covers the
-            threat model, the essential controls and a rollout plan you can execute in weeks — not quarters.
+            {t("entSec.intro")}
           </p>
 
           <div className="space-y-10 text-muted-foreground leading-relaxed">
             <section>
               <h2 className="text-2xl font-bold text-foreground mb-3 flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-primary" /> The threat model
+                <AlertTriangle className="w-5 h-5 text-primary" /> {t("entSec.threat.title")}
               </h2>
               <p>
-                Enterprise AI security is not a model problem — it is a data-flow problem. Sensitive data
-                leaves the organization the moment an employee pastes it into ChatGPT, Claude or an internal
-                agent. Once inside a provider's logs or training pipeline, it is out of your control.
+                {t("entSec.threat.p1")}
               </p>
               <ul className="list-disc list-inside mt-4 space-y-2">
-                <li><strong className="text-foreground">Prompt leakage</strong> — PII, contracts and secrets pasted into public LLMs.</li>
-                <li><strong className="text-foreground">Agent-to-agent handoffs</strong> — one agent forwards sensitive context to another without policy checks.</li>
-                <li><strong className="text-foreground">Embedding drift</strong> — sensitive strings preserved in vector databases far longer than expected.</li>
-                <li><strong className="text-foreground">Third-party plugins</strong> — tool calls that exfiltrate data outside your perimeter.</li>
+                <li><strong className="text-foreground">{t("entSec.threat.li1.title")}</strong> — {t("entSec.threat.li1.desc")}</li>
+                <li><strong className="text-foreground">{t("entSec.threat.li2.title")}</strong> — {t("entSec.threat.li2.desc")}</li>
+                <li><strong className="text-foreground">{t("entSec.threat.li3.title")}</strong> — {t("entSec.threat.li3.desc")}</li>
+                <li><strong className="text-foreground">{t("entSec.threat.li4.title")}</strong> — {t("entSec.threat.li4.desc")}</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-bold text-foreground mb-3 flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-primary" /> Essential controls
+                <ShieldCheck className="w-5 h-5 text-primary" /> {t("entSec.controls.title")}
               </h2>
               <ol className="list-decimal list-inside space-y-2 mt-4">
-                <li><strong className="text-foreground">Detection</strong> — hybrid regex + NLP models to identify PII, financial data and contracts in every prompt.</li>
-                <li><strong className="text-foreground">Policy enforcement</strong> — tokenize, anonymize or block based on role, org and provider.</li>
-                <li><strong className="text-foreground">Reversible tokenization</strong> — AES-256 vault so the business can still function.</li>
-                <li><strong className="text-foreground">Multi-provider proxy</strong> — one integration for OpenAI, Anthropic and Gemini.</li>
-                <li><strong className="text-foreground">Audit and evidence</strong> — immutable logs mapped to GDPR and the EU AI Act.</li>
+                <li><strong className="text-foreground">{t("entSec.controls.li1.title")}</strong> — {t("entSec.controls.li1.desc")}</li>
+                <li><strong className="text-foreground">{t("entSec.controls.li2.title")}</strong> — {t("entSec.controls.li2.desc")}</li>
+                <li><strong className="text-foreground">{t("entSec.controls.li3.title")}</strong> — {t("entSec.controls.li3.desc")}</li>
+                <li><strong className="text-foreground">{t("entSec.controls.li4.title")}</strong> — {t("entSec.controls.li4.desc")}</li>
+                <li><strong className="text-foreground">{t("entSec.controls.li5.title")}</strong> — {t("entSec.controls.li5.desc")}</li>
               </ol>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-foreground mb-3">A 4-week rollout</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-3">{t("entSec.rollout.title")}</h2>
               <ol className="list-decimal list-inside space-y-2">
-                <li><strong className="text-foreground">Week 1</strong> — Run an AI Risk Assessment to map current AI usage across teams.</li>
-                <li><strong className="text-foreground">Week 2</strong> — Deploy Privaro as a proxy for one high-risk workflow (e.g. contract review).</li>
-                <li><strong className="text-foreground">Week 3</strong> — Roll out policies per role and enable DPO reporting.</li>
-                <li><strong className="text-foreground">Week 4</strong> — Extend to all providers, enable blockchain certification for regulated flows.</li>
+                <li><strong className="text-foreground">{t("entSec.rollout.week1.label")}</strong> — {t("entSec.rollout.week1.desc")}</li>
+                <li><strong className="text-foreground">{t("entSec.rollout.week2.label")}</strong> — {t("entSec.rollout.week2.desc")}</li>
+                <li><strong className="text-foreground">{t("entSec.rollout.week3.label")}</strong> — {t("entSec.rollout.week3.desc")}</li>
+                <li><strong className="text-foreground">{t("entSec.rollout.week4.label")}</strong> — {t("entSec.rollout.week4.desc")}</li>
               </ol>
             </section>
 
             <section className="p-6 rounded-lg border border-border bg-surface/40">
-              <h2 className="text-xl font-bold text-foreground mb-3">Where Privaro fits</h2>
+              <h2 className="text-xl font-bold text-foreground mb-3">{t("entSec.fits.title")}</h2>
               <p>
-                Privaro is the enterprise AI security layer that sits between your applications and any LLM.
-                It applies your policies before data reaches the model and records every decision for audit.
+                {t("entSec.fits.desc")}
               </p>
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 <Link to="/ai-risk-assessment" className="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
-                  Run free AI Risk Assessment <ArrowRight className="w-4 h-4" />
+                  {t("entSec.fits.cta.risk")} <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link to="/ai-governance-platform" className="inline-flex items-center gap-2 px-6 py-3 rounded-md border border-border font-medium hover:bg-secondary transition-colors">
-                  See the platform
+                  {t("entSec.fits.cta.platform")}
                 </Link>
               </div>
             </section>

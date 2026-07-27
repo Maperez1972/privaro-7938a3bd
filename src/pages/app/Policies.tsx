@@ -132,11 +132,11 @@ const Policies = () => {
         .eq("org_id", profile.org_id)
         .eq("scope", "pipeline")
         .order("priority", { ascending: true });
-      setPipelineRules((fallback ?? []).map((r: any) => ({ ...r, pipeline_name: r.pipeline_id?.slice(0, 8) ?? "Unknown" })));
+      setPipelineRules((fallback ?? []).map((r: any) => ({ ...r, pipeline_name: r.pipeline_id?.slice(0, 8) ?? t("app.policies.unknownPipeline") })));
     } else {
       setPipelineRules((data ?? []).map((r: any) => ({
         ...r,
-        pipeline_name: r.pipelines?.name ?? "Unknown",
+        pipeline_name: r.pipelines?.name ?? t("app.policies.unknownPipeline"),
         pipelines: undefined,
       })));
     }
