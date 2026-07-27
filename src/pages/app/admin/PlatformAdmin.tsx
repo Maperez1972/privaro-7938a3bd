@@ -37,6 +37,7 @@ const typeBadge = (t: string) => {
 
 const PlatformAdmin = () => {
   const { session, profile, loading, rolesLoaded } = useAuth();
+  const { t } = useLanguage();
   const isPlatformAdmin = !!profile?.is_platform_admin;
 
   const { data, isLoading, isError, error } = useQuery<Overview, Error>({
