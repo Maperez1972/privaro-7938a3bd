@@ -42,7 +42,7 @@ const HowItWorksSection = () => {
             }`}
           >
             <Shield className="w-4 h-4" />
-            Enterprise
+            {t("how.mode.enterprise")}
           </button>
           <button
             onClick={() => setMode("agents")}
@@ -53,7 +53,7 @@ const HowItWorksSection = () => {
             }`}
           >
             <Bot className="w-4 h-4" />
-            AI Agents
+            {t("how.mode.agents")}
           </button>
         </div>
 
