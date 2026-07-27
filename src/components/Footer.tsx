@@ -27,6 +27,15 @@ const Footer = () => {
             AI Agents
           </a>
         </div>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Compare
+          </span>
+          <a href="/vs/skyflow" className={linkClass}>Privaro vs Skyflow</a>
+          <a href="/vs/nightfall" className={linkClass}>Privaro vs Nightfall</a>
+          <a href="/vs/private-ai" className={linkClass}>Privaro vs Private AI</a>
+        </div>
+
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
           <a href="/blog" className={linkClass}>Blog</a>
