@@ -15,10 +15,10 @@ const HowItWorksSection = () => {
   ];
 
   const agentSteps = [
-    { icon: Bot, number: "01", title: "Agent Calls Proxy", desc: "Agent calls POST /v1/agent/protect with context" },
-    { icon: Brain, number: "02", title: "PII Detected", desc: "Regex + NLP Tier 1+2 in <10ms" },
-    { icon: KeyRound, number: "03", title: "Clean Payload", desc: "Tokenised data sent to Claude, GPT-4 or Mistral" },
-    { icon: Link2, number: "04", title: "iBS Certificate", desc: "Every step certified on blockchain (Fantom Opera)" },
+    { icon: Bot, number: "01", titleKey: "how.agent.step1.title", descKey: "how.agent.step1.desc" },
+    { icon: Brain, number: "02", titleKey: "how.agent.step2.title", descKey: "how.agent.step2.desc" },
+    { icon: KeyRound, number: "03", titleKey: "how.agent.step3.title", descKey: "how.agent.step3.desc" },
+    { icon: Link2, number: "04", titleKey: "how.agent.step4.title", descKey: "how.agent.step4.desc" },
   ];
 
   const steps = mode === "enterprise" ? enterpriseSteps : agentSteps;
@@ -42,7 +42,7 @@ const HowItWorksSection = () => {
             }`}
           >
             <Shield className="w-4 h-4" />
-            Enterprise
+            {t("how.mode.enterprise")}
           </button>
           <button
             onClick={() => setMode("agents")}
@@ -53,7 +53,7 @@ const HowItWorksSection = () => {
             }`}
           >
             <Bot className="w-4 h-4" />
-            AI Agents
+            {t("how.mode.agents")}
           </button>
         </div>
 
@@ -103,8 +103,8 @@ const HowItWorksSection = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-muted/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative">
                   <div className="w-10 h-10 rounded-lg bg-muted/50 border border-border flex items-center justify-center mx-auto mb-3"><Bot className="w-5 h-5 text-amber-400" /></div>
-                  <p className="text-sm font-semibold text-foreground">AI Agent</p>
-                  <p className="text-xs text-muted-foreground mt-1.5">LangChain · CrewAI · n8n</p>
+                  <p className="text-sm font-semibold text-foreground">{t("how.agent.node")}</p>
+                  <p className="text-xs text-muted-foreground mt-1.5">{t("how.agent.frameworks")}</p>
                 </div>
               </motion.div>
               <div className="hidden md:flex items-center px-2"><div className="flex items-center"><div className="w-16 h-px bg-gradient-to-r from-border to-amber-500/50" /><ArrowRight className="w-4 h-4 text-amber-400/60 -ml-1" /></div></div>
@@ -115,11 +115,11 @@ const HowItWorksSection = () => {
                 <div className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full bg-amber-500/5 blur-3xl" />
                 <div className="relative">
                   <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-3"><Shield className="w-5 h-5 text-amber-400" /></div>
-                  <p className="text-sm font-semibold text-amber-400">Privaro Layer</p>
+                  <p className="text-sm font-semibold text-amber-400">{t("how.agent.privaroLayer")}</p>
                   <div className="flex items-center justify-center gap-2 mt-2 flex-wrap">
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">Detection</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">Tokenisation</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">iBS Certified</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">{t("how.agent.badge.detection")}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">{t("how.agent.badge.tokenisation")}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">{t("how.agent.badge.ibs")}</span>
                   </div>
                 </div>
               </motion.div>
@@ -129,8 +129,8 @@ const HowItWorksSection = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-muted/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative">
                   <div className="w-10 h-10 rounded-lg bg-muted/50 border border-border flex items-center justify-center mx-auto mb-3"><Server className="w-5 h-5 text-muted-foreground" /></div>
-                  <p className="text-sm font-semibold text-foreground">LLM Model</p>
-                  <p className="text-xs text-muted-foreground mt-1.5">Claude · GPT-4 · Mistral</p>
+                  <p className="text-sm font-semibold text-foreground">{t("how.agent.llm")}</p>
+                  <p className="text-xs text-muted-foreground mt-1.5">{t("how.agent.llmProviders")}</p>
                 </div>
               </motion.div>
             </div>
@@ -148,10 +148,10 @@ const HowItWorksSection = () => {
               }`}>{step.number}</span>
               <step.icon className={`w-8 h-8 mb-4 ${mode === "agents" ? "text-amber-400" : "text-primary"}`} />
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                {"titleKey" in step ? t(step.titleKey) : step.title}
+                {t(step.titleKey)}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {"descKey" in step ? t(step.descKey) : step.desc}
+                {t(step.descKey)}
               </p>
             </motion.div>
           ))}

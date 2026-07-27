@@ -24,15 +24,7 @@ import {
   type NewSubAccountResult,
 } from "@/hooks/usePartnerData";
 
-const SECTORS = [
-  { value: "fintech", label: "Fintech" },
-  { value: "legaltech", label: "Legaltech" },
-  { value: "healthtech", label: "Healthtech" },
-  { value: "banca", label: "Banca" },
-  { value: "seguros", label: "Seguros" },
-  { value: "rrhh", label: "RRHH" },
-  { value: "otro", label: "Otro" },
-];
+const SECTOR_VALUES = ["fintech", "legaltech", "healthtech", "banca", "seguros", "rrhh", "otro"] as const;
 
 const PROVIDERS: Record<string, { value: string; label: string }[]> = {
   openai: [
@@ -89,7 +81,7 @@ const PartnerClients = () => {
   if (isError) {
     return (
       <div className="p-6">
-        <Seo title="Mis clientes — Privaro Partners" description="Gestiona los clientes finales de tu integración partner con Privaro." path="/app/partner/clients" noindex />
+        <Seo title={t("app.partner.seo.title")} description={t("app.partner.seo.description")} path="/app/partner/clients" noindex />
         <Card className="p-8 text-center space-y-3">
           <AlertTriangle className="h-10 w-10 text-destructive mx-auto" />
           <h1 className="text-xl font-semibold">{t("app.partner.error.title")}</h1>
@@ -109,7 +101,7 @@ const PartnerClients = () => {
   if (!data) {
     return (
       <div className="p-6">
-        <Seo title="Mis clientes — Privaro Partners" description="Gestiona los clientes finales de tu integración partner con Privaro." path="/app/partner/clients" noindex />
+        <Seo title={t("app.partner.seo.title")} description={t("app.partner.seo.description")} path="/app/partner/clients" noindex />
         <Card className="p-8 text-center space-y-3">
           <Building2 className="h-10 w-10 text-muted-foreground mx-auto" />
           <h1 className="text-xl font-semibold">{t("app.partner.notPartner.title")}</h1>
@@ -164,7 +156,7 @@ const PartnerClients = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <Seo title="Mis clientes — Privaro Partners" description="Gestiona los clientes finales de tu integración partner con Privaro." path="/app/partner/clients" noindex />
+      <Seo title={t("app.partner.seo.title")} description={t("app.partner.seo.description")} path="/app/partner/clients" noindex />
 
       {/* Header */}
       <div>
@@ -220,7 +212,7 @@ const PartnerClients = () => {
           <TableHeader>
             <TableRow className="border-border">
               <TableHead>{t("app.partner.table.name")}</TableHead>
-              <TableHead>Consumo este mes</TableHead>
+              <TableHead>{t("app.partner.table.usageMonth")}</TableHead>
               <TableHead>{t("app.partner.table.createdAt")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -272,7 +264,7 @@ const PartnerClients = () => {
               <Select value={form.sector} onValueChange={(v) => setForm({ ...form, sector: v })}>
                 <SelectTrigger><SelectValue placeholder={t("app.partner.form.selectSector")} /></SelectTrigger>
                 <SelectContent>
-                  {SECTORS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                  {SECTOR_VALUES.map((s) => <SelectItem key={s} value={s}>{t(`sectors.${s}`)}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
