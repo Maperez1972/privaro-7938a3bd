@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/context/LanguageContext";
 import { Shield, Code, Zap, Lock, CheckCircle2, ArrowRight, Terminal } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
 
 const PiiDetectionApi = () => {
+  const { t } = useLanguage();
   const jsonLd = [
     {
       "@context": "https://schema.org",
@@ -49,10 +51,10 @@ const PiiDetectionApi = () => {
   ];
 
   const features = [
-    { icon: Zap, title: "P95 < 80ms", desc: "Edge-deployed detection engine. No noticeable latency added to your LLM calls." },
-    { icon: Shield, title: "Hybrid regex + NLP", desc: "Rule-based patterns for structured entities plus NLP models for names, addresses and unstructured PII." },
-    { icon: Lock, title: "Reversible tokenization", desc: "Get back tokens instead of masked text. Reveal originals later via controlled RPC with full audit." },
-    { icon: Code, title: "REST + MCP", desc: "Standard REST endpoint or Model Context Protocol tool for agents. Same detection engine either way." },
+    { icon: Zap, title: t("piiApi.features.latency.title"), desc: t("piiApi.features.latency.desc") },
+    { icon: Shield, title: t("piiApi.features.hybrid.title"), desc: t("piiApi.features.hybrid.desc") },
+    { icon: Lock, title: t("piiApi.features.tokenization.title"), desc: t("piiApi.features.tokenization.desc") },
+    { icon: Code, title: t("piiApi.features.rest.title"), desc: t("piiApi.features.rest.desc") },
   ];
 
   const codeSample = `POST https://api.privaro.ai/v1/detect
@@ -90,22 +92,21 @@ Content-Type: application/json
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border border-border bg-surface/50 text-sm text-muted-foreground">
             <Terminal className="w-4 h-4 text-primary" />
-            PII Detection API
+            {t("piiApi.hero.badge")}
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.05] mb-6">
-            Real-time PII Detection API<br />
-            <span className="text-gradient">built for LLM traffic</span>
+            {t("piiApi.hero.title1")}<br />
+            <span className="text-gradient">{t("piiApi.hero.title2")}</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-            Scan every prompt for emails, phones, SSNs, IBANs, contracts and custom entities before they
-            reach OpenAI, Anthropic or Gemini — with one REST call or one MCP tool.
+            {t("piiApi.hero.desc")}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/demo" className="px-8 py-3.5 rounded-md bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity glow-border">
-              Request Demo
+              {t("piiApi.hero.cta.demo")}
             </Link>
             <Link to="/docs" className="px-8 py-3.5 rounded-md border border-border font-medium hover:bg-secondary transition-colors">
-              Read the docs
+              {t("piiApi.hero.cta.docs")}
             </Link>
           </div>
         </div>
@@ -115,10 +116,9 @@ Content-Type: application/json
       <section className="py-20 bg-surface/30 border-y border-border">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Detection engine, built for production</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("piiApi.featuresSection.title")}</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Not another regex library. A hybrid engine that combines deterministic rules with NLP models,
-              tuned for enterprise LLM traffic.
+              {t("piiApi.featuresSection.desc")}
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
@@ -136,9 +136,9 @@ Content-Type: application/json
       {/* Code sample */}
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">One endpoint. Every entity.</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">{t("piiApi.codeSection.title")}</h2>
           <p className="text-muted-foreground text-center mb-10">
-            Send text, get structured entities with type, position, confidence and an aggregate risk score.
+            {t("piiApi.codeSection.desc")}
           </p>
           <pre className="p-6 rounded-lg border border-border bg-surface/40 overflow-x-auto text-sm leading-relaxed">
             <code>{codeSample}</code>
@@ -149,12 +149,12 @@ Content-Type: application/json
       {/* Compliance */}
       <section className="py-20 border-t border-border">
         <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Compliance-ready by default</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">{t("piiApi.compliance.title")}</h2>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              "GDPR Article 25 — data minimization",
-              "EU AI Act — record-keeping",
-              "SOC 2 controls in-scope",
+              t("piiApi.compliance.item1"),
+              t("piiApi.compliance.item2"),
+              t("piiApi.compliance.item3"),
             ].map((item) => (
               <div key={item} className="flex items-center gap-3 p-4 rounded-md border border-border bg-surface/40">
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
@@ -163,8 +163,8 @@ Content-Type: application/json
             ))}
           </div>
           <p className="text-muted-foreground text-center mt-8">
-            Pairs natively with the <Link to="/ai-governance-platform" className="text-primary underline underline-offset-2">Privaro AI Governance Platform</Link>{" "}
-            for policy enforcement, token vault and audit trails.
+            {t("piiApi.compliance.pairs.text1")} <Link to="/ai-governance-platform" className="text-primary underline underline-offset-2">{t("piiApi.compliance.pairs.linkText")}</Link>{" "}
+            {t("piiApi.compliance.pairs.text2")}
           </p>
         </div>
       </section>
@@ -172,12 +172,12 @@ Content-Type: application/json
       {/* CTA */}
       <section className="py-20 border-t border-border">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Try the PII Detection API</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("piiApi.cta.title")}</h2>
           <p className="text-muted-foreground mb-8">
-            Free tier includes 10k detections/month. No credit card required.
+            {t("piiApi.cta.desc")}
           </p>
           <Link to="/demo" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-md bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity glow-border">
-            Request API access <ArrowRight className="w-4 h-4" />
+            {t("piiApi.cta.button")} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>

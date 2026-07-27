@@ -33,7 +33,7 @@ const VerifyMfa = () => {
     setFactorId(fid);
     supabase.auth.mfa.challenge({ factorId: fid }).then(({ data, error }) => {
       if (error) {
-        toast({ title: "Error", description: error.message, variant: "destructive" });
+        toast({ title: t("app.common.error"), description: error.message, variant: "destructive" });
         return;
       }
       setChallengeId(data.id);

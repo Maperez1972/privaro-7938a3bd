@@ -89,7 +89,7 @@ const Partners = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="AI Governance Partner Program for ISVs & Agencies — Privaro" description="Embed Privaro's AI compliance and PII detection API in your product. 20% recurring discount for ISVs, integrators and AI consultancies." path="/partners" />
+      <Seo title={t("partners.seo.title")} description={t("partners.seo.description")} path="/partners" />
       <Navbar />
 
       {/* Hero */}
@@ -300,7 +300,7 @@ const Partners = () => {
                   <SelectContent>
                     <SelectItem value="CEO">CEO</SelectItem>
                     <SelectItem value="CTO">CTO</SelectItem>
-                    <SelectItem value="Head of Product">Head of Product</SelectItem>
+                    <SelectItem value="Head of Product">{t("partners.form.role.headOfProduct")}</SelectItem>
                     <SelectItem value="Other">{t("partners.form.role.other")}</SelectItem>
                   </SelectContent>
                 </Select>

@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/context/LanguageContext";
 import { ShieldCheck, FileCheck, ScrollText, Users, Database, Gauge, CheckCircle2, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
 
 const AIComplianceSoftware = () => {
+  const { t } = useLanguage();
   const jsonLd = [
     {
       "@context": "https://schema.org",
@@ -50,12 +52,12 @@ const AIComplianceSoftware = () => {
   ];
 
   const controls = [
-    { icon: ShieldCheck, title: "GDPR Article 5, 25 & 32", desc: "Data minimization by default, privacy by design in every prompt, and integrity of processing across all AI providers." },
-    { icon: ScrollText, title: "EU AI Act ready", desc: "Record-keeping, transparency and deployer obligations covered with structured logs and evidence per request." },
-    { icon: FileCheck, title: "DPO reports", desc: "One-click GDPR reports with date range, entities detected, policy actions and per-user traceability." },
-    { icon: Users, title: "Role-based access", desc: "Admin, DPO, Developer and Viewer roles enforce separation of duties across the compliance workflow." },
-    { icon: Database, title: "Encrypted token vault", desc: "AES-256 tokenization with controlled reveal — raw sensitive data never reaches a model provider." },
-    { icon: Gauge, title: "Real-time monitoring", desc: "Risk scoring, alerts and dashboards to prove ongoing control to auditors and regulators." },
+    { icon: ShieldCheck, title: t("aiComp.controls.gdpr.title"), desc: t("aiComp.controls.gdpr.desc") },
+    { icon: ScrollText, title: t("aiComp.controls.aiact.title"), desc: t("aiComp.controls.aiact.desc") },
+    { icon: FileCheck, title: t("aiComp.controls.dpo.title"), desc: t("aiComp.controls.dpo.desc") },
+    { icon: Users, title: t("aiComp.controls.rbac.title"), desc: t("aiComp.controls.rbac.desc") },
+    { icon: Database, title: t("aiComp.controls.vault.title"), desc: t("aiComp.controls.vault.desc") },
+    { icon: Gauge, title: t("aiComp.controls.monitoring.title"), desc: t("aiComp.controls.monitoring.desc") },
   ];
 
   return (
@@ -74,22 +76,21 @@ const AIComplianceSoftware = () => {
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border border-border bg-surface/50 text-sm text-muted-foreground">
             <ShieldCheck className="w-4 h-4 text-primary" />
-            AI Compliance Software
+            {t("aiComp.hero.badge")}
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.05] mb-6">
-            AI Compliance Software<br />
-            <span className="text-gradient">built for GDPR and the EU AI Act</span>
+            {t("aiComp.hero.title1")}<br />
+            <span className="text-gradient">{t("aiComp.hero.title2")}</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-            Prove control over every prompt sent to OpenAI, Anthropic or Gemini. Privaro enforces privacy
-            policies, tokenizes sensitive data and generates the evidence your DPO and auditors need.
+            {t("aiComp.hero.desc")}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/demo" className="px-8 py-3.5 rounded-md bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity glow-border">
-              Request Demo
+              {t("aiComp.hero.cta.demo")}
             </Link>
             <Link to="/ai-risk-assessment" className="px-8 py-3.5 rounded-md border border-border font-medium hover:bg-secondary transition-colors">
-              Run free AI Risk Assessment
+              {t("aiComp.hero.cta.risk")}
             </Link>
           </div>
         </div>
@@ -98,9 +99,9 @@ const AIComplianceSoftware = () => {
       <section className="py-20 bg-surface/30 border-y border-border">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Compliance controls, out of the box</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("aiComp.controlsSection.title")}</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Every control mapped to a regulatory obligation — no spreadsheets, no manual evidence gathering.
+              {t("aiComp.controlsSection.desc")}
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -118,23 +119,18 @@ const AIComplianceSoftware = () => {
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-6">
           <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">
-            Why traditional GRC tools don't cover AI
+            {t("aiComp.why.title")}
           </h2>
           <div className="space-y-4 text-muted-foreground leading-relaxed">
             <p>
-              GRC and DLP platforms were designed for files, email and endpoints. LLM traffic is different:
-              prompts are unstructured, embeddings can leak PII, and agent-to-agent handoffs bypass every
-              perimeter control. Static policies and after-the-fact audits are not enough for regulators
-              asking about your AI usage today.
+              {t("aiComp.why.p1")}
             </p>
             <p>
-              Privaro is AI-native compliance software. It sits in the request path, applies your policies
-              before data reaches the model, and stores immutable evidence of every decision — with optional
-              blockchain certification for high-risk workflows.
+              {t("aiComp.why.p2")}
             </p>
           </div>
           <div className="mt-10 grid sm:grid-cols-3 gap-4">
-            {["GDPR-native by design", "EU AI Act evidence per request", "SOC 2 controls in-scope"].map((item) => (
+            {[t("aiComp.why.item1"), t("aiComp.why.item2"), t("aiComp.why.item3")].map((item) => (
               <div key={item} className="flex items-center gap-3 p-4 rounded-md border border-border bg-surface/40">
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
                 <span className="text-sm">{item}</span>
@@ -146,12 +142,12 @@ const AIComplianceSoftware = () => {
 
       <section className="py-20 border-t border-border">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Get compliance-ready in days</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("aiComp.cta.title")}</h2>
           <p className="text-muted-foreground mb-8">
-            30-minute technical walkthrough with your security or DPO team.
+            {t("aiComp.cta.desc")}
           </p>
           <Link to="/demo" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-md bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity glow-border">
-            Request Demo <ArrowRight className="w-4 h-4" />
+            {t("aiComp.cta.button")} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>

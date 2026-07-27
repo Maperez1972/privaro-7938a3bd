@@ -85,7 +85,7 @@ async function fetchHealth(): Promise<Result> {
 }
 
 const Status = () => {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const c = COPY[lang === "en" ? "en" : "es"];
   const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(true);
@@ -116,8 +116,8 @@ const Status = () => {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Seo
-        title="Service Status — Privaro"
-        description="Live status of the Privaro API and database connectivity."
+        title={t("status.seo.title")}
+        description={t("status.seo.description")}
         path="/status"
       />
       <Navbar />

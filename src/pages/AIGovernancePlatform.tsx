@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/context/LanguageContext";
 import { Shield, Eye, Lock, FileCheck, Zap, Server, CheckCircle2, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
 
 const AIGovernancePlatform = () => {
+  const { t } = useLanguage();
   const jsonLd = [
     {
       "@context": "https://schema.org",
@@ -50,12 +52,12 @@ const AIGovernancePlatform = () => {
   ];
 
   const pillars = [
-    { icon: Eye, title: "Visibility", desc: "See every prompt, every completion and every sensitive entity flowing to any LLM — in real time." },
-    { icon: Shield, title: "Policy enforcement", desc: "Block, tokenize or anonymize PII, financial data and contracts based on role, org and provider." },
-    { icon: FileCheck, title: "Audit & evidence", desc: "GDPR- and EU AI Act–ready logs with optional blockchain certification for every request." },
-    { icon: Lock, title: "Reversible tokenization", desc: "AES-256 token vault with controlled reveal — never send raw sensitive data to a model." },
-    { icon: Server, title: "Multi-provider proxy", desc: "One integration for OpenAI, Anthropic, Gemini and your internal LLMs. Model-agnostic by design." },
-    { icon: Zap, title: "MCP native", desc: "Expose governance as tools to any AI agent via Model Context Protocol — no SDK required." },
+    { icon: Eye, title: t("aiGov.pillars.eye.title"), desc: t("aiGov.pillars.eye.desc") },
+    { icon: Shield, title: t("aiGov.pillars.policy.title"), desc: t("aiGov.pillars.policy.desc") },
+    { icon: FileCheck, title: t("aiGov.pillars.audit.title"), desc: t("aiGov.pillars.audit.desc") },
+    { icon: Lock, title: t("aiGov.pillars.tokenization.title"), desc: t("aiGov.pillars.tokenization.desc") },
+    { icon: Server, title: t("aiGov.pillars.proxy.title"), desc: t("aiGov.pillars.proxy.desc") },
+    { icon: Zap, title: t("aiGov.pillars.mcp.title"), desc: t("aiGov.pillars.mcp.desc") },
   ];
 
   return (
@@ -75,22 +77,21 @@ const AIGovernancePlatform = () => {
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border border-border bg-surface/50 text-sm text-muted-foreground">
             <Shield className="w-4 h-4 text-primary" />
-            AI Governance Platform
+            {t("aiGov.hero.badge")}
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.05] mb-6">
-            The AI Governance Platform<br />
-            <span className="text-gradient">for regulated enterprises</span>
+            {t("aiGov.hero.title1")}<br />
+            <span className="text-gradient">{t("aiGov.hero.title2")}</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-            Detect PII, enforce privacy policies and audit every LLM interaction across OpenAI, Anthropic
-            and Gemini — with one API, one MCP endpoint and one compliance layer.
+            {t("aiGov.hero.desc")}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/demo" className="px-8 py-3.5 rounded-md bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity glow-border">
-              Request Demo
+              {t("aiGov.hero.cta.demo")}
             </Link>
             <Link to="/ai-risk-assessment" className="px-8 py-3.5 rounded-md border border-border font-medium hover:bg-secondary transition-colors">
-              Run free AI Risk Assessment
+              {t("aiGov.hero.cta.risk")}
             </Link>
           </div>
         </div>
@@ -100,9 +101,9 @@ const AIGovernancePlatform = () => {
       <section className="py-20 bg-surface/30 border-y border-border">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Six pillars of enterprise AI governance</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("aiGov.pillarsSection.title")}</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to govern AI usage across teams, agents and providers — from detection to audit.
+              {t("aiGov.pillarsSection.desc")}
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -121,30 +122,24 @@ const AIGovernancePlatform = () => {
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-6">
           <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">
-            Why enterprises need an AI governance platform now
+            {t("aiGov.why.title")}
           </h2>
           <div className="space-y-4 text-muted-foreground leading-relaxed">
             <p>
-              AI adoption inside regulated organizations — legal, fintech, healthcare — is growing faster than
-              the compliance controls around it. Employees paste contracts, customer records and financial
-              data into ChatGPT, Claude or internal agents every day. Traditional DLP tools were never designed
-              for LLM traffic and don't understand prompts, embeddings or agent-to-agent handoffs.
+              {t("aiGov.why.p1")}
             </p>
             <p>
-              Privaro is the missing control layer. It intercepts every prompt, detects sensitive entities with
-              hybrid regex + NLP models, applies your policies (tokenize, anonymize, block), and returns a
-              sanitized version to the model. Every decision is logged and, optionally, certified on-chain.
+              {t("aiGov.why.p2")}
             </p>
             <p>
-              Under GDPR and the EU AI Act, responsibility for data sent to an AI model remains with the
-              organization. Privaro gives you the evidence to prove control.
+              {t("aiGov.why.p3")}
             </p>
           </div>
           <div className="mt-10 grid sm:grid-cols-3 gap-4">
             {[
-              "GDPR Article 5, 25 & 32 aligned",
-              "EU AI Act record-keeping ready",
-              "SOC 2 controls in-scope",
+              t("aiGov.why.item1"),
+              t("aiGov.why.item2"),
+              t("aiGov.why.item3"),
             ].map((item) => (
               <div key={item} className="flex items-center gap-3 p-4 rounded-md border border-border bg-surface/40">
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
@@ -158,12 +153,12 @@ const AIGovernancePlatform = () => {
       {/* CTA */}
       <section className="py-20 border-t border-border">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">See Privaro in your environment</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("aiGov.cta.title")}</h2>
           <p className="text-muted-foreground mb-8">
-            30-minute technical walkthrough — real prompts, real policies, real audit logs.
+            {t("aiGov.cta.desc")}
           </p>
           <Link to="/demo" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-md bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity glow-border">
-            Request Demo <ArrowRight className="w-4 h-4" />
+            {t("aiGov.cta.button")} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>

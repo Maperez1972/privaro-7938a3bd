@@ -289,11 +289,11 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="text-left text-muted-foreground border-b border-border">
-                        <th className="p-3 font-medium">Source</th>
+                        <th className="p-3 font-medium">{t("app.pipelines.policies.source")}</th>
                         <th className="p-3 font-medium">{t("app.pipelines.policies.entityType")}</th>
-                        <th className="p-3 font-medium">Action</th>
-                        <th className="p-3 font-medium">Priority</th>
-                        <th className="p-3 font-medium">Regulation</th>
+                        <th className="p-3 font-medium">{t("app.pipelines.policies.action")}</th>
+                        <th className="p-3 font-medium">{t("app.pipelines.policies.priority")}</th>
+                        <th className="p-3 font-medium">{t("app.pipelines.policies.regulation")}</th>
                       </tr>
                     </thead>
                     <tbody>

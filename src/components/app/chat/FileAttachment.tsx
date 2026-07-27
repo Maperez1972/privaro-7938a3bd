@@ -84,11 +84,11 @@ function isImageFile(file: File): boolean {
   return IMAGE_TYPES.includes(file.type) || IMAGE_EXTENSIONS.includes(ext);
 }
 
-function getPageLabel(file: File): string {
+function getPageLabelKey(file: File): string {
   const ext = "." + file.name.split(".").pop()?.toLowerCase();
-  if (file.type === "application/pdf" || ext === ".pdf") return "Page";
-  if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || ext === ".docx") return "Section";
-  return "Block";
+  if (file.type === "application/pdf" || ext === ".pdf") return "app.chat.file.page";
+  if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || ext === ".docx") return "app.chat.file.section";
+  return "app.chat.file.block";
 }
 
 async function extractFilePages(file: File): Promise<{ pages: string[]; full: string }> {
@@ -103,6 +103,7 @@ async function extractFilePages(file: File): Promise<{ pages: string[]; full: st
 }
 
 export function useFileAttachment() {
+  const { t } = useLanguage();
   const [attachment, setAttachment] = useState<FileAttachment | null>(null);
 
   const attachFile = useCallback(async (file: File) => {
@@ -116,7 +117,7 @@ export function useFileAttachment() {
     try {
       const { pages: pageTexts, full } = await extractFilePages(file);
       const allDetections = mockProxyDetect(full);
-      const pageLabel = getPageLabel(file);
+      const pageLabel = t(getPageLabelKey(file));
 
       const pageAnalyses: PageAnalysis[] = pageTexts.map((text, idx) => {
         const pageDetections = mockProxyDetect(text);

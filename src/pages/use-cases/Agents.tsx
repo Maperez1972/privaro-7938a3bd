@@ -61,7 +61,7 @@ const AgentsPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Seo title="AI Governance for Autonomous Agents — Privaro" description="Govern data flowing between AI agents. Detect PII, apply policies, audit every step and prevent leaks across multi-agent LLM workflows." path="/use-cases/agents" />
+      <Seo title={t("agents.seo.title")} description={t("agents.seo.description")} path="/use-cases/agents" />
       <Navbar />
 
       {/* Hero */}
@@ -187,7 +187,7 @@ const AgentsPage = () => {
                 </div>
                 <p className="text-sm text-muted-foreground mb-1">{p.steps}</p>
                 <p className="text-xs text-muted-foreground mb-2">{p.desc}</p>
-                <p className="text-xs text-muted-foreground/70">Overage: {p.overage}</p>
+                <p className="text-xs text-muted-foreground/70">{t("agents.pricing.overagePrefix")} {p.overage}</p>
                 {p.bullets.length > 0 && (
                   <ul className="mt-4 space-y-1.5 text-left">
                     {p.bullets.map((b, j) => (
