@@ -33,6 +33,7 @@ const EnterpriseAISecurity = lazy(() => import("./pages/EnterpriseAISecurity"));
 const PiiDetectionApi = lazy(() => import("./pages/PiiDetectionApi"));
 const BlogIndex = lazy(() => import("./pages/blog/BlogIndex"));
 const BlogPost = lazy(() => import("./pages/blog/BlogPost"));
+const ComparisonPage = lazy(() => import("./pages/ComparisonPage"));
 const AppLayout = lazy(() => import("./components/app/AppLayout"));
 const Chat = lazy(() => import("./pages/app/Chat"));
 const Dashboard = lazy(() => import("./pages/app/Dashboard"));
@@ -123,6 +124,7 @@ const App = () => (
               <Route path="/pii-detection-api" element={<PiiDetectionApi />} />
               <Route path="/blog" element={<BlogIndex />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/vs/:slug" element={<ComparisonPage />} />
 
               {/* Auth */}
               <Route path="/auth" element={<Auth />} />
