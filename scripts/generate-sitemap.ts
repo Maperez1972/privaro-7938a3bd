@@ -1,11 +1,19 @@
 // Generates public/sitemap.xml from static routes + dynamic content sources.
-// Runs on predev/prebuild.
-import { writeFileSync } from "fs";
+// Runs on predev/prebuild. Slugs are regex-extracted to avoid importing TSX modules.
+import { writeFileSync, readFileSync } from "fs";
 import { resolve } from "path";
-import { BLOG_POSTS } from "../src/content/blog-posts";
-import { COMPARISONS } from "../src/content/comparisons";
 
 const BASE_URL = "https://privaro.ai";
+
+const extractSlugs = (file: string): string[] => {
+  const src = readFileSync(resolve(file), "utf8");
+  return Array.from(src.matchAll(/slug:\s*["']([^"']+)["']/g)).map((m) => m[1]);
+};
+
+const BLOG_SLUGS = extractSlugs("src/content/blog-posts.tsx");
+const COMPARISON_SLUGS = extractSlugs("src/content/comparisons.ts");
+
+
 
 interface Entry {
   path: string;
