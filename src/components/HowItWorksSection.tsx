@@ -148,10 +148,10 @@ const HowItWorksSection = () => {
               }`}>{step.number}</span>
               <step.icon className={`w-8 h-8 mb-4 ${mode === "agents" ? "text-amber-400" : "text-primary"}`} />
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                {"titleKey" in step ? t(step.titleKey) : step.title}
+                {t(step.titleKey)}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {"descKey" in step ? t(step.descKey) : step.desc}
+                {t(step.descKey)}
               </p>
             </motion.div>
           ))}
