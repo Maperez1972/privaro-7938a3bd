@@ -3,17 +3,20 @@ import { ArrowRight, BookOpen } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
-import { BLOG_POSTS } from "@/content/blog-posts";
+import { getLocalizedPosts } from "@/content/blog-posts";
+import { useLanguage } from "@/context/LanguageContext";
 
 const BlogIndex = () => {
+  const { lang, t } = useLanguage();
+  const posts = getLocalizedPosts(lang);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Blog",
     name: "Privaro Blog",
     url: "https://privaro.ai/blog",
-    description:
-      "Practical guides on AI governance, GDPR, the EU AI Act and enterprise AI security.",
-    blogPost: BLOG_POSTS.map((p) => ({
+    description: t("blog.index.seoDesc"),
+    blogPost: posts.map((p) => ({
       "@type": "BlogPosting",
       headline: p.title,
       description: p.description,
@@ -25,8 +28,8 @@ const BlogIndex = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Seo
-        title="Blog — AI Governance, GDPR & EU AI Act Insights | Privaro"
-        description="Practical guides on AI governance, GDPR compliance for LLMs, the EU AI Act and enterprise AI security. Written for compliance, security and engineering teams."
+        title={t("blog.index.seoTitle")}
+        description={t("blog.index.seoDesc")}
         path="/blog"
         jsonLd={jsonLd}
       />
@@ -36,18 +39,17 @@ const BlogIndex = () => {
         <div className="max-w-5xl mx-auto px-6">
           <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border border-border bg-surface/50 text-sm text-muted-foreground">
             <BookOpen className="w-4 h-4 text-primary" />
-            Privaro Blog
+            {t("blog.index.badge")}
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold leading-[1.1] mb-4">
-            AI governance, compliance and security — the practical guide
+            {t("blog.index.title")}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-            Field notes from shipping governance infrastructure for legal, fintech
-            and healthcare teams. No fluff, no vendor speak.
+            {t("blog.index.subtitle")}
           </p>
 
           <div className="grid gap-6">
-            {BLOG_POSTS.map((post) => (
+            {posts.map((post) => (
               <Link
                 key={post.slug}
                 to={`/blog/${post.slug}`}
@@ -55,14 +57,14 @@ const BlogIndex = () => {
               >
                 <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground mb-3">
                   <time dateTime={post.date}>
-                    {new Date(post.date).toLocaleDateString("en-US", {
+                    {new Date(post.date).toLocaleDateString(lang === "es" ? "es-ES" : "en-US", {
                       year: "numeric",
                       month: "short",
                       day: "numeric",
                     })}
                   </time>
                   <span>·</span>
-                  <span>{post.readingTime} read</span>
+                  <span>{post.readingTime} {t("blog.read")}</span>
                   <span>·</span>
                   <div className="flex flex-wrap gap-2">
                     {post.tags.map((tag) => (
@@ -80,7 +82,7 @@ const BlogIndex = () => {
                 </h2>
                 <p className="text-muted-foreground mb-4">{post.description}</p>
                 <span className="inline-flex items-center gap-1 text-sm text-primary font-medium">
-                  Read post <ArrowRight className="w-4 h-4" />
+                  {t("blog.readPost")} <ArrowRight className="w-4 h-4" />
                 </span>
               </Link>
             ))}
