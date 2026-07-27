@@ -44,14 +44,14 @@ const staticEntries: Entry[] = [
   { path: "/terms", changefreq: "yearly", priority: "0.3" },
 ];
 
-const blogEntries: Entry[] = BLOG_POSTS.map((p) => ({
-  path: `/blog/${p.slug}`,
+const blogEntries: Entry[] = BLOG_SLUGS.map((slug) => ({
+  path: `/blog/${slug}`,
   changefreq: "monthly",
   priority: "0.7",
 }));
 
-const comparisonEntries: Entry[] = COMPARISONS.map((c) => ({
-  path: `/vs/${c.slug}`,
+const comparisonEntries: Entry[] = COMPARISON_SLUGS.map((slug) => ({
+  path: `/vs/${slug}`,
   changefreq: "monthly",
   priority: "0.8",
 }));
