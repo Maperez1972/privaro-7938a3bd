@@ -110,7 +110,8 @@ var PREFIX = {
   credit_card: "CC",
   ip_address: "IP",
   session_id: "SI",
-  policy_number: "PN"
+  policy_number: "PN",
+  money: "MN"
 };
 function detectPii(text) {
   const raw = [];
@@ -194,6 +195,20 @@ function detectPii(text) {
       regex: /n[oº°][\s]?(?:de\s)?(?:s[oó]cios?|póliza|factura|contrato|cuenta|tarjeta|afiliado)?[\s]*\d{6,}/gi,
       type: "policy_number",
       severity: "high",
+      category: "financial"
+    },
+    // Money / business amounts — added 2026-07-24, mirroring the same fix
+    // applied today to the real Python proxy detector (app/services/detector.py)
+    // following the Octupus/Robin AI (Odoo copilot) analysis: ERP data is full
+    // of commercially-sensitive figures (revenue, margins, contract values),
+    // not just classic personal data. This demo engine had never been updated
+    // to match, so the public /demo page didn't reflect the real product's
+    // current capabilities. Symbols (€$£) don't need a word-boundary check
+    // (they aren't word characters); currency codes (EUR/USD/GBP) do.
+    {
+      regex: /(?:[€$£]\s?\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?|\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?\s?[€$£]|\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?\s?(?:EUR|USD|GBP)\b)/gi,
+      type: "money",
+      severity: "medium",
       category: "financial"
     }
   ];
