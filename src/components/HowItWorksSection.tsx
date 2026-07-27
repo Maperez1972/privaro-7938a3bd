@@ -15,10 +15,10 @@ const HowItWorksSection = () => {
   ];
 
   const agentSteps = [
-    { icon: Bot, number: "01", title: "Agent Calls Proxy", desc: "Agent calls POST /v1/agent/protect with context" },
-    { icon: Brain, number: "02", title: "PII Detected", desc: "Regex + NLP Tier 1+2 in <10ms" },
-    { icon: KeyRound, number: "03", title: "Clean Payload", desc: "Tokenised data sent to Claude, GPT-4 or Mistral" },
-    { icon: Link2, number: "04", title: "iBS Certificate", desc: "Every step certified on blockchain (Fantom Opera)" },
+    { icon: Bot, number: "01", titleKey: "how.agent.step1.title", descKey: "how.agent.step1.desc" },
+    { icon: Brain, number: "02", titleKey: "how.agent.step2.title", descKey: "how.agent.step2.desc" },
+    { icon: KeyRound, number: "03", titleKey: "how.agent.step3.title", descKey: "how.agent.step3.desc" },
+    { icon: Link2, number: "04", titleKey: "how.agent.step4.title", descKey: "how.agent.step4.desc" },
   ];
 
   const steps = mode === "enterprise" ? enterpriseSteps : agentSteps;
