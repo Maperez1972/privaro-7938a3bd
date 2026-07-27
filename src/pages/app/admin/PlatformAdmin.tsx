@@ -184,7 +184,7 @@ const PlatformAdmin = () => {
                     );
                   })}
                   {filtered.length === 0 && (
-                    <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">Sin resultados</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">{t("platform.noResults")}</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>
