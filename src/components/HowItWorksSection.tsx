@@ -115,11 +115,11 @@ const HowItWorksSection = () => {
                 <div className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full bg-amber-500/5 blur-3xl" />
                 <div className="relative">
                   <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-3"><Shield className="w-5 h-5 text-amber-400" /></div>
-                  <p className="text-sm font-semibold text-amber-400">Privaro Layer</p>
+                  <p className="text-sm font-semibold text-amber-400">{t("how.agent.privaroLayer")}</p>
                   <div className="flex items-center justify-center gap-2 mt-2 flex-wrap">
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">Detection</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">Tokenisation</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">iBS Certified</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">{t("how.agent.badge.detection")}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">{t("how.agent.badge.tokenisation")}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">{t("how.agent.badge.ibs")}</span>
                   </div>
                 </div>
               </motion.div>
