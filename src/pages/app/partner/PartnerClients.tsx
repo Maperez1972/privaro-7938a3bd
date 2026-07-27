@@ -264,7 +264,7 @@ const PartnerClients = () => {
               <Select value={form.sector} onValueChange={(v) => setForm({ ...form, sector: v })}>
                 <SelectTrigger><SelectValue placeholder={t("app.partner.form.selectSector")} /></SelectTrigger>
                 <SelectContent>
-                  {SECTORS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                  {SECTOR_VALUES.map((s) => <SelectItem key={s} value={s}>{t(`sectors.${s}`)}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
