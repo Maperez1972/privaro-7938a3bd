@@ -212,7 +212,7 @@ const PartnerClients = () => {
           <TableHeader>
             <TableRow className="border-border">
               <TableHead>{t("app.partner.table.name")}</TableHead>
-              <TableHead>Consumo este mes</TableHead>
+              <TableHead>{t("app.partner.table.usageMonth")}</TableHead>
               <TableHead>{t("app.partner.table.createdAt")}</TableHead>
             </TableRow>
           </TableHeader>
