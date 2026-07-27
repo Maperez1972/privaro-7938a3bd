@@ -103,8 +103,8 @@ const HowItWorksSection = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-muted/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative">
                   <div className="w-10 h-10 rounded-lg bg-muted/50 border border-border flex items-center justify-center mx-auto mb-3"><Bot className="w-5 h-5 text-amber-400" /></div>
-                  <p className="text-sm font-semibold text-foreground">AI Agent</p>
-                  <p className="text-xs text-muted-foreground mt-1.5">LangChain · CrewAI · n8n</p>
+                  <p className="text-sm font-semibold text-foreground">{t("how.agent.node")}</p>
+                  <p className="text-xs text-muted-foreground mt-1.5">{t("how.agent.frameworks")}</p>
                 </div>
               </motion.div>
               <div className="hidden md:flex items-center px-2"><div className="flex items-center"><div className="w-16 h-px bg-gradient-to-r from-border to-amber-500/50" /><ArrowRight className="w-4 h-4 text-amber-400/60 -ml-1" /></div></div>
