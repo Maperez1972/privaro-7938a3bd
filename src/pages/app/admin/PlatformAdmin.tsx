@@ -112,24 +112,24 @@ const PlatformAdmin = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <Seo title="Platform admin — Privaro" description="Vista de superadmin de la plataforma Privaro." path="/app/platform-admin" noindex />
+      <Seo title={t("platform.seo.title")} description={t("platform.seo.description")} path="/app/platform-admin" noindex />
 
       <div>
         <div className="flex items-center gap-3">
           <ShieldCheck className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold">Platform Admin</h1>
+          <h1 className="text-2xl font-bold">{t("platform.title")}</h1>
           {typeof data?.count === "number" && <Badge variant="outline">{data.count}</Badge>}
         </div>
         <p className="text-sm text-muted-foreground mt-1">
-          Vista global de todas las organizaciones y su consumo actual.
+          {t("platform.subtitle")}
         </p>
       </div>
 
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-base">Organizaciones</CardTitle>
+          <CardTitle className="text-base">{t("platform.organizations")}</CardTitle>
           <Input
-            placeholder="Buscar por nombre…"
+            placeholder={t("platform.search")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="max-w-xs"
@@ -139,20 +139,20 @@ const PlatformAdmin = () => {
           {isLoading ? (
             <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
           ) : isError ? (
-            <p className="text-sm text-destructive">Error: {error?.message}</p>
+            <p className="text-sm text-destructive">{t("platform.error")}: {error?.message}</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="border-border">
-                    <SortHead k="name">Nombre</SortHead>
-                    <SortHead k="org_type">Tipo</SortHead>
-                    <TableHead>Partner padre</TableHead>
-                    <SortHead k="plan">Plan</SortHead>
-                    <SortHead k="requests_used_this_org">Consumo propio</SortHead>
-                    <SortHead k="requests_limit">Límite</SortHead>
-                    <SortHead k="pct">% del límite</SortHead>
-                    <TableHead>Fase descuento</TableHead>
+                    <SortHead k="name">{t("platform.col.name")}</SortHead>
+                    <SortHead k="org_type">{t("platform.col.type")}</SortHead>
+                    <TableHead>{t("platform.col.parent")}</TableHead>
+                    <SortHead k="plan">{t("platform.col.plan")}</SortHead>
+                    <SortHead k="requests_used_this_org">{t("platform.col.ownUsage")}</SortHead>
+                    <SortHead k="requests_limit">{t("platform.col.limit")}</SortHead>
+                    <SortHead k="pct">{t("platform.col.pctLimit")}</SortHead>
+                    <TableHead>{t("platform.col.discountPhase")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
