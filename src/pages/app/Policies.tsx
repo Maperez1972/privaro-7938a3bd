@@ -54,6 +54,7 @@ interface PolicyRule {
   regulation_ref: string | null;
   priority: number;
   custom_pattern: string | null;
+  field_name_pattern: string | null;
   pipeline_id: string | null;
   scope: string | null;
   overrides_org: boolean;
@@ -95,7 +96,7 @@ const Policies = () => {
     }
     const { data, error } = await (supabase as any)
       .from("policy_rules")
-      .select("id, entity_type, category, action, is_enabled, regulation_ref, priority, custom_pattern, pipeline_id, scope, overrides_org")
+      .select("id, entity_type, category, action, is_enabled, regulation_ref, priority, custom_pattern, field_name_pattern, pipeline_id, scope, overrides_org")
       .eq("org_id", profile.org_id)
       .is("pipeline_id", null)
       .order("priority", { ascending: true });
@@ -117,7 +118,7 @@ const Policies = () => {
     }
     const { data, error } = await (supabase as any)
       .from("policy_rules")
-      .select("id, entity_type, category, action, is_enabled, regulation_ref, priority, custom_pattern, pipeline_id, scope, overrides_org, pipelines!inner(name)")
+      .select("id, entity_type, category, action, is_enabled, regulation_ref, priority, custom_pattern, field_name_pattern, pipeline_id, scope, overrides_org, pipelines!inner(name)")
       .eq("org_id", profile.org_id)
       .eq("scope", "pipeline")
       .order("priority", { ascending: true });
@@ -127,7 +128,7 @@ const Policies = () => {
       // Fallback: try without join
       const { data: fallback } = await (supabase as any)
         .from("policy_rules")
-        .select("id, entity_type, category, action, is_enabled, regulation_ref, priority, custom_pattern, pipeline_id, scope, overrides_org")
+        .select("id, entity_type, category, action, is_enabled, regulation_ref, priority, custom_pattern, field_name_pattern, pipeline_id, scope, overrides_org")
         .eq("org_id", profile.org_id)
         .eq("scope", "pipeline")
         .order("priority", { ascending: true });
@@ -170,6 +171,7 @@ const Policies = () => {
       regulation_ref: form.regulation_ref || null,
       priority: form.priority,
       custom_pattern: form.custom_pattern || null,
+      field_name_pattern: form.field_name_pattern || null,
       updated_by: user?.id,
     });
     setSaving(false);
@@ -196,6 +198,7 @@ const Policies = () => {
         regulation_ref: form.regulation_ref || null,
         priority: form.priority,
         custom_pattern: form.custom_pattern || null,
+        field_name_pattern: form.field_name_pattern || null,
         updated_by: user.id,
       })
       .eq("id", editRule.id)
@@ -554,6 +557,7 @@ const Policies = () => {
           regulation_ref: editRule.regulation_ref ?? "",
           priority: editRule.priority,
           custom_pattern: editRule.custom_pattern ?? "",
+          field_name_pattern: editRule.field_name_pattern ?? "",
         } : null}
       />
 

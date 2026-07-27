@@ -26,6 +26,7 @@ export interface PolicyFormData {
   regulation_ref: string;
   priority: number;
   custom_pattern: string;
+  field_name_pattern: string;
 }
 
 export const SECTOR_PRESETS: Record<string, (Omit<PolicyFormData, "custom_pattern"> & { custom_pattern?: string })[]> = {
@@ -75,6 +76,7 @@ const PolicyDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: Po
     regulation_ref: "",
     priority: 10,
     custom_pattern: "",
+    field_name_pattern: "",
   });
 
   useEffect(() => {
@@ -88,6 +90,7 @@ const PolicyDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: Po
         regulation_ref: "",
         priority: 10,
         custom_pattern: "",
+        field_name_pattern: "",
       });
     }
   }, [initialData, open]);
@@ -144,8 +147,18 @@ const PolicyDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: Po
             <div className="space-y-2">
               <Label>{t("app.policies.dialog.customPattern")}</Label>
               <Input value={form.custom_pattern} onChange={(e) => setForm({ ...form, custom_pattern: e.target.value })} placeholder="\\b\\d{3}-\\d{2}-\\d{4}\\b" />
+              <p className="text-xs text-muted-foreground">{t("app.policies.dialog.customPatternHelp")}</p>
             </div>
           )}
+          <div className="space-y-2">
+            <Label>{t("app.policies.dialog.fieldNamePattern")}</Label>
+            <Input
+              value={form.field_name_pattern}
+              onChange={(e) => setForm({ ...form, field_name_pattern: e.target.value })}
+              placeholder="diagnostic|patholog"
+            />
+            <p className="text-xs text-muted-foreground">{t("app.policies.dialog.fieldNamePatternHelp")}</p>
+          </div>
         </div>
         <DialogFooter className="mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>{t("app.policies.dialog.cancel")}</Button>
