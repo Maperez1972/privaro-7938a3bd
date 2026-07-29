@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, ShieldCheck, ShieldAlert, Copy, Check, RotateCcw,
-  Link2, Zap, Clock, ChevronRight, ArrowRight, Lock, Eye, EyeOff,
+  Link2, Zap, Clock, ChevronRight, ArrowRight, Lock, Eye, EyeOff, TrendingDown, Coins,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Seo from "@/components/Seo";
@@ -70,15 +70,17 @@ function ProtectedOutput({ result }: { result: RunResult }) {
   const [modelId, setModelId] = useState<string>(DEFAULT_MODEL_PRICE_ID);
   const { t } = useLanguage();
 
-  const compression = view === "optimized" ? simulateCompression(result.protectedText) : null;
+  const compression = simulateCompression(result.protectedText);
   const displayText =
     view === "original" ? result.originalText :
-    view === "optimized" ? (compression?.compressedText ?? result.protectedText) :
+    view === "optimized" ? compression.compressedText :
     result.protectedText;
 
-  const pct = compression ? Math.round(compression.compressionRatio * 100) : 0;
+
+  const pct = Math.round(compression.compressionRatio * 100);
   const price = getModelPrice(modelId);
-  const usdSaved = compression ? estimateSavingsUsd(compression.tokensSaved, price.pricePerMillion) : 0;
+  const usdSaved = estimateSavingsUsd(compression.tokensSaved, price.pricePerMillion);
+
 
   const viewLabel = view === "original" ? t("demo.output.original") : view === "optimized" ? t("demo.output.optimized") : t("demo.output.tokenised");
 
@@ -98,8 +100,9 @@ function ProtectedOutput({ result }: { result: RunResult }) {
           </button>
         </div>
       </div>
-      {view === "optimized" && compression && (
-        <div className="flex items-center justify-between gap-3 text-xs flex-wrap">
+      {compression.tokensSaved > 0 && (
+        <div className="flex items-center justify-between gap-3 text-xs flex-wrap bg-emerald-500/[0.06] border border-emerald-500/20 rounded-lg px-3 py-2">
+
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1 font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
               −{pct}% tokens
@@ -449,13 +452,19 @@ export default function Demo() {
           <AnimatePresence>
             {result && (
               <motion.div key="metrics" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-                className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
+                className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {(() => {
+                  const c = simulateCompression(result.protectedText);
+                  const usd = estimateSavingsUsd(c.tokensSaved, getModelPrice(DEFAULT_MODEL_PRICE_ID).pricePerMillion);
+                  return [
                   { icon: Shield, label: t("demo.metric.detected"), value: numFmt(detections.length), color: "text-primary" },
                   { icon: ShieldCheck, label: t("demo.metric.protected"), value: numFmt(detections.length), color: "text-success" },
                   { icon: Zap, label: t("demo.metric.latency"), value: `${numFmt(result.processingMs)} ms`, color: "text-warning" },
                   { icon: Clock, label: t("demo.metric.coverage"), value: pctFmt(detections.length > 0 ? 100 : 0), color: "text-info" },
-                ].map(({ icon: Icon, label, value, color }) => (
+                  { icon: TrendingDown, label: t("demo.output.tokensSaved"), value: `−${Math.round(c.compressionRatio * 100)}%`, color: "text-emerald-400" },
+                  { icon: Coins, label: t("demo.output.perCall"), value: formatSavingsUsd(usd), color: "text-emerald-400" },
+                  ]; })().map(({ icon: Icon, label, value, color }) => (
+
                   <div key={label} className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
                     <Icon className={`w-5 h-5 shrink-0 ${color}`} />
                     <div>
