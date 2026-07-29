@@ -452,13 +452,19 @@ export default function Demo() {
           <AnimatePresence>
             {result && (
               <motion.div key="metrics" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-                className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
+                className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {(() => {
+                  const c = simulateCompression(result.protectedText);
+                  const usd = estimateSavingsUsd(c.tokensSaved, getModelPrice(DEFAULT_MODEL_PRICE_ID).pricePerMillion);
+                  return [
                   { icon: Shield, label: t("demo.metric.detected"), value: numFmt(detections.length), color: "text-primary" },
                   { icon: ShieldCheck, label: t("demo.metric.protected"), value: numFmt(detections.length), color: "text-success" },
                   { icon: Zap, label: t("demo.metric.latency"), value: `${numFmt(result.processingMs)} ms`, color: "text-warning" },
                   { icon: Clock, label: t("demo.metric.coverage"), value: pctFmt(detections.length > 0 ? 100 : 0), color: "text-info" },
-                ].map(({ icon: Icon, label, value, color }) => (
+                  { icon: TrendingDown, label: t("demo.output.tokensSaved"), value: `−${Math.round(c.compressionRatio * 100)}%`, color: "text-emerald-400" },
+                  { icon: Coins, label: t("demo.output.perCall"), value: formatSavingsUsd(usd), color: "text-emerald-400" },
+                  ]; })().map(({ icon: Icon, label, value, color }) => (
+
                   <div key={label} className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
                     <Icon className={`w-5 h-5 shrink-0 ${color}`} />
                     <div>
