@@ -298,7 +298,7 @@ export function simulateCompression(text: string): CompressionResult {
   const compressedMasked = (looksJson && compressJson(trimmed)) || compressProse(masked);
 
   // 3) Restore tokens verbatim
-  const compressedText = compressedMasked.replace(/\u0000T(\d+)\u0000/g, (_m, i) => tokens[Number(i)] ?? "");
+  const compressedText = compressedMasked.replace(/\u0000T(\d+)\u0000/g, (_m: string, i: string) => tokens[Number(i)] ?? "");
 
   const originalTokens = estimateTokens(text);
   const compressedTokens = estimateTokens(compressedText);
