@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { SeverityBadge } from "@/components/app/StatusBadge";
 import { protectText, simulateCompression, type PiiDetection, type ProtectResult } from "@/lib/pii-engine";
+import { MODEL_PRICES, DEFAULT_MODEL_PRICE_ID, getModelPrice, estimateSavingsUsd, formatSavingsUsd } from "@/lib/model-prices";
 
 // ─── Local type aliases ───────────────────────────────────────────────────────
 
@@ -66,6 +67,7 @@ type OutputView = "tokenised" | "original" | "optimized";
 
 function ProtectedOutput({ result }: { result: RunResult }) {
   const [view, setView] = useState<OutputView>("tokenised");
+  const [modelId, setModelId] = useState<string>(DEFAULT_MODEL_PRICE_ID);
   const { t } = useLanguage();
 
   const compression = view === "optimized" ? simulateCompression(result.protectedText) : null;
@@ -75,7 +77,8 @@ function ProtectedOutput({ result }: { result: RunResult }) {
     result.protectedText;
 
   const pct = compression ? Math.round(compression.compressionRatio * 100) : 0;
-  const usdSaved = compression ? (compression.tokensSaved / 1_000_000) * 3 : 0;
+  const price = getModelPrice(modelId);
+  const usdSaved = compression ? estimateSavingsUsd(compression.tokensSaved, price.pricePerMillion) : 0;
 
   const viewLabel = view === "original" ? t("demo.output.original") : view === "optimized" ? t("demo.output.optimized") : t("demo.output.tokenised");
 
@@ -96,13 +99,27 @@ function ProtectedOutput({ result }: { result: RunResult }) {
         </div>
       </div>
       {view === "optimized" && compression && (
-        <div className="flex items-center gap-3 text-xs">
-          <span className="inline-flex items-center gap-1 font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
-            −{pct}% tokens
-          </span>
-          <span className="text-muted-foreground">
-            {compression.tokensSaved.toLocaleString()} {t("demo.output.tokensSaved")} · ~${usdSaved.toFixed(5)} {t("demo.output.perCall")}
-          </span>
+        <div className="flex items-center justify-between gap-3 text-xs flex-wrap">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1 font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
+              −{pct}% tokens
+            </span>
+            <span className="text-muted-foreground">
+              {compression.tokensSaved.toLocaleString()} {t("demo.output.tokensSaved")} · ~{formatSavingsUsd(usdSaved)} {t("demo.output.perCall")}
+            </span>
+          </div>
+          <label className="flex items-center gap-1.5 text-muted-foreground">
+            {t("demo.output.model")}
+            <select
+              value={modelId}
+              onChange={(e) => setModelId(e.target.value)}
+              className="bg-background border border-border rounded px-1.5 py-0.5 text-xs text-foreground"
+            >
+              {MODEL_PRICES.map((m) => (
+                <option key={m.id} value={m.id}>{m.label} (${m.pricePerMillion}/1M)</option>
+              ))}
+            </select>
+          </label>
         </div>
       )}
       <div className="bg-background border border-border rounded-lg p-3 min-h-32 max-h-64 overflow-y-auto">
