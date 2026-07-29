@@ -77,9 +77,10 @@ function ProtectedOutput({ result }: { result: RunResult }) {
     result.protectedText;
 
 
-  const pct = compression ? Math.round(compression.compressionRatio * 100) : 0;
+  const pct = Math.round(compression.compressionRatio * 100);
   const price = getModelPrice(modelId);
-  const usdSaved = compression ? estimateSavingsUsd(compression.tokensSaved, price.pricePerMillion) : 0;
+  const usdSaved = estimateSavingsUsd(compression.tokensSaved, price.pricePerMillion);
+
 
   const viewLabel = view === "original" ? t("demo.output.original") : view === "optimized" ? t("demo.output.optimized") : t("demo.output.tokenised");
 
