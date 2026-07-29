@@ -261,10 +261,10 @@ function compressJson(text: string): string | null {
       return out;
     });
 
-    const cols = Array.from(new Set(flat.flatMap((r) => Object.keys(r))));
+    const cols: string[] = Array.from(new Set(flat.flatMap((r: Record<string, unknown>) => Object.keys(r))));
     const cell = (v: unknown) => (v == null ? "" : typeof v === "string" ? v : JSON.stringify(v));
     const header = cols.join("|");
-    const rows = flat.map((r) => cols.map((c) => cell(r[c])).join("|"));
+    const rows = flat.map((r: Record<string, unknown>) => cols.map((c) => cell(r[c])).join("|"));
     return `# columnar (${arr.length} rows)\n${header}\n${rows.join("\n")}`;
   } catch {
     return null;
