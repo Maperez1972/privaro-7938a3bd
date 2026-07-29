@@ -70,11 +70,12 @@ function ProtectedOutput({ result }: { result: RunResult }) {
   const [modelId, setModelId] = useState<string>(DEFAULT_MODEL_PRICE_ID);
   const { t } = useLanguage();
 
-  const compression = view === "optimized" ? simulateCompression(result.protectedText) : null;
+  const compression = simulateCompression(result.protectedText);
   const displayText =
     view === "original" ? result.originalText :
-    view === "optimized" ? (compression?.compressedText ?? result.protectedText) :
+    view === "optimized" ? compression.compressedText :
     result.protectedText;
+
 
   const pct = compression ? Math.round(compression.compressionRatio * 100) : 0;
   const price = getModelPrice(modelId);
