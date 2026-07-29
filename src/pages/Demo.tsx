@@ -100,8 +100,9 @@ function ProtectedOutput({ result }: { result: RunResult }) {
           </button>
         </div>
       </div>
-      {view === "optimized" && compression && (
-        <div className="flex items-center justify-between gap-3 text-xs flex-wrap">
+      {compression.tokensSaved > 0 && (
+        <div className="flex items-center justify-between gap-3 text-xs flex-wrap bg-emerald-500/[0.06] border border-emerald-500/20 rounded-lg px-3 py-2">
+
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1 font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
               −{pct}% tokens
