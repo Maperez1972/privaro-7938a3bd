@@ -42,6 +42,7 @@ const Index = () => {
         <ProblemSection />
         <RiskGapSection />
         <SolutionSection />
+        <CostOptimizationSection />
         <DashboardMockupSection />
         <HowItWorksSection />
         <ComparisonSection />

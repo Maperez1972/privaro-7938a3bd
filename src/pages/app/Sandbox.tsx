@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/context/LanguageContext";
 import { proxyDetect, proxyProtect } from "@/lib/proxy-client";
+import { simulateCompression } from "@/lib/pii-engine";
+import { CompressionStatsCard } from "@/components/app/CompressionStatsCard";
 import { SeverityBadge, StatusBadge } from "@/components/app/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -127,6 +129,8 @@ const Sandbox = () => {
 
   const [inputText, setInputText] = useState("");
   const [mode, setMode] = useState<Mode>("protect");
+  const [optimizeContext, setOptimizeContext] = useState(false);
+  const [compressionStats, setCompressionStats] = useState<{ tokens_saved: number; compression_ratio: number } | null>(null);
   const [selectedPipeline, setSelectedPipeline] = useState<string>("__none__");
   const [detections, setDetections] = useState<Detection[]>([]);
   const [protectResult, setProtectResult] = useState<ProtectResult | null>(null);
@@ -203,12 +207,14 @@ const Sandbox = () => {
   const handleReset = () => {
     setInputText(""); setDetections([]); setProtectResult(null);
     setAuditLogs([]); setProcessingMs(null); setRevealedTokens(new Set()); setIsMock(false);
+    setCompressionStats(null);
   };
 
   const handleRun = async () => {
     if (!inputText.trim()) return;
     setIsProcessing(true); setDetections([]); setProtectResult(null);
     setAuditLogs([]); setRevealedTokens(new Set()); setIsMock(false);
+    setCompressionStats(null);
     const t0 = performance.now();
     const pipelineId = selectedPipeline === "__none__" ? undefined : selectedPipeline;
     const isReal = !!import.meta.env.VITE_PROXY_URL;
@@ -220,10 +226,17 @@ const Sandbox = () => {
         setDetections(enriched); setProcessingMs(ms);
         if (!isReal) { setIsMock(true); await insertMockAuditLogs(enriched, "pii_detected", "detected", ms); }
       } else {
-        const raw = await proxyProtect(inputText, pipelineId) as ProtectResult;
+        const raw = await proxyProtect(inputText, pipelineId, { optimizeContext }) as ProtectResult & { compressionStats?: { tokens_saved: number; compression_ratio: number } };
         const enriched = enrichDetections(raw.detections, inputText);
         const ms = Math.round(performance.now() - t0);
         setProtectResult({ ...raw, detections: enriched }); setDetections(enriched); setProcessingMs(ms);
+        if (optimizeContext) {
+          if (raw.compressionStats) setCompressionStats(raw.compressionStats);
+          else {
+            const stats = simulateCompression(raw.protectedText);
+            setCompressionStats({ tokens_saved: stats.tokensSaved, compression_ratio: stats.compressionRatio });
+          }
+        }
         if (isReal && raw.auditLogId) {
           const { data } = await supabase.from("audit_logs")
             .select("id, event_type, entity_type, entity_category, action_taken, severity, ibs_status, ibs_certification_hash, ibs_evidence_id, ibs_network, ibs_certified_at, processing_ms, created_at")
@@ -244,6 +257,10 @@ const Sandbox = () => {
         const raw = mockProxyProtect(inputText) as ProtectResult;
         const enriched = enrichDetections(raw.detections, inputText);
         setProtectResult({ ...raw, detections: enriched }); setDetections(enriched); setProcessingMs(ms); setIsMock(true);
+        if (optimizeContext) {
+          const stats = simulateCompression(raw.protectedText);
+          setCompressionStats({ tokens_saved: stats.tokensSaved, compression_ratio: stats.compressionRatio });
+        }
         await insertMockAuditLogs(enriched, "pii_masked", "tokenised", ms);
       }
     } finally { setIsProcessing(false); }
@@ -285,6 +302,18 @@ const Sandbox = () => {
             </button>
           ))}
         </div>
+        <button
+          onClick={() => setOptimizeContext(v => !v)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
+            optimizeContext
+              ? "bg-primary/10 border-primary/40 text-primary"
+              : "bg-secondary/30 border-border text-muted-foreground hover:text-foreground"
+          }`}
+          title={t("sandbox.optimize.tooltip")}
+        >
+          <span className={`w-2 h-2 rounded-full ${optimizeContext ? "bg-primary" : "bg-muted-foreground/40"}`} />
+          {t("sandbox.optimize.toggle")}
+        </button>
         <div className="flex items-center gap-2">
           <GitBranch className="w-4 h-4 text-muted-foreground" />
           <Select value={selectedPipeline} onValueChange={setSelectedPipeline}>
@@ -395,6 +424,14 @@ const Sandbox = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Compression stats (Context Optimization) */}
+      {compressionStats && mode === "protect" && (
+        <CompressionStatsCard
+          tokensSaved={compressionStats.tokens_saved}
+          compressionRatio={compressionStats.compression_ratio}
+        />
+      )}
 
       {/* Token map */}
       <AnimatePresence>
