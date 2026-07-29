@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, ShieldCheck, ShieldAlert, Copy, Check, RotateCcw,
-  Link2, Zap, Clock, ChevronRight, ArrowRight, Lock, Eye, EyeOff,
+  Link2, Zap, Clock, ChevronRight, ArrowRight, Lock, Eye, EyeOff, TrendingDown, Coins,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Seo from "@/components/Seo";
