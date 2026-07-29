@@ -218,3 +218,92 @@ export function protectText(text: string): ProtectResult {
     requestId: null,
   };
 }
+
+// ─── Context Optimization (demo simulation) ──────────────────────────────────
+//
+// Simulates the token-compression layer WITHOUT touching PII tokens ([XX-0000]).
+// Two strategies:
+//   • JSON tool outputs / logs → columnar (array-of-objects to header + rows)
+//   • Prose → collapse repeated whitespace and duplicate adjacent lines
+// Token estimate uses the industry rule of thumb ~4 chars per token.
+
+export interface CompressionResult {
+  compressedText: string;
+  tokensSaved: number;
+  compressionRatio: number; // 0..1, fraction of tokens removed
+  originalTokens: number;
+  compressedTokens: number;
+}
+
+const TOKEN_RE = /\[[A-Z]{2}-\d{4}\]/g;
+const estimateTokens = (s: string) => Math.max(1, Math.ceil(s.length / 4));
+
+function compressJson(text: string): string | null {
+  try {
+    const parsed = JSON.parse(text);
+    const arr = Array.isArray(parsed)
+      ? parsed
+      : (parsed && typeof parsed === "object" && Array.isArray((parsed as any).logs))
+        ? (parsed as any).logs
+        : null;
+    if (!arr || arr.length < 2) return null;
+    if (!arr.every((r: any) => r && typeof r === "object" && !Array.isArray(r))) return null;
+
+    const flat = arr.map((row: any) => {
+      const out: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(row)) {
+        if (v && typeof v === "object" && !Array.isArray(v)) {
+          for (const [k2, v2] of Object.entries(v as Record<string, unknown>)) out[`${k}.${k2}`] = v2;
+        } else {
+          out[k] = v;
+        }
+      }
+      return out;
+    });
+
+    const cols: string[] = Array.from(new Set(flat.flatMap((r: Record<string, unknown>) => Object.keys(r))));
+    const cell = (v: unknown) => (v == null ? "" : typeof v === "string" ? v : JSON.stringify(v));
+    const header = cols.join("|");
+    const rows = flat.map((r: Record<string, unknown>) => cols.map((c) => cell(r[c])).join("|"));
+    return `# columnar (${arr.length} rows)\n${header}\n${rows.join("\n")}`;
+  } catch {
+    return null;
+  }
+}
+
+function compressProse(text: string): string {
+  const lines = text.split(/\r?\n/);
+  const out: string[] = [];
+  let prev = "";
+  for (const raw of lines) {
+    const line = raw.replace(/[ \t]+/g, " ").trim();
+    if (line && line === prev) continue;
+    out.push(line);
+    prev = line;
+  }
+  return out.join("\n").replace(/\n{3,}/g, "\n\n");
+}
+
+export function simulateCompression(text: string): CompressionResult {
+  // 1) Extract PII tokens so we NEVER mutate them
+  const tokens: string[] = [];
+  const masked = text.replace(TOKEN_RE, (m) => {
+    tokens.push(m);
+    return `\u0000T${tokens.length - 1}\u0000`;
+  });
+
+  // 2) Try JSON compression first, fall back to prose
+  const trimmed = masked.trim();
+  const looksJson = trimmed.startsWith("{") || trimmed.startsWith("[");
+  const compressedMasked = (looksJson && compressJson(trimmed)) || compressProse(masked);
+
+  // 3) Restore tokens verbatim
+  const compressedText = compressedMasked.replace(/\u0000T(\d+)\u0000/g, (_m: string, i: string) => tokens[Number(i)] ?? "");
+
+  const originalTokens = estimateTokens(text);
+  const compressedTokens = estimateTokens(compressedText);
+  const tokensSaved = Math.max(0, originalTokens - compressedTokens);
+  const compressionRatio = originalTokens > 0 ? tokensSaved / originalTokens : 0;
+
+  return { compressedText, tokensSaved, compressionRatio, originalTokens, compressedTokens };
+}

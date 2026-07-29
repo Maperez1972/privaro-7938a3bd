@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { SeverityBadge } from "@/components/app/StatusBadge";
-import { protectText, type PiiDetection, type ProtectResult } from "@/lib/pii-engine";
+import { protectText, simulateCompression, type PiiDetection, type ProtectResult } from "@/lib/pii-engine";
 
 // ─── Local type aliases ───────────────────────────────────────────────────────
 
@@ -28,7 +28,7 @@ const STAGGER = { visible: { transition: { staggerChildren: 0.08 } } };
 
 // ─── Scenarios ────────────────────────────────────────────────────────────────
 
-const SCENARIO_KEYS = ["legal", "health", "hr", "fintech"] as const;
+const SCENARIO_KEYS = ["legal", "health", "hr", "fintech", "auditlog"] as const;
 type ScenarioKey = typeof SCENARIO_KEYS[number];
 
 // ─── Severity highlight classes ───────────────────────────────────────────────
@@ -62,39 +62,66 @@ function HighlightedInput({ text, detections }: { text: string; detections: Dete
 
 // ─── Protected output: shows tokenised text with reveal toggle ────────────────
 
+type OutputView = "tokenised" | "original" | "optimized";
+
 function ProtectedOutput({ result }: { result: RunResult }) {
-  const [revealed, setRevealed] = useState(false);
+  const [view, setView] = useState<OutputView>("tokenised");
   const { t } = useLanguage();
 
-  const displayText = revealed ? result.originalText : result.protectedText;
+  const compression = view === "optimized" ? simulateCompression(result.protectedText) : null;
+  const displayText =
+    view === "original" ? result.originalText :
+    view === "optimized" ? (compression?.compressedText ?? result.protectedText) :
+    result.protectedText;
+
+  const pct = compression ? Math.round(compression.compressionRatio * 100) : 0;
+  const usdSaved = compression ? (compression.tokensSaved / 1_000_000) * 3 : 0;
+
+  const viewLabel = view === "original" ? t("demo.output.original") : view === "optimized" ? t("demo.output.optimized") : t("demo.output.tokenised");
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">{t("demo.output.showing")} {revealed ? t("demo.output.original") : t("demo.output.tokenised")}</span>
-        <button
-          onClick={() => setRevealed(v => !v)}
-          className="flex items-center gap-1.5 text-xs text-primary border border-primary/30 bg-primary/5 rounded-full px-3 py-1 hover:bg-primary/10 transition-colors"
-        >
-          {revealed ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-          {revealed ? t("demo.output.hide") : t("demo.output.reveal")}
-        </button>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <span className="text-xs text-muted-foreground">{t("demo.output.showing")} {viewLabel}</span>
+        <div className="flex rounded-full border border-border overflow-hidden text-xs">
+          <button onClick={() => setView("tokenised")} className={`px-2.5 py-1 flex items-center gap-1 transition-colors ${view === "tokenised" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+            <Shield className="w-3 h-3" />{t("demo.output.tokenised")}
+          </button>
+          <button onClick={() => setView("original")} className={`px-2.5 py-1 flex items-center gap-1 transition-colors ${view === "original" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+            <Eye className="w-3 h-3" />{t("demo.output.original")}
+          </button>
+          <button onClick={() => setView("optimized")} className={`px-2.5 py-1 flex items-center gap-1 transition-colors ${view === "optimized" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+            <Zap className="w-3 h-3" />{t("demo.output.optimized")}
+          </button>
+        </div>
       </div>
+      {view === "optimized" && compression && (
+        <div className="flex items-center gap-3 text-xs">
+          <span className="inline-flex items-center gap-1 font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
+            −{pct}% tokens
+          </span>
+          <span className="text-muted-foreground">
+            {compression.tokensSaved.toLocaleString()} {t("demo.output.tokensSaved")} · ~${usdSaved.toFixed(5)} {t("demo.output.perCall")}
+          </span>
+        </div>
+      )}
       <div className="bg-background border border-border rounded-lg p-3 min-h-32 max-h-64 overflow-y-auto">
         <AnimatePresence mode="wait">
-          <motion.p
-            key={revealed ? "original" : "protected"}
+          <motion.div
+            key={view}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             className="text-sm font-mono leading-relaxed whitespace-pre-wrap"
           >
-            {displayed(displayText, result, revealed)}
-          </motion.p>
+            {view === "original"
+              ? <HighlightedInput text={result.originalText} detections={result.detections} />
+              : renderTokenised(displayText)}
+          </motion.div>
         </AnimatePresence>
       </div>
-      {!revealed && Object.keys(result.tokenMap).length > 0 && (
+      {view === "tokenised" && Object.keys(result.tokenMap).length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {Object.entries(result.tokenMap).map(([token]) => (
             <span key={token} className="text-xs font-mono px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary">
@@ -107,12 +134,7 @@ function ProtectedOutput({ result }: { result: RunResult }) {
   );
 }
 
-function displayed(text: string, result: RunResult, revealed: boolean): React.ReactNode {
-  if (revealed) {
-    // Highlighted original
-    return <HighlightedInput text={result.originalText} detections={result.detections} />;
-  }
-  // Tokenised text — highlight the token placeholders
+function renderTokenised(text: string): React.ReactNode {
   const tokenRegex = /\[[A-Z]{2}-\d{4}\]/g;
   const parts: React.ReactNode[] = [];
   let last = 0;
@@ -129,6 +151,8 @@ function displayed(text: string, result: RunResult, revealed: boolean): React.Re
   if (last < text.length) parts.push(<span key="t-end">{text.slice(last)}</span>);
   return <>{parts}</>;
 }
+
+// (legacy displayed() helper removed — see renderTokenised above)
 
 // ─── iBS chip ─────────────────────────────────────────────────────────────────
 

@@ -28,7 +28,7 @@ export const tokenizePii = (text: string): { sanitized: string; detected: string
 // proxy-bridge, which resolves the caller's real org_id and pipeline
 // server-side and authenticates to the proxy with an internal shared
 // secret — no hardcoded pipeline fallback needed here anymore.
-async function callProxyBridge(mode: "detect" | "protect", text: string, pipelineId?: string) {
+async function callProxyBridge(mode: "detect" | "protect", text: string, pipelineId?: string, options?: Record<string, unknown>) {
   const { supabase } = await import("@/integrations/supabase/client");
   const { data: sessionData } = await supabase.auth.getSession();
   const token = sessionData?.session?.access_token;
@@ -42,7 +42,7 @@ async function callProxyBridge(mode: "detect" | "protect", text: string, pipelin
       Authorization: `Bearer ${token}`,
       apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
     },
-    body: JSON.stringify({ mode, prompt: text, pipeline_id: pipelineId }),
+    body: JSON.stringify({ mode, prompt: text, pipeline_id: pipelineId, options }),
   });
   if (!res.ok) throw new Error(`Proxy ${mode} failed`);
   return res.json();
@@ -57,17 +57,29 @@ export const proxyDetect = async (text: string, pipelineId?: string) => {
   return data.detections;
 };
 
-export const proxyProtect = async (text: string, pipelineId?: string) => {
+export interface CompressionStats { tokens_saved: number; compression_ratio: number; }
+
+export const proxyProtect = async (text: string, pipelineId?: string, opts?: { optimizeContext?: boolean }) => {
   if (!PROXY_URL) {
     const { mockProxyProtect } = await import("@/lib/mock-data");
-    return mockProxyProtect(text);
+    const base = mockProxyProtect(text) as any;
+    if (opts?.optimizeContext) {
+      const { simulateCompression } = await import("@/lib/pii-engine");
+      const stats = simulateCompression(base.protectedText);
+      return { ...base, compressionStats: { tokens_saved: stats.tokensSaved, compression_ratio: stats.compressionRatio } };
+    }
+    return base;
   }
-  const data = await callProxyBridge("protect", text, pipelineId);
+  const options = opts?.optimizeContext ? { optimize_context: true } : undefined;
+  const data = await callProxyBridge("protect", text, pipelineId, options);
   return {
     protectedText: data.protected_prompt,
     detections: data.detections,
     tokenMap: {} as Record<string, string>,
     auditLogId: data.audit_log_id || null,
     requestId: data.request_id || null,
+    compressionStats: data.compression_stats
+      ? { tokens_saved: data.compression_stats.tokens_saved, compression_ratio: data.compression_stats.compression_ratio }
+      : undefined,
   };
 };

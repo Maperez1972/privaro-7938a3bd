@@ -8,6 +8,7 @@ const UrgencySection = lazy(() => import("@/components/UrgencySection"));
 const ProblemSection = lazy(() => import("@/components/ProblemSection"));
 const RiskGapSection = lazy(() => import("@/components/RiskGapSection"));
 const SolutionSection = lazy(() => import("@/components/SolutionSection"));
+const CostOptimizationSection = lazy(() => import("@/components/CostOptimizationSection"));
 const DashboardMockupSection = lazy(() => import("@/components/DashboardMockupSection"));
 const HowItWorksSection = lazy(() => import("@/components/HowItWorksSection"));
 const ComparisonSection = lazy(() => import("@/components/ComparisonSection"));
@@ -41,6 +42,7 @@ const Index = () => {
         <ProblemSection />
         <RiskGapSection />
         <SolutionSection />
+        <CostOptimizationSection />
         <DashboardMockupSection />
         <HowItWorksSection />
         <ComparisonSection />
