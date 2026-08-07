@@ -100,7 +100,7 @@ export function useChat() {
     }
   }, [activeConversationId]);
   const [sending, setSending] = useState(false);
-  const [optimizeContext, setOptimizeContext] = useState(false);
+  const [optimizeContext, setOptimizeContext] = usePersistentToggle("privaro.chat.optimizeContext", false);
   const [lastCompressionStats, setLastCompressionStats] = useState<CompressionStats | null>(null);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
