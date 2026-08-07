@@ -98,7 +98,14 @@ const Chat = () => {
         pastedText={pastedText}
         onRemovePastedText={() => setPastedText(null)}
       />
-      <PipelineSelector pipelines={chat.pipelines} activePipelineId={chat.activePipelineId} onSelect={chat.setActivePipelineId} />
+      <PipelineSelector
+        pipelines={chat.pipelines}
+        activePipelineId={chat.activePipelineId}
+        onSelect={chat.setActivePipelineId}
+        optimizeContext={chat.optimizeContext}
+        onToggleOptimize={chat.setOptimizeContext}
+        compressionStats={chat.lastCompressionStats}
+      />
     </div>
   );
 };

@@ -1,14 +1,23 @@
 import { useState, useRef, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Check, Zap } from "lucide-react";
+import { Check, Zap, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
 import { PolicySummaryBadge } from "@/components/app/pipeline/PolicySummaryBadge";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface Pipeline { id: string; name: string; llm_provider: string; llm_model: string; }
-interface Props { pipelines: Pipeline[]; activePipelineId: string | null; onSelect: (id: string) => void; }
+interface CompressionStats { tokens_saved: number; compression_ratio: number }
+interface Props {
+  pipelines: Pipeline[];
+  activePipelineId: string | null;
+  onSelect: (id: string) => void;
+  optimizeContext?: boolean;
+  onToggleOptimize?: (v: boolean) => void;
+  compressionStats?: CompressionStats | null;
+}
 
-export function PipelineSelector({ pipelines, activePipelineId, onSelect }: Props) {
+export function PipelineSelector({ pipelines, activePipelineId, onSelect, optimizeContext, onToggleOptimize, compressionStats }: Props) {
   const { t } = useLanguage();
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(false);
@@ -33,6 +42,23 @@ export function PipelineSelector({ pipelines, activePipelineId, onSelect }: Prop
   return (
     <div className="w-72 flex-shrink-0 border-l border-border flex-col bg-card/50 hidden lg:flex">
       <div className="p-3 border-b border-border"><h2 className="text-sm font-semibold">{t("app.chat.pipelineSelector.title")}</h2><p className="text-[10px] text-muted-foreground mt-0.5">{t("app.chat.pipelineSelector.subtitle")}</p></div>
+      {onToggleOptimize && (
+        <div className="p-3 border-b border-border">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Sparkles className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+              <span className="text-xs font-medium truncate">{t("sandbox.compression.title")}</span>
+            </div>
+            <Switch checked={!!optimizeContext} onCheckedChange={onToggleOptimize} aria-label={t("sandbox.compression.title")} />
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1">{t("app.chat.optimize.desc")}</p>
+          {optimizeContext && compressionStats && compressionStats.compression_ratio > 0 && (
+            <Badge variant="outline" className="mt-2 text-[10px] border-emerald-500/50 text-emerald-400">
+              −{Math.round(compressionStats.compression_ratio * 100)}% tokens · {compressionStats.tokens_saved.toLocaleString()}
+            </Badge>
+          )}
+        </div>
+      )}
       <div className="relative flex-1 min-h-0">
         <div ref={listRef} className="h-full overflow-y-auto p-2 space-y-1.5">
           {pipelines.length === 0 ? <p className="text-xs text-muted-foreground text-center py-8">{t("app.chat.pipelineSelector.none")}</p> : pipelines.map((pipe) => {

@@ -45,6 +45,11 @@ interface Pipeline {
   status: string;
 }
 
+export interface CompressionStats {
+  tokens_saved: number;
+  compression_ratio: number;
+}
+
 export interface ConversationFolder {
   id: string;
   org_id: string;
@@ -95,6 +100,8 @@ export function useChat() {
     }
   }, [activeConversationId]);
   const [sending, setSending] = useState(false);
+  const [optimizeContext, setOptimizeContext] = useState(false);
+  const [lastCompressionStats, setLastCompressionStats] = useState<CompressionStats | null>(null);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [folders, setFolders] = useState<ConversationFolder[]>([]);
@@ -469,7 +476,7 @@ export function useChat() {
             Authorization: `Bearer ${token}`,
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           },
-          body: JSON.stringify({ prompt: fullText, pipeline_id: activePipelineId, conversation_id: convId }),
+          body: JSON.stringify({ prompt: fullText, pipeline_id: activePipelineId, conversation_id: convId, optimize_context: optimizeContext }),
         });
         // Fixed 2026-07-24 — CRITICAL regression found by a follow-up scan:
         // res.ok was never checked. On any non-2xx response (deleted/
@@ -491,10 +498,17 @@ export function useChat() {
         const data = await res.json();
         protectedText = data.protected_prompt ?? fullText;
         detections = data.detections ?? [];
+        const stats = data.compression_stats;
+        setLastCompressionStats(
+          optimizeContext && stats && typeof stats.compression_ratio === "number"
+            ? { tokens_saved: stats.tokens_saved ?? 0, compression_ratio: stats.compression_ratio }
+            : null
+        );
       } else {
         const mock = mockProxyProtect(fullText);
         protectedText = mock.protectedText;
         detections = mock.detections;
+        setLastCompressionStats(null);
       }
       piiDetected = detections.length;
       piiProtected = detections.length;
@@ -692,7 +706,7 @@ export function useChat() {
 
     await fetchConversations();
     setSending(false);
-  }, [user, profile?.org_id, activeConversationId, activePipelineId, pipelines, sending, messages, createConversation, fetchConversations]);
+  }, [user, profile?.org_id, activeConversationId, activePipelineId, pipelines, sending, messages, optimizeContext, createConversation, fetchConversations]);
 
   const editMessage = useCallback(async (messageId: string, newContent: string) => {
     const { error } = await (supabase as any).from("messages").update({ content_protected: newContent }).eq("id", messageId);
@@ -714,6 +728,9 @@ export function useChat() {
     loadingMessages,
     messagesEndRef,
     isProxyActive,
+    optimizeContext,
+    setOptimizeContext,
+    lastCompressionStats,
     createConversation,
     archiveConversation,
     unarchiveConversation,
