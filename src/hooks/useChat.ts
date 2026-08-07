@@ -498,10 +498,17 @@ export function useChat() {
         const data = await res.json();
         protectedText = data.protected_prompt ?? fullText;
         detections = data.detections ?? [];
+        const stats = data.compression_stats;
+        setLastCompressionStats(
+          optimizeContext && stats && typeof stats.compression_ratio === "number"
+            ? { tokens_saved: stats.tokens_saved ?? 0, compression_ratio: stats.compression_ratio }
+            : null
+        );
       } else {
         const mock = mockProxyProtect(fullText);
         protectedText = mock.protectedText;
         detections = mock.detections;
+        setLastCompressionStats(null);
       }
       piiDetected = detections.length;
       piiProtected = detections.length;
