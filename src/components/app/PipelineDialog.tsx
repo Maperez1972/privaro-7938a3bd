@@ -41,14 +41,12 @@ interface PipelineDialogProps {
 
 const SECTORS = ["legal", "healthcare", "fintech", "general"];
 const PROVIDERS = ["openai", "anthropic", "google", "azure", "deepseek", "custom"];
-const MODELS: Record<string, string[]> = {
-  openai: ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"],
-  anthropic: ["claude-opus-4-5", "claude-sonnet-4-5", "claude-haiku-4-5-20251001"],
-  google: ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-2.0-flash"],
-  azure: ["gpt-4o", "gpt-4-turbo"],
-  deepseek: ["deepseek-chat", "deepseek-reasoner"],
-  custom: ["custom-model"],
-};
+
+interface ProviderModelsResponse {
+  models: { id: string; label: string }[];
+  error?: "no_active_provider" | "provider_error";
+  detail?: string;
+}
 
 const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: PipelineDialogProps) => {
   const { t } = useLanguage();
@@ -57,7 +55,7 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
     name: "",
     sector: "general",
     llm_provider: "openai",
-    llm_model: "gpt-4o",
+    llm_model: "",
     llm_endpoint_url: "",
     policy_set_id: null,
   });
@@ -91,14 +89,46 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
         name: "",
         sector: "general",
         llm_provider: "openai",
-        llm_model: "gpt-4o",
+        llm_model: "",
         llm_endpoint_url: "",
         policy_set_id: null,
       });
     }
   }, [initialData, open]);
 
-  const availableModels = MODELS[form.llm_provider] ?? ["custom-model"];
+  const { data: modelsData, isLoading: modelsLoading } = useQuery<ProviderModelsResponse>({
+    queryKey: ["provider-models", form.llm_provider],
+    enabled: open && !!form.llm_provider,
+    staleTime: 5 * 60 * 1000,
+    queryFn: async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const res = await fetch(`${supabaseUrl}/functions/v1/list-provider-models`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ provider: form.llm_provider }),
+      });
+      const json = await res.json();
+      return { models: json?.models ?? [], error: json?.error, detail: json?.detail };
+    },
+  });
+
+  const availableModels = modelsData?.models ?? [];
+  const noActiveProvider = modelsData?.error === "no_active_provider";
+  const providerError = modelsData?.error === "provider_error";
+  const useManualInput = !modelsLoading && (providerError || (!noActiveProvider && availableModels.length === 0));
+  const modelMissing =
+    !modelsLoading &&
+    !modelsData?.error &&
+    !!form.llm_model &&
+    availableModels.length > 0 &&
+    !availableModels.some((m) => m.id === form.llm_model);
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -124,7 +154,7 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
           </div>
           <div className="space-y-2">
             <Label>{t("app.pipelines.dialog.provider")}</Label>
-            <Select value={form.llm_provider} onValueChange={(v) => setForm({ ...form, llm_provider: v, llm_model: MODELS[v]?.[0] ?? "custom-model" })}>
+            <Select value={form.llm_provider} onValueChange={(v) => setForm({ ...form, llm_provider: v, llm_model: "" })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {PROVIDERS.map((p) => {
@@ -153,15 +183,55 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
           </div>
           <div className="space-y-2">
             <Label>{t("app.pipelines.dialog.model")}</Label>
-            <Select value={form.llm_model} onValueChange={(v) => setForm({ ...form, llm_model: v })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {availableModels.map((m) => (
-                  <SelectItem key={m} value={m}>{m}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {useManualInput ? (
+              <Input
+                value={form.llm_model}
+                onChange={(e) => setForm({ ...form, llm_model: e.target.value })}
+                placeholder={t("app.pipelines.dialog.modelManualPlaceholder")}
+              />
+            ) : (
+              <Select
+                value={form.llm_model}
+                onValueChange={(v) => setForm({ ...form, llm_model: v })}
+                disabled={modelsLoading || noActiveProvider}
+              >
+                <SelectTrigger>
+                  {modelsLoading ? (
+                    <span className="flex items-center gap-2 text-muted-foreground text-sm">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      {t("app.pipelines.dialog.modelsLoading")}
+                    </span>
+                  ) : (
+                    <SelectValue placeholder={t("app.pipelines.dialog.modelPlaceholder")} />
+                  )}
+                </SelectTrigger>
+                <SelectContent>
+                  {availableModels.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            {noActiveProvider && (
+              <div className="flex items-start gap-2 p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400">
+                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span>{t("app.pipelines.dialog.modelsNoProvider")}</span>
+              </div>
+            )}
+            {providerError && (
+              <div className="flex items-start gap-2 p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400">
+                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span>{t("app.pipelines.dialog.modelsProviderError").replace("{detail}", modelsData?.detail ?? "—")}</span>
+              </div>
+            )}
+            {modelMissing && (
+              <div className="flex items-start gap-2 p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400">
+                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span>{t("app.pipelines.dialog.modelsMissing").replace("{model}", form.llm_model)}</span>
+              </div>
+            )}
           </div>
+
           <div className="space-y-2">
             <Label>{t("app.pipelines.dialog.endpoint")}</Label>
             <Input value={form.llm_endpoint_url} onChange={(e) => setForm({ ...form, llm_endpoint_url: e.target.value })} placeholder="https://api.example.com/v1" />
