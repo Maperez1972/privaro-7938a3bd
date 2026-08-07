@@ -437,9 +437,19 @@ serve(async (req) => {
     );
   } catch (err) {
     console.error("chat-completion error:", err);
+    const raw = err instanceof Error ? err.message : String(err);
+    // Surface upstream provider failures (bad model, invalid key, quota…)
+    // instead of an opaque 500 the UI can't explain.
+    const match = raw.match(/^(\w+) error (\d{3}):/);
+    const status = match ? (Number(match[2]) === 401 || Number(match[2]) === 403 ? 502 : Number(match[2])) : 500;
     return new Response(
-      JSON.stringify({ error: "internal_error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({
+        error: match ? "provider_error" : "internal_error",
+        provider: match?.[1]?.toLowerCase(),
+        detail: raw.slice(0, 600),
+      }),
+      { status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
+
 });
