@@ -96,7 +96,39 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
     }
   }, [initialData, open]);
 
-  const availableModels = MODELS[form.llm_provider] ?? ["custom-model"];
+  const { data: modelsData, isLoading: modelsLoading } = useQuery<ProviderModelsResponse>({
+    queryKey: ["provider-models", form.llm_provider],
+    enabled: open && !!form.llm_provider,
+    staleTime: 5 * 60 * 1000,
+    queryFn: async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const res = await fetch(`${supabaseUrl}/functions/v1/list-provider-models`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ provider: form.llm_provider }),
+      });
+      const json = await res.json();
+      return { models: json?.models ?? [], error: json?.error, detail: json?.detail };
+    },
+  });
+
+  const availableModels = modelsData?.models ?? [];
+  const noActiveProvider = modelsData?.error === "no_active_provider";
+  const providerError = modelsData?.error === "provider_error";
+  const useManualInput = !modelsLoading && (providerError || (!noActiveProvider && availableModels.length === 0));
+  const modelMissing =
+    !modelsLoading &&
+    !modelsData?.error &&
+    !!form.llm_model &&
+    availableModels.length > 0 &&
+    !availableModels.some((m) => m.id === form.llm_model);
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
