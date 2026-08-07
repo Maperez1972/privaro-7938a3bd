@@ -183,15 +183,55 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
           </div>
           <div className="space-y-2">
             <Label>{t("app.pipelines.dialog.model")}</Label>
-            <Select value={form.llm_model} onValueChange={(v) => setForm({ ...form, llm_model: v })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {availableModels.map((m) => (
-                  <SelectItem key={m} value={m}>{m}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {useManualInput ? (
+              <Input
+                value={form.llm_model}
+                onChange={(e) => setForm({ ...form, llm_model: e.target.value })}
+                placeholder={t("app.pipelines.dialog.modelManualPlaceholder")}
+              />
+            ) : (
+              <Select
+                value={form.llm_model}
+                onValueChange={(v) => setForm({ ...form, llm_model: v })}
+                disabled={modelsLoading || noActiveProvider}
+              >
+                <SelectTrigger>
+                  {modelsLoading ? (
+                    <span className="flex items-center gap-2 text-muted-foreground text-sm">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      {t("app.pipelines.dialog.modelsLoading")}
+                    </span>
+                  ) : (
+                    <SelectValue placeholder={t("app.pipelines.dialog.modelPlaceholder")} />
+                  )}
+                </SelectTrigger>
+                <SelectContent>
+                  {availableModels.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            {noActiveProvider && (
+              <div className="flex items-start gap-2 p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400">
+                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span>{t("app.pipelines.dialog.modelsNoProvider")}</span>
+              </div>
+            )}
+            {providerError && (
+              <div className="flex items-start gap-2 p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400">
+                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span>{t("app.pipelines.dialog.modelsProviderError").replace("{detail}", modelsData?.detail ?? "—")}</span>
+              </div>
+            )}
+            {modelMissing && (
+              <div className="flex items-start gap-2 p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400">
+                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span>{t("app.pipelines.dialog.modelsMissing").replace("{model}", form.llm_model)}</span>
+              </div>
+            )}
           </div>
+
           <div className="space-y-2">
             <Label>{t("app.pipelines.dialog.endpoint")}</Label>
             <Input value={form.llm_endpoint_url} onChange={(e) => setForm({ ...form, llm_endpoint_url: e.target.value })} placeholder="https://api.example.com/v1" />
