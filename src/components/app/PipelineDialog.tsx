@@ -154,7 +154,7 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
           </div>
           <div className="space-y-2">
             <Label>{t("app.pipelines.dialog.provider")}</Label>
-            <Select value={form.llm_provider} onValueChange={(v) => setForm({ ...form, llm_provider: v, llm_model: MODELS[v]?.[0] ?? "custom-model" })}>
+            <Select value={form.llm_provider} onValueChange={(v) => setForm({ ...form, llm_provider: v, llm_model: "" })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {PROVIDERS.map((p) => {
