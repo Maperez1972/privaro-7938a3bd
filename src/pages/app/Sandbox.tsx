@@ -304,7 +304,7 @@ const Sandbox = () => {
           ))}
         </div>
         <button
-          onClick={() => setOptimizeContext(v => !v)}
+          onClick={() => setOptimizeContext(!optimizeContext)}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
             optimizeContext
               ? "bg-primary/10 border-primary/40 text-primary"
