@@ -55,7 +55,7 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
     name: "",
     sector: "general",
     llm_provider: "openai",
-    llm_model: "gpt-4o",
+    llm_model: "",
     llm_endpoint_url: "",
     policy_set_id: null,
   });
