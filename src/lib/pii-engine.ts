@@ -285,11 +285,13 @@ function compressProse(text: string): string {
 }
 
 export function simulateCompression(text: string): CompressionResult {
-  // 1) Extract PII tokens so we NEVER mutate them
+  // 1) Extract PII tokens so we NEVER mutate them.
+  // The placeholder must stay JSON-safe (no control chars) so compressJson can
+  // still parse masked payloads that contained PII tokens.
   const tokens: string[] = [];
   const masked = text.replace(TOKEN_RE, (m) => {
     tokens.push(m);
-    return `\u0000T${tokens.length - 1}\u0000`;
+    return `__PRIVARO_T${tokens.length - 1}__`;
   });
 
   // 2) Try JSON compression first, fall back to prose
@@ -298,7 +300,7 @@ export function simulateCompression(text: string): CompressionResult {
   const compressedMasked = (looksJson && compressJson(trimmed)) || compressProse(masked);
 
   // 3) Restore tokens verbatim
-  const compressedText = compressedMasked.replace(/\u0000T(\d+)\u0000/g, (_m: string, i: string) => tokens[Number(i)] ?? "");
+  const compressedText = compressedMasked.replace(/__PRIVARO_T(\d+)__/g, (_m: string, i: string) => tokens[Number(i)] ?? "");
 
   const originalTokens = estimateTokens(text);
   const compressedTokens = estimateTokens(compressedText);
