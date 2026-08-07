@@ -191,7 +191,7 @@ const AdminProviders = () => {
   const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
   const [testMessage, setTestMessage] = useState("");
   const [gdprChecked, setGdprChecked] = useState(false);
-  const [newModels, setNewModels] = useState("");
+  
 
   // Trust posture form state
   const [formRiskLevel, setFormRiskLevel] = useState("medium");
