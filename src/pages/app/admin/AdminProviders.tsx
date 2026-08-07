@@ -225,6 +225,28 @@ const AdminProviders = () => {
     },
   });
 
+  const { data: modelsPreview, isLoading: modelsPreviewLoading } = useQuery<{
+    models: { id: string; label: string }[];
+    error?: "no_active_provider" | "provider_error";
+  }>({
+    queryKey: ["provider-models-preview", selectedProvider?.id],
+    enabled: sheetOpen && !!selectedProvider?.api_key_encrypted,
+    queryFn: async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/list-provider-models`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionData?.session?.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ provider: selectedProvider!.provider }),
+      });
+      const json = await res.json();
+      return { models: json?.models ?? [], error: json?.error };
+    },
+  });
+
   const toggleActive = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
       const { error } = await supabase
