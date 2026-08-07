@@ -1,14 +1,23 @@
 import { useState, useRef, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Check, Zap } from "lucide-react";
+import { Check, Zap, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
 import { PolicySummaryBadge } from "@/components/app/pipeline/PolicySummaryBadge";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface Pipeline { id: string; name: string; llm_provider: string; llm_model: string; }
-interface Props { pipelines: Pipeline[]; activePipelineId: string | null; onSelect: (id: string) => void; }
+interface CompressionStats { tokens_saved: number; compression_ratio: number }
+interface Props {
+  pipelines: Pipeline[];
+  activePipelineId: string | null;
+  onSelect: (id: string) => void;
+  optimizeContext?: boolean;
+  onToggleOptimize?: (v: boolean) => void;
+  compressionStats?: CompressionStats | null;
+}
 
-export function PipelineSelector({ pipelines, activePipelineId, onSelect }: Props) {
+export function PipelineSelector({ pipelines, activePipelineId, onSelect, optimizeContext, onToggleOptimize, compressionStats }: Props) {
   const { t } = useLanguage();
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(false);
