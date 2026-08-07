@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   FlaskConical, Shield, ShieldCheck, ShieldAlert, Search,
   Copy, Check, ChevronDown, ChevronUp, Eye, EyeOff,
-  Loader2, Link2, GitBranch, AlertTriangle, RotateCcw, Info,
+  Loader2, Link2, GitBranch, AlertTriangle, RotateCcw, Info, Clock,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,6 +17,7 @@ import { SeverityBadge, StatusBadge } from "@/components/app/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 
 interface Detection {
@@ -314,18 +315,35 @@ const Sandbox = () => {
             </button>
           ))}
         </div>
-        <button
-          onClick={() => setOptimizeContext(!optimizeContext)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
-            optimizeContext
-              ? "bg-primary/10 border-primary/40 text-primary"
-              : "bg-secondary/30 border-border text-muted-foreground hover:text-foreground"
-          }`}
-          title={t("sandbox.optimize.tooltip")}
-        >
-          <span className={`w-2 h-2 rounded-full ${optimizeContext ? "bg-primary" : "bg-muted-foreground/40"}`} />
-          {t("sandbox.optimize.toggle")}
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setOptimizeContext(!optimizeContext)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
+              optimizeContext
+                ? "bg-primary/10 border-primary/40 text-primary"
+                : "bg-secondary/30 border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${optimizeContext ? "bg-primary" : "bg-muted-foreground/40"}`} />
+            {t("sandbox.optimize.toggle")}
+          </button>
+          <TooltipProvider delayDuration={150}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={t("sandbox.optimize.tooltip")}
+                  className="flex items-center justify-center w-6 h-6 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/40 transition-colors"
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-64 text-xs">
+                {t("sandbox.optimize.tooltip")}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <div className="flex items-center gap-2">
           <GitBranch className="w-4 h-4 text-muted-foreground" />
           <Select value={selectedPipeline} onValueChange={setSelectedPipeline}>

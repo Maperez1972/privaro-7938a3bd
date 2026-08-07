@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Check, Zap, Sparkles } from "lucide-react";
+import { Check, Zap, Sparkles, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { PolicySummaryBadge } from "@/components/app/pipeline/PolicySummaryBadge";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -48,6 +49,22 @@ export function PipelineSelector({ pipelines, activePipelineId, onSelect, optimi
             <div className="flex items-center gap-1.5 min-w-0">
               <Sparkles className="w-3.5 h-3.5 text-primary flex-shrink-0" />
               <span className="text-xs font-medium truncate">{t("sandbox.compression.title")}</span>
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label={t("app.chat.optimize.desc")}
+                      className="flex items-center justify-center w-4 h-4 text-muted-foreground/70 hover:text-foreground transition-colors flex-shrink-0"
+                    >
+                      <Clock className="w-3 h-3" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-56 text-xs">
+                    {t("app.chat.optimize.desc")}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
             <Switch checked={!!optimizeContext} onCheckedChange={onToggleOptimize} aria-label={t("sandbox.compression.title")} />
           </div>
