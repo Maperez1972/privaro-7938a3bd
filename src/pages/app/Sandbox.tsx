@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePersistentToggle } from "@/hooks/usePersistentToggle";
 import { useLanguage } from "@/context/LanguageContext";
 import { proxyDetect, proxyProtect } from "@/lib/proxy-client";
 import { simulateCompression } from "@/lib/pii-engine";
