@@ -129,7 +129,7 @@ const Sandbox = () => {
 
   const [inputText, setInputText] = useState("");
   const [mode, setMode] = useState<Mode>("protect");
-  const [optimizeContext, setOptimizeContext] = useState(false);
+  const [optimizeContext, setOptimizeContext] = usePersistentToggle("privaro.sandbox.optimizeContext", false);
   const [compressionStats, setCompressionStats] = useState<{ tokens_saved: number; compression_ratio: number } | null>(null);
   const [selectedPipeline, setSelectedPipeline] = useState<string>("__none__");
   const [detections, setDetections] = useState<Detection[]>([]);
