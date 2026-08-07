@@ -706,7 +706,7 @@ export function useChat() {
 
     await fetchConversations();
     setSending(false);
-  }, [user, profile?.org_id, activeConversationId, activePipelineId, pipelines, sending, messages, createConversation, fetchConversations]);
+  }, [user, profile?.org_id, activeConversationId, activePipelineId, pipelines, sending, messages, optimizeContext, createConversation, fetchConversations]);
 
   const editMessage = useCallback(async (messageId: string, newContent: string) => {
     const { error } = await (supabase as any).from("messages").update({ content_protected: newContent }).eq("id", messageId);
