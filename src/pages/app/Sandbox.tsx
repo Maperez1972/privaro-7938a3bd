@@ -38,28 +38,39 @@ interface Pipeline {
 }
 type Mode = "detect" | "protect";
 
-const HIGHLIGHT: Record<string, string> = {
-  critical: "bg-destructive/20 border-b-2 border-destructive text-foreground",
-  high: "bg-warning/20 border-b-2 border-warning text-foreground",
-  medium: "bg-info/15 border-b border-info text-foreground",
-  low: "bg-muted border-b border-border text-foreground",
-};
+// Added 2026-08-07 — CRITICAL fix: the "protect" mode result panel was
+// rendering <HighlightedText text={inputText} .../> — the ORIGINAL,
+// UNPROTECTED input, merely with detected spans visually highlighted
+// (d.value, the raw sensitive value itself, shown inline). That means
+// the panel labeled "Resultado protegido" was displaying real,
+// untokenised PII the entire time protect mode has existed, regardless
+// of whether detection/tokenisation on the backend was working
+// correctly (it was — protectResult.protectedText already contained the
+// real [XX-0001] tokens; the UI simply never rendered that field).
+// This component renders the ACTUAL protected text and gives token
+// spans (`[XX-0001]`) a visual style for readability, but never
+// re-introduces the original detected values.
+const TOKEN_SPAN_RE = /\[[A-Z]{2,4}-\d{4}\]/g;
 
-function HighlightedText({ text, detections }: { text: string; detections: Detection[] }) {
-  if (!detections.length) return <span className="whitespace-pre-wrap text-sm font-mono leading-relaxed">{text}</span>;
-  const sorted = [...detections].sort((a, b) => a.start - b.start);
+function ProtectedResultText({ text }: { text: string }) {
   const parts: React.ReactNode[] = [];
-  let cursor = 0;
-  for (const d of sorted) {
-    if (d.start > cursor) parts.push(<span key={`p-${cursor}`} className="whitespace-pre-wrap font-mono">{text.slice(cursor, d.start)}</span>);
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  TOKEN_SPAN_RE.lastIndex = 0;
+  while ((match = TOKEN_SPAN_RE.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(<span key={`t-${lastIndex}`} className="whitespace-pre-wrap font-mono">{text.slice(lastIndex, match.index)}</span>);
+    }
     parts.push(
-      <span key={`d-${d.start}`} className={`rounded px-0.5 cursor-default font-mono text-sm ${HIGHLIGHT[d.severity] ?? HIGHLIGHT.low}`} title={`${d.type} · ${d.severity}`}>
-        {d.value}
+      <span key={`tok-${match.index}`} className="rounded px-1 font-mono text-sm bg-primary/15 text-primary border border-primary/30">
+        {match[0]}
       </span>
     );
-    cursor = d.end;
+    lastIndex = match.index + match[0].length;
   }
-  if (cursor < text.length) parts.push(<span key="p-end" className="whitespace-pre-wrap font-mono">{text.slice(cursor)}</span>);
+  if (lastIndex < text.length) {
+    parts.push(<span key="t-end" className="whitespace-pre-wrap font-mono">{text.slice(lastIndex)}</span>);
+  }
   return <p className="text-sm leading-relaxed">{parts}</p>;
 }
 
@@ -394,7 +405,7 @@ const Sandbox = () => {
               {!isProcessing && mode === "protect" && protectResult && (
                 <motion.div key="protect-result" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
                   <div className="bg-background border border-border rounded-lg p-3 min-h-32 max-h-56 overflow-y-auto">
-                    <HighlightedText text={inputText} detections={detections} />
+                    <ProtectedResultText text={protectResult.protectedText} />
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {detections.map((d, i) => (
