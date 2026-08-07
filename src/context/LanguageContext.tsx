@@ -1023,6 +1023,7 @@ const translations: Record<Language, Record<string, string>> = {
     "sandbox.compression.ratio": "Reduction",
     "sandbox.compression.savings": "Est. savings",
     "sandbox.compression.model": "Model:",
+    "app.chat.optimize.desc": "Compresses tool outputs and long payloads before sending them to the model. PII tokens are never touched.",
     "demo.how.label": "How it works",
     "demo.how.step1.title": "Your code calls Privaro",
     "demo.how.step1.desc": "One endpoint change. Your app sends the prompt to Privaro instead of directly to the LLM. No architecture changes.",
