@@ -45,6 +45,11 @@ interface Pipeline {
   status: string;
 }
 
+export interface CompressionStats {
+  tokens_saved: number;
+  compression_ratio: number;
+}
+
 export interface ConversationFolder {
   id: string;
   org_id: string;
