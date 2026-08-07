@@ -191,7 +191,7 @@ const AdminProviders = () => {
   const [testStatus, setTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
   const [testMessage, setTestMessage] = useState("");
   const [gdprChecked, setGdprChecked] = useState(false);
-  const [newModels, setNewModels] = useState("");
+  
 
   // Trust posture form state
   const [formRiskLevel, setFormRiskLevel] = useState("medium");
@@ -225,6 +225,28 @@ const AdminProviders = () => {
     },
   });
 
+  const { data: modelsPreview, isLoading: modelsPreviewLoading } = useQuery<{
+    models: { id: string; label: string }[];
+    error?: "no_active_provider" | "provider_error";
+  }>({
+    queryKey: ["provider-models-preview", selectedProvider?.id],
+    enabled: sheetOpen && !!selectedProvider?.api_key_encrypted,
+    queryFn: async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/list-provider-models`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionData?.session?.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ provider: selectedProvider!.provider }),
+      });
+      const json = await res.json();
+      return { models: json?.models ?? [], error: json?.error };
+    },
+  });
+
   const toggleActive = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
       const { error } = await supabase
@@ -253,9 +275,6 @@ const AdminProviders = () => {
         approved_special_categories: formApprovedSpecial,
         approved_for_agents: formApprovedAgents,
       };
-      if (newModels.trim()) {
-        updates.available_models = newModels.split(",").map((m) => m.trim()).filter(Boolean);
-      }
       const { error } = await (supabase as any)
         .from("llm_providers")
         .update(updates)
@@ -312,7 +331,7 @@ const AdminProviders = () => {
   const openSheet = (p: LlmProvider) => {
     setSelectedProvider(p);
     setGdprChecked(p.gdpr_compliant);
-    setNewModels(p.available_models.join(", "));
+    
     setApiKey("");
     setFormRiskLevel(p.provider_risk_level || "medium");
     setFormModelClass(p.model_class || "public_api");
@@ -514,9 +533,29 @@ const AdminProviders = () => {
               <Label className="text-sm">{t("app.admin.providers.gdprCompliantLabel")}</Label>
             </div>
             <div className="space-y-2">
-              <Label>{t("app.admin.providers.availableModels")}</Label>
-              <Input value={newModels} onChange={(e) => setNewModels(e.target.value)} />
+              <Label>{t("app.admin.providers.availableModelsNow")}</Label>
+              {!selectedProvider?.api_key_encrypted ? (
+                <p className="text-xs text-muted-foreground">{t("app.admin.providers.modelsAfterKey")}</p>
+              ) : modelsPreviewLoading ? (
+                <p className="text-xs text-muted-foreground flex items-center gap-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  {t("app.admin.providers.modelsLoading")}
+                </p>
+              ) : modelsPreview?.error === "no_active_provider" ? (
+                <p className="text-xs text-muted-foreground">{t("app.admin.providers.modelsAfterKey")}</p>
+              ) : modelsPreview?.error === "provider_error" ? (
+                <p className="text-xs text-amber-400">{t("app.admin.providers.modelsProviderError")}</p>
+              ) : (modelsPreview?.models?.length ?? 0) > 0 ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {modelsPreview!.models.map((m) => (
+                    <Badge key={m.id} variant="outline" className="text-[11px] font-normal">{m.label}</Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">{t("app.admin.providers.modelsEmpty")}</p>
+              )}
             </div>
+
 
             <Separator />
 
