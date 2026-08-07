@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePersistentToggle } from "@/hooks/usePersistentToggle";
 import { useLanguage } from "@/context/LanguageContext";
 import { proxyDetect, proxyProtect } from "@/lib/proxy-client";
 import { simulateCompression } from "@/lib/pii-engine";
@@ -129,7 +130,7 @@ const Sandbox = () => {
 
   const [inputText, setInputText] = useState("");
   const [mode, setMode] = useState<Mode>("protect");
-  const [optimizeContext, setOptimizeContext] = useState(false);
+  const [optimizeContext, setOptimizeContext] = usePersistentToggle("privaro.sandbox.optimizeContext", false);
   const [compressionStats, setCompressionStats] = useState<{ tokens_saved: number; compression_ratio: number } | null>(null);
   const [selectedPipeline, setSelectedPipeline] = useState<string>("__none__");
   const [detections, setDetections] = useState<Detection[]>([]);
@@ -303,7 +304,7 @@ const Sandbox = () => {
           ))}
         </div>
         <button
-          onClick={() => setOptimizeContext(v => !v)}
+          onClick={() => setOptimizeContext(!optimizeContext)}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
             optimizeContext
               ? "bg-primary/10 border-primary/40 text-primary"

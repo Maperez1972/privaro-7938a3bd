@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { mockProxyProtect } from "@/lib/mock-data";
 import type { FileAttachment } from "@/components/app/chat/FileAttachment";
+import { usePersistentToggle } from "@/hooks/usePersistentToggle";
 
 const PROXY_URL = import.meta.env.VITE_PROXY_URL;
 
@@ -100,7 +101,7 @@ export function useChat() {
     }
   }, [activeConversationId]);
   const [sending, setSending] = useState(false);
-  const [optimizeContext, setOptimizeContext] = useState(false);
+  const [optimizeContext, setOptimizeContext] = usePersistentToggle("privaro.chat.optimizeContext", false);
   const [lastCompressionStats, setLastCompressionStats] = useState<CompressionStats | null>(null);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
