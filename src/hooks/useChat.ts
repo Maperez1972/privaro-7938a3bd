@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { mockProxyProtect } from "@/lib/mock-data";
 import type { FileAttachment } from "@/components/app/chat/FileAttachment";
+import { usePersistentToggle } from "@/hooks/usePersistentToggle";
 
 const PROXY_URL = import.meta.env.VITE_PROXY_URL;
 
