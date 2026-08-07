@@ -331,7 +331,7 @@ const AdminProviders = () => {
   const openSheet = (p: LlmProvider) => {
     setSelectedProvider(p);
     setGdprChecked(p.gdpr_compliant);
-    setNewModels(p.available_models.join(", "));
+    
     setApiKey("");
     setFormRiskLevel(p.provider_risk_level || "medium");
     setFormModelClass(p.model_class || "public_api");
