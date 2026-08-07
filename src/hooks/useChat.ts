@@ -476,7 +476,7 @@ export function useChat() {
             Authorization: `Bearer ${token}`,
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           },
-          body: JSON.stringify({ prompt: fullText, pipeline_id: activePipelineId, conversation_id: convId }),
+          body: JSON.stringify({ prompt: fullText, pipeline_id: activePipelineId, conversation_id: convId, optimize_context: optimizeContext }),
         });
         // Fixed 2026-07-24 — CRITICAL regression found by a follow-up scan:
         // res.ok was never checked. On any non-2xx response (deleted/
