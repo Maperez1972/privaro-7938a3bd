@@ -627,9 +627,13 @@ export function useChat() {
     const MAX_HISTORY = 10;
     const recentMessages = messages.slice(-MAX_HISTORY);
     const history = [
-      ...recentMessages.map((m) => ({ role: m.role, content: m.content_protected })),
+      ...recentMessages
+        .map((m) => ({ role: m.role, content: (m.content_protected ?? "").trim() }))
+        // Providers reject empty/null message content with a 400 → 500 in the edge function
+        .filter((m) => m.content.length > 0),
       { role: "user" as const, content: protectedText },
     ];
+
 
     let responseText: string;
 

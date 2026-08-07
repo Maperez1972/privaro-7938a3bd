@@ -379,7 +379,17 @@ serve(async (req) => {
     }
 
     const model = pipeline.llm_model;
-    const fullMessages = [systemMessage, ...messages];
+    // Drop empty/blank messages — providers reject them with a 400
+    const cleanMessages = (messages ?? []).filter(
+      (m) => typeof m?.content === "string" && m.content.trim().length > 0
+    );
+    if (!cleanMessages.length) {
+      return new Response(JSON.stringify({ error: "no_valid_messages" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const fullMessages = [systemMessage, ...cleanMessages];
+
 
     // ── Streaming mode ──
     if (stream) {
