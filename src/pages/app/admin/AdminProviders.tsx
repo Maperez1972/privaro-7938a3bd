@@ -275,9 +275,6 @@ const AdminProviders = () => {
         approved_special_categories: formApprovedSpecial,
         approved_for_agents: formApprovedAgents,
       };
-      if (newModels.trim()) {
-        updates.available_models = newModels.split(",").map((m) => m.trim()).filter(Boolean);
-      }
       const { error } = await (supabase as any)
         .from("llm_providers")
         .update(updates)
