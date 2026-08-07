@@ -41,14 +41,12 @@ interface PipelineDialogProps {
 
 const SECTORS = ["legal", "healthcare", "fintech", "general"];
 const PROVIDERS = ["openai", "anthropic", "google", "azure", "deepseek", "custom"];
-const MODELS: Record<string, string[]> = {
-  openai: ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"],
-  anthropic: ["claude-opus-4-5", "claude-sonnet-4-5", "claude-haiku-4-5-20251001"],
-  google: ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-2.0-flash"],
-  azure: ["gpt-4o", "gpt-4-turbo"],
-  deepseek: ["deepseek-chat", "deepseek-reasoner"],
-  custom: ["custom-model"],
-};
+
+interface ProviderModelsResponse {
+  models: { id: string; label: string }[];
+  error?: "no_active_provider" | "provider_error";
+  detail?: string;
+}
 
 const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: PipelineDialogProps) => {
   const { t } = useLanguage();
