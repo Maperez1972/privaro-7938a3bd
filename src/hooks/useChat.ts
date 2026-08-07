@@ -385,8 +385,10 @@ export function useChat() {
 
     if (!res.ok) {
       const errData = await res.json().catch(() => ({ error: "Unknown error" }));
-      throw new Error(errData.error || `LLM call failed (${res.status})`);
+      const detail = errData.detail ? `: ${errData.detail}` : "";
+      throw new Error(`${errData.error || `LLM call failed (${res.status})`}${detail}`);
     }
+
 
     const reader = res.body?.getReader();
     if (!reader) throw new Error("No response body");
