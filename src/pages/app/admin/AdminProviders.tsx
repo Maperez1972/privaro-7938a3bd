@@ -514,9 +514,29 @@ const AdminProviders = () => {
               <Label className="text-sm">{t("app.admin.providers.gdprCompliantLabel")}</Label>
             </div>
             <div className="space-y-2">
-              <Label>{t("app.admin.providers.availableModels")}</Label>
-              <Input value={newModels} onChange={(e) => setNewModels(e.target.value)} />
+              <Label>{t("app.admin.providers.availableModelsNow")}</Label>
+              {!selectedProvider?.api_key_encrypted ? (
+                <p className="text-xs text-muted-foreground">{t("app.admin.providers.modelsAfterKey")}</p>
+              ) : modelsPreviewLoading ? (
+                <p className="text-xs text-muted-foreground flex items-center gap-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  {t("app.admin.providers.modelsLoading")}
+                </p>
+              ) : modelsPreview?.error === "no_active_provider" ? (
+                <p className="text-xs text-muted-foreground">{t("app.admin.providers.modelsAfterKey")}</p>
+              ) : modelsPreview?.error === "provider_error" ? (
+                <p className="text-xs text-amber-400">{t("app.admin.providers.modelsProviderError")}</p>
+              ) : (modelsPreview?.models?.length ?? 0) > 0 ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {modelsPreview!.models.map((m) => (
+                    <Badge key={m.id} variant="outline" className="text-[11px] font-normal">{m.label}</Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">{t("app.admin.providers.modelsEmpty")}</p>
+              )}
             </div>
+
 
             <Separator />
 
