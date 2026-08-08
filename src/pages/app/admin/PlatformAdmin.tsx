@@ -67,12 +67,8 @@ const PlatformAdmin = () => {
     return map;
   }, [data]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const list = (data?.organizations ?? []).filter((o) =>
-      !q ? true : o.name?.toLowerCase().includes(q)
-    );
-    const sorted = [...list].sort((a, b) => {
+  const sortFn = useMemo(() => {
+    return (a: PlatformOrg, b: PlatformOrg) => {
       const pctA = a.requests_limit ? a.requests_used_this_org / a.requests_limit : 0;
       const pctB = b.requests_limit ? b.requests_used_this_org / b.requests_limit : 0;
       let va: number | string = 0;
@@ -89,9 +85,34 @@ const PlatformAdmin = () => {
         return sortDir === "asc" ? va.localeCompare(vb) : vb.localeCompare(va);
       }
       return sortDir === "asc" ? Number(va) - Number(vb) : Number(vb) - Number(va);
+    };
+  }, [sortKey, sortDir]);
+
+  const childrenByParent = useMemo(() => {
+    const map = new Map<string, PlatformOrg[]>();
+    (data?.organizations ?? []).forEach((o) => {
+      if (o.parent_org_id && orgsById.has(o.parent_org_id)) {
+        const list = map.get(o.parent_org_id) ?? [];
+        list.push(o);
+        map.set(o.parent_org_id, list);
+      }
     });
-    return sorted;
-  }, [data, query, sortKey, sortDir]);
+    map.forEach((list) => list.sort(sortFn));
+    return map;
+  }, [data, orgsById, sortFn]);
+
+  const matches = (o: PlatformOrg, q: string) => !q || (o.name ?? "").toLowerCase().includes(q);
+
+  const roots = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const list = (data?.organizations ?? []).filter(
+      (o) => !o.parent_org_id || !orgsById.has(o.parent_org_id)
+    );
+    return list
+      .filter((o) => matches(o, q) || (childrenByParent.get(o.id) ?? []).some((c) => matches(c, q)))
+      .sort(sortFn);
+  }, [data, orgsById, childrenByParent, query, sortFn]);
+
 
   if (loading || !rolesLoaded) return null;
   if (!isPlatformAdmin) return <Navigate to="/app" replace />;
