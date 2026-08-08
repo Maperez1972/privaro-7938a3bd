@@ -61,6 +61,8 @@ const PlatformAdmin = () => {
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("requests_used_this_org");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
 
   const orgsById = useMemo(() => {
     const map = new Map<string, PlatformOrg>();
