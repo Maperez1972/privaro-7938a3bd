@@ -27,10 +27,19 @@ async function postEvidence(title: string, hash: string, fileName: string, apiKe
 }
 
 serve(async (req) => {
-  // Simple auth — only allow with admin secret
-  const authHeader = req.headers.get("Authorization") || "";
-  const ADMIN_SECRET = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-  if (!authHeader.includes(ADMIN_SECRET.slice(-20))) {
+  // Fixed 2026-08-08 — found during app-wide functional audit: this
+  // reused the last 20 chars of SUPABASE_SERVICE_ROLE_KEY (a secret with
+  // total database access) as this function's own "password", checked
+  // with .includes() rather than an exact comparison. Lower severity than
+  // the cross-tenant findings elsewhere in this audit (not reachable by
+  // any customer/partner — this is an internal maintenance/backfill job),
+  // but a real bad practice: no independent rotation, and any accidental
+  // logging of the full header would leak a fragment of the real
+  // service-role key. Switched to the same dedicated internal secret
+  // (INTERNAL_NOTIFY_SECRET) every other first-party Edge Function
+  // already uses for this exact purpose, with an exact comparison.
+  const INTERNAL_SECRET = Deno.env.get("INTERNAL_NOTIFY_SECRET") || "";
+  if (!INTERNAL_SECRET || req.headers.get("x-internal-secret") !== INTERNAL_SECRET) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
