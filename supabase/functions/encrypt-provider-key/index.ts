@@ -70,15 +70,31 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, serviceKey);
 
+    // Hardened 2026-08-08 during app-wide functional audit: resolve the
+    // caller's real org via profiles first, then scope the admin check to
+    // it — rather than picking whichever org an "admin" user_roles row
+    // happens to belong to. Not an active vulnerability today (no current
+    // flow grants a user admin in two orgs at once), but the old pattern
+    // was fragile: .maybeSingle() would throw if that ever changed, same
+    // robust pattern already used in create-api-key/revoke-token/
+    // protect-document applied here for consistency.
+    const { data: callerProfile } = await supabase
+      .from("profiles")
+      .select("org_id")
+      .eq("id", userId)
+      .single();
+
+    if (!callerProfile?.org_id) return json({ error: "org_not_found" }, 404);
+
     const { data: userRole } = await supabase
       .from("user_roles")
-      .select("org_id, role")
+      .select("role")
       .eq("user_id", userId)
-      .eq("role", "admin")
+      .eq("org_id", callerProfile.org_id)
       .maybeSingle();
 
-    if (!userRole) return json({ error: "admin_role_required" }, 403);
-    const orgId = userRole.org_id;
+    if (userRole?.role !== "admin") return json({ error: "admin_role_required" }, 403);
+    const orgId = callerProfile.org_id;
 
     let body: any;
     try {
