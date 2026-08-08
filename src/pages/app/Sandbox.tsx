@@ -144,7 +144,7 @@ const Sandbox = () => {
   const [mode, setMode] = useState<Mode>("protect");
   const [optimizeContext, setOptimizeContext] = usePersistentToggle("privaro.sandbox.optimizeContext", false);
   const [compressionStats, setCompressionStats] = useState<{ tokens_saved: number; compression_ratio: number } | null>(null);
-  const [selectedPipeline, setSelectedPipeline] = useState<string>("__none__");
+  const [selectedPipeline, setSelectedPipeline] = useState<string>("");
   const [detections, setDetections] = useState<Detection[]>([]);
   const [protectResult, setProtectResult] = useState<ProtectResult | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
@@ -225,11 +225,12 @@ const Sandbox = () => {
 
   const handleRun = async () => {
     if (!inputText.trim()) return;
+    if (!selectedPipeline) { toast.error(t("sandbox.pipeline.required")); return; }
     setIsProcessing(true); setDetections([]); setProtectResult(null);
     setAuditLogs([]); setRevealedTokens(new Set()); setIsMock(false);
     setCompressionStats(null);
     const t0 = performance.now();
-    const pipelineId = selectedPipeline === "__none__" ? undefined : selectedPipeline;
+    const pipelineId = selectedPipeline;
     const isReal = !!import.meta.env.VITE_PROXY_URL;
     try {
       if (mode === "detect") {
@@ -349,7 +350,7 @@ const Sandbox = () => {
           <Select value={selectedPipeline} onValueChange={setSelectedPipeline}>
             <SelectTrigger className="w-56 h-9 text-sm"><SelectValue placeholder={t("sandbox.pipeline.placeholder")} /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="__none__">{t("sandbox.pipeline.none")}</SelectItem>
+              
               {pipelines.map(p => (
                 <SelectItem key={p.id} value={p.id}>
                   {p.name} <span className="ml-1 text-xs text-muted-foreground">{p.llm_provider}</span>
@@ -389,11 +390,14 @@ const Sandbox = () => {
               className="w-full h-56 bg-background border border-border rounded-lg p-3 text-sm font-mono text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground leading-relaxed"
               placeholder={t("sandbox.input.placeholder")} spellCheck={false}
             />
-            <Button onClick={handleRun} disabled={isProcessing || !inputText.trim()} className="w-full gap-2">
+            <Button onClick={handleRun} disabled={isProcessing || !inputText.trim() || !selectedPipeline} className="w-full gap-2">
               {isProcessing ? <><Loader2 className="w-4 h-4 animate-spin" />{t("sandbox.running")}</>
                 : mode === "detect" ? <><Search className="w-4 h-4" />{t("sandbox.run.detect")}</>
                 : <><ShieldCheck className="w-4 h-4" />{t("sandbox.run.protect")}</>}
             </Button>
+            {!selectedPipeline && (
+              <p className="text-xs text-muted-foreground">{t("sandbox.pipeline.required")}</p>
+            )}
           </CardContent>
         </Card>
 
