@@ -53,10 +53,33 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // Fixed 2026-08-08 — CRITICAL cross-tenant finding during app-wide
+    // functional audit: this only checked "is the caller admin/dpo of ANY
+    // organization" and never verified the token being revoked belonged
+    // to that same org — the final .eq("org_id", vaultToken.org_id) was a
+    // no-op tautology (comparing the fetched row's org_id to itself, not
+    // to the caller's). Any admin/dpo of ANY org could revoke any other
+    // org's token by UUID. Same fix pattern already applied to
+    // reveal-token on 2026-07-24: resolve the caller's real org_id first,
+    // scope the role check to it, and require the token's org_id to match.
+    const { data: callerProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("org_id")
+      .eq("id", user.id)
+      .single();
+
+    if (!callerProfile?.org_id) {
+      return new Response(JSON.stringify({ error: "Insufficient permissions" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { data: roleData } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
+      .eq("org_id", callerProfile.org_id)
       .maybeSingle();
 
     if (!roleData || !["admin", "dpo"].includes(roleData.role)) {
@@ -72,7 +95,7 @@ serve(async (req) => {
       .eq("id", token_id)
       .single();
 
-    if (tokenError || !vaultToken) {
+    if (tokenError || !vaultToken || vaultToken.org_id !== callerProfile.org_id) {
       return new Response(JSON.stringify({ error: "Token not found" }), {
         status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
