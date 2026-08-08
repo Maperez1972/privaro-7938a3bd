@@ -104,6 +104,20 @@ const PlatformAdmin = () => {
     return map;
   }, [data, orgsById, sortFn]);
 
+  // Un partner consume lo suyo + lo de todas sus sub-cuentas
+  const totalUsageById = useMemo(() => {
+    const map = new Map<string, number>();
+    (data?.organizations ?? []).forEach((o) => {
+      const kids = childrenByParent.get(o.id) ?? [];
+      map.set(
+        o.id,
+        (o.requests_used_this_org ?? 0) +
+          kids.reduce((s, c) => s + (c.requests_used_this_org ?? 0), 0),
+      );
+    });
+    return map;
+  }, [data, childrenByParent]);
+
   const matches = (o: PlatformOrg, q: string) => !q || (o.name ?? "").toLowerCase().includes(q);
 
   const roots = useMemo(() => {
@@ -146,7 +160,8 @@ const PlatformAdmin = () => {
     expanded?: boolean;
     onToggle?: () => void;
   }) => {
-    const pct = o.requests_limit ? Math.min(100, Math.round((o.requests_used_this_org / o.requests_limit) * 100)) : 0;
+    const used = totalUsageById.get(o.id) ?? o.requests_used_this_org;
+    const pct = o.requests_limit ? Math.min(100, Math.round((used / o.requests_limit) * 100)) : 0;
     const parent = o.parent_org_id ? orgsById.get(o.parent_org_id) : null;
     const expandable = childCount > 0;
     return (
@@ -172,7 +187,14 @@ const PlatformAdmin = () => {
           {parent ? parent.name : o.parent_org_id ? o.parent_org_id.slice(0, 8) : "—"}
         </TableCell>
         <TableCell className="uppercase text-xs">{o.plan ?? "—"}</TableCell>
-        <TableCell className="tabular-nums">{o.requests_used_this_org.toLocaleString()}</TableCell>
+        <TableCell className="tabular-nums">
+          {used.toLocaleString()}
+          {childCount > 0 && used !== o.requests_used_this_org && (
+            <span className="text-xs text-muted-foreground ml-1">
+              ({o.requests_used_this_org.toLocaleString()} + {(used - o.requests_used_this_org).toLocaleString()})
+            </span>
+          )}
+        </TableCell>
         <TableCell className="tabular-nums">{o.requests_limit?.toLocaleString() ?? "—"}</TableCell>
         <TableCell className="min-w-[140px]">
           {o.requests_limit ? (
