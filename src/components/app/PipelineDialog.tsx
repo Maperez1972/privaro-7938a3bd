@@ -121,7 +121,7 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
   const availableModels = modelsData?.models ?? [];
   const noActiveProvider = modelsData?.error === "no_active_provider";
   const providerError = modelsData?.error === "provider_error";
-  const useManualInput = !modelsLoading && (providerError || (!noActiveProvider && availableModels.length === 0));
+  const useManualInput = !modelsLoading && (providerError || noActiveProvider || availableModels.length === 0);
   const modelMissing =
     !modelsLoading &&
     !modelsData?.error &&
@@ -239,7 +239,7 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
         </div>
         <DialogFooter className="mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>{t("app.pipelines.dialog.cancel")}</Button>
-          <Button onClick={() => onSubmit(form)} disabled={loading || !form.name}>
+          <Button onClick={() => onSubmit({ ...form, llm_model: form.llm_model.trim() })} disabled={loading || !form.name.trim() || !form.llm_model.trim()}>
             {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
             {initialData ? t("app.pipelines.dialog.save") : t("app.pipelines.dialog.create")}
           </Button>
