@@ -363,7 +363,8 @@ export function useChat() {
   const callLLMStreaming = async (
     pipelineId: string,
     conversationHistory: { role: string; content: string }[],
-    onChunk: (text: string) => void
+    onChunk: (text: string) => void,
+    conversationId?: string
   ): Promise<string> => {
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData?.session?.access_token;
@@ -381,6 +382,11 @@ export function useChat() {
         pipeline_id: pipelineId,
         messages: conversationHistory,
         stream: true,
+        // Ties this call's tokens to the rest of the thread on Privaro's
+        // side (2026-08-08 fix) — without this, /v1/relay/stream has no
+        // way to know a later message in the same chat should reuse the
+        // same token scope.
+        conversation_id: conversationId,
       }),
     });
 
@@ -669,7 +675,8 @@ export function useChat() {
                 : m
             )
           );
-        }
+        },
+        convId!
       );
     } catch (err: any) {
       const errMsg = err?.message || "";

@@ -20,7 +20,10 @@
  *
  * Destinatarios: los admins de las organizaciones del billing account +
  * el buzón interno de ops (USAGE_ALERTS_OPS_EMAIL, por defecto
- * hello@icommunity.io).
+ * soporte@icommunity.io -- mismo buzón usado para el aviso de cambio de
+ * cupón de Stripe en apply_discount_reviews(); hello@icommunity.io está
+ * descartado como default porque ya es el buzón público de leads/prensa,
+ * no el operativo interno).
  *
  * Auth: secreto compartido, no JWT de usuario.
  * POST /functions/v1/usage-alerts
@@ -64,7 +67,7 @@ Deno.serve(async (req) => {
 
   const INTERNAL_SECRET = Deno.env.get("INTERNAL_NOTIFY_SECRET");
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-  const OPS_EMAIL = Deno.env.get("USAGE_ALERTS_OPS_EMAIL") ?? "hello@icommunity.io";
+  const OPS_EMAIL = Deno.env.get("USAGE_ALERTS_OPS_EMAIL") ?? "soporte@icommunity.io";
 
   if (!INTERNAL_SECRET || !RESEND_API_KEY) return json({ error: "server_misconfigured" }, 500);
   if (req.headers.get("x-internal-secret") !== INTERNAL_SECRET) return json({ error: "unauthorized" }, 401);

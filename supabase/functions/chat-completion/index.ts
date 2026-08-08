@@ -7,6 +7,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+const PROXY_URL = "https://api.privaro.ai";
+
 interface ChatMessage {
   role: "user" | "assistant" | "system";
   content: string;
@@ -17,241 +19,49 @@ interface RequestBody {
   messages: ChatMessage[];
   max_tokens?: number;
   stream?: boolean;
+  conversation_id?: string;
 }
 
-/* ── Provider-specific streaming callers ── */
-
-async function streamOpenAI(
-  apiKey: string,
-  model: string,
-  messages: ChatMessage[],
-  maxTokens: number,
-  baseUrl?: string
-): Promise<ReadableStream> {
-  const url = `${baseUrl || "https://api.openai.com"}/v1/chat/completions`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ model, messages, max_tokens: maxTokens, stream: true }),
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`OpenAI error ${res.status}: ${err}`);
-  }
-  return transformSSE(res.body!, (json) => {
-    return json.choices?.[0]?.delta?.content ?? "";
-  });
-}
-
-async function streamAnthropic(
-  apiKey: string,
-  model: string,
-  messages: ChatMessage[],
-  maxTokens: number
-): Promise<ReadableStream> {
-  const systemMsg = messages.find((m) => m.role === "system");
-  const chatMsgs = messages.filter((m) => m.role !== "system");
-
-  const body: Record<string, unknown> = {
-    model,
-    max_tokens: maxTokens,
-    stream: true,
-    messages: chatMsgs.map((m) => ({ role: m.role, content: m.content })),
-  };
-  if (systemMsg) body.system = systemMsg.content;
-
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Anthropic error ${res.status}: ${err}`);
-  }
-  return transformSSE(res.body!, (json) => {
-    if (json.type === "content_block_delta") {
-      return json.delta?.text ?? "";
-    }
-    return "";
-  });
-}
-
-async function streamDeepSeek(
-  apiKey: string,
-  model: string,
-  messages: ChatMessage[],
-  maxTokens: number
-): Promise<ReadableStream> {
-  return streamOpenAI(apiKey, model, messages, maxTokens, "https://api.deepseek.com");
-}
-
-async function streamGoogle(
-  apiKey: string,
-  model: string,
-  messages: ChatMessage[],
-  maxTokens: number
-): Promise<ReadableStream> {
-  const systemInstruction = messages.find((m) => m.role === "system");
-  const contents = messages
-    .filter((m) => m.role !== "system")
-    .map((m) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.content }],
-    }));
-
-  const body: Record<string, unknown> = {
-    contents,
-    generationConfig: { maxOutputTokens: maxTokens },
-  };
-  if (systemInstruction) {
-    body.systemInstruction = { parts: [{ text: systemInstruction.content }] };
-  }
-
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    }
-  );
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Google error ${res.status}: ${err}`);
-  }
-  return transformSSE(res.body!, (json) => {
-    return json.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-  });
-}
-
-/* ── Non-streaming fallbacks ── */
-
-async function callOpenAI(apiKey: string, model: string, messages: ChatMessage[], maxTokens: number, baseUrl?: string): Promise<string> {
-  const url = `${baseUrl || "https://api.openai.com"}/v1/chat/completions`;
-  const res = await fetch(url, { method: "POST", headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" }, body: JSON.stringify({ model, messages, max_tokens: maxTokens }) });
-  if (!res.ok) { const err = await res.text(); throw new Error(`OpenAI error ${res.status}: ${err}`); }
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content ?? "";
-}
-
-async function callAnthropic(apiKey: string, model: string, messages: ChatMessage[], maxTokens: number): Promise<string> {
-  const systemMsg = messages.find((m) => m.role === "system");
-  const chatMsgs = messages.filter((m) => m.role !== "system");
-  const body: Record<string, unknown> = { model, max_tokens: maxTokens, messages: chatMsgs.map((m) => ({ role: m.role, content: m.content })) };
-  if (systemMsg) body.system = systemMsg.content;
-  const res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  if (!res.ok) { const err = await res.text(); throw new Error(`Anthropic error ${res.status}: ${err}`); }
-  const data = await res.json();
-  return data.content?.[0]?.text ?? "";
-}
-
-async function callGoogle(apiKey: string, model: string, messages: ChatMessage[], maxTokens: number): Promise<string> {
-  const systemInstruction = messages.find((m) => m.role === "system");
-  const contents = messages.filter((m) => m.role !== "system").map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }));
-  const body: Record<string, unknown> = { contents, generationConfig: { maxOutputTokens: maxTokens } };
-  if (systemInstruction) body.systemInstruction = { parts: [{ text: systemInstruction.content }] };
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  if (!res.ok) { const err = await res.text(); throw new Error(`Google error ${res.status}: ${err}`); }
-  const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-}
-
-/* ── SSE Transform helper ── */
-
-function transformSSE(
-  body: ReadableStream<Uint8Array>,
-  extractText: (json: any) => string
-): ReadableStream {
-  const reader = body.getReader();
-  const decoder = new TextDecoder();
-  const encoder = new TextEncoder();
-  let buffer = "";
-
-  return new ReadableStream({
-    async pull(controller) {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          // Process remaining buffer
-          if (buffer.trim()) {
-            processLines(buffer, extractText, controller, encoder);
-          }
-          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-          controller.close();
-          return;
-        }
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-
-        let output = "";
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed || trimmed.startsWith(":")) continue;
-          if (trimmed === "data: [DONE]") {
-            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-            controller.close();
-            return;
-          }
-          if (trimmed.startsWith("data: ")) {
-            try {
-              const json = JSON.parse(trimmed.slice(6));
-              const text = extractText(json);
-              if (text) output += text;
-            } catch {
-              // skip malformed JSON
-            }
-          }
-        }
-        if (output) {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: output })}\n\n`));
-          return; // yield control
-        }
-      }
-    },
-  });
-}
-
-function processLines(
-  text: string,
-  extractText: (json: any) => string,
-  controller: ReadableStreamDefaultController,
-  encoder: TextEncoder
-) {
-  for (const line of text.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith(":")) continue;
-    if (trimmed.startsWith("data: ") && trimmed !== "data: [DONE]") {
-      try {
-        const json = JSON.parse(trimmed.slice(6));
-        const t = extractText(json);
-        if (t) controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: t })}\n\n`));
-      } catch { /* skip */ }
-    }
-  }
-}
-
-/* ── Main handler ── */
-
-const systemMessage: ChatMessage = {
-  role: "system",
-  content:
-    "You are an AI assistant operating through Privaro's privacy infrastructure. " +
-    "All user messages have been automatically scanned for PII (personally identifiable information). " +
-    "Any detected PII has been tokenized before reaching you. " +
-    "Respond naturally and helpfully to the user's request. " +
-    "If you see tokens like [DNI-0001] or [EMAIL-0001], treat them as references to protected data.",
-};
-
+/**
+ * chat-completion — v2 (2026-08-08)
+ *
+ * CRITICAL rewrite — found during app-wide functional audit. v1 decrypted
+ * the org's real LLM provider key and called OpenAI/Anthropic/etc.
+ * DIRECTLY from this Edge Function with the raw messages it received —
+ * completely bypassing Privaro's own tokenization. It even shipped a
+ * system prompt telling the model "PII has already been tokenized",
+ * which was false for anything reaching this function directly (this
+ * function itself never protected anything; it happened to look safe
+ * only because useChat.ts's sendMessage() separately calls
+ * protect-chat-message first and only ever sends already-tokenized
+ * content_protected through the history it builds — a caller that
+ * didn't do that, or a future bug in that call site, would have sent
+ * raw PII straight to the LLM with this function's blessing).
+ *
+ * Fixed properly, not patched: this function no longer talks to any LLM
+ * provider at all. It resolves the caller's org + verifies the pipeline
+ * belongs to it (kept from v1 — this check itself was correct and
+ * necessary), then forwards the request to Privaro's own
+ * /v1/relay/complete or /v1/relay/stream, authenticated with the
+ * internal shared-secret pattern (X-Internal-Secret + X-Internal-Org-Id)
+ * every other first-party Edge Function already uses for /v1/proxy/*.
+ * That endpoint owns tokenization, the actual LLM call, response
+ * detokenization, audit logging and quota — once, correctly, in the one
+ * place designed to do it — instead of this function reimplementing (and
+ * silently skipping) any of that.
+ *
+ * This also fixes a real functional bug, not just the security one: v1
+ * never detokenized the assistant's response, so a reply that echoed
+ * back a token like [NM-0001] would show that literal string to the
+ * user instead of their real name. /v1/relay/*'s detokenise_response
+ * option (enabled here) fixes this as a side effect of the real fix.
+ *
+ * relay.py was changed in the same pass (privaro-proxy, 2026-08-08) to
+ * accept this internal auth pattern — previously only verify_api_key_or_dev
+ * was accepted there, which requires a real API key this Edge Function
+ * has no way to hold for an arbitrary org (keys are stored as
+ * irreversible hashes by design).
+ */
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -281,7 +91,8 @@ serve(async (req) => {
       });
     }
 
-    const { pipeline_id, messages, max_tokens = 2048, stream = true }: RequestBody = await req.json();
+    const { pipeline_id, messages, max_tokens = 2048, stream = true, conversation_id }: RequestBody =
+      await req.json();
     if (!pipeline_id || !messages?.length) {
       return new Response(JSON.stringify({ error: "pipeline_id and messages required" }), {
         status: 400,
@@ -296,7 +107,7 @@ serve(async (req) => {
 
     const { data: pipeline, error: pipelineErr } = await adminClient
       .from("pipelines")
-      .select("llm_provider, llm_model, org_id")
+      .select("org_id")
       .eq("id", pipeline_id)
       .single();
 
@@ -307,12 +118,8 @@ serve(async (req) => {
       });
     }
 
-    // Fixed 2026-07-24 — CRITICAL real finding: pipeline_id came straight
-    // from the client with no check that it belonged to the caller's own
-    // org. Any authenticated user who knew (or guessed) another org's
-    // pipeline_id could run chats through it, using that org's own
-    // decrypted LLM API key. Resolve the caller's real org and require it
-    // to match the pipeline's org before doing anything else with it.
+    // Kept from v1 — this check was correct: never trust a pipeline_id
+    // without verifying it belongs to the caller's own org.
     const { data: callerProfile } = await adminClient
       .from("profiles")
       .select("org_id")
@@ -326,60 +133,6 @@ serve(async (req) => {
       });
     }
 
-    const { data: provider, error: provErr } = await adminClient
-      .from("llm_providers")
-      .select("api_key_encrypted, base_url, provider")
-      .eq("org_id", pipeline.org_id)
-      .eq("provider", pipeline.llm_provider)
-      .eq("is_active", true)
-      .single();
-
-    if (provErr || !provider?.api_key_encrypted) {
-      return new Response(
-        JSON.stringify({ error: `No active provider or API key for ${pipeline.llm_provider}` }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Legacy fallback: rows saved before the encryption migration hold a
-    // plaintext key directly in api_key_encrypted. Detect by common
-    // provider prefixes (sk-, sk-ant-, AIza…) so those keep working
-    // until an admin re-saves the key through encrypt-provider-key.
-    const stored = provider.api_key_encrypted as string;
-    const looksLikePlaintext = /^(sk-|sk_|AIza|xai-|gsk_|Bearer\s)/i.test(stored);
-
-    const internalSecret = Deno.env.get("INTERNAL_NOTIFY_SECRET");
-    let apiKey: string | null = null;
-
-    if (internalSecret) {
-      try {
-        const decryptRes = await fetch("https://api.privaro.ai/internal/decrypt-provider-key", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Internal-Secret": internalSecret },
-          body: JSON.stringify({ encrypted: stored }),
-        });
-        if (decryptRes.ok) {
-          const decrypted = await decryptRes.json();
-          const candidate =
-            decrypted?.raw_key ?? decrypted?.decrypted ?? decrypted?.key ?? decrypted?.api_key ?? decrypted?.plaintext;
-          if (candidate && typeof candidate === "string") apiKey = candidate;
-        }
-      } catch {
-        // fall through to legacy fallback
-      }
-    }
-
-    if (!apiKey && looksLikePlaintext) apiKey = stored;
-
-    if (!apiKey) {
-      return new Response(
-        JSON.stringify({ error: `No active provider or API key for ${pipeline.llm_provider}` }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const model = pipeline.llm_model;
-    // Drop empty/blank messages — providers reject them with a 400
     const cleanMessages = (messages ?? []).filter(
       (m) => typeof m?.content === "string" && m.content.trim().length > 0
     );
@@ -388,78 +141,118 @@ serve(async (req) => {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const fullMessages = [systemMessage, ...cleanMessages];
 
-
-    // ── Streaming mode ──
-    if (stream) {
-      let sseStream: ReadableStream;
-
-      switch (provider.provider) {
-        case "openai":
-          sseStream = await streamOpenAI(apiKey, model, fullMessages, max_tokens, provider.base_url);
-          break;
-        case "anthropic":
-          sseStream = await streamAnthropic(apiKey, model, fullMessages, max_tokens);
-          break;
-        case "deepseek":
-          sseStream = await streamDeepSeek(apiKey, model, fullMessages, max_tokens);
-          break;
-        case "google":
-          sseStream = await streamGoogle(apiKey, model, fullMessages, max_tokens);
-          break;
-        default:
-          sseStream = await streamOpenAI(apiKey, model, fullMessages, max_tokens, provider.base_url || undefined);
-      }
-
-      return new Response(sseStream, {
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          Connection: "keep-alive",
-        },
+    const internalSecret = Deno.env.get("INTERNAL_NOTIFY_SECRET");
+    if (!internalSecret) {
+      return new Response(JSON.stringify({ error: "server_misconfigured" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // ── Non-streaming mode ──
-    let responseText: string;
-    switch (provider.provider) {
-      case "openai":
-        responseText = await callOpenAI(apiKey, model, fullMessages, max_tokens, provider.base_url);
-        break;
-      case "anthropic":
-        responseText = await callAnthropic(apiKey, model, fullMessages, max_tokens);
-        break;
-      case "deepseek":
-        responseText = await callOpenAI(apiKey, model, fullMessages, max_tokens, "https://api.deepseek.com");
-        break;
-      case "google":
-        responseText = await callGoogle(apiKey, model, fullMessages, max_tokens);
-        break;
-      default:
-        responseText = await callOpenAI(apiKey, model, fullMessages, max_tokens, provider.base_url || undefined);
+    const relayBody = {
+      pipeline_id,
+      messages: cleanMessages,
+      options: {
+        max_tokens,
+        detokenise_response: true,
+        // conversation_id ties this call's tokens to the rest of the chat
+        // thread — required for anything reversible later, and without it
+        // every call would be treated as an unrelated conversation.
+      },
+      ...(conversation_id ? { conversation_id } : {}),
+    };
+
+    if (!stream) {
+      const proxyRes = await fetch(`${PROXY_URL}/v1/relay/complete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Internal-Secret": internalSecret,
+          "X-Internal-Org-Id": pipeline.org_id,
+        },
+        body: JSON.stringify(relayBody),
+      });
+      const result = await proxyRes.json();
+      if (!proxyRes.ok) {
+        return new Response(JSON.stringify(result), {
+          status: proxyRes.status, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ text: result.response }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    return new Response(
-      JSON.stringify({ content: responseText, model: `${provider.provider}/${model}` }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // ── Streaming: proxy /v1/relay/stream's SSE through, translating its
+    // {"delta": "..."} shape to the {"text": "..."} shape this function's
+    // callers (useChat.ts's callLLMStreaming) already parse, so the
+    // frontend needs no changes. ──
+    const proxyRes = await fetch(`${PROXY_URL}/v1/relay/stream`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Internal-Secret": internalSecret,
+        "X-Internal-Org-Id": pipeline.org_id,
+      },
+      body: JSON.stringify(relayBody),
+    });
+
+    if (!proxyRes.ok || !proxyRes.body) {
+      const errBody = await proxyRes.json().catch(() => ({ error: "relay_stream_failed" }));
+      return new Response(JSON.stringify(errBody), {
+        status: proxyRes.status || 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const reader = proxyRes.body.getReader();
+    const decoder = new TextDecoder();
+    const encoder = new TextEncoder();
+
+    const transformed = new ReadableStream({
+      async start(controller) {
+        let buffer = "";
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed || !trimmed.startsWith("data: ")) continue;
+              if (trimmed === "data: [DONE]") {
+                controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+                continue;
+              }
+              try {
+                const json = JSON.parse(trimmed.slice(6));
+                if (json.error) {
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: json.error })}\n\n`));
+                  continue;
+                }
+                if (typeof json.delta === "string") {
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: json.delta })}\n\n`));
+                }
+              } catch { /* skip malformed line */ }
+            }
+          }
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(transformed, {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "text/event-stream", "Cache-Control": "no-cache" },
+    });
+
   } catch (err) {
-    console.error("chat-completion error:", err);
-    const raw = err instanceof Error ? err.message : String(err);
-    // Surface upstream provider failures (bad model, invalid key, quota…)
-    // instead of an opaque 500 the UI can't explain.
-    const match = raw.match(/^(\w+) error (\d{3}):/);
-    const status = match ? (Number(match[2]) === 401 || Number(match[2]) === 403 ? 502 : Number(match[2])) : 500;
+    console.error("[chat-completion] error:", err);
     return new Response(
-      JSON.stringify({
-        error: match ? "provider_error" : "internal_error",
-        provider: match?.[1]?.toLowerCase(),
-        detail: raw.slice(0, 600),
-      }),
-      { status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ error: "internal_error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
-
 });
