@@ -390,11 +390,14 @@ const Sandbox = () => {
               className="w-full h-56 bg-background border border-border rounded-lg p-3 text-sm font-mono text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground leading-relaxed"
               placeholder={t("sandbox.input.placeholder")} spellCheck={false}
             />
-            <Button onClick={handleRun} disabled={isProcessing || !inputText.trim()} className="w-full gap-2">
+            <Button onClick={handleRun} disabled={isProcessing || !inputText.trim() || !selectedPipeline} className="w-full gap-2">
               {isProcessing ? <><Loader2 className="w-4 h-4 animate-spin" />{t("sandbox.running")}</>
                 : mode === "detect" ? <><Search className="w-4 h-4" />{t("sandbox.run.detect")}</>
                 : <><ShieldCheck className="w-4 h-4" />{t("sandbox.run.protect")}</>}
             </Button>
+            {!selectedPipeline && (
+              <p className="text-xs text-muted-foreground">{t("sandbox.pipeline.required")}</p>
+            )}
           </CardContent>
         </Card>
 
