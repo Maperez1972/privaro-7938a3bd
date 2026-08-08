@@ -177,36 +177,26 @@ const PlatformAdmin = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.map((o) => {
-                    const pct = o.requests_limit ? Math.min(100, Math.round((o.requests_used_this_org / o.requests_limit) * 100)) : 0;
-                    const parent = o.parent_org_id ? orgsById.get(o.parent_org_id) : null;
+                  {roots.map((o) => {
+                    const kids = childrenByParent.get(o.id) ?? [];
+                    const open = expanded.has(o.id);
                     return (
-                      <TableRow key={o.id} className="border-border">
-                        <TableCell className="font-semibold">{o.name}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={typeBadge(o.org_type)}>{o.org_type}</Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {parent ? parent.name : o.parent_org_id ? o.parent_org_id.slice(0, 8) : "—"}
-                        </TableCell>
-                        <TableCell className="uppercase text-xs">{o.plan ?? "—"}</TableCell>
-                        <TableCell className="tabular-nums">{o.requests_used_this_org.toLocaleString()}</TableCell>
-                        <TableCell className="tabular-nums">{o.requests_limit?.toLocaleString() ?? "—"}</TableCell>
-                        <TableCell className="min-w-[140px]">
-                          {o.requests_limit ? (
-                            <div className="flex items-center gap-2">
-                              <Progress value={pct} className="h-2 flex-1" />
-                              <span className="text-xs tabular-nums w-9 text-right">{pct}%</span>
-                            </div>
-                          ) : "—"}
-                        </TableCell>
-                        <TableCell className="text-xs capitalize">{o.discount_phase?.replace("_", " ") ?? "—"}</TableCell>
-                      </TableRow>
+                      <Fragment key={o.id}>
+                        <OrgRow
+                          org={o}
+                          depth={0}
+                          childCount={kids.length}
+                          expanded={open}
+                          onToggle={() => toggleExpand(o.id)}
+                        />
+                        {open && kids.map((c) => <OrgRow key={c.id} org={c} depth={1} />)}
+                      </Fragment>
                     );
                   })}
-                  {filtered.length === 0 && (
+                  {roots.length === 0 && (
                     <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">{t("platform.noResults")}</TableCell></TableRow>
                   )}
+
                 </TableBody>
               </Table>
             </div>
