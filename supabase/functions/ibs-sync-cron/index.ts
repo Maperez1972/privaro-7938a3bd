@@ -68,7 +68,22 @@ async function postIbsEvidenceSingle(title: string, payloadHash: string): Promis
   } catch { return null; }
 }
 
-Deno.serve(async (_req: Request) => {
+Deno.serve(async (req: Request) => {
+  // Fixed 2026-08-08 during app-wide functional audit — same finding
+  // class already fixed in retention-cleanup on 2026-07-24: this
+  // endpoint had zero authentication, so anyone who found the URL could
+  // trigger it repeatedly, running up real costs against the paid iBS
+  // blockchain evidence API on demand. Not destructive to customer data
+  // like retention-cleanup was, but a real "denial of wallet" surface.
+  // Only the pg_cron job (every 5 minutes) should call this.
+  const internalSecret = Deno.env.get('INTERNAL_NOTIFY_SECRET');
+  const providedSecret = req.headers.get('X-Internal-Secret');
+  if (!internalSecret || providedSecret !== internalSecret) {
+    return new Response(JSON.stringify({ error: 'unauthorized' }), {
+      status: 401, headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
   const now = new Date();
   const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000).toISOString();
