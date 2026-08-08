@@ -125,6 +125,69 @@ const PlatformAdmin = () => {
     else { setSortKey(key); setSortDir(key === "name" || key === "org_type" || key === "plan" ? "asc" : "desc"); }
   };
 
+  const toggleExpand = (id: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const OrgRow = ({
+    org: o,
+    depth,
+    childCount = 0,
+    expanded: isOpen,
+    onToggle,
+  }: {
+    org: PlatformOrg;
+    depth: number;
+    childCount?: number;
+    expanded?: boolean;
+    onToggle?: () => void;
+  }) => {
+    const pct = o.requests_limit ? Math.min(100, Math.round((o.requests_used_this_org / o.requests_limit) * 100)) : 0;
+    const parent = o.parent_org_id ? orgsById.get(o.parent_org_id) : null;
+    const expandable = childCount > 0;
+    return (
+      <TableRow
+        className={`border-border ${depth > 0 ? "bg-muted/30" : ""} ${expandable ? "cursor-pointer" : ""}`}
+        onClick={expandable ? onToggle : undefined}
+      >
+        <TableCell className={depth > 0 ? "pl-10" : undefined}>
+          <div className="flex items-center gap-2">
+            {expandable ? (
+              isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <span className="inline-block w-4" />
+            )}
+            <span className={depth > 0 ? "font-medium text-sm" : "font-semibold"}>{o.name}</span>
+            {expandable && <Badge variant="secondary" className="text-[10px]">{childCount}</Badge>}
+          </div>
+        </TableCell>
+        <TableCell>
+          <Badge variant="outline" className={typeBadge(o.org_type)}>{o.org_type}</Badge>
+        </TableCell>
+        <TableCell className="text-sm text-muted-foreground">
+          {parent ? parent.name : o.parent_org_id ? o.parent_org_id.slice(0, 8) : "—"}
+        </TableCell>
+        <TableCell className="uppercase text-xs">{o.plan ?? "—"}</TableCell>
+        <TableCell className="tabular-nums">{o.requests_used_this_org.toLocaleString()}</TableCell>
+        <TableCell className="tabular-nums">{o.requests_limit?.toLocaleString() ?? "—"}</TableCell>
+        <TableCell className="min-w-[140px]">
+          {o.requests_limit ? (
+            <div className="flex items-center gap-2">
+              <Progress value={pct} className="h-2 flex-1" />
+              <span className="text-xs tabular-nums w-9 text-right">{pct}%</span>
+            </div>
+          ) : "—"}
+        </TableCell>
+        <TableCell className="text-xs capitalize">{o.discount_phase?.replace("_", " ") ?? "—"}</TableCell>
+      </TableRow>
+    );
+  };
+
+
   const SortHead = ({ k, children }: { k: SortKey; children: React.ReactNode }) => (
     <TableHead>
       <button className="inline-flex items-center gap-1 hover:text-foreground" onClick={() => toggleSort(k)}>
