@@ -126,12 +126,60 @@ Deno.serve(async (req) => {
         return json({ error: "billing_query_failed" }, 500);
       }
 
+      // Per-org usage for the current billing cycle. The partner's headline
+      // consumption is the SUM of every org hanging off the billing account
+      // (the partner org itself + all its sub-accounts), not just the
+      // partner's own traffic.
+      const cycleStart = billing?.billing_cycle_start
+        ? new Date(billing.billing_cycle_start).toISOString().slice(0, 10)
+        : null;
+
+      const orgIds = [partnerOrg.id, ...(subAccounts || []).map((s: any) => s.id)];
+      const usageByOrg = new Map<string, number>();
+
+      if (cycleStart && orgIds.length > 0) {
+        const { data: usageRows, error: usageErr } = await supabase
+          .from("org_usage_monthly")
+          .select("org_id, requests_used")
+          .eq("cycle_start", cycleStart)
+          .in("org_id", orgIds);
+
+        if (usageErr) {
+          console.error("[partner-sub-accounts] usage query failed:", usageErr);
+        } else {
+          for (const row of usageRows || []) {
+            usageByOrg.set(row.org_id, Number(row.requests_used) || 0);
+          }
+        }
+      }
+
+      const subAccountsWithUsage = (subAccounts || []).map((s: any) => ({
+        ...s,
+        requests_used_this_month: usageByOrg.get(s.id) ?? 0,
+      }));
+
+      const aggregatedUsed = orgIds.reduce((sum, id) => sum + (usageByOrg.get(id) ?? 0), 0);
+
       return json({
         partner: { id: partnerOrg.id, name: partnerOrg.name },
-        sub_accounts: subAccounts || [],
-        billing: billing || null,
+        sub_accounts: subAccountsWithUsage,
+        billing: billing
+          ? {
+              ...billing,
+              // requests_used on billing_accounts is the counter the proxy
+              // increments; when per-org rows exist we prefer their sum so the
+              // partner total always matches the breakdown shown below it.
+              requests_used: aggregatedUsed > 0 ? aggregatedUsed : billing.requests_used,
+              partner_own_requests_used: usageByOrg.get(partnerOrg.id) ?? 0,
+              sub_accounts_requests_used: (subAccounts || []).reduce(
+                (sum: number, s: any) => sum + (usageByOrg.get(s.id) ?? 0),
+                0,
+              ),
+            }
+          : null,
       });
     }
+
 
     if (req.method === "POST") {
       let body: any;
