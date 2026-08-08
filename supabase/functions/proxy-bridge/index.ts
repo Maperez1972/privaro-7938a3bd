@@ -9,7 +9,7 @@ const corsHeaders = {
 const PROXY_URL = "https://api.privaro.ai";
 
 /**
- * proxy-bridge — v1 (2026-07-24)
+ * proxy-bridge — v2 (2026-08-08)
  *
  * CRITICAL fix (same finding as protect-chat-message): Onboarding.tsx and
  * Sandbox.tsx called /v1/proxy/detect and /v1/proxy/protect directly from
@@ -17,6 +17,14 @@ const PROXY_URL = "https://api.privaro.ai";
  * the shipped bundle. Generic version of the same internal-secret pattern,
  * supporting both /detect (analysis only) and /protect (mask + audit) so
  * both call sites can be covered without duplicating this logic.
+ *
+ * Bug found and fixed during app-wide functional audit (2026-08-08): mode
+ * "protect" always sent reversible: true without ever supplying a
+ * conversation_id, which the proxy requires in that case (422 every
+ * time). Neither call site (Onboarding, Sandbox) has a persistent
+ * conversation concept — each is a one-off "try some text" interaction —
+ * so a fresh UUID is generated here per call rather than threading one
+ * through from the frontend.
  *
  * Body: { mode: "detect" | "protect", prompt: string, pipeline_id?: string }
  */
@@ -125,6 +133,11 @@ serve(async (req) => {
       proxyBody.options = { include_detections: true };
     } else {
       proxyBody.options = { mode: "tokenise", include_detections: true, reversible: true };
+      // Fixed 2026-08-08: reversible: true requires conversation_id or the
+      // proxy rejects the call with 422, which is what always happened
+      // here before this fix. Neither Sandbox nor Onboarding track a
+      // persistent conversation, so each call gets its own.
+      proxyBody.conversation_id = crypto.randomUUID();
     }
 
     const proxyResponse = await fetch(`${PROXY_URL}/v1/proxy/${mode}`, {
