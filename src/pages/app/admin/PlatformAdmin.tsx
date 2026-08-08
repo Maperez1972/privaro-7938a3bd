@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, ShieldCheck, ArrowUpDown } from "lucide-react";
+import { Loader2, ShieldCheck, ArrowUpDown, ChevronRight, ChevronDown } from "lucide-react";
+
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/context/LanguageContext";
 import Seo from "@/components/Seo";
@@ -60,6 +61,8 @@ const PlatformAdmin = () => {
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("requests_used_this_org");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
 
   const orgsById = useMemo(() => {
     const map = new Map<string, PlatformOrg>();
@@ -67,12 +70,8 @@ const PlatformAdmin = () => {
     return map;
   }, [data]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const list = (data?.organizations ?? []).filter((o) =>
-      !q ? true : o.name?.toLowerCase().includes(q)
-    );
-    const sorted = [...list].sort((a, b) => {
+  const sortFn = useMemo(() => {
+    return (a: PlatformOrg, b: PlatformOrg) => {
       const pctA = a.requests_limit ? a.requests_used_this_org / a.requests_limit : 0;
       const pctB = b.requests_limit ? b.requests_used_this_org / b.requests_limit : 0;
       let va: number | string = 0;
@@ -89,9 +88,34 @@ const PlatformAdmin = () => {
         return sortDir === "asc" ? va.localeCompare(vb) : vb.localeCompare(va);
       }
       return sortDir === "asc" ? Number(va) - Number(vb) : Number(vb) - Number(va);
+    };
+  }, [sortKey, sortDir]);
+
+  const childrenByParent = useMemo(() => {
+    const map = new Map<string, PlatformOrg[]>();
+    (data?.organizations ?? []).forEach((o) => {
+      if (o.parent_org_id && orgsById.has(o.parent_org_id)) {
+        const list = map.get(o.parent_org_id) ?? [];
+        list.push(o);
+        map.set(o.parent_org_id, list);
+      }
     });
-    return sorted;
-  }, [data, query, sortKey, sortDir]);
+    map.forEach((list) => list.sort(sortFn));
+    return map;
+  }, [data, orgsById, sortFn]);
+
+  const matches = (o: PlatformOrg, q: string) => !q || (o.name ?? "").toLowerCase().includes(q);
+
+  const roots = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const list = (data?.organizations ?? []).filter(
+      (o) => !o.parent_org_id || !orgsById.has(o.parent_org_id)
+    );
+    return list
+      .filter((o) => matches(o, q) || (childrenByParent.get(o.id) ?? []).some((c) => matches(c, q)))
+      .sort(sortFn);
+  }, [data, orgsById, childrenByParent, query, sortFn]);
+
 
   if (loading || !rolesLoaded) return null;
   if (!isPlatformAdmin) return <Navigate to="/app" replace />;
@@ -100,6 +124,69 @@ const PlatformAdmin = () => {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else { setSortKey(key); setSortDir(key === "name" || key === "org_type" || key === "plan" ? "asc" : "desc"); }
   };
+
+  const toggleExpand = (id: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const OrgRow = ({
+    org: o,
+    depth,
+    childCount = 0,
+    expanded: isOpen,
+    onToggle,
+  }: {
+    org: PlatformOrg;
+    depth: number;
+    childCount?: number;
+    expanded?: boolean;
+    onToggle?: () => void;
+  }) => {
+    const pct = o.requests_limit ? Math.min(100, Math.round((o.requests_used_this_org / o.requests_limit) * 100)) : 0;
+    const parent = o.parent_org_id ? orgsById.get(o.parent_org_id) : null;
+    const expandable = childCount > 0;
+    return (
+      <TableRow
+        className={`border-border ${depth > 0 ? "bg-muted/30" : ""} ${expandable ? "cursor-pointer" : ""}`}
+        onClick={expandable ? onToggle : undefined}
+      >
+        <TableCell className={depth > 0 ? "pl-10" : undefined}>
+          <div className="flex items-center gap-2">
+            {expandable ? (
+              isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <span className="inline-block w-4" />
+            )}
+            <span className={depth > 0 ? "font-medium text-sm" : "font-semibold"}>{o.name}</span>
+            {expandable && <Badge variant="secondary" className="text-[10px]">{childCount}</Badge>}
+          </div>
+        </TableCell>
+        <TableCell>
+          <Badge variant="outline" className={typeBadge(o.org_type)}>{o.org_type}</Badge>
+        </TableCell>
+        <TableCell className="text-sm text-muted-foreground">
+          {parent ? parent.name : o.parent_org_id ? o.parent_org_id.slice(0, 8) : "—"}
+        </TableCell>
+        <TableCell className="uppercase text-xs">{o.plan ?? "—"}</TableCell>
+        <TableCell className="tabular-nums">{o.requests_used_this_org.toLocaleString()}</TableCell>
+        <TableCell className="tabular-nums">{o.requests_limit?.toLocaleString() ?? "—"}</TableCell>
+        <TableCell className="min-w-[140px]">
+          {o.requests_limit ? (
+            <div className="flex items-center gap-2">
+              <Progress value={pct} className="h-2 flex-1" />
+              <span className="text-xs tabular-nums w-9 text-right">{pct}%</span>
+            </div>
+          ) : "—"}
+        </TableCell>
+        <TableCell className="text-xs capitalize">{o.discount_phase?.replace("_", " ") ?? "—"}</TableCell>
+      </TableRow>
+    );
+  };
+
 
   const SortHead = ({ k, children }: { k: SortKey; children: React.ReactNode }) => (
     <TableHead>
@@ -156,36 +243,26 @@ const PlatformAdmin = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.map((o) => {
-                    const pct = o.requests_limit ? Math.min(100, Math.round((o.requests_used_this_org / o.requests_limit) * 100)) : 0;
-                    const parent = o.parent_org_id ? orgsById.get(o.parent_org_id) : null;
+                  {roots.map((o) => {
+                    const kids = childrenByParent.get(o.id) ?? [];
+                    const open = expanded.has(o.id);
                     return (
-                      <TableRow key={o.id} className="border-border">
-                        <TableCell className="font-semibold">{o.name}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={typeBadge(o.org_type)}>{o.org_type}</Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {parent ? parent.name : o.parent_org_id ? o.parent_org_id.slice(0, 8) : "—"}
-                        </TableCell>
-                        <TableCell className="uppercase text-xs">{o.plan ?? "—"}</TableCell>
-                        <TableCell className="tabular-nums">{o.requests_used_this_org.toLocaleString()}</TableCell>
-                        <TableCell className="tabular-nums">{o.requests_limit?.toLocaleString() ?? "—"}</TableCell>
-                        <TableCell className="min-w-[140px]">
-                          {o.requests_limit ? (
-                            <div className="flex items-center gap-2">
-                              <Progress value={pct} className="h-2 flex-1" />
-                              <span className="text-xs tabular-nums w-9 text-right">{pct}%</span>
-                            </div>
-                          ) : "—"}
-                        </TableCell>
-                        <TableCell className="text-xs capitalize">{o.discount_phase?.replace("_", " ") ?? "—"}</TableCell>
-                      </TableRow>
+                      <Fragment key={o.id}>
+                        <OrgRow
+                          org={o}
+                          depth={0}
+                          childCount={kids.length}
+                          expanded={open}
+                          onToggle={() => toggleExpand(o.id)}
+                        />
+                        {open && kids.map((c) => <OrgRow key={c.id} org={c} depth={1} />)}
+                      </Fragment>
                     );
                   })}
-                  {filtered.length === 0 && (
+                  {roots.length === 0 && (
                     <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">{t("platform.noResults")}</TableCell></TableRow>
                   )}
+
                 </TableBody>
               </Table>
             </div>
