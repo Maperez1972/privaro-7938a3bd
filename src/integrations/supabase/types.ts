@@ -620,8 +620,6 @@ export type Database = {
           llm_provider: string
           name: string
           org_id: string
-          output_scanning_enabled?: boolean
-          output_scanning_mode?: string
           output_scanning_enabled: boolean
           output_scanning_mode: string
           policy_set_id: string | null
@@ -642,6 +640,8 @@ export type Database = {
           llm_provider?: string
           name: string
           org_id: string
+          output_scanning_enabled?: boolean
+          output_scanning_mode?: string
           policy_set_id?: string | null
           sector?: string
           status?: string
