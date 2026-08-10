@@ -30,7 +30,7 @@ export interface PolicyFormData {
   direction: string;
 }
 
-export const SECTOR_PRESETS: Record<string, (Omit<PolicyFormData, "custom_pattern" | "field_name_pattern"> & { custom_pattern?: string; field_name_pattern?: string })[]> = {
+export const SECTOR_PRESETS: Record<string, (Omit<PolicyFormData, "custom_pattern" | "field_name_pattern" | "direction"> & { custom_pattern?: string; field_name_pattern?: string; direction?: string })[]> = {
   legal: [
     { entity_type: "full_name", category: "personal", action: "tokenise", regulation_ref: "GDPR Art.5", priority: 10 },
     { entity_type: "dni", category: "personal", action: "tokenise", regulation_ref: "GDPR Art.9", priority: 5 },
