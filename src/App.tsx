@@ -41,6 +41,7 @@ const Pipelines = lazy(() => import("./pages/app/Pipelines"));
 const Sandbox = lazy(() => import("./pages/app/Sandbox"));
 const Policies = lazy(() => import("./pages/app/Policies"));
 const AuditLogs = lazy(() => import("./pages/app/AuditLogs"));
+const OutputIncidents = lazy(() => import("./pages/app/admin/OutputIncidents"));
 const Settings = lazy(() => import("./pages/app/Settings"));
 const AdminProviders = lazy(() => import("./pages/app/admin/AdminProviders"));
 const AdminUsers = lazy(() => import("./pages/app/admin/AdminUsers"));
@@ -146,6 +147,7 @@ const App = () => (
                 <Route path="verify-mfa" element={<VerifyMfa />} />
                 {/* Admin/DPO routes */}
                 <Route path="admin/audit-logs" element={<AdminDpoRoute><AuditLogs /></AdminDpoRoute>} />
+                <Route path="admin/output-incidents" element={<AdminDpoRoute><OutputIncidents /></AdminDpoRoute>} />
                 <Route path="admin/leads" element={<PlatformAdminRoute><AdminLeads /></PlatformAdminRoute>} />
                 <Route path="partner/clients" element={<PartnerClients />} />
                 {/* Admin only routes */}

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useMfaEnforcement } from "@/hooks/useMfaEnforcement";
-import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, ChevronDown, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot, Lock, Building2, Globe, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, ChevronDown, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot, Lock, Building2, Globe, AlertTriangle, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logoPrivaro from "@/assets/logo-privaro.webp";
 import Seo from "@/components/Seo";
@@ -23,6 +23,7 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
   "/app/admin/leads": { title: "Leads — Privaro Admin", description: "Review demo and tech-brief leads captured from the Privaro site." },
   "/app/partner/clients": { title: "Mis clientes — Privaro Partners", description: "Gestiona los clientes finales de tu integración partner con Privaro." },
   "/app/admin/audit-logs": { title: "Audit Logs — Privaro Admin", description: "Review the full audit log of AI requests, detections, policy decisions, and token access." },
+  "/app/admin/output-incidents": { title: "Output Incidents — Privaro Admin", description: "Review PII detected in LLM responses, including streaming detections that could not be masked." },
   "/app/admin/encryption-keys": { title: "Encryption Keys — Privaro Admin", description: "Manage bring-your-own encryption keys (BYOK) used to protect the token vault." },
   "/app/admin/providers": { title: "LLM Providers — Privaro Admin", description: "Configure LLM provider connections and credentials available to your organization." },
   "/app/admin/users": { title: "Users — Privaro Admin", description: "Invite teammates, manage roles, and control access to the Privaro workspace." },
@@ -49,6 +50,7 @@ const platformAdminItems = [
 ];
 const adminDpoItems = [
   { labelKey: "app.layout.nav.auditLogs", icon: FileText, href: "/app/admin/audit-logs" },
+  { labelKey: "app.layout.nav.outputIncidents", icon: AlertTriangle, href: "/app/admin/output-incidents" },
   { labelKey: "app.layout.nav.encryptionKeys", icon: Lock, href: "/app/admin/encryption-keys" },
 ];
 const adminOnlyItems = [
