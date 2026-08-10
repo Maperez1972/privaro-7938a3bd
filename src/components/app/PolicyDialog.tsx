@@ -27,9 +27,10 @@ export interface PolicyFormData {
   priority: number;
   custom_pattern: string;
   field_name_pattern: string;
+  direction: string;
 }
 
-export const SECTOR_PRESETS: Record<string, (Omit<PolicyFormData, "custom_pattern" | "field_name_pattern"> & { custom_pattern?: string; field_name_pattern?: string })[]> = {
+export const SECTOR_PRESETS: Record<string, (Omit<PolicyFormData, "custom_pattern" | "field_name_pattern" | "direction"> & { custom_pattern?: string; field_name_pattern?: string; direction?: string })[]> = {
   legal: [
     { entity_type: "full_name", category: "personal", action: "tokenise", regulation_ref: "GDPR Art.5", priority: 10 },
     { entity_type: "dni", category: "personal", action: "tokenise", regulation_ref: "GDPR Art.9", priority: 5 },
@@ -77,11 +78,12 @@ const PolicyDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: Po
     priority: 10,
     custom_pattern: "",
     field_name_pattern: "",
+    direction: "input",
   });
 
   useEffect(() => {
     if (initialData) {
-      setForm(initialData);
+      setForm({ ...initialData, direction: initialData.direction || "input" });
     } else {
       setForm({
         entity_type: "full_name",
@@ -91,6 +93,7 @@ const PolicyDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: Po
         priority: 10,
         custom_pattern: "",
         field_name_pattern: "",
+        direction: "input",
       });
     }
   }, [initialData, open]);
@@ -134,6 +137,18 @@ const PolicyDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: Po
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>{t("app.policies.dialog.direction")}</Label>
+            <Select value={form.direction} onValueChange={(v) => setForm({ ...form, direction: v })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="input">{t("app.policies.dialog.direction.input")}</SelectItem>
+                <SelectItem value="output">{t("app.policies.dialog.direction.output")}</SelectItem>
+                <SelectItem value="both">{t("app.policies.dialog.direction.both")}</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">{t("app.policies.dialog.directionHelp")}</p>
           </div>
           <div className="space-y-2">
             <Label>{t("app.policies.dialog.regulationRef")}</Label>

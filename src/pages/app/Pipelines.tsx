@@ -26,9 +26,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, GitBranch, MoreVertical, Pencil, Play, Pause, Archive, Trash2, ChevronDown } from "lucide-react";
+import { Plus, GitBranch, MoreVertical, Pencil, Play, Pause, Archive, Trash2, ChevronDown, Info } from "lucide-react";
 import PipelinePoliciesSection from "@/components/app/pipeline/PipelinePoliciesSection";
 import { useLanguage } from "@/context/LanguageContext";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Pipeline {
   id: string;
@@ -43,6 +47,8 @@ interface Pipeline {
   total_pii_masked: number;
   total_leaked: number;
   avg_latency_ms: number;
+  output_scanning_enabled: boolean;
+  output_scanning_mode: string;
 }
 
 const Pipelines = () => {
@@ -82,6 +88,28 @@ const Pipelines = () => {
         result[id] = v.sum / v.count;
       }
       return result;
+    },
+  });
+
+  // Aggregated PII detected in LLM output (last 30 days)
+  const { data: outputPiiByPipeline } = useQuery({
+    queryKey: ["pipeline-output-pii", profile?.org_id, thirtyDaysAgo],
+    enabled: !!profile?.org_id,
+    queryFn: async () => {
+      const { data } = await (supabase
+        .from("audit_logs")
+        .select("pipeline_id, metadata") as any)
+        .eq("org_id", profile!.org_id)
+        .eq("direction", "output")
+        .gte("created_at", thirtyDaysAgo);
+
+      const map: Record<string, number> = {};
+      for (const row of data ?? []) {
+        if (!row.pipeline_id) continue;
+        const detected = Number(row.metadata?.total_detected ?? 0);
+        map[row.pipeline_id] = (map[row.pipeline_id] ?? 0) + (Number.isFinite(detected) ? detected : 0);
+      }
+      return map;
     },
   });
 
@@ -213,6 +241,19 @@ const Pipelines = () => {
     setDeleteTarget(null);
   };
 
+  const handleOutputScanningChange = async (
+    pipe: Pipeline,
+    changes: { output_scanning_enabled?: boolean; output_scanning_mode?: string }
+  ) => {
+    const previous = pipelines;
+    setPipelines((prev) => prev.map((p) => (p.id === pipe.id ? { ...p, ...changes } : p)));
+    const { error } = await supabase.from("pipelines").update(changes).eq("id", pipe.id);
+    if (error) {
+      setPipelines(previous);
+      toast({ title: t("app.pipelines.toast.error"), description: error.message, variant: "destructive" });
+    }
+  };
+
   const openEdit = (pipe: Pipeline) => {
     setEditPipeline(pipe);
   };
@@ -326,7 +367,7 @@ const Pipelines = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-6 gap-4 mt-5 pt-4 border-t border-border">
+                  <div className="grid grid-cols-7 gap-4 mt-5 pt-4 border-t border-border">
                     <div>
                       <p className="text-xs text-muted-foreground">{t("app.pipelines.stat.requests")}</p>
                       <p className="text-sm font-semibold">{pipe.total_requests.toLocaleString()}</p>
@@ -354,9 +395,60 @@ const Pipelines = () => {
                       })()}
                     </div>
                     <div>
+                      <p className="text-xs text-muted-foreground">{t("app.pipelines.stat.outputPii")}</p>
+                      {pipe.output_scanning_enabled ? (
+                        <p className="text-sm font-semibold">{(outputPiiByPipeline?.[pipe.id] ?? 0).toLocaleString()}</p>
+                      ) : (
+                        <p className="text-sm font-semibold text-muted-foreground">—</p>
+                      )}
+                    </div>
+                    <div>
                       <p className="text-xs text-muted-foreground">{t("app.pipelines.stat.latency")}</p>
                       <p className="text-sm font-semibold">{pipe.avg_latency_ms}ms</p>
                     </div>
+                  </div>
+
+                  {/* Output scanning controls */}
+                  <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-border/50">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id={`output-scanning-${pipe.id}`}
+                        checked={!!pipe.output_scanning_enabled}
+                        onCheckedChange={(checked) =>
+                          handleOutputScanningChange(pipe, { output_scanning_enabled: checked })
+                        }
+                      />
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Label
+                              htmlFor={`output-scanning-${pipe.id}`}
+                              className="text-xs font-medium flex items-center gap-1 cursor-pointer"
+                            >
+                              {t("app.pipelines.outputScanning.label")}
+                              <Info className="w-3 h-3 text-muted-foreground" />
+                            </Label>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs text-xs">
+                            {t("app.pipelines.outputScanning.tooltip")}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    {pipe.output_scanning_enabled && (
+                      <Select
+                        value={pipe.output_scanning_mode ?? "shadow"}
+                        onValueChange={(v) => handleOutputScanningChange(pipe, { output_scanning_mode: v })}
+                      >
+                        <SelectTrigger className="w-[280px] h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="shadow">{t("app.pipelines.outputScanning.shadow")}</SelectItem>
+                          <SelectItem value="enforce">{t("app.pipelines.outputScanning.enforce")}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
 
                   {/* Expand/Collapse Policies */}

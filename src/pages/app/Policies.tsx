@@ -58,6 +58,7 @@ interface PolicyRule {
   pipeline_id: string | null;
   scope: string | null;
   overrides_org: boolean;
+  direction: string | null;
 }
 
 interface PipelineRuleRow extends PolicyRule {
@@ -96,7 +97,7 @@ const Policies = () => {
     }
     const { data, error } = await (supabase as any)
       .from("policy_rules")
-      .select("id, entity_type, category, action, is_enabled, regulation_ref, priority, custom_pattern, field_name_pattern, pipeline_id, scope, overrides_org")
+      .select("id, entity_type, category, action, is_enabled, regulation_ref, priority, custom_pattern, field_name_pattern, pipeline_id, scope, overrides_org, direction")
       .eq("org_id", profile.org_id)
       .is("pipeline_id", null)
       .order("priority", { ascending: true });
@@ -118,7 +119,7 @@ const Policies = () => {
     }
     const { data, error } = await (supabase as any)
       .from("policy_rules")
-      .select("id, entity_type, category, action, is_enabled, regulation_ref, priority, custom_pattern, field_name_pattern, pipeline_id, scope, overrides_org, pipelines!inner(name)")
+      .select("id, entity_type, category, action, is_enabled, regulation_ref, priority, custom_pattern, field_name_pattern, pipeline_id, scope, overrides_org, direction, pipelines!inner(name)")
       .eq("org_id", profile.org_id)
       .eq("scope", "pipeline")
       .order("priority", { ascending: true });
@@ -128,7 +129,7 @@ const Policies = () => {
       // Fallback: try without join
       const { data: fallback } = await (supabase as any)
         .from("policy_rules")
-        .select("id, entity_type, category, action, is_enabled, regulation_ref, priority, custom_pattern, field_name_pattern, pipeline_id, scope, overrides_org")
+        .select("id, entity_type, category, action, is_enabled, regulation_ref, priority, custom_pattern, field_name_pattern, pipeline_id, scope, overrides_org, direction")
         .eq("org_id", profile.org_id)
         .eq("scope", "pipeline")
         .order("priority", { ascending: true });
@@ -172,6 +173,7 @@ const Policies = () => {
       priority: form.priority,
       custom_pattern: form.custom_pattern || null,
       field_name_pattern: form.field_name_pattern || null,
+      direction: form.direction || "input",
       updated_by: user?.id,
     });
     setSaving(false);
@@ -199,6 +201,7 @@ const Policies = () => {
         priority: form.priority,
         custom_pattern: form.custom_pattern || null,
         field_name_pattern: form.field_name_pattern || null,
+        direction: form.direction || "input",
         updated_by: user.id,
       })
       .eq("id", editRule.id)
@@ -425,6 +428,11 @@ const Policies = () => {
                           <td className="p-4 font-mono text-xs text-muted-foreground">#{rule.priority}</td>
                           <td className="p-4">
                             <span className="font-mono text-xs bg-secondary px-2 py-1 rounded">{rule.entity_type}</span>
+                            {rule.direction && rule.direction !== "input" && (
+                              <Badge variant="outline" className="ml-2 bg-blue-500/15 text-blue-400 border-blue-500/30 text-[10px] px-1.5 py-0 capitalize">
+                                {rule.direction}
+                              </Badge>
+                            )}
                           </td>
                           <td className="p-4 text-xs capitalize">{rule.category}</td>
                           <td className="p-4">
@@ -514,6 +522,11 @@ const Policies = () => {
                             <tr key={rule.id} className="border-b border-border/50 hover:bg-secondary/30 transition-colors">
                               <td className="p-3">
                                 <span className="font-mono text-xs bg-secondary px-2 py-1 rounded">{rule.entity_type}</span>
+                                {rule.direction && rule.direction !== "input" && (
+                                  <Badge variant="outline" className="ml-2 bg-blue-500/15 text-blue-400 border-blue-500/30 text-[10px] px-1.5 py-0 capitalize">
+                                    {rule.direction}
+                                  </Badge>
+                                )}
                               </td>
                               <td className="p-3">
                                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border capitalize ${actionColors[rule.action] ?? "bg-muted text-muted-foreground border-border"}`}>
@@ -558,6 +571,7 @@ const Policies = () => {
           priority: editRule.priority,
           custom_pattern: editRule.custom_pattern ?? "",
           field_name_pattern: editRule.field_name_pattern ?? "",
+          direction: editRule.direction ?? "input",
         } : null}
       />
 

@@ -620,6 +620,8 @@ export type Database = {
           llm_provider: string
           name: string
           org_id: string
+          output_scanning_enabled: boolean
+          output_scanning_mode: string
           policy_set_id: string | null
           sector: string
           status: string
@@ -638,6 +640,8 @@ export type Database = {
           llm_provider?: string
           name: string
           org_id: string
+          output_scanning_enabled?: boolean
+          output_scanning_mode?: string
           policy_set_id?: string | null
           sector?: string
           status?: string
@@ -656,6 +660,8 @@ export type Database = {
           llm_provider?: string
           name?: string
           org_id?: string
+          output_scanning_enabled?: boolean
+          output_scanning_mode?: string
           policy_set_id?: string | null
           sector?: string
           status?: string
@@ -689,6 +695,7 @@ export type Database = {
           category: string
           created_at: string
           custom_pattern: string | null
+          direction: string
           entity_type: string
           id: string
           is_enabled: boolean
@@ -704,6 +711,7 @@ export type Database = {
           category?: string
           created_at?: string
           custom_pattern?: string | null
+          direction?: string
           entity_type: string
           id?: string
           is_enabled?: boolean
@@ -719,6 +727,7 @@ export type Database = {
           category?: string
           created_at?: string
           custom_pattern?: string | null
+          direction?: string
           entity_type?: string
           id?: string
           is_enabled?: boolean
