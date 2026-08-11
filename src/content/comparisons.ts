@@ -173,7 +173,8 @@ export const COMPARISONS: Comparison[] = [
     },
     rows: [
       { feature: "Primary product", privaro: "Governance platform (proxy + engine)", competitor: "Detection & redaction API", privaroWins: true },
-      { feature: "Real-time PII detection — prompts AND LLM responses", privaro: "Native, both directions (sub-100 ms)", competitor: "Best-in-class detection, single-direction by design", privaroWins: true },
+      { feature: "PII detection quality", privaro: "Rules + ML, tuned for prompts and LLM responses", competitor: "Best-in-class, 50+ entities", privaroWins: false },
+      { feature: "Real-time PII detection — prompts AND LLM responses", privaro: "Native, both directions (sub-100 ms)", competitor: "Detection API only — you wire up each direction", privaroWins: true },
       { feature: "Reversible tokenization", privaro: "Built-in", competitor: "Not included", privaroWins: true },
       { feature: "Policy engine (role + org scoped)", privaro: "Yes", competitor: "Build it yourself", privaroWins: true },
       { feature: "Audit trail for GDPR / EU AI Act", privaro: "Native + blockchain option", competitor: "Not included", privaroWins: true },
