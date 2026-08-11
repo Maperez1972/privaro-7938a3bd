@@ -6,6 +6,7 @@ import {
   ChevronDown, ChevronRight, FileSearch, Eye, EyeOff,
 } from "lucide-react";
 import { mockProxyDetect } from "@/lib/mock-data";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
@@ -91,13 +92,64 @@ function getPageLabelKey(file: File): string {
   return "app.chat.file.block";
 }
 
+async function extractImageText(file: File): Promise<{ pages: string[]; full: string }> {
+  // Fixed 2026-08-11 — real gap found in production: this used to return
+  // only a placeholder label ("[Image file: name — size KB]"), so an
+  // attached photo (e.g. a DNI) was never actually read at all — neither
+  // protected NOR useful, since its real content never reached the
+  // detection engine in the first place. Now calls ocr-chat-image, which
+  // OCRs the image server-side (extract_only=true — no detection/audit/
+  // vault write yet, mirrors how PDF/DOCX extraction has no backend call
+  // until send) and returns the real extracted text.
+  const label = `[Image file: ${file.name} — ${(file.size / 1024).toFixed(1)} KB]`;
+
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    if (!token) return { pages: [label], full: label };
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const form = new FormData();
+    form.append("file", file, file.name);
+
+    const res = await fetch(`${supabaseUrl}/functions/v1/ocr-chat-image`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      },
+      body: form,
+    });
+
+    if (!res.ok) {
+      // OCR failure (unreadable image, no pipeline configured, etc.) —
+      // fall back to the label rather than blocking the attachment
+      // entirely. Real protection still runs on whatever text ends up
+      // in fullText at send time, label included.
+      console.warn("[ocr-chat-image] failed:", res.status);
+      return { pages: [label], full: label };
+    }
+
+    const data = await res.json();
+    const extracted = (data.extracted_text ?? "").trim();
+    if (!extracted) {
+      // No readable text in the image (e.g. a photo with no document) —
+      // this is a normal, expected outcome, not an error.
+      return { pages: [label], full: label };
+    }
+    return { pages: [extracted], full: extracted };
+  } catch (e) {
+    console.warn("[ocr-chat-image] error:", e);
+    return { pages: [label], full: label };
+  }
+}
+
 async function extractFilePages(file: File): Promise<{ pages: string[]; full: string }> {
   const ext = "." + file.name.split(".").pop()?.toLowerCase();
   if (file.type === "application/pdf" || ext === ".pdf") return extractPdfPages(file);
   if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || ext === ".docx") return extractDocxPages(file);
   if (IMAGE_TYPES.includes(file.type) || IMAGE_EXTENSIONS.includes(ext)) {
-    const label = `[Image file: ${file.name} — ${(file.size / 1024).toFixed(1)} KB]`;
-    return { pages: [label], full: label };
+    return extractImageText(file);
   }
   return extractTextPages(file);
 }
