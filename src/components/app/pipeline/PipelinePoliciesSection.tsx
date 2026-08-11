@@ -125,6 +125,7 @@ const PipelinePoliciesSection = ({ pipelineId, pipelineName, pipelineSector }: P
       entity_type: form.entity_type,
       category: form.category,
       action: form.action,
+      direction: form.direction || "input",
       is_enabled: true,
       priority: form.priority,
       regulation_ref: form.regulation_ref || null,
