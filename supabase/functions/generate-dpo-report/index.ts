@@ -22,8 +22,25 @@ interface AuditLogRow {
   ibs_certification_hash: string | null;
   ibs_network: string | null;
   ibs_certified_at: string | null;
+  // Added 2026-08 — output-direction PII detection. Legacy rows predating
+  // that migration were backfilled to 'input', so this is never null.
+  direction: string;
   pipelines?: { name: string; sector: string; llm_provider: string } | null;
 }
+
+// Pipeline stages that mean "the LLM response had already been streamed
+// to the end user before Privaro's scan ran" — see relay.py's
+// _audit_streamed_output(). A 'leaked' action on one of these stages is
+// not a masking failure; it's the accepted, documented limitation of
+// real-time streaming (there is no way to intercept a chunk already
+// delivered over SSE). Kept in sync with OutputIncidents.tsx's
+// STREAMING_STAGES on the frontend.
+const STREAMING_OUTPUT_STAGES = ["relay_stream_output"];
+const isUnmaskableStreamingLeak = (log: AuditLogRow) =>
+  log.direction === "output" &&
+  log.action_taken === "leaked" &&
+  (STREAMING_OUTPUT_STAGES.includes(log.pipeline_stage || "") ||
+    (log.pipeline_stage || "").includes("stream"));
 
 function generateReportHtml(
   logs: AuditLogRow[],
@@ -44,6 +61,25 @@ function generateReportHtml(
     ...new Set(logs.map((l) => l.pipelines?.name).filter(Boolean)),
   ];
 
+  // Output-direction stats — added 2026-08. inputEvents/outputEvents split
+  // covers both directions Privaro now scans: prompts going INTO the LLM
+  // (direction='input', the only thing this report covered before) and
+  // the LLM's own RESPONSE (direction='output' — RAG retrieval, tool-call
+  // results, and model memorization can all leak PII never present in the
+  // original prompt). unmaskableStreamingLeaks are output-direction leaks
+  // that could not be intercepted because the pipeline uses
+  // /v1/relay/stream, where chunks are already delivered to the end user
+  // before the scan completes — see the isUnmaskableStreamingLeak comment
+  // above. These are surfaced as a distinct, explained category rather
+  // than folded into "high risk", so a regulator reading this report sees
+  // an honest, documented limitation instead of an unexplained gap.
+  const inputEvents = logs.filter((l) => l.direction !== "output");
+  const outputEvents = logs.filter((l) => l.direction === "output");
+  const unmaskableStreamingLeaks = outputEvents.filter(isUnmaskableStreamingLeak);
+  const outputMaskedEvents = outputEvents.filter(
+    (l) => !unmaskableStreamingLeaks.includes(l) && l.action_taken !== "leaked"
+  );
+
   const eventsHtml = logs
     .map(
       (log, i) => `
@@ -52,14 +88,26 @@ function generateReportHtml(
       <table style="width:100%;font-size:13px;border-collapse:collapse;">
         <tr><td style="padding:3px 8px;color:#64748b;width:180px;">Timestamp</td><td>${new Date(log.created_at).toISOString()}</td></tr>
         <tr><td style="padding:3px 8px;color:#64748b;">Event Type</td><td>${log.event_type}</td></tr>
+        <tr><td style="padding:3px 8px;color:#64748b;">Direction</td><td>${log.direction === "output" ? "Output (LLM response)" : "Input (prompt)"}</td></tr>
         <tr><td style="padding:3px 8px;color:#64748b;">Entity Protected</td><td>${log.entity_type} (${log.entity_category})</td></tr>
-        <tr><td style="padding:3px 8px;color:#64748b;">Action Taken</td><td>${log.action_taken}</td></tr>
+        <tr><td style="padding:3px 8px;color:#64748b;">Action Taken</td><td>${
+          isUnmaskableStreamingLeak(log)
+            ? `${log.action_taken} <span style="color:#b45309;font-weight:600;">(not interceptable — streaming response, see note below)</span>`
+            : log.action_taken
+        }</td></tr>
         <tr><td style="padding:3px 8px;color:#64748b;">Severity</td><td>${log.severity}</td></tr>
         <tr><td style="padding:3px 8px;color:#64748b;">Pipeline</td><td>${log.pipelines?.name || "—"} (${log.pipelines?.sector || "—"})</td></tr>
         <tr><td style="padding:3px 8px;color:#64748b;">LLM Provider</td><td>${log.pipelines?.llm_provider || "—"}</td></tr>
         <tr><td style="padding:3px 8px;color:#64748b;">Processing Time</td><td>${log.processing_ms ?? "—"}ms</td></tr>
         <tr><td style="padding:3px 8px;color:#64748b;">Risk Score</td><td style="color:${log.risk_score != null ? (log.risk_score >= 0.7 ? "#ef4444" : log.risk_score >= 0.4 ? "#f59e0b" : "#22c55e") : "#94a3b8"};font-weight:600;">${log.risk_score != null ? `${(log.risk_score * 100).toFixed(0)}% — ${log.risk_score >= 0.7 ? "HIGH RISK" : log.risk_score >= 0.4 ? "MEDIUM" : "LOW"}` : "—"}</td></tr>
       </table>
+      ${
+        isUnmaskableStreamingLeak(log)
+          ? `<div style="margin-top:12px;padding:8px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;color:#92400e;font-size:13px;">
+              <strong>Streaming response — audit-only.</strong> This pipeline delivers responses over a live stream (SSE); the chunk containing this entity had already reached the end user before Privaro's scan completed, so it could not be masked in real time. This event is logged as an honest accountability record of the detection, not a system failure — see "Output-Direction Coverage" below.
+            </div>`
+          : ""
+      }
       ${
         log.ibs_certification_hash
           ? `<div style="margin-top:12px;padding:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;">
@@ -120,10 +168,27 @@ function generateReportHtml(
   </div>
   <p style="font-size:14px;color:#475569;">Processing Pipelines: ${pipelineNames.join(", ") || "—"}</p>
 
+  <div class="section-title">OUTPUT-DIRECTION COVERAGE</div>
+  <p style="font-size:14px;color:#475569;margin-bottom:16px;">
+    Since 2026-08, Privaro scans PII in both directions: prompts going <strong>into</strong> the LLM (Input) and the LLM's own <strong>response</strong> back to the user (Output) — covering leakage sources a prompt-only scan cannot see, such as RAG retrieval, tool-call results, and model memorization.
+  </p>
+  <div class="summary-grid">
+    <div class="summary-card"><div class="value">${inputEvents.length}</div><div class="label">Input-Direction Events</div></div>
+    <div class="summary-card"><div class="value">${outputEvents.length}</div><div class="label">Output-Direction Events</div></div>
+    <div class="summary-card"><div class="value" style="color:#16a34a;">${outputMaskedEvents.length}</div><div class="label">Output Events Masked</div></div>
+    <div class="summary-card"><div class="value" style="color:#b45309;">${unmaskableStreamingLeaks.length}</div><div class="label">Output — Streaming, Not Interceptable</div></div>
+  </div>
+  ${
+    unmaskableStreamingLeaks.length > 0
+      ? `<div style="padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;color:#92400e;font-size:13px;margin-bottom:16px;">
+          <strong>Note on streaming pipelines:</strong> ${unmaskableStreamingLeaks.length} of the events above involve a pipeline configured for real-time streaming responses (Server-Sent Events). By the time Privaro's scan completes, the affected chunk has already been delivered to the end user — there is no technical mechanism to intercept it after the fact. Rather than omit this from the record, Privaro logs it explicitly as an accountability entry (action "leaked"), so this report reflects the true state of PII exposure across all channels, including the ones where real-time masking is not physically possible. Pipelines requiring guaranteed output masking should be configured to use the non-streaming <code>/v1/relay/complete</code> endpoint instead, which scans and masks the full response before it is returned.</div>`
+      : ""
+  }
+
   <div class="section-title">LEGAL BASIS & COMPLIANCE FRAMEWORK</div>
   <ul class="legal">
-    <li><strong>GDPR Art. 5(2) — Accountability:</strong> All PII processing events are immutably recorded on Fantom Opera Mainnet blockchain via iCommunity Blockchain Solutions (iBS).</li>
-    <li><strong>GDPR Art. 25 — Privacy by Design:</strong> PII tokenised before reaching LLM providers. Original values never transmitted.</li>
+    <li><strong>GDPR Art. 5(2) — Accountability:</strong> All PII processing events — both input (prompt) and output (LLM response) direction — are immutably recorded on Fantom Opera Mainnet blockchain via iCommunity Blockchain Solutions (iBS).</li>
+    <li><strong>GDPR Art. 25 — Privacy by Design:</strong> PII tokenised before reaching LLM providers, and the LLM's response is itself scanned for PII before being returned to the user (where the pipeline configuration allows interception). Original values never transmitted.</li>
     <li><strong>GDPR Art. 32 — Security:</strong> AES-256-GCM encryption for all stored tokens. Keys segmented per organization.</li>
   </ul>
 
@@ -132,7 +197,7 @@ function generateReportHtml(
 
   <div class="section-title">DECLARATION</div>
   <p style="font-size:14px;color:#475569;">
-    This report certifies that all AI interactions processed through Privaro during the stated period have been handled in compliance with GDPR Art. 5(2) accountability requirements. Each PII detection event is individually certified on blockchain, providing immutable evidence of data protection measures applied.
+    This report certifies that all AI interactions processed through Privaro during the stated period have been handled in compliance with GDPR Art. 5(2) accountability requirements, across both input (prompt) and output (LLM response) directions. Each PII detection event is individually certified on blockchain, providing immutable evidence of data protection measures applied. Where a pipeline's real-time streaming configuration prevented the interception of an output-direction detection, that limitation is disclosed above rather than omitted, consistent with the accountability principle this report exists to demonstrate.
   </p>
 
   <div class="footer">
@@ -266,7 +331,7 @@ Deno.serve(async (req) => {
     const { data: logs, error: logsError } = await supabase
       .from("audit_logs")
       .select(
-        "id, event_type, entity_type, entity_category, action_taken, severity, risk_score, pipeline_stage, processing_ms, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, created_at, pipelines(name, sector, llm_provider)"
+        "id, event_type, entity_type, entity_category, action_taken, severity, risk_score, pipeline_stage, processing_ms, ibs_status, ibs_evidence_id, ibs_certification_hash, ibs_network, ibs_certified_at, created_at, direction, pipelines(name, sector, llm_provider)"
       )
       .eq("org_id", org_id)
       .gte("created_at", period_start + "T00:00:00Z")
