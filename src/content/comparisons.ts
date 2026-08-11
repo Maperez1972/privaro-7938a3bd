@@ -53,7 +53,7 @@ export const COMPARISONS: Comparison[] = [
     },
     rows: [
       { feature: "Primary use case", privaro: "AI/LLM governance & compliance", competitor: "Data vault for stored PII", privaroWins: true },
-      { feature: "Real-time PII detection in prompts", privaro: "Native, sub-100 ms", competitor: "Requires custom integration", privaroWins: true },
+      { feature: "Real-time PII detection — prompts AND LLM responses", privaro: "Native, both directions (sub-100 ms)", competitor: "Requires custom integration", privaroWins: true },
       { feature: "Reversible tokenization for LLMs", privaro: "Built-in, org-scoped", competitor: "Polymorphic tokens (general purpose)", privaroWins: false },
       { feature: "Multi-provider proxy (OpenAI, Anthropic, Gemini)", privaro: "Single endpoint", competitor: "Not included", privaroWins: true },
       { feature: "MCP server for AI agents", privaro: "Included", competitor: "Not available", privaroWins: true },
@@ -114,7 +114,7 @@ export const COMPARISONS: Comparison[] = [
     },
     rows: [
       { feature: "Primary use case", privaro: "LLM prompt/response governance", competitor: "SaaS content DLP", privaroWins: true },
-      { feature: "Real-time prompt interception", privaro: "Yes — inline proxy", competitor: "Post-hoc scanning", privaroWins: true },
+      { feature: "Real-time PII detection — prompts AND LLM responses", privaro: "Native, both directions (sub-100 ms); streaming responses audited in real time", competitor: "Post-hoc scanning", privaroWins: true },
       { feature: "Reversible tokenization", privaro: "Yes", competitor: "Redaction (irreversible)", privaroWins: true },
       { feature: "Coverage of OpenAI / Anthropic / Gemini", privaro: "Native", competitor: "Requires API integration", privaroWins: true },
       { feature: "MCP server for AI agents", privaro: "Included", competitor: "Not available", privaroWins: true },
@@ -173,7 +173,8 @@ export const COMPARISONS: Comparison[] = [
     },
     rows: [
       { feature: "Primary product", privaro: "Governance platform (proxy + engine)", competitor: "Detection & redaction API", privaroWins: true },
-      { feature: "PII detection quality", privaro: "Rules + ML, tuned for prompts", competitor: "Best-in-class, 50+ entities", privaroWins: false },
+      { feature: "PII detection quality", privaro: "Rules + ML, tuned for prompts and LLM responses", competitor: "Best-in-class, 50+ entities", privaroWins: false },
+      { feature: "Real-time PII detection — prompts AND LLM responses", privaro: "Native, both directions (sub-100 ms)", competitor: "Detection API only — you wire up each direction", privaroWins: true },
       { feature: "Reversible tokenization", privaro: "Built-in", competitor: "Not included", privaroWins: true },
       { feature: "Policy engine (role + org scoped)", privaro: "Yes", competitor: "Build it yourself", privaroWins: true },
       { feature: "Audit trail for GDPR / EU AI Act", privaro: "Native + blockchain option", competitor: "Not included", privaroWins: true },

@@ -36,7 +36,7 @@ const AIGovernancePlatform = () => {
           name: "How is Privaro different from a DLP or an LLM firewall?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Traditional DLP was built for files and email. Privaro is built for LLM traffic: it understands prompts, tokenizes PII reversibly, and works across OpenAI, Anthropic and Gemini through a single proxy or MCP endpoint.",
+            text: "Traditional DLP was built for files and email. Privaro is built for LLM traffic: it understands both the prompt going into the model and the response coming back, tokenizes PII reversibly in either direction, and works across OpenAI, Anthropic and Gemini through a single proxy or MCP endpoint. On streaming responses the output is audited in real time rather than masked.",
           },
         },
         {

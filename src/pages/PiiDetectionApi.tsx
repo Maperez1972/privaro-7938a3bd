@@ -15,7 +15,7 @@ const PiiDetectionApi = () => {
       applicationCategory: "DeveloperApplication",
       operatingSystem: "REST API, MCP",
       description:
-        "Real-time PII detection API for LLM prompts. Detect emails, phones, SSNs, credit cards, contracts and custom entities with hybrid regex + NLP. GDPR-ready.",
+        "Real-time PII detection API for LLM prompts and LLM responses. Detect emails, phones, SSNs, credit cards, contracts and custom entities with hybrid regex + NLP, in both directions. GDPR-ready.",
       offers: { "@type": "Offer", price: "150", priceCurrency: "EUR" },
     },
     {
@@ -27,7 +27,7 @@ const PiiDetectionApi = () => {
           name: "What is a PII detection API?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "A PII detection API is a service that scans text for personally identifiable information (names, emails, phones, SSNs, credit cards, addresses) and returns entities with type, position and confidence — so you can mask, tokenize or block them before sending to an LLM.",
+            text: "A PII detection API is a service that scans text for personally identifiable information (names, emails, phones, SSNs, credit cards, addresses) and returns entities with type, position and confidence — so you can mask, tokenize or block them before sending to an LLM, and again on the response the LLM returns.",
           },
         },
         {
@@ -43,7 +43,7 @@ const PiiDetectionApi = () => {
           name: "How fast is the API?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "P95 latency under 80ms for prompts up to 4k tokens. Runs at the edge and scales horizontally per organization.",
+            text: "P95 latency under 80ms for texts up to 4k tokens, in both directions — prompts going into the model and responses coming back. Runs at the edge and scales horizontally per organization.",
           },
         },
       ],
@@ -78,8 +78,8 @@ Content-Type: application/json
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Seo
-        title="PII Detection API for LLMs — Real-time & GDPR-ready | Privaro"
-        description="Privaro's PII Detection API scans LLM prompts for emails, phones, SSNs, contracts and custom entities in real time. Hybrid regex + NLP, P95 < 80ms, reversible tokenization. Free tier available."
+        title="PII Detection API for LLMs — Prompts & Responses | Privaro"
+        description="Privaro's PII Detection API scans LLM prompts and LLM responses for emails, phones, SSNs, contracts and custom entities in real time. Hybrid regex + NLP, P95 < 80ms in both directions, reversible tokenization."
         path="/pii-detection-api"
         jsonLd={jsonLd}
       />
