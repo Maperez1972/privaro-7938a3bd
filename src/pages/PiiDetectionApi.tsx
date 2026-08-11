@@ -15,7 +15,7 @@ const PiiDetectionApi = () => {
       applicationCategory: "DeveloperApplication",
       operatingSystem: "REST API, MCP",
       description:
-        "Real-time PII detection API for LLM prompts. Detect emails, phones, SSNs, credit cards, contracts and custom entities with hybrid regex + NLP. GDPR-ready.",
+        "Real-time PII detection API for LLM prompts and LLM responses. Detect emails, phones, SSNs, credit cards, contracts and custom entities with hybrid regex + NLP, in both directions. GDPR-ready.",
       offers: { "@type": "Offer", price: "150", priceCurrency: "EUR" },
     },
     {
