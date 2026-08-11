@@ -83,6 +83,7 @@ const HowItWorksSection = () => {
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary/80">{t("how.badge.detection")}</span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary/80">{t("how.badge.anonymization")}</span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary/80">{t("how.badge.logging")}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary/80">{t("how.badge.outputScan")}</span>
                   </div>
                 </div>
               </motion.div>
@@ -120,6 +121,7 @@ const HowItWorksSection = () => {
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">{t("how.agent.badge.detection")}</span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">{t("how.agent.badge.tokenisation")}</span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">{t("how.agent.badge.ibs")}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80">{t("how.agent.badge.outputScan")}</span>
                   </div>
                 </div>
               </motion.div>
