@@ -141,6 +141,8 @@ const translations: Record<Language, Record<string, string>> = {
     "dash.sub2.desc": "Your teams interact with AI through a privacy-first chat interface. Every message is analyzed in real time: sensitive data is detected and anonymized before reaching the model, ensuring zero data exposure without disrupting workflows.",
     "dash.sub3.title": "Centralized Control for All AI Providers",
     "dash.sub3.desc": "Connect OpenAI, Anthropic, DeepSeek or any compatible provider. Manage API keys, activate or deactivate engines, and control which models your organization uses — all through a centralized, secure configuration panel.",
+    "dash.sub4.title": "Output Incidents: What the Model Sends Back",
+    "dash.sub4.desc": "Protection works both ways. Privaro also scans the model's response: sensitive data detected in the output is anonymized before it reaches the user in relay pipelines, and audited in real time in streaming pipelines, where it cannot be intercepted mid-generation. Every detection is logged by channel and stage, ready for DPO reports.",
     "comp.label": "Differentiation",
     "comp.title1": "Not a DLP. Not a Policy.",
     "comp.title2": "Infrastructure",
