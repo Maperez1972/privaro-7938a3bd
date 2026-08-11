@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FileInput, Brain, KeyRound, Server, ArrowRight, ArrowDown, Shield, Bot, Zap, Link2 } from "lucide-react";
+import { FileInput, Brain, KeyRound, Server, ArrowRight, ArrowLeft, ArrowDown, ArrowUp, Shield, Bot, Zap, Link2 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 const HowItWorksSection = () => {
@@ -70,8 +70,8 @@ const HowItWorksSection = () => {
                   <p className="text-xs text-muted-foreground mt-1.5">{t("how.arch.enterpriseSub")}</p>
                 </div>
               </motion.div>
-              <div className="hidden md:flex items-center px-2"><motion.div initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.5 }} className="origin-left"><div className="flex items-center"><div className="w-16 h-px bg-gradient-to-r from-border to-primary/50" /><ArrowRight className="w-4 h-4 text-primary/60 -ml-1" /></div></motion.div></div>
-              <div className="md:hidden flex justify-center"><motion.div initial={{ scaleY: 0 }} whileInView={{ scaleY: 1 }} viewport={{ once: true }} transition={{ duration: 0.3, delay: 0.5 }} className="origin-top"><div className="flex flex-col items-center"><div className="w-px h-8 bg-gradient-to-b from-border to-primary/50" /><ArrowDown className="w-4 h-4 text-primary/60 -mt-1" /></div></motion.div></div>
+              <div className="hidden md:flex flex-col gap-1.5 px-2"><div className="flex items-center"><div className="w-16 h-px bg-gradient-to-r from-border to-primary/50" /><ArrowRight className="w-4 h-4 text-primary/60 -ml-1" /></div><div className="flex items-center"><ArrowLeft className="w-4 h-4 text-primary/60 -mr-1" /><div className="w-16 h-px bg-gradient-to-l from-border to-primary/50" /></div></div>
+              <div className="md:hidden flex justify-center gap-4"><div className="flex flex-col items-center"><div className="w-px h-8 bg-gradient-to-b from-border to-primary/50" /><ArrowDown className="w-4 h-4 text-primary/60 -mt-1" /></div><div className="flex flex-col items-center"><ArrowUp className="w-4 h-4 text-primary/60 -mb-1" /><div className="w-px h-8 bg-gradient-to-t from-border to-primary/50" /></div></div>
               <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.45 }} className="flex-shrink-0 w-64 p-6 rounded-xl border border-primary/30 bg-card/80 backdrop-blur-sm text-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5" />
                 <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-primary/5 blur-3xl" />
@@ -86,8 +86,8 @@ const HowItWorksSection = () => {
                   </div>
                 </div>
               </motion.div>
-              <div className="hidden md:flex items-center px-2"><motion.div initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.6 }} className="origin-left"><div className="flex items-center"><div className="w-16 h-px bg-gradient-to-r from-primary/50 to-border" /><ArrowRight className="w-4 h-4 text-muted-foreground -ml-1" /></div></motion.div></div>
-              <div className="md:hidden flex justify-center"><motion.div initial={{ scaleY: 0 }} whileInView={{ scaleY: 1 }} viewport={{ once: true }} transition={{ duration: 0.3, delay: 0.6 }} className="origin-top"><div className="flex flex-col items-center"><div className="w-px h-8 bg-gradient-to-b from-primary/50 to-border" /><ArrowDown className="w-4 h-4 text-muted-foreground -mt-1" /></div></motion.div></div>
+              <div className="hidden md:flex flex-col gap-1.5 px-2"><div className="flex items-center"><div className="w-16 h-px bg-gradient-to-r from-primary/50 to-border" /><ArrowRight className="w-4 h-4 text-muted-foreground -ml-1" /></div><div className="flex items-center"><ArrowLeft className="w-4 h-4 text-primary/60 -mr-1" /><div className="w-16 h-px bg-gradient-to-r from-border to-primary/50" /></div></div>
+              <div className="md:hidden flex justify-center gap-4"><div className="flex flex-col items-center"><div className="w-px h-8 bg-gradient-to-b from-primary/50 to-border" /><ArrowDown className="w-4 h-4 text-muted-foreground -mt-1" /></div><div className="flex flex-col items-center"><ArrowUp className="w-4 h-4 text-primary/60 -mb-1" /><div className="w-px h-8 bg-gradient-to-b from-border to-primary/50" /></div></div>
               <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.55 }} className="flex-shrink-0 w-56 p-6 rounded-xl border border-border bg-card/80 backdrop-blur-sm text-center relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-muted/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative">
@@ -107,8 +107,8 @@ const HowItWorksSection = () => {
                   <p className="text-xs text-muted-foreground mt-1.5">{t("how.agent.frameworks")}</p>
                 </div>
               </motion.div>
-              <div className="hidden md:flex items-center px-2"><div className="flex items-center"><div className="w-16 h-px bg-gradient-to-r from-border to-amber-500/50" /><ArrowRight className="w-4 h-4 text-amber-400/60 -ml-1" /></div></div>
-              <div className="md:hidden flex justify-center"><div className="flex flex-col items-center"><div className="w-px h-8 bg-gradient-to-b from-border to-amber-500/50" /><ArrowDown className="w-4 h-4 text-amber-400/60 -mt-1" /></div></div>
+              <div className="hidden md:flex flex-col gap-1.5 px-2"><div className="flex items-center"><div className="w-16 h-px bg-gradient-to-r from-border to-amber-500/50" /><ArrowRight className="w-4 h-4 text-amber-400/60 -ml-1" /></div><div className="flex items-center"><ArrowLeft className="w-4 h-4 text-amber-400/60 -mr-1" /><div className="w-16 h-px bg-gradient-to-l from-border to-amber-500/50" /></div></div>
+              <div className="md:hidden flex justify-center gap-4"><div className="flex flex-col items-center"><div className="w-px h-8 bg-gradient-to-b from-border to-amber-500/50" /><ArrowDown className="w-4 h-4 text-amber-400/60 -mt-1" /></div><div className="flex flex-col items-center"><ArrowUp className="w-4 h-4 text-amber-400/60 -mb-1" /><div className="w-px h-8 bg-gradient-to-t from-border to-amber-500/50" /></div></div>
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="flex-shrink-0 w-64 p-6 rounded-xl border border-amber-500/30 bg-card/80 backdrop-blur-sm text-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-amber-500/5" />
                 <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-amber-500/5 blur-3xl" />
@@ -123,8 +123,8 @@ const HowItWorksSection = () => {
                   </div>
                 </div>
               </motion.div>
-              <div className="hidden md:flex items-center px-2"><div className="flex items-center"><div className="w-16 h-px bg-gradient-to-r from-amber-500/50 to-border" /><ArrowRight className="w-4 h-4 text-muted-foreground -ml-1" /></div></div>
-              <div className="md:hidden flex justify-center"><div className="flex flex-col items-center"><div className="w-px h-8 bg-gradient-to-b from-amber-500/50 to-border" /><ArrowDown className="w-4 h-4 text-muted-foreground -mt-1" /></div></div>
+              <div className="hidden md:flex flex-col gap-1.5 px-2"><div className="flex items-center"><div className="w-16 h-px bg-gradient-to-r from-amber-500/50 to-border" /><ArrowRight className="w-4 h-4 text-muted-foreground -ml-1" /></div><div className="flex items-center"><ArrowLeft className="w-4 h-4 text-amber-400/60 -mr-1" /><div className="w-16 h-px bg-gradient-to-r from-border to-amber-500/50" /></div></div>
+              <div className="md:hidden flex justify-center gap-4"><div className="flex flex-col items-center"><div className="w-px h-8 bg-gradient-to-b from-amber-500/50 to-border" /><ArrowDown className="w-4 h-4 text-muted-foreground -mt-1" /></div><div className="flex flex-col items-center"><ArrowUp className="w-4 h-4 text-amber-400/60 -mb-1" /><div className="w-px h-8 bg-gradient-to-b from-border to-amber-500/50" /></div></div>
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="flex-shrink-0 w-56 p-6 rounded-xl border border-border bg-card/80 backdrop-blur-sm text-center relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-muted/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative">
