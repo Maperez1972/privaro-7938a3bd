@@ -31,7 +31,7 @@ const SolutionSection = () => {
           ))}
         </div>
         <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.7, delay: 0.3 }} className="mt-10">
-          <img src={lang === "es" ? solutionImageEs : solutionImageEn} alt={lang === "en" ? "Diagram showing enterprise data flowing securely through Privaura privacy layer to AI model" : "Diagrama mostrando datos empresariales fluyendo de forma segura a través de la capa de privacidad Privaura hacia el modelo de IA"} className="w-full max-w-3xl mx-auto rounded-xl border border-border" loading="lazy" width={1344} height={768} />
+          <img src={lang === "es" ? solutionImageEs : solutionImageEn} alt={lang === "en" ? "Diagram showing the bidirectional flow: enterprise data anonymized by the Privaro layer before reaching the AI model, and the model response scanned for PII on the way back to the protected user" : "Diagrama del flujo bidireccional: los datos empresariales se anonimizan en la capa Privaro antes de llegar al modelo de IA, y la respuesta del modelo se escanea en busca de PII antes de llegar al usuario protegido"} className="w-full max-w-3xl mx-auto rounded-xl border border-border" loading="lazy" width={1344} height={768} />
         </motion.div>
         <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.5 }} className="text-center mt-12 text-xl text-muted-foreground">
           {t("solution.conclusion1")} <span className="text-foreground font-semibold">{t("solution.conclusion2")}</span>
