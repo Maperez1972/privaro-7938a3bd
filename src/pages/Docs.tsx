@@ -303,9 +303,18 @@ const response = await openai.chat.completions.create({
                 </div>
               ))}
             </div>
+
+            {/* Input vs Output scanning */}
+            <div className="mt-10 p-6 rounded-xl border border-border bg-card">
+              <h3 className="text-lg font-semibold mb-3">{t("docs.io.title")}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-3">{t("docs.io.p1")}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-3">{t("docs.io.p2")}</p>
+              <p className="text-sm text-warning leading-relaxed">{t("docs.io.p3")}</p>
+            </div>
           </motion.div>
         </div>
       </section>
+
 
       {/* CTA */}
       <section className="pb-20 px-6">
