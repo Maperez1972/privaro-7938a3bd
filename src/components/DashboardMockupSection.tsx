@@ -6,6 +6,8 @@ import featureEnginesEn from "@/assets/feature-engines.webp";
 import featureDashboardEs from "@/assets/feature-dashboard-es.webp";
 import featureChatEs from "@/assets/feature-chat-es.webp";
 import featureEnginesEs from "@/assets/feature-engines-es.webp";
+import featureOutputEn from "@/assets/feature-output-incidents.webp";
+import featureOutputEs from "@/assets/feature-output-incidents-es.webp";
 
 const DashboardMockupSection = () => {
   const { t, lang } = useLanguage();
@@ -13,6 +15,7 @@ const DashboardMockupSection = () => {
     { titleKey: "dash.sub1.title", descKey: "dash.sub1.desc", image: lang === "es" ? featureDashboardEs : featureDashboardEn, alt: "Privaura Dashboard", imageFirst: false },
     { titleKey: "dash.sub2.title", descKey: "dash.sub2.desc", image: lang === "es" ? featureChatEs : featureChatEn, alt: "Privaura AI Chat", imageFirst: true },
     { titleKey: "dash.sub3.title", descKey: "dash.sub3.desc", image: lang === "es" ? featureEnginesEs : featureEnginesEn, alt: "Privaura Engine Configuration", imageFirst: false },
+    { titleKey: "dash.sub4.title", descKey: "dash.sub4.desc", image: lang === "es" ? featureOutputEs : featureOutputEn, alt: lang === "es" ? "Panel de Incidencias de Output de Privaro" : "Privaro Output Incidents dashboard", imageFirst: true },
   ];
 
   return (
