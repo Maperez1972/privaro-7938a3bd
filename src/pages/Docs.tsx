@@ -286,6 +286,8 @@ const response = await openai.chat.completions.create({
                 { method: "POST", path: "/proxy/detect", descKey: "docs.ep2.desc" },
                 { method: "POST", path: "/relay/complete", descKey: "docs.ep3.desc" },
                 { method: "POST", path: "/agent/reveal", descKey: "docs.ep4.desc" },
+                { method: "POST", path: "/relay/stream", descKey: "docs.ep6.desc" },
+                { method: "POST", path: "/proxy/protect-output", descKey: "docs.ep7.desc" },
                 { method: "GET",  path: "/health", descKey: "docs.ep5.desc" },
               ].map(({ method, path, descKey }) => (
                 <div key={path} className="flex items-start gap-4 p-4 rounded-xl border border-border bg-card">
