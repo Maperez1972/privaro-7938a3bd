@@ -452,7 +452,7 @@ Deno.serve(async (req) => {
   } catch (err) {
     console.error("generate-dpo-report error:", err);
     return new Response(
-      JSON.stringify({ error: "internal_error" }),
+      JSON.stringify({ error: "internal_error", detail: (err as Error)?.message ?? String(err) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
