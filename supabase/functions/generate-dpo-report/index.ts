@@ -376,7 +376,7 @@ Deno.serve(async (req) => {
       (l) => l.risk_score != null && l.risk_score >= 0.7
     ).length;
 
-    const storagePath = `${org_id}/${period_start}_${period_end}.html`;
+    const storagePath = `${org_id}/${periodLabel}_${generationType}.html`;
     const { error: uploadError } = await supabase.storage
       .from("dpo-reports")
       .upload(storagePath, htmlBytes, {
