@@ -257,14 +257,18 @@ Deno.serve(async (req) => {
     // of THIS org_id. Any admin could generate and read another org's DPO
     // audit report (PII detection metadata, risk scores, blockchain
     // hashes). Scoped the role check to the requested org_id.
-    const { data: roleData } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("org_id", org_id)
-      .maybeSingle();
+    // Fixed 2026-08-12 — user_roles has no org_id column (roles are global
+    // per user; the org binding lives in profiles.org_id). Filtering
+    // user_roles by org_id made PostgREST return an "column does not exist"
+    // error, so roleData was always null and EVERY caller got a 403.
+    // Scope the check the correct way: caller must be an admin AND belong to
+    // the requested org.
+    const [{ data: roleData }, { data: callerProfile }] = await Promise.all([
+      supabase.from("user_roles").select("role").eq("user_id", userId).maybeSingle(),
+      supabase.from("profiles").select("org_id").eq("id", userId).maybeSingle(),
+    ]);
 
-    if (roleData?.role !== "admin") {
+    if (roleData?.role !== "admin" || callerProfile?.org_id !== org_id) {
       return new Response(
         JSON.stringify({ error: "Forbidden: admin role required" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
