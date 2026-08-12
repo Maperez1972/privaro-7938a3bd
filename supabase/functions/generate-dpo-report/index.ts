@@ -275,13 +275,19 @@ Deno.serve(async (req) => {
       );
     }
 
+    // period_label is the canonical key for a report period in this schema
+    // ("2026-08"), and dpo_reports keeps a version history per label
+    // (generation_type + is_latest). Building the label as "August 2026" and
+    // deleting by period_start/period_end broke both: it never matched the
+    // existing rows and the insert violated the schema's version invariants.
+    const periodLabel = period_start.slice(0, 7);
+
     if (!force_regenerate) {
       const { data: existing } = await supabase
         .from("dpo_reports")
         .select("id, status")
         .eq("org_id", org_id)
-        .eq("period_start", period_start)
-        .eq("period_end", period_end)
+        .eq("period_label", periodLabel)
         .in("status", ["ready", "generating"])
         .maybeSingle();
 
@@ -293,15 +299,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (force_regenerate) {
-      await supabase
-        .from("dpo_reports")
-        .delete()
-        .eq("org_id", org_id)
-        .eq("period_start", period_start)
-        .eq("period_end", period_end);
-    }
-
     const { data: org } = await supabase
       .from("organizations")
       .select("name, gdpr_dpo_email, org_type, parent_org_id")
@@ -311,11 +308,23 @@ Deno.serve(async (req) => {
     const orgName = org?.name || "Unknown Organization";
     const dpoEmail = org?.gdpr_dpo_email || "";
 
-    const periodDate = new Date(period_start + "T00:00:00Z");
-    const periodLabel = periodDate.toLocaleString("en-US", {
-      month: "long",
-      year: "numeric",
-    });
+    // Previous versions of this period stay in the history table, but only
+    // one row per (org, period) may be flagged as the latest.
+    const { data: priorVersions } = await supabase
+      .from("dpo_reports")
+      .select("id, generation_type")
+      .eq("org_id", org_id)
+      .eq("period_label", periodLabel);
+
+    const generationType = (priorVersions?.length ?? 0) > 0 ? "regenerated" : "original";
+
+    if (priorVersions?.length) {
+      await supabase
+        .from("dpo_reports")
+        .update({ is_latest: false })
+        .eq("org_id", org_id)
+        .eq("period_label", periodLabel);
+    }
 
     const { data: report, error: insertError } = await supabase
       .from("dpo_reports")
@@ -325,12 +334,16 @@ Deno.serve(async (req) => {
         period_start,
         period_end,
         status: "generating",
+        generation_type: generationType,
+        contains_raw_data: true,
+        is_latest: true,
       })
       .select("id")
       .single();
 
     if (insertError) throw insertError;
     const reportId = report.id;
+
 
     const { data: logs, error: logsError } = await supabase
       .from("audit_logs")
