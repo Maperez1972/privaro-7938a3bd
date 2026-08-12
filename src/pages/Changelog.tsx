@@ -26,6 +26,20 @@ interface Entry {
 
 const ENTRIES: Entry[] = [
   {
+    date: "2026-08-12",
+    versionKey: "changelog.v11.version",
+    titleKey: "changelog.v11.title",
+    descKey: "changelog.v11.desc",
+    tags: ["feature"],
+    itemKeys: [
+      "changelog.v11.i1",
+      "changelog.v11.i2",
+      "changelog.v11.i3",
+      "changelog.v11.i4",
+      "changelog.v11.i5",
+    ],
+  },
+  {
     date: "2026-08-10",
     versionKey: "changelog.v10.version",
     titleKey: "changelog.v10.title",

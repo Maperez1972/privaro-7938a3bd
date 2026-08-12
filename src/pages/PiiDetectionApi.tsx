@@ -15,7 +15,7 @@ const PiiDetectionApi = () => {
       applicationCategory: "DeveloperApplication",
       operatingSystem: "REST API, MCP",
       description:
-        "Real-time PII detection API for LLM prompts and LLM responses. Detect emails, phones, SSNs, credit cards, contracts and custom entities with hybrid regex + NLP, in both directions. GDPR-ready.",
+        "Real-time PII detection API for LLM prompts and LLM responses, and for photographed or scanned ID documents (OCR). Detect emails, phones, SSNs, credit cards, license plates, addresses, contracts and custom entities with hybrid regex + NLP, in both directions. GDPR-ready.",
       offers: { "@type": "Offer", price: "150", priceCurrency: "EUR" },
     },
     {
@@ -35,7 +35,15 @@ const PiiDetectionApi = () => {
           name: "What entities does Privaro's PII detection API detect?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Emails, phone numbers, SSNs, IBANs, credit cards, passport numbers, addresses, dates of birth, medical record numbers, contract clauses and custom regex/NLP entities defined per organization.",
+            text: "Emails, phone numbers, SSNs, IBANs, credit cards, passport numbers, national ID numbers (with checksum validation for Spanish DNI/NIE), license plates, addresses, dates of birth, medical record numbers, contract clauses and custom regex/NLP entities defined per organization.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Can Privaro detect PII in photographed or scanned documents, not just text?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes. The same detection engine runs on OCR-extracted text from photographed or scanned ID documents (national ID cards, passports, contracts) via a dedicated endpoint, with an optional cloud OCR pass for low-quality images. The response includes both the protected text and a redacted copy of the image with sensitive regions blacked out.",
           },
         },
         {

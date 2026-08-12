@@ -278,7 +278,7 @@ const response = await openai.chat.completions.create({
         <div className="max-w-3xl mx-auto">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
             <h2 className="text-xl font-semibold mb-2">{t("docs.endpoints.title")}</h2>
-            <p className="text-sm text-muted-foreground mb-8">{t("docs.endpoints.base")}: <code className="text-primary font-mono text-xs bg-primary/10 px-2 py-0.5 rounded">https://privaro-proxy-production.up.railway.app/v1</code></p>
+            <p className="text-sm text-muted-foreground mb-8">{t("docs.endpoints.base")}: <code className="text-primary font-mono text-xs bg-primary/10 px-2 py-0.5 rounded">https://api.privaro.ai/v1</code></p>
 
             <div className="space-y-4">
               {[
@@ -288,6 +288,8 @@ const response = await openai.chat.completions.create({
                 { method: "POST", path: "/agent/reveal", descKey: "docs.ep4.desc" },
                 { method: "POST", path: "/relay/stream", descKey: "docs.ep6.desc" },
                 { method: "POST", path: "/proxy/protect-output", descKey: "docs.ep7.desc" },
+                { method: "POST", path: "/proxy/protect-document", descKey: "docs.ep8.desc" },
+                { method: "POST", path: "/proxy/protect-image-document", descKey: "docs.ep9.desc" },
                 { method: "GET",  path: "/health", descKey: "docs.ep5.desc" },
               ].map(({ method, path, descKey }) => (
                 <div key={path} className="flex items-start gap-4 p-4 rounded-xl border border-border bg-card">
