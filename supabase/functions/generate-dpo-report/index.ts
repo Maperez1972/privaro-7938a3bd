@@ -231,14 +231,21 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     });
     const token = authHeader.replace("Bearer ", "");
-    const { data: claims, error: claimsError } = await authClient.auth.getClaims(token);
-    if (claimsError || !claims?.claims) {
+    // Fixed 2026-08-12 — real bug found: auth.getClaims() throws "not a
+    // function" under this function's esm.sh module resolution (same
+    // root cause already documented and fixed in partner-sub-accounts
+    // v5, but never backported here). Switched to the universally-stable
+    // auth.getUser(), same pattern every other first-party Edge Function
+    // already uses successfully. Independent of and complementary to the
+    // period_label/versioning fix applied separately the same day.
+    const { data: userData, error: userError } = await authClient.auth.getUser(token);
+    if (userError || !userData?.user) {
       return new Response(
         JSON.stringify({ error: "Invalid token" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    const userId = claims.claims.sub as string;
+    const userId = userData.user.id;
 
     const supabase = createClient(supabaseUrl, serviceKey);
 
