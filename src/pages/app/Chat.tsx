@@ -22,6 +22,9 @@ const Chat = () => {
   const handleSend = async () => {
     if (!input.trim() && !attachment && !pastedText) return;
     if (chat.sending) return;
+    // Do not send while an attachment is still being extracted/OCR'd:
+    // its content would be empty and the model would receive only the filename.
+    if (attachment?.scanning) return;
     // Combine typed input + pasted text
     const parts: string[] = [];
     if (pastedText) parts.push(pastedText.content);

@@ -295,7 +295,7 @@ export function FilePreview({ attachment, onRemove }: FilePreviewProps) {
                 <ImageIcon className="w-2 h-2" /> {t("app.chat.file.image")}
               </Badge>
             )}
-            {!isImage && scanning && (
+            {scanning && (
               <span className="text-[10px] text-amber-400 flex items-center gap-1">
                 <Loader2 className="w-2.5 h-2.5 animate-spin" /> {t("app.chat.file.scanning")}
               </span>

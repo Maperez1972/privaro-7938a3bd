@@ -220,7 +220,7 @@ export function ChatArea({ messages, sending, loading, activeConversationId, act
             <input ref={fileInputRef} type="file" accept=".txt,.csv,.pdf,.json,.md,.docx,.xlsx,.xls,.pptx,.ppt,.png,.jpg,.jpeg,.webp,.gif" className="hidden" onChange={handleFileChange} />
             <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-primary" onClick={() => fileInputRef.current?.click()} disabled={sending}><Paperclip className="w-4 h-4" /></Button></TooltipTrigger><TooltipContent>{t("app.chat.area.attachFile")}</TooltipContent></Tooltip>
             <textarea ref={textareaRef} value={input} onChange={(e) => { setInput(e.target.value); e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px"; }} onKeyDown={onKeyDown} placeholder={t("app.chat.area.inputPlaceholder")} disabled={sending} rows={1} className="flex-1 resize-none bg-secondary border border-border rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50" />
-            <Button size="icon" className="h-9 w-9" onClick={onSend} disabled={sending || (!input.trim() && !attachment && !pastedText)}><Send className="w-4 h-4" /></Button>
+            <Button size="icon" className="h-9 w-9" onClick={onSend} disabled={sending || !!attachment?.scanning || (!input.trim() && !attachment && !pastedText)}><Send className="w-4 h-4" /></Button>
           </div>
         </div>
       </div>
