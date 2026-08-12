@@ -323,7 +323,12 @@ Deno.serve(async (req) => {
       .eq("org_id", org_id)
       .eq("period_label", periodLabel);
 
-    const generationType = (priorVersions?.length ?? 0) > 0 ? "regenerated" : "original";
+    // Fixed 2026-08-12 — real bug found: dpo_reports_generation_type_check
+    // only allows ('scheduled','manual','regenerated','monthly','quarterly')
+    // — "original" (the value this used to insert for a first-time
+    // generation) isn't one of them, so every first generation failed the
+    // insert outright. "Generar ahora" is a manual user action, hence "manual".
+    const generationType = (priorVersions?.length ?? 0) > 0 ? "regenerated" : "manual";
 
     if (priorVersions?.length) {
       await supabase
