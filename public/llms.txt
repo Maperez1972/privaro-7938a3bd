@@ -1,6 +1,13 @@
 # Privaro
 
-> Privacy infrastructure for enterprise AI. Privaro is a proxy that detects and anonymizes sensitive data (PII, financial, health, contracts) before prompts reach LLMs like OpenAI, Anthropic and Gemini, with full audit trails for GDPR and the EU AI Act.
+> Privacy infrastructure for enterprise AI. Privaro is a proxy that detects and anonymizes sensitive data (PII, financial, health, contracts) before prompts reach LLMs like OpenAI, Anthropic and Gemini, and also scans the model response, with full audit trails for GDPR and the EU AI Act.
+
+## API
+
+- `POST /v1/proxy/protect`: detect and mask PII in a prompt.
+- `POST /v1/proxy/protect-output`: detect and mask PII in an LLM response.
+- `POST /v1/relay/complete`: protected round-trip call to the provider.
+- `POST /v1/relay/stream`: streaming (SSE) round-trip. Output PII cannot be masked in real time; streaming pipelines are audit-only (detections are logged in Output Incidents and DPO reports).
 
 ## Pages
 
