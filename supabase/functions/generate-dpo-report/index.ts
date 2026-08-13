@@ -268,14 +268,34 @@ Deno.serve(async (req) => {
     // per user; the org binding lives in profiles.org_id). Filtering
     // user_roles by org_id made PostgREST return an "column does not exist"
     // error, so roleData was always null and EVERY caller got a 403.
-    // Scope the check the correct way: caller must be an admin AND belong to
-    // the requested org.
-    const [{ data: roleData }, { data: callerProfile }] = await Promise.all([
-      supabase.from("user_roles").select("role").eq("user_id", userId).maybeSingle(),
-      supabase.from("profiles").select("org_id").eq("id", userId).maybeSingle(),
-    ]);
+    // Fixed again 2026-08-12 (reported by Lovable, self-repair failed):
+    // the previous fix queried user_roles with .eq("user_id", userId)
+    // ONLY (no org_id filter) then cross-checked profiles.org_id in app
+    // code. .maybeSingle() throws if the query returns MORE than one row
+    // — and any user with more than one user_roles row (very common: the
+    // signup trigger gives every new user a 'developer' row in
+    // iCommunity Labs IN ADDITION to their real admin role elsewhere) hit
+    // exactly that error, so roleData ended up undefined and every such
+    // admin got 403 regardless of their real role.
+    //
+    // Correct fix: filter user_roles by user_id AND org_id together in
+    // the same query. user_roles has a real UNIQUE(user_id, org_id)
+    // constraint (verified against the schema, not assumed) — so once
+    // both columns are filtered, at most one row can ever come back,
+    // making .maybeSingle() safe here. This also directly answers the
+    // real access-control question ("is this user an admin of THIS
+    // org") without the profiles.org_id indirection, which was actually
+    // the wrong check anyway: it would have incorrectly blocked a user
+    // who legitimately administers more than one organization from
+    // generating a report for any org other than their "home" one.
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("org_id", org_id)
+      .maybeSingle();
 
-    if (roleData?.role !== "admin" || callerProfile?.org_id !== org_id) {
+    if (roleData?.role !== "admin") {
       return new Response(
         JSON.stringify({ error: "Forbidden: admin role required" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
