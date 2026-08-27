@@ -235,6 +235,11 @@ const PipelineDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: 
           <div className="space-y-2">
             <Label>{t("app.pipelines.dialog.endpoint")}</Label>
             <Input value={form.llm_endpoint_url} onChange={(e) => setForm({ ...form, llm_endpoint_url: e.target.value })} placeholder="https://api.example.com/v1" />
+            <p className="text-xs text-muted-foreground">
+              {form.llm_provider === "custom"
+                ? t("app.pipelines.dialog.endpointHelpCustom")
+                : t("app.pipelines.dialog.endpointHelpStandard")}
+            </p>
           </div>
         </div>
         <DialogFooter className="mt-4">

@@ -81,7 +81,7 @@ console.log(result.summary());
   },
 };
 
-function CodeBlock({ code, lang }: { code: string; lang?: string }) {
+function CodeBlock({ code, lang, runnable = true }: { code: string; lang?: string; runnable?: boolean }) {
   const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   const copy = () => {
@@ -92,7 +92,14 @@ function CodeBlock({ code, lang }: { code: string; lang?: string }) {
   return (
     <div className="relative rounded-xl bg-black/60 border border-border overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/50">
-        <span className="text-xs text-muted-foreground font-mono">{lang ?? "bash"}</span>
+        <span className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
+          {lang ?? "bash"}
+          {!runnable && (
+            <span className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-sans font-medium tracking-wide uppercase">
+              {t("docs.codeBlock.instructionsLabel")}
+            </span>
+          )}
+        </span>
         <button onClick={copy} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
           {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
           {copied ? t("docs.copyButton.copied") : t("docs.copyButton.copy")}
@@ -202,6 +209,7 @@ export default function Docs() {
 # Choose your LLM provider and configure policy rules
 # Copy the pipeline UUID from the pipeline detail page`}
                 lang="bash"
+                runnable={false}
               />
             </div>
           </motion.div>
