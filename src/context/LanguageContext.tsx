@@ -37,7 +37,7 @@ const translations: Record<Language, Record<string, string>> = {
     "hero.badge": "AI Governance Platform",
     "hero.title1": "The AI Governance Platform",
     "hero.title2": "for enterprise privacy",
-    "hero.subtitle": "Privaro is the AI governance and compliance platform that detects PII, masks prompts and LLM responses, and audits every interaction — so your team can use OpenAI, Anthropic or Gemini without exposing sensitive data.",
+    "hero.subtitle": "Privaro is the AI governance and compliance platform that detects PII, masks prompts and responses, and audits every interaction — so your team can use any LLM without exposing sensitive data.",
     "hero.cta1": "Run AI Risk Assessment",
     "hero.cta2": "See How It Works",
     "hero.disclaimer": "No integration required to get started.",
