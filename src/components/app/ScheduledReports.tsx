@@ -11,6 +11,7 @@ import { Download, Loader2, FileText, RefreshCw, History, ChevronDown, ChevronUp
 import { PaginationControls, paginate } from "@/components/app/PaginationControls";
 import { formatDistanceToNow, format } from "date-fns";
 import { useLanguage } from "@/context/LanguageContext";
+import { trackEvent } from "@/lib/analytics";
 
 const statusConfig = (report: any): { label: string; className: string; animate?: boolean } => {
   if (report.status === "ready" && report.contains_raw_data === false) {
@@ -156,6 +157,7 @@ const ScheduledReports = () => {
         throw error;
       }
       console.log("generate-dpo-report response:", data);
+      trackEvent("generate_dpo_report", { org_id: orgId, period_start: firstDay, period_end: today });
       toast.success(t("app.reports.toast.generating"));
       setTimeout(() => queryClient.invalidateQueries({ queryKey: ["dpo-reports"] }), 4000);
     } catch {
