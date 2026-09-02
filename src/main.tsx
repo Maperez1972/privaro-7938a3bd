@@ -1,10 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
-import { initAnalytics } from "./lib/analytics";
 import "./index.css";
-
-initAnalytics();
 
 // Recuperación automática ante chunks obsoletos tras un nuevo despliegue
 const RELOAD_FLAG = "privaro:chunk-reloaded";
