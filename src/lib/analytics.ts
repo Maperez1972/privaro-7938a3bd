@@ -1,5 +1,6 @@
-export const GA_MEASUREMENT_ID = import.meta.env
-  .VITE_LOVABLE_CONNECTOR_GOOGLE_ANALYTICS_API_KEY as string | undefined;
+export const GA_MEASUREMENT_ID =
+  (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_ANALYTICS_API_KEY as string | undefined) ||
+  "G-5ELLFF522G";
 
 declare global {
   interface Window {
@@ -10,8 +11,7 @@ declare global {
 
 export function initAnalytics() {
   const id = GA_MEASUREMENT_ID;
-  if (!id) {
-    console.warn("[Analytics] Google Analytics measurement ID not configured");
+  if (window.gtag) {
     return;
   }
 
