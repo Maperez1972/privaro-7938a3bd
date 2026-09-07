@@ -48,6 +48,275 @@ const Strong = ({ children }: { children: ReactNode }) => (
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: "ai-governance-platform-buyers-guide",
+    date: "2026-09-02",
+    readingTime: "9 min",
+    readingTime_es: "9 min",
+    tags: ["AI Governance", "Buyer Guide", "Enterprise"],
+    keyword: "ai governance platform",
+    en: {
+      title: "AI Governance Platform: A 2026 Buyer's Guide",
+      description:
+        "What an AI governance platform must do in 2026: PII detection, policy enforcement, tokenization, output scanning and audit evidence. Evaluation criteria and pitfalls.",
+      content: (
+        <>
+          <P>
+            "AI governance" now covers everything from model cards to prompt
+            firewalls. If you are buying, the useful question is narrower:{" "}
+            <Strong>which controls actually sit in the request path</Strong> between
+            your applications and the model providers?
+          </P>
+
+          <H2>The four layers of a real platform</H2>
+          <UL>
+            <li><Strong>Detection</Strong> — regex plus NLP models that find PII, financial identifiers and contract clauses in prompts and completions.</li>
+            <li><Strong>Policy</Strong> — rules per data type, role, org and provider, with actions: tokenize, anonymize or block.</li>
+            <li><Strong>Vault</Strong> — reversible tokenization with encrypted originals and audited reveal.</li>
+            <li><Strong>Evidence</Strong> — an immutable log of every interaction: entities detected, decision taken, user, timestamp.</li>
+          </UL>
+          <P>
+            Tools that only produce documentation or dashboards fail the first
+            audit question: <em>show me the prompt that was sent to OpenAI</em>.
+          </P>
+
+          <H2>Evaluation criteria that matter</H2>
+          <H3>1. Latency budget</H3>
+          <P>
+            Inline scanning adds milliseconds to every call. Ask for p95 overhead
+            with your own payload sizes, not a synthetic benchmark.
+          </P>
+          <H3>2. Provider neutrality</H3>
+          <P>
+            A governance layer that only supports one vendor becomes a migration
+            blocker. Check OpenAI, Anthropic, Gemini and self-hosted endpoints.
+          </P>
+          <H3>3. Output scanning</H3>
+          <P>
+            Most vendors scan prompts only. Models leak PII in completions too —
+            from RAG context or memorized training data. Ask whether responses are
+            scanned, and what happens with streaming: with SSE, masking mid-stream
+            is not possible, so output scanning is <Strong>audit-only</Strong> unless
+            you buffer the response.
+          </P>
+          <H3>4. Multi-tenancy and roles</H3>
+          <P>
+            Strict org separation, RBAC and DPO-scoped views are table stakes for
+            regulated buyers.
+          </P>
+          <H3>5. Exportable evidence</H3>
+          <P>
+            Auditors want CSV and signed reports, not screenshots. Optional
+            blockchain certification helps where non-repudiation is required.
+          </P>
+
+          <H2>Common pitfalls</H2>
+          <UL>
+            <li>Buying a policy documentation tool and calling it enforcement.</li>
+            <li>Client-side redaction that any developer can bypass.</li>
+            <li>Irreversible anonymization where the workflow needs the original value back.</li>
+            <li>No plan for streaming responses.</li>
+          </UL>
+
+          <P>
+            If you want the checklist applied to a concrete architecture, see the{" "}
+            <a href="/ai-governance-platform" className="text-primary underline">Privaro governance platform overview</a>{" "}
+            or the <a href="/eu-ai-act-compliance" className="text-primary underline">EU AI Act compliance guide</a>.
+          </P>
+        </>
+      ),
+    },
+    es: {
+      title: "Plataforma de gobierno de IA: guía de compra 2026",
+      description:
+        "Qué debe hacer una plataforma de gobierno de IA en 2026: detección de PII, políticas, tokenización, escaneo de output y evidencias de auditoría. Criterios y errores habituales.",
+      content: (
+        <>
+          <P>
+            "Gobierno de IA" abarca hoy desde fichas de modelo hasta cortafuegos de
+            prompts. Si estás comprando, la pregunta útil es más concreta:{" "}
+            <Strong>qué controles están realmente en la ruta de la petición</Strong>{" "}
+            entre tus aplicaciones y los proveedores de modelos.
+          </P>
+
+          <H2>Las cuatro capas de una plataforma real</H2>
+          <UL>
+            <li><Strong>Detección</Strong> — regex más modelos NLP que localizan PII, identificadores financieros y cláusulas contractuales en prompts y respuestas.</li>
+            <li><Strong>Políticas</Strong> — reglas por tipo de dato, rol, organización y proveedor, con acciones: tokenizar, anonimizar o bloquear.</li>
+            <li><Strong>Vault</Strong> — tokenización reversible con originales cifrados y revelado auditado.</li>
+            <li><Strong>Evidencias</Strong> — registro inmutable de cada interacción: entidades detectadas, decisión, usuario y marca de tiempo.</li>
+          </UL>
+          <P>
+            Las herramientas que solo generan documentación o cuadros de mando
+            fallan en la primera pregunta de auditoría: <em>enséñame el prompt que
+            se envió a OpenAI</em>.
+          </P>
+
+          <H2>Criterios de evaluación que importan</H2>
+          <H3>1. Presupuesto de latencia</H3>
+          <P>
+            El escaneo en línea añade milisegundos a cada llamada. Pide el overhead
+            p95 con tus propios tamaños de payload, no un benchmark sintético.
+          </P>
+          <H3>2. Neutralidad de proveedor</H3>
+          <P>
+            Una capa de gobierno atada a un solo proveedor se convierte en un
+            bloqueo de migración. Verifica OpenAI, Anthropic, Gemini y endpoints propios.
+          </P>
+          <H3>3. Escaneo del output</H3>
+          <P>
+            La mayoría de proveedores solo escanea prompts. Los modelos también
+            filtran PII en las respuestas, desde el contexto RAG o datos memorizados.
+            Pregunta si se escanean las respuestas y qué pasa con streaming: con SSE
+            no es posible enmascarar a mitad de flujo, así que el escaneo de output
+            es <Strong>solo auditoría</Strong> salvo que bufferices la respuesta.
+          </P>
+          <H3>4. Multi-tenant y roles</H3>
+          <P>
+            Separación estricta por organización, RBAC y vistas para el DPO son lo
+            mínimo exigible en entornos regulados.
+          </P>
+          <H3>5. Evidencias exportables</H3>
+          <P>
+            Los auditores quieren CSV e informes firmados, no capturas de pantalla.
+            La certificación blockchain opcional ayuda cuando se exige no repudio.
+          </P>
+
+          <H2>Errores habituales</H2>
+          <UL>
+            <li>Comprar una herramienta de documentación de políticas y llamarlo control.</li>
+            <li>Redacción en cliente que cualquier desarrollador puede saltarse.</li>
+            <li>Anonimización irreversible cuando el flujo necesita recuperar el valor original.</li>
+            <li>No tener plan para respuestas en streaming.</li>
+          </UL>
+
+          <P>
+            Para ver la lista aplicada a una arquitectura concreta, consulta la{" "}
+            <a href="/ai-governance-platform" className="text-primary underline">visión general de la plataforma Privaro</a>{" "}
+            o la <a href="/eu-ai-act-compliance" className="text-primary underline">guía de cumplimiento del EU AI Act</a>.
+          </P>
+        </>
+      ),
+    },
+  },
+  {
+    slug: "ai-compliance-software-requirements",
+    date: "2026-09-05",
+    readingTime: "7 min",
+    readingTime_es: "7 min",
+    tags: ["Compliance", "Audit", "Enterprise"],
+    keyword: "ai compliance software",
+    en: {
+      title: "AI Compliance Software: What Auditors Actually Ask For",
+      description:
+        "The evidence auditors request for AI systems under GDPR and the EU AI Act — and how to produce it automatically with AI compliance software.",
+      content: (
+        <>
+          <P>
+            Compliance software earns its budget on one day: the day an auditor,
+            a customer's security team or a regulator asks for evidence. Everything
+            else is preparation for that request.
+          </P>
+
+          <H2>The five artifacts you will be asked for</H2>
+          <UL>
+            <li><Strong>Interaction log</Strong> — every prompt and completion, with user, timestamp, provider and model.</li>
+            <li><Strong>Detection record</Strong> — which sensitive entities were found, their type, severity and confidence.</li>
+            <li><Strong>Policy decision</Strong> — what action was applied (tokenize, anonymize, block) and under which rule version.</li>
+            <li><Strong>Access trail</Strong> — who revealed a tokenized value, when, and with what justification.</li>
+            <li><Strong>Retention proof</Strong> — evidence that data was deleted on schedule.</li>
+          </UL>
+
+          <H2>Why spreadsheets fail</H2>
+          <P>
+            Manual registers drift within weeks of shipping. If the evidence is not
+            produced by the same layer that enforces the control, the two disagree —
+            and the auditor trusts neither.
+          </P>
+
+          <H2>GDPR and EU AI Act overlap</H2>
+          <P>
+            The GDPR asks about lawful basis, minimization, DPIA and transfers. The{" "}
+            <a href="/eu-ai-act-compliance" className="text-primary underline">EU AI Act</a>{" "}
+            adds risk classification, technical documentation, logging and human
+            oversight for high-risk systems. Both are satisfied by the same
+            underlying record if your platform logs decisions rather than just traffic.
+          </P>
+
+          <H2>Buying checklist</H2>
+          <UL>
+            <li>Are logs immutable and exportable (CSV, signed PDF)?</li>
+            <li>Can a DPO run a period report without engineering help?</li>
+            <li>Is reveal of tokenized data itself audited?</li>
+            <li>Are output detections logged, including streaming audit-only cases?</li>
+            <li>Is tenant isolation enforced at the database level (RLS), not in application code?</li>
+          </UL>
+
+          <P>
+            See how this maps to a running system in the{" "}
+            <a href="/ai-compliance-software" className="text-primary underline">AI compliance software overview</a>{" "}
+            or read the{" "}
+            <a href="/blog/gdpr-checklist-llm-apps" className="text-primary underline">GDPR checklist for LLM apps</a>.
+          </P>
+        </>
+      ),
+    },
+    es: {
+      title: "Software de cumplimiento de IA: qué piden realmente los auditores",
+      description:
+        "Las evidencias que piden los auditores para sistemas de IA bajo GDPR y EU AI Act, y cómo generarlas automáticamente con software de cumplimiento de IA.",
+      content: (
+        <>
+          <P>
+            El software de cumplimiento justifica su presupuesto un solo día: cuando
+            un auditor, el equipo de seguridad de un cliente o un regulador pide
+            evidencias. Todo lo demás es preparación para ese momento.
+          </P>
+
+          <H2>Los cinco artefactos que te van a pedir</H2>
+          <UL>
+            <li><Strong>Registro de interacciones</Strong> — cada prompt y respuesta, con usuario, fecha, proveedor y modelo.</li>
+            <li><Strong>Registro de detección</Strong> — qué entidades sensibles se encontraron, con tipo, severidad y confianza.</li>
+            <li><Strong>Decisión de política</Strong> — qué acción se aplicó (tokenizar, anonimizar, bloquear) y bajo qué versión de la regla.</li>
+            <li><Strong>Traza de acceso</Strong> — quién reveló un valor tokenizado, cuándo y con qué justificación.</li>
+            <li><Strong>Prueba de retención</Strong> — evidencia de que los datos se borraron en plazo.</li>
+          </UL>
+
+          <H2>Por qué fallan las hojas de cálculo</H2>
+          <P>
+            Los registros manuales se desactualizan en semanas. Si la evidencia no
+            la genera la misma capa que aplica el control, ambas se contradicen y el
+            auditor no se fía de ninguna.
+          </P>
+
+          <H2>Solape entre GDPR y EU AI Act</H2>
+          <P>
+            El GDPR pregunta por base legal, minimización, DPIA y transferencias. El{" "}
+            <a href="/eu-ai-act-compliance" className="text-primary underline">EU AI Act</a>{" "}
+            añade clasificación de riesgo, documentación técnica, registro y
+            supervisión humana para sistemas de alto riesgo. Ambos se cubren con el
+            mismo registro si tu plataforma anota decisiones y no solo tráfico.
+          </P>
+
+          <H2>Checklist de compra</H2>
+          <UL>
+            <li>¿Los registros son inmutables y exportables (CSV, PDF firmado)?</li>
+            <li>¿Puede el DPO generar un informe de periodo sin ayuda de ingeniería?</li>
+            <li>¿Se audita también el revelado de datos tokenizados?</li>
+            <li>¿Se registran las detecciones en el output, incluido el caso de streaming solo auditoría?</li>
+            <li>¿El aislamiento entre organizaciones se aplica en base de datos (RLS) y no en el código?</li>
+          </UL>
+
+          <P>
+            Mira cómo se traduce en un sistema real en la{" "}
+            <a href="/ai-compliance-software" className="text-primary underline">visión general de software de cumplimiento</a>{" "}
+            o lee el{" "}
+            <a href="/blog/gdpr-checklist-llm-apps" className="text-primary underline">checklist GDPR para apps con LLM</a>.
+          </P>
+        </>
+      ),
+    },
+  },
+  {
     slug: "gdpr-checklist-llm-apps",
     date: "2026-06-10",
     readingTime: "8 min",
