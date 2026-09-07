@@ -30,6 +30,7 @@ const useCases: MenuItem[] = [
 const resourcesItems: MenuItem[] = [
   { icon: BookOpen, labelKey: "nav.docs", href: "/docs", iconColor: "text-primary" },
   { icon: FileText, labelKey: "nav.blog", href: "/blog", iconColor: "text-sky-400" },
+  { icon: Scale, labelKey: "nav.euAiAct", href: "/eu-ai-act-compliance", iconColor: "text-emerald-400" },
   { icon: Sparkles, labelKey: "nav.changelog", href: "/changelog", iconColor: "text-amber-400" },
 ];
 

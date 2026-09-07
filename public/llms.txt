@@ -19,6 +19,7 @@
 - [Changelog](/changelog): Product updates and releases.
 - [Partners](/partners): Reseller, integrator and consultancy program.
 - [AI Risk Assessment](/ai-risk-assessment): Free AI privacy risk assessment.
+- [EU AI Act Compliance Guide](/eu-ai-act-compliance): Key dates, risk tiers, fines and a 10-step compliance checklist.
 
 ## Use Cases
 
