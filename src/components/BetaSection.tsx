@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/analytics";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const BetaSection = () => {
@@ -23,6 +24,7 @@ const BetaSection = () => {
       });
       if (fnError) throw fnError;
       if (data && !data.success) throw new Error(data.error);
+      trackEvent("demo_request", { role, industry: String(formData.get("industry") || "") });
       setSubmitted(true);
     } catch (err) {
       console.error("Error sending demo request:", err);
