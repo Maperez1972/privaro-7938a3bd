@@ -322,8 +322,8 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Seo
-        title="AI Governance Platform Pricing — Privaro"
-        description="Transparent pricing for Privaro's AI compliance software and PII detection API. Starter, Business and Enterprise tiers with BYOK and EU-hosted infrastructure."
+        title={t("pricing.seo.title")}
+        description={t("pricing.seo.description")}
         path="/pricing"
         jsonLd={{
           "@context": "https://schema.org",
