@@ -674,7 +674,333 @@ return text;`}</code></pre>
       ),
     },
   },
+  {
+    slug: "ai-governance-tools-how-to-choose",
+    date: "2026-09-07",
+    readingTime: "7 min",
+    readingTime_es: "7 min",
+    tags: ["AI Governance", "Buyer Guide", "Compliance"],
+    keyword: "ai governance tools",
+    en: {
+      title: "AI Governance Tools in 2026: How to Choose One",
+      description:
+        "A buyer's guide to AI governance tools: the four categories on the market, the eight controls that matter in regulated industries, and the questions to ask vendors.",
+      content: (
+        <>
+          <P>
+            "AI governance" now labels four very different kinds of product. Buying the
+            wrong category is the most common mistake we see in security reviews: a team
+            purchases a policy documentation tool and discovers six months later that no
+            prompt was ever inspected.
+          </P>
+
+          <H2>The four categories</H2>
+          <UL>
+            <li>
+              <Strong>Policy and documentation platforms</Strong> — registries of AI
+              systems, risk classifications, model cards. They produce evidence, not
+              enforcement.
+            </li>
+            <li>
+              <Strong>Model evaluation and red-teaming</Strong> — measure bias, toxicity
+              and jailbreak resistance before release. Pre-production only.
+            </li>
+            <li>
+              <Strong>Runtime gateways and proxies</Strong> — sit on the request path,
+              inspect prompts and responses, apply policies in real time. This is where
+              Privaro sits.
+            </li>
+            <li>
+              <Strong>Observability and cost tooling</Strong> — latency, tokens, spend.
+              Useful, but blind to personal data.
+            </li>
+          </UL>
+          <P>
+            Regulated teams usually need a runtime gateway plus a documentation layer.
+            Evaluation matters when you fine-tune or ship your own models.
+          </P>
+
+          <H2>Eight controls to check</H2>
+          <UL>
+            <li>Detection of PII, financial identifiers and contract data in prompts</li>
+            <li>Reversible tokenization with a controlled reveal path and access logs</li>
+            <li>Policies scoped by data type, user role, organization and provider</li>
+            <li>Scanning of model <Strong>outputs</Strong>, not just inputs</li>
+            <li>Per-request audit logs that survive a DSAR or a regulator's request</li>
+            <li>Provider-agnostic routing (OpenAI, Anthropic, Gemini, self-hosted)</li>
+            <li>Strict multi-tenant separation and role-based access</li>
+            <li>Deployment options that keep data in your region</li>
+          </UL>
+
+          <H2>Questions vendors dislike</H2>
+          <P>
+            Ask what happens to a masked value when the model answers — can the original
+            be restored, by whom, and is that reveal logged? Ask whether streaming
+            responses are inspected, and what the tool can actually do mid-stream. Ask for
+            a sample audit export and check that it names the entities detected, the
+            policy applied and the decision, not just a timestamp.
+          </P>
+          <P>
+            On streaming specifically, be sceptical of "we mask everything". Tokens leave
+            the provider before any full sentence exists, so honest products describe
+            server-sent-event streaming as <Strong>audit-only</Strong> and offer a
+            non-streaming path when masking must be guaranteed.
+          </P>
+
+          <H2>Build vs buy</H2>
+          <P>
+            A regex layer in your own gateway covers card numbers and emails in an
+            afternoon. It will not cover names, addresses, case references, tokenization
+            with reveal control, per-tenant policies or exportable evidence. The break-even
+            point in our experience arrives the first time an auditor asks for
+            request-level proof.
+          </P>
+
+          <H2>Next step</H2>
+          <P>
+            Compare the control list above with the{" "}
+            <a href="/ai-governance-platform" className="text-primary underline">AI governance platform</a>{" "}
+            overview, or map controls to regulation in the{" "}
+            <a href="/eu-ai-act-compliance" className="text-primary underline">EU AI Act compliance guide</a>.
+          </P>
+        </>
+      ),
+    },
+    es: {
+      title: "Herramientas de gobierno de IA en 2026: cómo elegir",
+      description:
+        "Guía de compra de herramientas de gobierno de IA: las cuatro categorías del mercado, los ocho controles que importan en sectores regulados y las preguntas que hacer a cada proveedor.",
+      content: (
+        <>
+          <P>
+            "Gobierno de IA" designa hoy cuatro tipos de producto muy distintos. Elegir la
+            categoría equivocada es el error más habitual: un equipo compra una herramienta
+            de documentación de políticas y descubre seis meses después que ningún prompt
+            se inspeccionó nunca.
+          </P>
+
+          <H2>Las cuatro categorías</H2>
+          <UL>
+            <li>
+              <Strong>Plataformas de políticas y documentación</Strong>: inventario de
+              sistemas de IA, clasificación de riesgo, fichas de modelo. Generan evidencia,
+              no aplican controles.
+            </li>
+            <li>
+              <Strong>Evaluación y red teaming</Strong>: miden sesgo, toxicidad y
+              resistencia a jailbreaks antes de publicar. Solo preproducción.
+            </li>
+            <li>
+              <Strong>Gateways y proxies en tiempo de ejecución</Strong>: se sitúan en la
+              ruta de la petición, inspeccionan prompts y respuestas y aplican políticas en
+              tiempo real. Aquí está Privaro.
+            </li>
+            <li>
+              <Strong>Observabilidad y coste</Strong>: latencia, tokens, gasto. Útiles,
+              pero ciegos a los datos personales.
+            </li>
+          </UL>
+          <P>
+            Los equipos regulados suelen necesitar un gateway en tiempo real más una capa
+            documental. La evaluación importa si haces fine-tuning o publicas modelos
+            propios.
+          </P>
+
+          <H2>Ocho controles que revisar</H2>
+          <UL>
+            <li>Detección de PII, identificadores financieros y datos contractuales en prompts</li>
+            <li>Tokenización reversible con revelado controlado y registro de accesos</li>
+            <li>Políticas por tipo de dato, rol, organización y proveedor</li>
+            <li>Escaneo de las <Strong>respuestas</Strong> del modelo, no solo de la entrada</li>
+            <li>Logs de auditoría por petición válidos ante un DSAR o un regulador</li>
+            <li>Enrutado agnóstico de proveedor (OpenAI, Anthropic, Gemini, self-hosted)</li>
+            <li>Separación multi-tenant estricta y control de acceso por roles</li>
+            <li>Opciones de despliegue que mantengan los datos en tu región</li>
+          </UL>
+
+          <H2>Preguntas incómodas para el proveedor</H2>
+          <P>
+            Pregunta qué ocurre con un valor enmascarado cuando el modelo responde: ¿se
+            puede recuperar el original, quién puede hacerlo y queda registrado? Pregunta
+            si se inspeccionan las respuestas en streaming y qué se puede hacer realmente
+            durante el flujo. Pide una exportación de auditoría de ejemplo y comprueba que
+            incluye entidades detectadas, política aplicada y decisión, no solo una marca
+            de tiempo.
+          </P>
+          <P>
+            Sobre streaming, desconfía del "lo enmascaramos todo": los tokens salen del
+            proveedor antes de que exista una frase completa, así que los productos
+            honestos describen el streaming SSE como <Strong>solo auditoría</Strong> y
+            ofrecen una vía sin streaming cuando el enmascarado debe garantizarse.
+          </P>
+
+          <H2>Construir o comprar</H2>
+          <P>
+            Una capa de expresiones regulares en tu propio gateway cubre tarjetas y correos
+            en una tarde. No cubre nombres, direcciones, referencias de expediente,
+            tokenización con revelado controlado, políticas por tenant ni evidencia
+            exportable. El punto de equilibrio llega la primera vez que un auditor pide
+            pruebas por petición.
+          </P>
+
+          <H2>Siguiente paso</H2>
+          <P>
+            Compara esa lista de controles con la visión general de la{" "}
+            <a href="/ai-governance-platform" className="text-primary underline">plataforma de gobierno de IA</a>{" "}
+            o relaciona controles y normativa en la{" "}
+            <a href="/eu-ai-act-compliance" className="text-primary underline">guía de cumplimiento del AI Act</a>.
+          </P>
+        </>
+      ),
+    },
+  },
+  {
+    slug: "pii-in-llm-outputs",
+    date: "2026-09-07",
+    readingTime: "6 min",
+    readingTime_es: "6 min",
+    tags: ["PII", "LLM", "Streaming"],
+    keyword: "llm output pii leakage",
+    en: {
+      title: "PII in LLM Outputs: Why Input Filtering Is Not Enough",
+      description:
+        "Models can emit personal data you never sent them. How output scanning works, why SSE streaming is audit-only, and how to design a pipeline that catches leaks.",
+      content: (
+        <>
+          <P>
+            Most teams start AI governance at the input: scan the prompt, mask what is
+            sensitive, forward the rest. That closes the obvious hole and leaves a subtler
+            one open — the model itself can produce personal data in its answer.
+          </P>
+
+          <H2>Where output PII comes from</H2>
+          <UL>
+            <li><Strong>Retrieval</Strong>: a RAG pipeline pulls a customer record into context and the model quotes it back</li>
+            <li><Strong>Tool calls</Strong>: an agent queries an internal API and pastes the raw result into the response</li>
+            <li><Strong>Memorization</Strong>: fine-tuned or long-context models reproduce training or session data</li>
+            <li><Strong>Reconstruction</Strong>: the model infers and restates a masked value from surrounding context</li>
+          </UL>
+          <P>
+            None of these are visible to an input-only filter. If the answer is then shown
+            in a support console, emailed, or handed to another agent, the exposure is
+            identical to sending the data to the provider in the first place.
+          </P>
+
+          <H2>Two modes: shadow and enforce</H2>
+          <P>
+            Turn output scanning on in <Strong>shadow</Strong> mode first: detections are
+            logged, nothing is altered, and you get a real measurement of how often your
+            pipelines emit personal data. Once the false-positive rate is acceptable,
+            switch to <Strong>enforce</Strong>, where the configured action — mask,
+            tokenize or block — is applied before the response reaches the user.
+          </P>
+
+          <H2>The streaming limitation, stated honestly</H2>
+          <P>
+            With server-sent events the provider emits tokens one by one and each token is
+            already on its way to the client. A partial identifier can cross the wire
+            before it is recognisable as one. Any vendor claiming full masking over SSE is
+            describing buffering, which removes the reason to stream at all.
+          </P>
+          <P>
+            The workable design is: <Strong>SSE is audit-only</Strong> — detections are
+            recorded as incidents so a DPO can review them — and any flow that must
+            guarantee masking uses a non-streaming call. In Privaro that means the relay
+            endpoint for streaming and <Strong>POST /v1/proxy/protect-output</Strong> when
+            the response must be sanitized before delivery.
+          </P>
+
+          <H2>What to log</H2>
+          <P>
+            An output incident is only useful if it records direction, entity types, the
+            policy that matched, the action taken and whether the content actually reached
+            the user. That last field is what separates "protected" from "leaked" in an
+            audit, and it is the number your DPO will ask for.
+          </P>
+
+          <H2>Next step</H2>
+          <P>
+            See how masking works on the request side in{" "}
+            <a href="/blog/mask-pii-before-openai" className="text-primary underline">how to mask PII before sending prompts to OpenAI</a>,
+            or read the{" "}
+            <a href="/pii-detection-api" className="text-primary underline">PII detection API</a> reference.
+          </P>
+        </>
+      ),
+    },
+    es: {
+      title: "PII en las respuestas del LLM: filtrar la entrada no basta",
+      description:
+        "Los modelos pueden emitir datos personales que nunca les enviaste. Cómo funciona el escaneo de salida, por qué el streaming SSE es solo auditoría y cómo diseñar el pipeline.",
+      content: (
+        <>
+          <P>
+            Casi todos los equipos empiezan el gobierno de IA por la entrada: escanear el
+            prompt, enmascarar lo sensible y enviar el resto. Eso cierra el agujero
+            evidente y deja abierto uno más sutil: el propio modelo puede producir datos
+            personales en su respuesta.
+          </P>
+
+          <H2>De dónde sale la PII de salida</H2>
+          <UL>
+            <li><Strong>Recuperación</Strong>: un pipeline RAG trae una ficha de cliente al contexto y el modelo la cita</li>
+            <li><Strong>Llamadas a herramientas</Strong>: un agente consulta una API interna y pega el resultado en bruto</li>
+            <li><Strong>Memorización</Strong>: modelos ajustados o de contexto largo reproducen datos de entrenamiento o de sesión</li>
+            <li><Strong>Reconstrucción</Strong>: el modelo deduce y reescribe un valor enmascarado a partir del contexto</li>
+          </UL>
+          <P>
+            Un filtro solo de entrada no ve nada de esto. Si la respuesta se muestra en una
+            consola de soporte, se envía por correo o pasa a otro agente, la exposición es
+            idéntica a haber mandado el dato al proveedor.
+          </P>
+
+          <H2>Dos modos: shadow y enforce</H2>
+          <P>
+            Activa el escaneo de salida primero en modo <Strong>shadow</Strong>: se
+            registran las detecciones, no se altera nada y obtienes una medida real de con
+            qué frecuencia tus pipelines emiten datos personales. Cuando la tasa de falsos
+            positivos sea aceptable, pasa a <Strong>enforce</Strong>, donde se aplica la
+            acción configurada (enmascarar, tokenizar o bloquear) antes de entregar la
+            respuesta.
+          </P>
+
+          <H2>La limitación del streaming, dicha con claridad</H2>
+          <P>
+            Con server-sent events el proveedor emite tokens uno a uno y cada token ya va
+            camino del cliente. Un identificador parcial puede cruzar el cable antes de ser
+            reconocible. Quien prometa enmascarado completo sobre SSE está describiendo
+            buffering, que elimina el motivo mismo de usar streaming.
+          </P>
+          <P>
+            El diseño viable es: <Strong>SSE en modo solo auditoría</Strong> —las
+            detecciones se registran como incidentes para revisión del DPO— y cualquier
+            flujo que deba garantizar el enmascarado usa una llamada sin streaming. En
+            Privaro eso significa el endpoint de relay para streaming y{" "}
+            <Strong>POST /v1/proxy/protect-output</Strong> cuando la respuesta debe
+            sanearse antes de entregarse.
+          </P>
+
+          <H2>Qué registrar</H2>
+          <P>
+            Un incidente de salida solo sirve si guarda la dirección, los tipos de entidad,
+            la política que coincidió, la acción aplicada y si el contenido llegó realmente
+            al usuario. Ese último dato es lo que distingue "protegido" de "filtrado" en
+            una auditoría, y es la cifra que pedirá tu DPO.
+          </P>
+
+          <H2>Siguiente paso</H2>
+          <P>
+            Mira el lado de la petición en{" "}
+            <a href="/blog/mask-pii-before-openai" className="text-primary underline">cómo enmascarar PII antes de enviar prompts a OpenAI</a>{" "}
+            o consulta la referencia de la{" "}
+            <a href="/pii-detection-api" className="text-primary underline">API de detección de PII</a>.
+          </P>
+        </>
+      ),
+    },
+  },
 ];
+
 
 export const getLocalizedPosts = (lang: Language): LocalizedBlogPost[] =>
   BLOG_POSTS.map((p) => ({
