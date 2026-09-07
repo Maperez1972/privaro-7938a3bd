@@ -454,7 +454,17 @@ export default function Pricing() {
                     className={`w-full mb-7 ${plan.highlight ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""}`}
                     asChild
                   >
-                    <Link to={plan.ctaHref}>
+                    <Link
+                      to={plan.ctaHref}
+                      onClick={() =>
+                        trackEvent("select_plan", {
+                          plan: plan.key,
+                          billing_period: annual ? "annual" : "monthly",
+                          value: price ?? 0,
+                          currency: "EUR",
+                        })
+                      }
+                    >
                       {plan.cta}
                       {plan.ctaVariant === "default" && <ArrowRight className="w-3.5 h-3.5 ml-1.5" />}
                     </Link>
