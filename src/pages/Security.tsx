@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Seo from "@/components/Seo";
+import { trackEvent } from "@/lib/analytics";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Download, Mail } from "lucide-react";
@@ -346,7 +347,11 @@ const Security = () => {
                 </a>
               </Button>
               <Button variant="outline" asChild>
-                <a href="/docs/Privaro_Compliance_Pack_v1.0.zip" download>
+                <a
+                  href="/docs/Privaro_Compliance_Pack_v1.0.zip"
+                  download
+                  onClick={() => trackEvent("file_download", { file_name: "Privaro_Compliance_Pack_v1.0.zip", location: "security" })}
+                >
                   <Download className="w-4 h-4" />
                   {t("secpage.cta.download")}
                 </a>
