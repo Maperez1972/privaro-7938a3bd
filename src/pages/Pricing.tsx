@@ -309,7 +309,7 @@ function CellValue({ val }: { val: boolean | string }) {
 }
 
 export default function Pricing() {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const c = COPY[lang];
   const [annual, setAnnual] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
