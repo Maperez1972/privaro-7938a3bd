@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Shield } from "lucide-react";
-import logoPrivaro from "@/assets/logo-privaro.webp";
+import logoPrivaroAsset from "@/assets/privaro-ai-logo.png.asset.json";
 import { useLanguage } from "@/context/LanguageContext";
 
 const VerifyMfa = () => {
@@ -65,7 +65,7 @@ const VerifyMfa = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
-          <img src={logoPrivaro} alt="Privaro" className="h-20" />
+          <img src={logoPrivaroAsset.url} alt="Privaro AI" className="h-auto w-72 max-w-full" width={1983} height={231} />
         </div>
         <Card className="border-border bg-card">
           <CardHeader className="text-center">

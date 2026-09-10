@@ -28,7 +28,7 @@ const BlogPost = () => {
         name: "Privaro",
         logo: {
           "@type": "ImageObject",
-          url: "https://privaro.ai/favicon.ico",
+          url: "https://privaro.ai/favicon.png",
         },
       },
       mainEntityOfPage: url,

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import logoPrivaro from "@/assets/logo-privaro.webp";
+import logoPrivaroAsset from "@/assets/privaro-ai-logo.png.asset.json";
 import { useLanguage } from "@/context/LanguageContext";
 import Seo from "@/components/Seo";
 
@@ -36,7 +36,7 @@ const EmailConfirmed = () => {
       <Seo title="Email confirmed — Privaro" description="Your email has been confirmed. Redirecting to sign in to your Privaro workspace." path="/email-confirmed" noindex />
       <div className="w-full max-w-md text-center">
         <div className="flex justify-center mb-8">
-          <img src={logoPrivaro} alt="Privaro" className="h-20" />
+          <img src={logoPrivaroAsset.url} alt="Privaro AI" className="h-auto w-72 max-w-full" width={1983} height={231} />
         </div>
         <Card className="border-border bg-card">
           <CardContent className="pt-8 pb-8 space-y-6">

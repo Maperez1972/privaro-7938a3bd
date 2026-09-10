@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useMfaEnforcement } from "@/hooks/useMfaEnforcement";
 import { LayoutDashboard, GitBranch, FlaskConical, ShieldCheck, LogOut, ChevronLeft, ChevronRight, ChevronDown, User, Cpu, Users, Key, KeyRound, CreditCard, Settings2, MessageSquare, FileText, Zap, Settings, Rocket, Bot, Lock, Building2, Globe, AlertTriangle, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import logoPrivaro from "@/assets/logo-privaro.webp";
+import logoPrivaroAsset from "@/assets/privaro-ai-logo.png.asset.json";
 import Seo from "@/components/Seo";
 import { usePartnerData } from "@/hooks/usePartnerData";
 import { useLanguage } from "@/context/LanguageContext";
@@ -152,7 +152,7 @@ const AppLayout = () => {
       />
       <aside className={cn("min-h-0 flex flex-col border-r border-border bg-sidebar transition-all duration-200", collapsed ? "w-16" : "w-60")}>
         <div className="h-16 flex items-center px-3 border-b border-border">
-          {!collapsed && <img src={logoPrivaro} alt="Privaro" className="h-12" />}
+          {!collapsed && <img src={logoPrivaroAsset.url} alt="Privaro AI" className="h-auto w-40" width={1983} height={231} />}
           <button onClick={() => setCollapsed(!collapsed)} className="ml-auto p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
