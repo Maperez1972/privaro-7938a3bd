@@ -4,7 +4,7 @@ import { Globe, ChevronDown, Scale, HeartPulse, BarChart3, Bot, Menu, AlertTrian
 import { useLanguage } from "@/context/LanguageContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import logoPrivaro from "@/assets/logo-privaro.webp";
+import logoPrivaroAsset from "@/assets/privaro-ai-logo.png.asset.json";
 
 type MenuItem = {
   labelKey: string;
@@ -136,7 +136,7 @@ const Navbar = () => {
     <motion.nav initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-background/80 backdrop-blur-xl border-b border-border" : ""}`}>
       <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center">
-          <img src={logoPrivaro} alt="Privaro" className="h-[7.5rem] w-auto" width={120} height={120} />
+          <img src={logoPrivaroAsset.url} alt="Privaro AI" className="h-auto w-44 lg:w-52" width={1983} height={231} />
         </Link>
 
         <div ref={menuRef} className="hidden md:flex items-center gap-5 lg:gap-6">
