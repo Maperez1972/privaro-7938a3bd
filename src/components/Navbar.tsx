@@ -136,7 +136,7 @@ const Navbar = () => {
     <motion.nav initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-background/80 backdrop-blur-xl border-b border-border" : ""}`}>
       <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center">
-          <img src={logoPrivaroAsset.url} alt="Privaro AI" className="h-6 md:h-7 lg:h-8 w-auto" width={1983} height={231} />
+          <img src={logoPrivaroAsset.url} alt="Privaro AI" className="h-6 md:h-7 w-auto" width={1983} height={231} />
         </Link>
 
         <div ref={menuRef} className="hidden md:flex items-center gap-5 lg:gap-6">
