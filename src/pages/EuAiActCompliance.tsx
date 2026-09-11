@@ -110,12 +110,22 @@ const EuAiActCompliance = () => {
               {c.ctaPrimary}
             </Link>
             <a
+              href={`/${pdfFile}`}
+              download
+              onClick={handlePdfDownload}
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-md border border-primary/50 font-medium hover:bg-secondary transition-colors"
+            >
+              <Download className="w-4 h-4 text-primary" />
+              {pdfLabel}
+            </a>
+            <a
               href="#privaro"
               className="px-8 py-3.5 rounded-md border border-border font-medium hover:bg-secondary transition-colors"
             >
               {c.ctaSecondary}
             </a>
           </div>
+
         </div>
       </section>
 
