@@ -55,6 +55,12 @@ const EuAiActCompliance = () => {
       author: { "@type": "Organization", name: "Privaro" },
       publisher: { "@type": "Organization", name: "Privaro", url: "https://privaro.ai" },
       mainEntityOfPage: "https://privaro.ai/eu-ai-act-compliance",
+      associatedMedia: {
+        "@type": "DigitalDocument",
+        name: c.seoTitle,
+        encodingFormat: "application/pdf",
+        url: `https://privaro.ai/${pdfFile}`,
+      },
     },
     {
       "@context": "https://schema.org",
