@@ -28,7 +28,22 @@ const SOURCES = [
 
 const EuAiActCompliance = () => {
   const { lang } = useLanguage();
-  const c = COPY[lang === "es" ? "es" : "en"];
+  const isEs = lang === "es";
+  const c = COPY[isEs ? "es" : "en"];
+  const pdfFile = isEs ? "Privaro_Guia_EU_AI_Act_ES.pdf" : "Privaro_EU_AI_Act_Guide_EN.pdf";
+  const pdfLabel = isEs ? "Descargar la guía en PDF" : "Download the guide as PDF";
+
+  const handlePdfDownload = () => {
+    trackEvent("file_download", {
+      file_name: pdfFile,
+      file_extension: "pdf",
+      link_url: `https://privaro.ai/${pdfFile}`,
+      content_type: "eu_ai_act_guide",
+      language: isEs ? "es" : "en",
+    });
+  };
+
+
 
   const jsonLd = [
     {
