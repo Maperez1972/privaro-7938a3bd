@@ -40,9 +40,9 @@ export interface Copy {
 
 export const COPY: Record<"es" | "en", Copy> = {
   es: {
-    seoTitle: "EU AI Act: guía práctica de cumplimiento 2026 | Privaro",
+    seoTitle: "EU AI Act: guía de cumplimiento 2026 en PDF gratis | Privaro",
     seoDescription:
-      "Qué exige el Reglamento Europeo de IA, fechas clave, niveles de riesgo, sanciones y checklist de cumplimiento paso a paso para equipos que usan LLMs.",
+      "Descarga gratis la guía del Reglamento Europeo de IA (EU AI Act): fechas clave 2024–2027, niveles de riesgo, sanciones de hasta 35M€ y checklist de cumplimiento paso a paso para equipos que usan LLMs. PDF en español.",
     badge: "Guía de cumplimiento",
     h1a: "EU AI Act:",
     h1b: "guía práctica de cumplimiento",
@@ -206,9 +206,9 @@ export const COPY: Record<"es" | "en", Copy> = {
     sourcesTitle: "Fuentes oficiales",
   },
   en: {
-    seoTitle: "EU AI Act Compliance: Practical 2026 Guide | Privaro",
+    seoTitle: "EU AI Act Compliance Guide 2026 — Free PDF | Privaro",
     seoDescription:
-      "What the EU AI Act requires, key dates, risk tiers, fines and a step-by-step compliance checklist for teams running LLMs in production.",
+      "Free downloadable EU AI Act guide: key dates 2024–2027, risk tiers, fines up to €35M and a step-by-step compliance checklist for teams running LLMs in production. English PDF.",
     badge: "Compliance guide",
     h1a: "EU AI Act:",
     h1b: "a practical compliance guide",

@@ -60,6 +60,13 @@ const EuAiActCompliance = () => {
         name: c.seoTitle,
         encodingFormat: "application/pdf",
         url: `https://privaro.ai/${pdfFile}`,
+        isAccessibleForFree: true,
+        inLanguage: isEs ? "es" : "en",
+      },
+      potentialAction: {
+        "@type": "DownloadAction",
+        target: `https://privaro.ai/${pdfFile}`,
+        encodingFormat: "application/pdf",
       },
     },
     {
