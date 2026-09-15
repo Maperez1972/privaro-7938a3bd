@@ -78,6 +78,11 @@ const PiiDetectionApi = () => {
             text: "P95 latency under 80ms for texts up to 4k tokens, in both directions — prompts going into the model and responses coming back. Runs at the edge and scales horizontally per organization.",
           },
         },
+        ...faqs.map(({ q, a }) => ({
+          "@type": "Question",
+          name: q,
+          acceptedAnswer: { "@type": "Answer", text: a },
+        })),
       ],
     },
   ];
@@ -338,6 +343,25 @@ POST /v1/proxy/protect
             {t("piiApi.compliance.pairs.text1")} <Link to="/ai-governance-platform" className="text-primary underline underline-offset-2">{t("piiApi.compliance.pairs.linkText")}</Link>{" "}
             {t("piiApi.compliance.pairs.text2")}
           </p>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-20 bg-surface/30 border-y border-border">
+        <div className="max-w-3xl mx-auto px-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">Frequently asked questions</h2>
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map(({ q, a }) => (
+              <AccordionItem key={q} value={q}>
+                <AccordionTrigger className="text-left text-base font-semibold hover:no-underline">
+                  {q}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground leading-relaxed">
+                  {a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </section>
 
