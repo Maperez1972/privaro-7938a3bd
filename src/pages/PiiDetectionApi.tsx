@@ -1,9 +1,33 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { Shield, Code, Zap, Lock, CheckCircle2, ArrowRight, Terminal } from "lucide-react";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
+
+const faqs = [
+  {
+    q: "Does the API store my text?",
+    a: "No. Privaro processes text in-memory and does not persist the original content. The only data stored is the detection metadata (entity types, positions, risk score) and, when tokenization is used, the encrypted token-to-value mapping in your organization's vault — which you can delete at any time.",
+  },
+  {
+    q: "Can I detect PII in multiple languages?",
+    a: "Yes. The hybrid engine covers English, Spanish, French, German, Italian and Portuguese out of the box. Entity types with locale-specific formats (national IDs, phone numbers, postal codes) use locale-aware validators.",
+  },
+  {
+    q: "Is the API GDPR compliant?",
+    a: "Privaro is designed for GDPR compliance. It processes data in EU infrastructure, signs a DPA with every customer, supports zero-retention mode, and generates per-request audit logs suitable for DSAR and DPA responses. See the security page for the full control list.",
+  },
+  {
+    q: "What happens with streaming LLM responses?",
+    a: "For server-sent event (SSE) streaming, output scanning runs in audit-only mode — detections are logged as incidents but the stream is not buffered or modified. For guaranteed output masking, use the non-streaming relay endpoint (POST /v1/relay/complete).",
+  },
+  {
+    q: "Can I add custom entity types?",
+    a: "Yes. Each pipeline supports custom entity definitions via regex patterns, keyword lists, or a fine-tuned NER model. Custom entities appear in detection results with the same type, confidence and position fields as built-in ones.",
+  },
+];
 
 const PiiDetectionApi = () => {
   const { t } = useLanguage();
@@ -81,6 +105,27 @@ Content-Type: application/json
     { "type": "PHONE", "value": "+34 600 123 456", "start": 37, "end": 52, "confidence": 0.99 }
   ],
   "risk_score": 0.72
+}`;
+
+  const protectRelaySample = `// Option A: detect only (inspect what's in a prompt)
+POST /v1/detect
+{ "text": "Call Maria at maria@company.com" }
+
+// Option B: protect + relay (tokenize and forward to the LLM)
+POST /v1/proxy/protect
+{
+  "text": "Call Maria at maria@company.com",
+  "pipeline_id": "YOUR_PIPELINE_ID",
+  "provider": "openai",
+  "model": "gpt-4o"
+}
+
+// Response includes the LLM answer with tokens re-identified
+{
+  "result": "I'll contact Maria at maria@company.com",
+  "entities_detected": 2,
+  "risk_score": 0.68,
+  "audit_log_id": "log_abc123"
 }`;
 
   return (
