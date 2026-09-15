@@ -154,6 +154,125 @@ Content-Type: application/json
         </div>
       </section>
 
+      {/* Why regex is not enough — comparison table */}
+      <section className="py-20 bg-surface/30 border-y border-border">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">Why regex alone misses 40% of PII</h2>
+          <p className="text-muted-foreground text-center mb-10 max-w-2xl mx-auto">
+            Pattern matching catches the easy entities. Contextual PII — names, addresses, medical conditions, contract
+            clauses — requires language understanding. Privaro combines both in a single hybrid engine.
+          </p>
+          <div className="rounded-lg border border-border bg-surface/30 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left py-3 px-4 font-semibold text-primary">Entity type</th>
+                  <th className="text-center py-3 px-4 font-semibold text-primary">Regex</th>
+                  <th className="text-center py-3 px-4 font-semibold text-primary">Privaro hybrid NLP</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { entity: "Email addresses", regex: "yes", hybrid: "yes" },
+                  { entity: "Credit cards / IBANs", regex: "yes", hybrid: "yes" },
+                  { entity: "Full names (contextual)", regex: "no", hybrid: "yes" },
+                  { entity: "Addresses", regex: "no", hybrid: "yes" },
+                  { entity: "Medical conditions", regex: "no", hybrid: "yes" },
+                  { entity: "Contract clauses", regex: "no", hybrid: "yes" },
+                  { entity: "Spanish DNI / NIE", regex: "partial", hybrid: "yes", hybridNote: "with checksum" },
+                  { entity: "Custom entities", regex: "no", hybrid: "yes", hybridNote: "configurable" },
+                ].map(({ entity, regex, hybrid, hybridNote }) => (
+                  <tr key={entity} className="border-b border-border last:border-0">
+                    <td className="py-3 px-4 text-foreground">{entity}</td>
+                    <td className="py-3 px-4 text-center">
+                      {regex === "yes" ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-400 inline-block" />
+                      ) : regex === "partial" ? (
+                        <span className="text-muted-foreground">Partial</span>
+                      ) : (
+                        <span className="text-muted-foreground">✗</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <CheckCircle2 className="w-4 h-4 text-green-400 inline-block" />
+                      {hybridNote && <span className="text-muted-foreground ml-1 text-xs">({hybridNote})</span>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* Supported entity types */}
+      <section className="py-20">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">Supported entity types</h2>
+          <p className="text-muted-foreground text-center mb-10 max-w-2xl mx-auto">
+            Every detection result includes the entity type, exact position, and a confidence score — ready to route
+            through your pipeline's policy engine.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            {[
+              "PERSON_NAME",
+              "EMAIL_ADDRESS",
+              "PHONE_NUMBER",
+              "NATIONAL_ID (DNI/NIE/SSN/passport)",
+              "IBAN / CREDIT_CARD",
+              "DATE_OF_BIRTH",
+              "IP_ADDRESS",
+              "MEDICAL_RECORD",
+              "CONTRACT_CLAUSE",
+              "CUSTOM (regex + NLP)",
+            ].map((entity) => (
+              <div
+                key={entity}
+                className="px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-sm font-mono text-primary flex items-center justify-center text-center"
+              >
+                {entity}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Second code sample — protect + relay */}
+      <section className="py-20 bg-surface/30 border-y border-border">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">Detect, or protect and relay</h2>
+          <p className="text-muted-foreground text-center mb-10">
+            Use <span className="font-mono text-primary">/v1/detect</span> to inspect a prompt, or{" "}
+            <span className="font-mono text-primary">/v1/proxy/protect</span> to tokenize sensitive entities and forward
+            the sanitized text to the LLM in one call.
+          </p>
+          <pre className="p-6 rounded-lg border border-border bg-surface/40 overflow-x-auto text-sm leading-relaxed">
+            <code>{protectRelaySample}</code>
+          </pre>
+        </div>
+      </section>
+
+      {/* Performance */}
+      <section className="py-20">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">Performance</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { value: "< 80ms", label: "P95 latency", detail: "texts up to 4k tokens" },
+              { value: "F1 ≥ 0.95", label: "Detection accuracy", detail: "benchmark on EU financial corpus" },
+              { value: "500 req/s", label: "Throughput", detail: "per tenant, horizontal scaling" },
+              { value: "99.9%", label: "Availability SLA", detail: "Railway + Supabase redundancy" },
+            ].map(({ value, label, detail }) => (
+              <div key={label} className="p-6 rounded-lg border border-border bg-surface/40 text-center">
+                <div className="text-3xl font-bold text-gradient mb-1">{value}</div>
+                <div className="font-semibold text-sm mb-1">{label}</div>
+                <div className="text-xs text-muted-foreground">{detail}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Compliance */}
       <section className="py-20 border-t border-border">
         <div className="max-w-4xl mx-auto px-6">
