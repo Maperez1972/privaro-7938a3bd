@@ -1,34 +1,102 @@
 # Privaro
 
-> Privacy infrastructure for enterprise AI. Privaro is a proxy that detects and anonymizes sensitive data (PII, financial, health, contracts) before prompts reach LLMs like OpenAI, Anthropic and Gemini, and also scans the model response, with full audit trails for GDPR and the EU AI Act.
+> Privaro is a runtime AI governance proxy for enterprise applications. It intercepts every LLM call, detects and tokenizes sensitive data (PII, financial identifiers, health records, contract clauses) before it reaches any AI model, and generates a blockchain-certified audit trail per interaction. Designed for GDPR and EU AI Act compliance.
 
-## API
+## What Privaro Does
 
-- `POST /v1/proxy/protect`: detect and mask PII in a prompt.
-- `POST /v1/proxy/protect-output`: detect and mask PII in an LLM response.
-- `POST /v1/relay/complete`: protected round-trip call to the provider.
-- `POST /v1/relay/stream`: streaming (SSE) round-trip. Output PII cannot be masked in real time; streaming pipelines are audit-only (detections are logged in Output Incidents and DPO reports).
+Privaro sits between an application and the AI model (OpenAI, Anthropic, Gemini, Mistral, or any HTTP endpoint). For every prompt:
+
+1. **Detect** — hybrid regex + NLP engine scans for 10+ entity types: names, emails, phone numbers, national IDs (Spanish DNI/NIE, SSN, passport), IBANs, credit cards, dates of birth, IP addresses, medical records, contract clauses, and custom-defined entities.
+2. **Tokenize** — sensitive values replaced with reversible tokens (e.g. `[EMAIL_0001]`) using AES-256 encryption. The LLM reasons on tokens, not real data.
+3. **Policy enforcement** — configurable rules per data type, user role, organization, and provider. Actions: tokenize, anonymize, or block.
+4. **Relay** — sanitized prompt forwarded to the configured LLM provider.
+5. **Re-identify** — model response re-enriched with real values inside the client's secure environment.
+6. **Certify** — every interaction logged with a blockchain-certified audit trail via iCommunity Blockchain Services (iBS) on Fantom Opera mainnet. Tamper-proof, exportable for DPO reports and regulatory audits.
+
+## Who It's For
+
+- **Enterprise teams** deploying LLM features in regulated industries (financial services, healthcare, legal, insurance, HR)
+- **AI agent builders** and ISVs who need to sell into compliance-aware enterprise customers
+- **DPOs and compliance teams** who need verifiable evidence of what AI models processed
+- **Developers** integrating OpenAI, Anthropic, or any LLM into applications that handle personal data
+
+## Key Differentiators
+
+- **Runtime interception** — not a policy document, not a dashboard, not pre-production evaluation. Privaro operates in the live request path.
+- **Output scanning** — scans model responses, not just prompts. Detects PII that the model emits from RAG context, tool calls, or memorization.
+- **Blockchain audit trail** — each interaction gets an immutable, timestamped, cryptographically verifiable log. Suitable for GDPR DSAR responses and EU AI Act audits.
+- **Reversible tokenization** — the original value can be recovered inside the client's secure environment. Contrast with irreversible anonymization.
+- **Streaming support** — SSE streaming is supported in audit-only mode; non-streaming relay guarantees masking.
+- **SDK** — available as `privaro-sdk` on npm. Drop-in adapters for OpenAI SDK, LangChain, CrewAI, and Vercel AI SDK.
+
+## Pricing
+
+- **Starter** — Free trial, 500 requests
+- **Business** — €499/month, 500K agent steps
+- **Enterprise** — Custom, unlimited, SLA, white-label, BYOK
+
+## API Endpoints
+
+- `POST /v1/detect` — detect PII entities in text, returns spans with type, confidence, and risk score
+- `POST /v1/proxy/protect` — detect + tokenize + forward to LLM + log
+- `POST /v1/proxy/protect-output` — scan and tokenize an LLM response
+- `POST /v1/relay/complete` — full protected round-trip to the LLM provider
+- `POST /v1/relay/stream` — SSE streaming round-trip (audit-only output scanning)
+- `GET /health` — service health
+
+## Compliance Coverage
+
+- **GDPR** Art. 5(1)(c) data minimization, Art. 25 privacy by design, Art. 32 technical measures, Art. 30 records of processing
+- **EU AI Act** — runtime evidence for high-risk AI systems, per-interaction audit trail, human oversight support
+- **HIPAA** — PHI detection and tokenization for healthcare AI workflows
+- **PCI DSS** — credit card and financial identifier detection and masking
+
+## Technical Stack
+
+- Proxy: FastAPI on Railway
+- Detection: hybrid regex (Tier 1) + spaCy/Presidio NLP (Tier 2)
+- Token vault: Supabase (AES-256, RLS per organization)
+- Blockchain: iCommunity Blockchain Services (iBS), Fantom Opera mainnet
+- SDK: TypeScript/JavaScript (npm: privaro-sdk), Python support
+- Frameworks: LangChain, CrewAI, Vercel AI SDK, OpenAI SDK (wrapOpenAI drop-in)
+
+## Company
+
+iCommunity Labs & Tech S.L. — Elche, Spain. Founded 2019. Builders of iCommunity Blockchain Services (iBS), a production-grade blockchain certification platform used across multiple enterprise SaaS products since 2019.
 
 ## Pages
 
-- [Home](/): Overview of the Privaro AI privacy proxy.
-- [Pricing](/pricing): Starter, Pro and Enterprise plans.
-- [Security](/security): Encryption, audit, GDPR and EU AI Act controls.
-- [Live Demo](/demo): Interactive PII detection and tokenization demo.
-- [Docs](/docs): Quickstart, API reference and SDK guides.
-- [Changelog](/changelog): Product updates and releases.
-- [Partners](/partners): Reseller, integrator and consultancy program.
-- [AI Risk Assessment](/ai-risk-assessment): Free AI privacy risk assessment.
-- [EU AI Act Compliance Guide](/eu-ai-act-compliance): Key dates, risk tiers, fines and a 10-step compliance checklist.
+- [Home](https://privaro.ai/): Overview and value proposition
+- [Pricing](https://privaro.ai/pricing): Starter, Business and Enterprise plans
+- [Security](https://privaro.ai/security): Encryption, audit, GDPR and EU AI Act controls
+- [Live Demo](https://privaro.ai/demo): Interactive PII detection and tokenization demo — no login required
+- [Docs](https://privaro.ai/docs): Quickstart, API reference and SDK guides
+- [Changelog](https://privaro.ai/changelog): Product updates and releases
+- [Partners](https://privaro.ai/partners): Reseller, integrator and consultancy program
+- [AI Risk Assessment](https://privaro.ai/ai-risk-assessment): Free AI privacy risk assessment tool
+- [EU AI Act Guide](https://privaro.ai/eu-ai-act-compliance): Key dates, risk tiers, fines and 10-step compliance checklist
+- [AI Governance Platform](https://privaro.ai/ai-governance-platform): Detailed platform overview
+- [PII Detection API](https://privaro.ai/pii-detection-api): API reference, entity types, code samples
 
 ## Use Cases
 
-- [Legal](/use-cases/legal): AI privacy for law firms and in-house legal.
-- [Fintech](/use-cases/fintech): PCI, IBAN and customer data protection for financial services.
-- [Healthcare](/use-cases/health): PHI anonymization for healthcare AI.
-- [AI Agents](/use-cases/agents): Governance for autonomous and multi-agent systems.
+- [Legal](https://privaro.ai/use-cases/legal): AI privacy for law firms and in-house legal
+- [Fintech](https://privaro.ai/use-cases/fintech): PCI, IBAN and customer data protection for financial services AI
+- [Healthcare](https://privaro.ai/use-cases/health): PHI anonymization for healthcare AI workflows
+- [AI Agents](https://privaro.ai/use-cases/agents): Runtime governance for autonomous and multi-agent systems
 
-## Optional
+## Comparisons
 
-- [Privacy Policy](/privacy)
-- [Terms of Service](/terms)
+- [Privaro vs Skyflow](https://privaro.ai/vs/skyflow)
+- [Privaro vs Nightfall](https://privaro.ai/vs/nightfall)
+- [Privaro vs Private AI](https://privaro.ai/vs/private-ai)
+
+## Blog
+
+- [AI Governance Platform Buyer's Guide 2026](https://privaro.ai/blog/ai-governance-platform-buyers-guide)
+- [GDPR Checklist for LLM Applications](https://privaro.ai/blog/gdpr-checklist-llm-apps)
+- [How to Mask PII Before Sending Prompts to OpenAI](https://privaro.ai/blog/mask-pii-before-openai)
+- [EU AI Act Compliance for SaaS](https://privaro.ai/blog/eu-ai-act-compliance-saas)
+- [PII in LLM Outputs: Why Input Filtering Is Not Enough](https://privaro.ai/blog/pii-in-llm-outputs)
+- [AI Governance Tools in 2026: How to Choose](https://privaro.ai/blog/ai-governance-tools-how-to-choose)
+- [OpenAI vs Anthropic: Data Privacy Compared](https://privaro.ai/blog/openai-vs-anthropic-data-privacy)
