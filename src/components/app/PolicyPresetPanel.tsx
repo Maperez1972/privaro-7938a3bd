@@ -23,6 +23,8 @@ import { useToast } from "@/hooks/use-toast";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
+import { SECTOR_PRESETS } from "@/lib/sector-presets";
+
 interface PresetRule {
   entity_type: string;
   category: string;
@@ -30,10 +32,11 @@ interface PresetRule {
   regulation_ref?: string;
   priority: number;
   custom_pattern?: string;
+  direction?: string;
 }
 
 export interface Preset {
-  id: string;
+  id?: string;
   slug: string;
   name: string;
   description: string;
@@ -41,6 +44,7 @@ export interface Preset {
   icon: string;
   color?: string;
   rules: PresetRule[];
+  builtin?: boolean;
 }
 
 const actionColors: Record<string, string> = {
@@ -57,7 +61,7 @@ interface PolicyPresetPanelProps {
 }
 
 const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { toast } = useToast();
   const [presets, setPresets] = useState<Preset[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,33 +69,78 @@ const PolicyPresetPanel = ({ orgId, userId, onApplied }: PolicyPresetPanelProps)
   const [applying, setApplying] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
 
+  // Built-in sector templates (Legal, Fintech, Healthcare) — used when the
+  // organisation has no presets stored in the database.
+  const builtinPresets: Preset[] = SECTOR_PRESETS.map((p) => ({
+    slug: p.slug,
+    name: lang === "es" ? p.name_es : p.name,
+    description: lang === "es" ? p.description_es : p.description,
+    sector: p.sector,
+    icon: p.icon,
+    rules: p.rules as PresetRule[],
+    builtin: true,
+  }));
+
   useEffect(() => {
     (supabase as any)
       .from("policy_presets")
       .select("id, name, slug, description, sector, icon, color, rules")
       .order("name")
       .then(({ data }: { data: Preset[] | null }) => {
-        setPresets(data ?? []);
+        setPresets(data && data.length ? data : builtinPresets);
         setLoading(false);
       });
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
 
   const handleApply = async () => {
     if (!confirmPreset) return;
     setApplying(true);
+    const rules = Array.isArray(confirmPreset.rules) ? confirmPreset.rules : [];
 
-    const { data, error } = await (supabase as any).rpc("apply_preset_org", {
-      p_org_id: orgId,
-      p_preset_slug: confirmPreset.slug,
-      p_user_id: userId,
-    });
+    let error: { message: string } | null = null;
+
+    if (confirmPreset.builtin) {
+      // Replace org-level rules with the sector template rules
+      const del = await (supabase as any)
+        .from("policy_rules")
+        .delete()
+        .eq("org_id", orgId)
+        .is("pipeline_id", null);
+      error = del.error;
+      if (!error) {
+        const ins = await (supabase as any).from("policy_rules").insert(
+          rules.map((r) => ({
+            org_id: orgId,
+            pipeline_id: null,
+            scope: "org",
+            entity_type: r.entity_type,
+            category: r.category,
+            action: r.action,
+            regulation_ref: r.regulation_ref ?? null,
+            priority: r.priority,
+            custom_pattern: r.custom_pattern ?? null,
+            direction: r.direction ?? "input",
+            is_enabled: true,
+            updated_by: userId,
+          }))
+        );
+        error = ins.error;
+      }
+    } else {
+      const res = await (supabase as any).rpc("apply_preset_org", {
+        p_org_id: orgId,
+        p_preset_slug: confirmPreset.slug,
+        p_user_id: userId,
+      });
+      error = res.error;
+    }
 
     setApplying(false);
 
     if (error) {
       toast({ title: t("app.policies.toast.error"), description: error.message, variant: "destructive" });
     } else {
-      const rules = Array.isArray(confirmPreset.rules) ? confirmPreset.rules : [];
       localStorage.setItem("privaro-lastPreset", confirmPreset.slug);
       toast({ title: `${confirmPreset.name} ${t("app.policies.preset.applied")}`, description: `${rules.length} ${t("app.policies.preset.rulesConfigured")}` });
       onApplied(confirmPreset.slug);

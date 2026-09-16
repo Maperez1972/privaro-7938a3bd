@@ -12,6 +12,7 @@ import { usePersistentToggle } from "@/hooks/usePersistentToggle";
 import { useLanguage } from "@/context/LanguageContext";
 import { proxyDetect, proxyProtect } from "@/lib/proxy-client";
 import { simulateCompression } from "@/lib/pii-engine";
+import { getSectorPreset } from "@/lib/sector-presets";
 import { CompressionStatsCard } from "@/components/app/CompressionStatsCard";
 import { SeverityBadge, StatusBadge } from "@/components/app/StatusBadge";
 import { Button } from "@/components/ui/button";
@@ -284,6 +285,9 @@ const Sandbox = () => {
   const criticalCount = detections.filter(d => d.severity === "critical").length;
   const tokenEntries = protectResult ? Object.entries(protectResult.tokenMap) : [];
   const activePipeline = pipelines.find(p => p.id === selectedPipeline);
+  const activePreset = getSectorPreset(
+    typeof window !== "undefined" ? localStorage.getItem("privaro-lastPreset") : null
+  );
 
   return (
     <div className="p-6 space-y-6 max-w-6xl">
@@ -373,6 +377,46 @@ const Sandbox = () => {
           <span className="font-medium text-foreground">{activePipeline.name}</span>
           <span>·</span><span>{activePipeline.llm_provider} / {activePipeline.llm_model}</span>
           <span>·</span><span className="capitalize">{activePipeline.sector}</span>
+        </div>
+      )}
+
+      {/* Active sector template */}
+      {activePreset ? (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2.5">
+          <span className="text-base">{activePreset.icon}</span>
+          <span className="text-sm font-medium text-foreground">
+            {lang === "es" ? activePreset.name_es : activePreset.name}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            · {t("sandbox.preset.active")} · {activePreset.rules.length} {t("sandbox.preset.rules")}
+          </span>
+          <div className="hidden md:flex flex-wrap gap-1 ml-1">
+            {activePreset.rules.slice(0, 5).map(r => (
+              <span key={r.entity_type} className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-secondary text-muted-foreground border border-border">
+                {r.entity_type}
+              </span>
+            ))}
+          </div>
+          <div className="flex-1" />
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 text-xs"
+            onClick={() => setInputText(lang === "es" ? activePreset.sample_text_es : activePreset.sample_text)}
+          >
+            {t("sandbox.preset.loadSample")}
+          </Button>
+          <Link to="/app/policies" className="text-xs text-primary underline hover:opacity-80">
+            {t("sandbox.preset.manage")}
+          </Link>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground rounded-lg border border-border bg-secondary/30 px-3 py-2">
+          <Info className="w-3.5 h-3.5" />
+          <span>{t("sandbox.preset.none")}</span>
+          <Link to="/app/policies" className="text-primary underline hover:opacity-80">
+            {t("sandbox.preset.apply")}
+          </Link>
         </div>
       )}
 
