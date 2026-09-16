@@ -104,7 +104,7 @@ function getTemplate(
           <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#1A1A2E;">Confirm your new email</h1>
           <p style="color:#4B5563;line-height:1.6;">Click below to confirm your new email address for Privaro.</p>
           ${btn(buildVerifyUrl(tokenHash, 'email_change', defaultRedirect), 'Confirm new email')}
-          <p style="font-size:12px;color:#9CA3AF;margin-top:24px;">If you did not request this, contact security@icommunity.io immediately.</p>
+          <p style="font-size:12px;color:#9CA3AF;margin-top:24px;">If you did not request this, contact contact@privaro.ai immediately.</p>
         `),
       };
 

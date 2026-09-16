@@ -21,7 +21,7 @@
  * Destinatarios: los admins de las organizaciones del billing account +
  * el buzón interno de ops (USAGE_ALERTS_OPS_EMAIL, por defecto
  * soporte@icommunity.io -- mismo buzón usado para el aviso de cambio de
- * cupón de Stripe en apply_discount_reviews(); hello@icommunity.io está
+ * cupón de Stripe en apply_discount_reviews(); contact@privaro.ai está
  * descartado como default porque ya es el buzón público de leads/prensa,
  * no el operativo interno).
  *
