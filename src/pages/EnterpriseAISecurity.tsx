@@ -4,6 +4,7 @@ import { Lock, AlertTriangle, ShieldCheck, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
+import TechBriefSection from "@/components/TechBriefSection";
 
 const EnterpriseAISecurity = () => {
   const { t } = useLanguage();
@@ -98,6 +99,8 @@ const EnterpriseAISecurity = () => {
           </div>
         </div>
       </article>
+
+      <TechBriefSection />
 
       <Footer />
     </div>
