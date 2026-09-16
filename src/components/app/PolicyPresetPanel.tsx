@@ -23,6 +23,8 @@ import { useToast } from "@/hooks/use-toast";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
+import { SECTOR_PRESETS } from "@/lib/sector-presets";
+
 interface PresetRule {
   entity_type: string;
   category: string;
@@ -30,6 +32,7 @@ interface PresetRule {
   regulation_ref?: string;
   priority: number;
   custom_pattern?: string;
+  direction?: string;
 }
 
 export interface Preset {
