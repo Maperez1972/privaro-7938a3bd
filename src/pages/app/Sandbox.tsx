@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 interface Detection {
@@ -426,6 +427,15 @@ const Sandbox = () => {
               )}
               {!isProcessing && mode === "protect" && protectResult && (
                 <motion.div key="protect-result" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+                  {detections.length === 0 && (
+                    <div role="alert" className="flex items-start gap-2 text-sm text-warning bg-warning/10 border border-warning/30 rounded-lg px-3 py-2.5">
+                      <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span>
+                        {t("sandbox.noRulesWarning")}{" "}
+                        <Link to="/app/policies" className="underline font-medium hover:opacity-80">{t("sandbox.noRulesWarningLink")}</Link>
+                      </span>
+                    </div>
+                  )}
                   <div className="bg-background border border-border rounded-lg p-3 min-h-32 max-h-56 overflow-y-auto">
                     <ProtectedResultText text={protectResult.protectedText} />
                   </div>

@@ -104,7 +104,7 @@ const PolicyDialog = ({ open, onOpenChange, onSubmit, loading, initialData }: Po
         <DialogHeader>
           <DialogTitle>{initialData ? t("app.policies.dialog.editTitle") : t("app.policies.dialog.newTitle")}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 mt-2">
+        <div className="space-y-4 mt-2 max-h-[60vh] overflow-y-auto pr-2">
           <div className="space-y-2">
             <Label>{t("app.policies.dialog.entityType")}</Label>
             <Select value={form.entity_type} onValueChange={(v) => setForm({ ...form, entity_type: v })}>
