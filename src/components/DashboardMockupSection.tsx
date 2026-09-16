@@ -3,16 +3,15 @@ import { useLanguage } from "@/context/LanguageContext";
 import realDashboard from "@/assets/real-dashboard.png.asset.json";
 import realChat from "@/assets/real-chat.png.asset.json";
 import realProviders from "@/assets/real-providers.png.asset.json";
-import featureOutputEn from "@/assets/feature-output-incidents.webp";
-import featureOutputEs from "@/assets/feature-output-incidents-es.webp";
+import realOutputIncidents from "@/assets/real-output-incidents.png.asset.json";
 
 const DashboardMockupSection = () => {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   const subsections = [
     { titleKey: "dash.sub1.title", descKey: "dash.sub1.desc", image: realDashboard.url, alt: "Privaro Dashboard", imageFirst: false },
     { titleKey: "dash.sub2.title", descKey: "dash.sub2.desc", image: realChat.url, alt: "Privaro AI Chat", imageFirst: true },
     { titleKey: "dash.sub3.title", descKey: "dash.sub3.desc", image: realProviders.url, alt: "Privaro LLM Providers", imageFirst: false },
-    { titleKey: "dash.sub4.title", descKey: "dash.sub4.desc", image: lang === "es" ? featureOutputEs : featureOutputEn, alt: lang === "es" ? "Panel de Incidencias de Output de Privaro" : "Privaro Output Incidents dashboard", imageFirst: true },
+    { titleKey: "dash.sub4.title", descKey: "dash.sub4.desc", image: realOutputIncidents.url, alt: "Privaro Output Incidents dashboard", imageFirst: true },
   ];
 
 
