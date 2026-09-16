@@ -4,6 +4,8 @@ import { Shield, Eye, Lock, FileCheck, Zap, Server, CheckCircle2, ArrowRight } f
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
+import RiskGapSection from "@/components/RiskGapSection";
+import ComparisonSection from "@/components/ComparisonSection";
 
 const AIGovernancePlatform = () => {
   const { t } = useLanguage();
@@ -117,6 +119,10 @@ const AIGovernancePlatform = () => {
           </div>
         </div>
       </section>
+
+      <RiskGapSection />
+
+      <ComparisonSection />
 
       {/* Why it matters */}
       <section className="py-20">

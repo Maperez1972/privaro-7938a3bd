@@ -4,18 +4,17 @@ import Navbar from "@/components/Navbar";
 import Seo from "@/components/Seo";
 import HeroSection from "@/components/HeroSection";
 
-const UrgencySection = lazy(() => import("@/components/UrgencySection"));
 const ProblemSection = lazy(() => import("@/components/ProblemSection"));
-const RiskGapSection = lazy(() => import("@/components/RiskGapSection"));
+const DemoVideoSection = lazy(() => import("@/components/DemoVideoSection"));
 const SolutionSection = lazy(() => import("@/components/SolutionSection"));
-const CostOptimizationSection = lazy(() => import("@/components/CostOptimizationSection"));
 const DashboardMockupSection = lazy(() => import("@/components/DashboardMockupSection"));
+const CostOptimizationSection = lazy(() => import("@/components/CostOptimizationSection"));
+const UseCasesSection = lazy(() => import("@/components/UseCasesSection"));
 const HowItWorksSection = lazy(() => import("@/components/HowItWorksSection"));
-const ComparisonSection = lazy(() => import("@/components/ComparisonSection"));
 const SecuritySection = lazy(() => import("@/components/SecuritySection"));
 const BlockchainSection = lazy(() => import("@/components/BlockchainSection"));
-const UseCasesSection = lazy(() => import("@/components/UseCasesSection"));
-const TechBriefSection = lazy(() => import("@/components/TechBriefSection"));
+const TestimonialSection = lazy(() => import("@/components/TestimonialSection"));
+const ComparisonTeaser = lazy(() => import("@/components/ComparisonTeaser"));
 const BetaSection = lazy(() => import("@/components/BetaSection"));
 const Footer = lazy(() => import("@/components/Footer"));
 
@@ -38,18 +37,17 @@ const Index = () => {
       <Navbar />
       <HeroSection />
       <Suspense fallback={null}>
-        <UrgencySection />
         <ProblemSection />
-        <RiskGapSection />
+        <DemoVideoSection />
         <SolutionSection />
-        <CostOptimizationSection />
         <DashboardMockupSection />
+        <CostOptimizationSection />
+        <UseCasesSection />
         <HowItWorksSection />
-        <ComparisonSection />
         <SecuritySection />
         <BlockchainSection />
-        <UseCasesSection />
-        <TechBriefSection />
+        <TestimonialSection />
+        <ComparisonTeaser />
         <BetaSection />
         <Footer />
       </Suspense>
