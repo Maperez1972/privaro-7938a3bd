@@ -12,6 +12,7 @@ import { usePersistentToggle } from "@/hooks/usePersistentToggle";
 import { useLanguage } from "@/context/LanguageContext";
 import { proxyDetect, proxyProtect } from "@/lib/proxy-client";
 import { simulateCompression } from "@/lib/pii-engine";
+import { getSectorPreset } from "@/lib/sector-presets";
 import { CompressionStatsCard } from "@/components/app/CompressionStatsCard";
 import { SeverityBadge, StatusBadge } from "@/components/app/StatusBadge";
 import { Button } from "@/components/ui/button";
