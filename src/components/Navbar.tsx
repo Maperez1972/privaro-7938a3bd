@@ -158,7 +158,7 @@ const Navbar = () => {
             AI Risk Assessment
           </Link>
 
-          <a href="/#early-access" onClick={(e) => handleHashLink(e, '/#early-access')} className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-md hover:opacity-90 transition-opacity whitespace-nowrap">{t("nav.cta")}</a>
+          <Link to="/auth" className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-md hover:opacity-90 transition-opacity whitespace-nowrap">{t("nav.cta")}</Link>
         </div>
 
         <div className="flex md:hidden items-center gap-3">
@@ -215,7 +215,7 @@ const Navbar = () => {
               <Link to="/demo" onClick={() => setMobileOpen(false)} className="py-3 text-sm text-muted-foreground hover:text-foreground border-b border-border">{t("nav.demo")}</Link>
               <Link to="/ai-risk-assessment" onClick={() => setMobileOpen(false)} className="py-3 text-sm text-primary hover:text-foreground border-b border-border">AI Risk Assessment</Link>
 
-              <a href="/#early-access" onClick={(e) => handleHashLink(e, '/#early-access')} className="mt-6 text-sm font-medium bg-primary text-primary-foreground px-4 py-2.5 rounded-md hover:opacity-90 transition-opacity text-center">{t("nav.cta")}</a>
+              <Link to="/auth" onClick={() => setMobileOpen(false)} className="mt-6 text-sm font-medium bg-primary text-primary-foreground px-4 py-2.5 rounded-md hover:opacity-90 transition-opacity text-center">{t("nav.cta")}</Link>
             </div>
           </SheetContent>
         </Sheet>
