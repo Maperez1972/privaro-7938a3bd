@@ -284,6 +284,9 @@ const Sandbox = () => {
   const criticalCount = detections.filter(d => d.severity === "critical").length;
   const tokenEntries = protectResult ? Object.entries(protectResult.tokenMap) : [];
   const activePipeline = pipelines.find(p => p.id === selectedPipeline);
+  const activePreset = getSectorPreset(
+    typeof window !== "undefined" ? localStorage.getItem("privaro-lastPreset") : null
+  );
 
   return (
     <div className="p-6 space-y-6 max-w-6xl">
