@@ -152,7 +152,11 @@ const AppLayout = () => {
       />
       <aside className={cn("min-h-0 flex flex-col border-r border-border bg-sidebar transition-all duration-200", collapsed ? "w-16" : "w-60")}>
         <div className="h-16 flex items-center px-3 border-b border-border">
-          {!collapsed && <img src={logoPrivaroAsset.url} alt="Privaro AI" className="h-auto w-40" width={1983} height={231} />}
+          {!collapsed && (
+            <a href="https://privaro.ai" target="_blank" rel="noopener noreferrer" aria-label="Privaro AI — Home">
+              <img src={logoPrivaroAsset.url} alt="Privaro AI" className="h-auto w-40" width={1983} height={231} />
+            </a>
+          )}
           <button onClick={() => setCollapsed(!collapsed)} className="ml-auto p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
