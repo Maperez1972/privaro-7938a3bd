@@ -164,7 +164,7 @@ const COPY = {
       { q: "¿Funciona con modelos open source o self-hosted?", a: "Sí, en el plan Pro el multi-provider routing soporta cualquier endpoint compatible con la API de OpenAI — incluyendo Mistral, LLaMA vía Ollama o Groq, y modelos custom. Consulta la documentación de providers para la configuración específica." },
       { q: "¿Qué evidencia genera Privaro para cumplimiento GDPR / EU AI Act?", a: "El plan Pro genera DPO Reports exportables en PDF con resumen de eventos PII, categorías detectadas y período analizado. El blockchain audit trail iBS añade evidencia irrefutable con hash inmutable por evento — útil en auditorías y due diligence." },
       { q: "¿Tenéis prueba gratuita?", a: "Sí — 14 días con acceso completo al plan Pro sin tarjeta de crédito. Si necesitas más tiempo para evaluar en un entorno de producción real o tienes un caso de uso específico regulado, contáctanos directamente." },
-      { q: "¿Ofrecéis descuento para startups o aceleradoras?", a: "Sí. Tenemos un programa específico para startups en fase seed o pre-seed, y para empresas participantes en programas de aceleración europeos. Escríbenos a hola@privaro.ai con el asunto 'Startup Program'." },
+      { q: "¿Ofrecéis descuento para startups o aceleradoras?", a: "Sí. Tenemos un programa específico para startups en fase seed o pre-seed, y para empresas participantes en programas de aceleración europeos. Escríbenos a contact@privaro.ai con el asunto 'Startup Program'." },
     ],
   },
   en: {
@@ -296,7 +296,7 @@ const COPY = {
       { q: "Does it work with open source or self-hosted models?", a: "Yes, on the Pro plan multi-provider routing supports any OpenAI-API-compatible endpoint — including Mistral, LLaMA via Ollama or Groq, and custom models. Check the providers documentation for specific configuration." },
       { q: "What evidence does Privaro generate for GDPR / EU AI Act compliance?", a: "The Pro plan generates exportable DPO Reports in PDF with a summary of PII events, detected categories and analyzed period. The iBS blockchain audit trail adds irrefutable evidence with an immutable hash per event — useful in audits and due diligence." },
       { q: "Do you have a free trial?", a: "Yes — 14 days with full access to the Pro plan without a credit card. If you need more time to evaluate in a real production environment or have a specific regulated use case, contact us directly." },
-      { q: "Do you offer discounts for startups or accelerators?", a: "Yes. We have a specific program for seed or pre-seed startups, and for companies participating in European acceleration programs. Email us at hola@privaro.ai with subject 'Startup Program'." },
+      { q: "Do you offer discounts for startups or accelerators?", a: "Yes. We have a specific program for seed or pre-seed startups, and for companies participating in European acceleration programs. Email us at contact@privaro.ai with subject 'Startup Program'." },
     ],
   },
 };

@@ -28,4 +28,4 @@ Legal teams · Fintech & banking compliance · Healthcare · Security / DPO / go
 6 tiers, €150 → €2,500 / month. Custom Enterprise/ISV tier. 20% recurring partner discount.
 
 ## Links
-Site: https://privaro.ai · Pricing: https://privaro.ai/pricing · Docs: https://privaro.ai/docs · Status: https://privaro.ai/status · Press: hello@icommunity.io
+Site: https://privaro.ai · Pricing: https://privaro.ai/pricing · Docs: https://privaro.ai/docs · Status: https://privaro.ai/status · Press: contact@privaro.ai

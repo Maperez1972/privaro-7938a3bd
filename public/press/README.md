@@ -13,7 +13,7 @@ Download individual files from `/press/<filename>` on privaro.ai, or grab the fu
 - **Name:** Privaro
 - **Legal entity:** iCommunity Labs
 - **Website:** https://privaro.ai
-- **Contact (press/partners):** hello@icommunity.io
+- **Contact (press/partners):** contact@privaro.ai
 - **Contact (support):** contact@privaro.ai
 - **Category:** AI Governance / Data Privacy / LLM Security
 - **Founded:** 2025

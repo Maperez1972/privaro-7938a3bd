@@ -108,7 +108,7 @@ const Partners = () => {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
               <Button size="lg" asChild>
-                <a href="mailto:partners@privaro.ai">{t("partners.hero.cta1")}</a>
+                <a href="mailto:contact@privaro.ai">{t("partners.hero.cta1")}</a>
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <a href="#how-it-works">{t("partners.hero.cta2")}</a>
