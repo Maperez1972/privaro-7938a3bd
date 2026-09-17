@@ -18,39 +18,25 @@ type Lang = "python" | "node" | "curl";
 
 const CODE: Record<Lang, { install: string; code: string }> = {
   python: {
-    install: "pip install requests",
-    code: `import requests
+    install: "pip install privaro",
+    code: `import privaro
 
-PRIVARO_KEY = "prvr_your_key_here"
-PIPELINE_ID = "your-pipeline-uuid"
-BASE_URL = "https://privaro-proxy-production.up.railway.app/v1"
-
-response = requests.post(
-    f"{BASE_URL}/proxy/protect",
-    headers={
-        "Content-Type": "application/json",
-        "X-Privaro-Key": PRIVARO_KEY,
-    },
-    json={
-        "pipeline_id": PIPELINE_ID,
-        "prompt": (
-            "Solicitante: Laura Sánchez (DNI: 23456789D) "
-            "Email: laura@empresa.com · IBAN: ES98 2100 0418 6819 6340 7321"
-        ),
-        "options": {"mode": "tokenise", "include_detections": True},
-    },
+privaro.init(
+    api_key="prvr_your_key_here",
+    pipeline_id="your-pipeline-uuid",
 )
 
-data = response.json()
-print(data["protected_prompt"])
+result = privaro.protect(
+    "Solicitante: Laura Sánchez (DNI: 23456789D) "
+    "Email: laura@empresa.com · IBAN: ES98 2100 0418 6819 6340 7321"
+)
+
+print(result.protected)
 # "Solicitante: [NM-0001] (DNI: [ID-0001]) "
 # "Email: [EM-0001] · IBAN: [BK-0001]"
 
-print(data["stats"])
-# {"total_detected": 4, "total_masked": 4, "coverage_pct": 100}
-
-print(data["gdpr_compliant"])  # True
-print(data["audit_log_id"])    # "uuid-..."`,
+print(result.summary())
+# [Privaro] 4 detected, 4 masked, risk=high, gdpr=✓, 48ms`,
   },
   node: {
     install: "npm install privaro-sdk",
@@ -300,7 +286,7 @@ const response = await openai.chat.completions.create({
         <div className="max-w-3xl mx-auto">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
             <h2 className="text-xl font-semibold mb-2">{t("docs.endpoints.title")}</h2>
-            <p className="text-sm text-muted-foreground mb-8">{t("docs.endpoints.base")}: <code className="text-primary font-mono text-xs bg-primary/10 px-2 py-0.5 rounded">https://privaro-proxy-production.up.railway.app/v1</code></p>
+            <p className="text-sm text-muted-foreground mb-8">{t("docs.endpoints.base")}: <code className="text-primary font-mono text-xs bg-primary/10 px-2 py-0.5 rounded">https://api.privaro.ai/v1</code></p>
 
             <div className="space-y-4">
               {[
