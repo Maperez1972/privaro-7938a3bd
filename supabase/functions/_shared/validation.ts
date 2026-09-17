@@ -66,8 +66,6 @@ export function validateDemoRequest(body: unknown): { data?: DemoRequestData; er
   const concern = sanitize(raw.concern, 1000);
   if (!name) return { error: "Name is required" };
   if (!company) return { error: "Company is required" };
-  if (!industry) return { error: "Industry is required" };
-  if (!role) return { error: "Role is required" };
   if (!email) return { error: "Email is required" };
   if (!EMAIL_REGEX.test(email)) return { error: "Invalid email format" };
   return { data: { name, company, industry, role, email, concern } };
