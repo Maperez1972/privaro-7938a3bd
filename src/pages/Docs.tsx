@@ -24,6 +24,7 @@ const CODE: Record<Lang, { install: string; code: string }> = {
 privaro.init(
     api_key="prvr_your_key_here",
     pipeline_id="your-pipeline-uuid",
+    base_url="https://api.privaro.ai/v1",
 )
 
 result = privaro.protect(
@@ -36,7 +37,7 @@ print(result.protected)
 # "Email: [EM-0001] · IBAN: [BK-0001]"
 
 print(result.summary())
-# [Privaro] 4 detected, 4 masked, risk=high, gdpr=✓, 48ms`,
+# [Privaro] 4 entities detected, 4 masked, risk=high (0.82), gdpr=✓, 48ms`,
   },
   node: {
     install: "npm install privaro-sdk",
