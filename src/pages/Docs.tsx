@@ -61,7 +61,7 @@ console.log(result.summary());
   },
   curl: {
     install: "# No installation needed",
-    code: `curl -X POST https://privaro-proxy-production.up.railway.app/v1/proxy/protect \\
+    code: `curl -X POST https://api.privaro.ai/v1/proxy/protect \\
   -H "Content-Type: application/json" \\
   -H "X-Privaro-Key: prvr_your_key_here" \\
   -d '{
