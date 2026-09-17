@@ -49,9 +49,19 @@ const Index = () => {
         <TestimonialSection />
         <ComparisonTeaser />
         <BetaSection />
-        <section className="text-center py-4">
+        <section className="flex flex-col sm:flex-row items-center justify-center gap-4 py-4">
           <a href="https://theresanaiforthat.com/ai/privaro/?ref=featured&v=12784591" target="_blank" rel="nofollow">
             <img width="150" src="https://media.theresanaiforthat.com/featured-on-taaft.png?width=600" alt="Featured on There's An AI For That" className="inline-block max-w-full h-auto" loading="lazy" />
+          </a>
+          <a href="https://www.producthunt.com/products/privaro?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-privaro-2" target="_blank" rel="noopener noreferrer">
+            <img
+              alt="Privaro - Runtime PII detection and governance proxy for LLMs | Product Hunt"
+              width="210"
+              height="46"
+              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1252180&theme=dark&t=1789636604895"
+              className="inline-block max-w-full h-auto"
+              loading="lazy"
+            />
           </a>
         </section>
         <Footer />
