@@ -300,7 +300,7 @@ const response = await openai.chat.completions.create({
         <div className="max-w-3xl mx-auto">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
             <h2 className="text-xl font-semibold mb-2">{t("docs.endpoints.title")}</h2>
-            <p className="text-sm text-muted-foreground mb-8">{t("docs.endpoints.base")}: <code className="text-primary font-mono text-xs bg-primary/10 px-2 py-0.5 rounded">https://api.privaro.ai/v1</code></p>
+            <p className="text-sm text-muted-foreground mb-8">{t("docs.endpoints.base")}: <code className="text-primary font-mono text-xs bg-primary/10 px-2 py-0.5 rounded">https://privaro-proxy-production.up.railway.app/v1</code></p>
 
             <div className="space-y-4">
               {[
