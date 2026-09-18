@@ -12,6 +12,13 @@ import { useLanguage } from "@/context/LanguageContext";
 import type { Language } from "@/context/LanguageContext";
 import Seo from "@/components/Seo";
 
+declare global {
+  interface Window {
+    gtag: (...args: unknown[]) => void;
+  }
+}
+
+
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const invitationToken = searchParams.get("invitation_token");
@@ -66,6 +73,13 @@ const Auth = () => {
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
+      // GA4 conversion event
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'sign_up', {
+          method: 'email',
+          event_category: 'engagement',
+        });
+      }
       toast({ title: t("auth.accountCreated"), description: t("auth.checkEmail") });
       setMode("login");
     }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Minus, ChevronDown, ChevronUp, Zap, Shield, Building2, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -315,6 +315,16 @@ export default function Pricing() {
   const [annual, setAnnual] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  useEffect(() => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'view_item_list', {
+        event_category: 'ecommerce',
+        event_label: 'pricing_page',
+        item_list_name: 'Privaro Plans',
+      });
+    }
+  }, []);
+
   const getPrice = (plan: Plan) => {
     if (plan.monthlyPrice === null) return null;
     return annual ? plan.annualPrice! : plan.monthlyPrice;
@@ -457,14 +467,21 @@ export default function Pricing() {
                   >
                     <Link
                       to={plan.ctaHref}
-                      onClick={() =>
+                      onClick={() => {
                         trackEvent("select_plan", {
                           plan: plan.key,
                           billing_period: annual ? "annual" : "monthly",
                           value: price ?? 0,
                           currency: "EUR",
-                        })
-                      }
+                        });
+                        // GA4 conversion event
+                        window.gtag?.('event', 'begin_checkout', {
+                          event_category: 'ecommerce',
+                          currency: 'EUR',
+                          value: price ?? 0,
+                          items: [{ item_name: plan.name }],
+                        });
+                      }}
                     >
                       {plan.cta}
                       {plan.ctaVariant === "default" && <ArrowRight className="w-3.5 h-3.5 ml-1.5" />}

@@ -253,6 +253,13 @@ export default function Demo() {
 
   const handleAnalyze = useCallback(() => {
     if (!inputText.trim()) return;
+    // GA4 conversion event
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'demo_started', {
+        event_category: 'engagement',
+        event_label: scenario,
+      });
+    }
     // Capture the text NOW — before any state updates
     const textToAnalyze = inputText;
     setProcessing(true);
@@ -264,7 +271,7 @@ export default function Demo() {
       setProcessing(false);
       setIbsRunning(true);
     }, 420);
-  }, [inputText]);
+  }, [inputText, scenario]);
 
   const handleReset = useCallback(() => {
     setInputText(t(`demo.scenario.${scenario}.text`));
