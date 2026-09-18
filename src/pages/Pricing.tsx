@@ -109,7 +109,7 @@ const COPY = {
         key: "enterprise" as PlanKey, icon: Building2, name: "Enterprise / ISV",
         monthlyPrice: null, annualPrice: null,
         desc: "Para volúmenes >5M req/mo, ISVs que embeben Privaro y compliance avanzado.",
-        cta: "Hablar con nosotros", ctaVariant: "outline" as const, ctaHref: "mailto:sales@privaro.ai", highlight: false,
+        cta: "Hablar con nosotros", ctaVariant: "outline" as const, ctaHref: "mailto:contact@privaro.ai", highlight: false,
         features: [
           "Volumen a medida (>5M requests/mes)",
           "White-label / embedded en tu producto",
@@ -241,7 +241,7 @@ const COPY = {
         key: "enterprise" as PlanKey, icon: Building2, name: "Enterprise / ISV",
         monthlyPrice: null, annualPrice: null,
         desc: "For volumes >5M req/mo, ISVs embedding Privaro and advanced compliance.",
-        cta: "Talk to us", ctaVariant: "outline" as const, ctaHref: "mailto:sales@privaro.ai", highlight: false,
+        cta: "Talk to us", ctaVariant: "outline" as const, ctaHref: "mailto:contact@privaro.ai", highlight: false,
         features: [
           "Custom volume (>5M requests/month)",
           "White-label / embedded in your product",
