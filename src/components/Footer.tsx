@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import logoPrivaroAsset from "@/assets/privaro-ai-logo.png.asset.json";
+import { COMPARISONS } from "@/content/comparisons";
 
 const Footer = () => {
   const { t } = useLanguage();
@@ -34,13 +35,15 @@ const Footer = () => {
             AI Agents
           </a>
         </div>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-4 sm:gap-8">
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Compare
           </span>
-          <a href="/vs/skyflow" className={linkClass}>Privaro vs Skyflow</a>
-          <a href="/vs/nightfall" className={linkClass}>Privaro vs Nightfall</a>
-          <a href="/vs/private-ai" className={linkClass}>Privaro vs Private AI</a>
+          {COMPARISONS.map((comparison) => (
+            <Link key={comparison.slug} to={`/vs/${comparison.slug}`} className={linkClass}>
+              {comparison.tagline}
+            </Link>
+          ))}
         </div>
 
 

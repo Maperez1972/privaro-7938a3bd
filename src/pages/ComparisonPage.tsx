@@ -3,7 +3,7 @@ import { Check, X, ArrowRight, Shield, Scale, Zap } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
-import { getComparisonBySlug } from "@/content/comparisons";
+import { COMPARISONS, getComparisonBySlug } from "@/content/comparisons";
 
 const ComparisonPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -211,15 +211,15 @@ const ComparisonPage = () => {
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-2xl font-bold mb-6">Other comparisons</h2>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            {["skyflow", "nightfall", "private-ai"]
-              .filter((s) => s !== cmp.slug)
-              .map((s) => (
+            {COMPARISONS
+              .filter((comparison) => comparison.slug !== cmp.slug)
+              .map((comparison) => (
                 <Link
-                  key={s}
-                  to={`/vs/${s}`}
+                  key={comparison.slug}
+                  to={`/vs/${comparison.slug}`}
                   className="px-4 py-2 rounded-md border border-border hover:bg-secondary transition-colors text-sm"
                 >
-                  Privaro vs {s === "private-ai" ? "Private AI" : s === "nightfall" ? "Nightfall AI" : "Skyflow"}
+                  {comparison.tagline}
                 </Link>
               ))}
           </div>

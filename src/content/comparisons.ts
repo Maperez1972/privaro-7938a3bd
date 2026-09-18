@@ -211,6 +211,131 @@ export const COMPARISONS: Comparison[] = [
       },
     ],
   },
+  {
+    slug: "microsoft-purview",
+    competitorName: "Microsoft Purview",
+    competitorUrl: "https://www.microsoft.com/security/business/microsoft-purview",
+    tagline: "Privaro vs Microsoft Purview",
+    seoTitle: "Privaro vs Microsoft Purview — Runtime AI Governance Compared",
+    seoDescription:
+      "Compare Privaro and Microsoft Purview for AI governance, runtime PII protection, reversible tokenization, multi-LLM coverage and EU AI Act audit evidence.",
+    hero: {
+      h1: "Privaro vs Microsoft Purview",
+      subtitle:
+        "Microsoft Purview governs data across Microsoft 365 and Copilot. Privaro is a provider-agnostic runtime layer that protects prompts and responses across OpenAI, Anthropic, Gemini and Azure OpenAI.",
+    },
+    summary:
+      "Choose Microsoft Purview if you're governing data inside the Microsoft 365 / Copilot ecosystem. Choose Privaro if you need a provider-agnostic runtime layer across any LLM, with reversible tokenization and blockchain-certified audit.",
+    positioning: {
+      privaro:
+        "Runtime AI governance proxy. Intercepts prompts and responses before sensitive data reaches any supported LLM, applies policy, tokenizes data reversibly and records audit-ready evidence.",
+      competitor:
+        "Microsoft 365 data governance suite. Classifies and protects information across SharePoint, Teams, Exchange and Copilot within the Microsoft ecosystem.",
+    },
+    rows: [
+      { feature: "Primary product", privaro: "Provider-agnostic runtime AI governance", competitor: "Microsoft 365 data governance suite", privaroWins: true },
+      { feature: "PII detection quality", privaro: "Rules + ML, tuned for prompts and LLM responses", competitor: "Strong classification across Microsoft 365 content", privaroWins: false },
+      { feature: "Real-time PII detection — prompts AND LLM responses", privaro: "Native, both directions", competitor: "Not for LLM traffic outside Microsoft Copilot", privaroWins: true },
+      { feature: "Reversible tokenization", privaro: "Built-in, controlled token vault", competitor: "Not included for runtime LLM prompts", privaroWins: true },
+      { feature: "Policy engine", privaro: "Role-, organization-, data- and provider-scoped", competitor: "Microsoft 365 information protection and DLP policies", privaroWins: false },
+      { feature: "Audit trail for the EU AI Act", privaro: "LLM interaction evidence + blockchain certification", competitor: "General data governance and compliance logs", privaroWins: true },
+      { feature: "Multi-provider proxy", privaro: "OpenAI, Anthropic, Gemini and Azure OpenAI", competitor: "Not included outside the Microsoft ecosystem", privaroWins: true },
+      { feature: "MCP server for AI agents", privaro: "Included", competitor: "Not included", privaroWins: true },
+      { feature: "Deployment", privaro: "SaaS, self-hosted, hybrid", competitor: "Microsoft cloud ecosystem", privaroWins: false },
+      { feature: "Time to production", privaro: "Minutes with a drop-in proxy", competitor: "Depends on Microsoft 365 configuration", privaroWins: true },
+      { feature: "Starting price", privaro: "€150/mo", competitor: "Licensed via M365 E5 / add-on", privaroWins: true },
+    ],
+    bestFor: {
+      privaro: [
+        "Organizations using multiple LLM providers across products and internal workflows",
+        "Teams that must protect PII in prompts and responses before it reaches a model",
+        "AI agent platforms needing MCP-native governance and reversible tokenization",
+        "Compliance teams needing evidence for each actual LLM interaction",
+      ],
+      competitor: [
+        "Enterprises governing information primarily inside Microsoft 365",
+        "Teams standardizing data classification across SharePoint, Teams and Exchange",
+        "Organizations whose AI workflows stay inside Microsoft Copilot",
+      ],
+    },
+    faq: [
+      {
+        q: "Can we use Privaro if we already have Microsoft Purview?",
+        a: "Yes. They are complementary: Purview governs the Microsoft 365 data perimeter, while Privaro governs the runtime of any LLM outside that perimeter, including OpenAI, Anthropic, Gemini and Azure OpenAI workflows.",
+      },
+      {
+        q: "Does Microsoft Purview comply with the EU AI Act?",
+        a: "Purview supports data classification, information protection and DLP controls. It does not by itself generate an interaction-level audit record showing what each LLM processed, which policies ran and how sensitive data was protected.",
+      },
+      {
+        q: "Why add Privaro to an existing Microsoft security stack?",
+        a: "Privaro closes the runtime gap for AI traffic that does not pass through Microsoft Copilot. It adds inline detection, reversible tokenization, provider-agnostic routing and LLM-specific audit evidence without replacing your Microsoft 365 controls.",
+      },
+    ],
+  },
+  {
+    slug: "onetrust",
+    competitorName: "OneTrust",
+    competitorUrl: "https://www.onetrust.com",
+    tagline: "Privaro vs OneTrust",
+    seoTitle: "Privaro vs OneTrust — AI Runtime Evidence vs Privacy GRC",
+    seoDescription:
+      "Compare Privaro and OneTrust for AI compliance: real-time PII detection, tokenization and LLM audit evidence versus DPIAs, records of processing and privacy GRC.",
+    hero: {
+      h1: "Privaro vs OneTrust",
+      subtitle:
+        "OneTrust manages privacy policies, DPIAs, records of processing and consent. Privaro controls what actually happens inside every LLM prompt and response, in real time.",
+    },
+    summary:
+      "Choose OneTrust for policy, DPIAs and documentation-based privacy management. Choose Privaro for the technical evidence layer OneTrust can't generate on its own — real-time detection, tokenization and an immutable audit trail of every actual LLM interaction.",
+    positioning: {
+      privaro:
+        "Technical AI governance layer. Detects and protects sensitive data inline, routes sanitized requests to any supported LLM and records immutable evidence of every interaction.",
+      competitor:
+        "Privacy GRC platform. Manages assessments, policies, consent, data maps and records such as DPIAs and records of processing activities.",
+    },
+    rows: [
+      { feature: "Primary product", privaro: "Runtime AI governance and evidence", competitor: "Privacy GRC and documentation", privaroWins: true },
+      { feature: "PII detection quality", privaro: "Rules + ML, tuned for prompts and LLM responses", competitor: "Not included for runtime LLM traffic", privaroWins: true },
+      { feature: "Real-time PII detection — prompts AND LLM responses", privaro: "Native, both directions", competitor: "Not included", privaroWins: true },
+      { feature: "Reversible tokenization", privaro: "Built-in, controlled token vault", competitor: "Not included", privaroWins: true },
+      { feature: "Policy engine", privaro: "Technical enforcement by role, organization, data and provider", competitor: "Strong privacy policy and workflow management", privaroWins: false },
+      { feature: "Audit trail for the EU AI Act", privaro: "Evidence from actual LLM interactions + blockchain certification", competitor: "Documentation and assessment records", privaroWins: true },
+      { feature: "Multi-provider proxy", privaro: "OpenAI, Anthropic, Gemini and Azure OpenAI", competitor: "Not included", privaroWins: true },
+      { feature: "MCP server for AI agents", privaro: "Included", competitor: "Not included", privaroWins: true },
+      { feature: "Regulatory documentation / DPIA / RoPA", privaro: "Not the focus — complements OneTrust", competitor: "Core capability", privaroWins: false },
+      { feature: "Deployment", privaro: "SaaS, self-hosted, hybrid", competitor: "Enterprise SaaS", privaroWins: false },
+      { feature: "Time to production", privaro: "Minutes with a drop-in proxy", competitor: "Enterprise implementation", privaroWins: true },
+      { feature: "Starting price", privaro: "€150/mo", competitor: "Contact sales", privaroWins: true },
+    ],
+    bestFor: {
+      privaro: [
+        "Teams that need technical proof of what each LLM actually processed",
+        "Organizations that must detect and protect PII before it reaches an AI provider",
+        "Multi-provider AI products and agents requiring runtime policy enforcement",
+        "DPOs who need interaction-level evidence for audits and assessments",
+      ],
+      competitor: [
+        "Privacy teams managing DPIAs and records of processing activities",
+        "Organizations centralizing consent, data mapping and regulatory workflows",
+        "Enterprises coordinating privacy documentation across many business units",
+      ],
+    },
+    faq: [
+      {
+        q: "Does Privaro replace OneTrust?",
+        a: "No. Privaro does not manage DPIAs or consent. It generates the technical evidence a DPO needs to complete those records with real data about how AI is being used and what sensitive information was processed.",
+      },
+      {
+        q: "Why do I need Privaro if our record of processing is already in OneTrust?",
+        a: "A documentary record does not prove what a model actually processed. Privaro records each prompt and response, detected entities, policy decisions and protection actions — the precise evidence gap an AEPD or EU AI Act auditor may identify.",
+      },
+      {
+        q: "Can Privaro evidence feed our OneTrust privacy workflows?",
+        a: "Yes. Privaro provides the interaction-level audit evidence that can support DPIAs, records of processing and ongoing AI risk reviews managed in OneTrust.",
+      },
+    ],
+  },
 ];
 
 export const getComparisonBySlug = (slug: string) =>
