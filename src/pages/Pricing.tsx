@@ -465,27 +465,51 @@ export default function Pricing() {
                     className={`w-full mb-7 ${plan.highlight ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""}`}
                     asChild
                   >
-                    <Link
-                      to={plan.ctaHref}
-                      onClick={() => {
-                        trackEvent("select_plan", {
-                          plan: plan.key,
-                          billing_period: annual ? "annual" : "monthly",
-                          value: price ?? 0,
-                          currency: "EUR",
-                        });
-                        // GA4 conversion event
-                        window.gtag?.('event', 'begin_checkout', {
-                          event_category: 'ecommerce',
-                          currency: 'EUR',
-                          value: price ?? 0,
-                          items: [{ item_name: plan.name }],
-                        });
-                      }}
-                    >
-                      {plan.cta}
-                      {plan.ctaVariant === "default" && <ArrowRight className="w-3.5 h-3.5 ml-1.5" />}
-                    </Link>
+                    {plan.ctaHref.startsWith("mailto:") ? (
+                      <a
+                        href={plan.ctaHref}
+                        onClick={() => {
+                          trackEvent("select_plan", {
+                            plan: plan.key,
+                            billing_period: annual ? "annual" : "monthly",
+                            value: price ?? 0,
+                            currency: "EUR",
+                          });
+                          // GA4 conversion event
+                          window.gtag?.('event', 'begin_checkout', {
+                            event_category: 'ecommerce',
+                            currency: 'EUR',
+                            value: price ?? 0,
+                            items: [{ item_name: plan.name }],
+                          });
+                        }}
+                      >
+                        {plan.cta}
+                        {plan.ctaVariant === "default" && <ArrowRight className="w-3.5 h-3.5 ml-1.5" />}
+                      </a>
+                    ) : (
+                      <Link
+                        to={plan.ctaHref}
+                        onClick={() => {
+                          trackEvent("select_plan", {
+                            plan: plan.key,
+                            billing_period: annual ? "annual" : "monthly",
+                            value: price ?? 0,
+                            currency: "EUR",
+                          });
+                          // GA4 conversion event
+                          window.gtag?.('event', 'begin_checkout', {
+                            event_category: 'ecommerce',
+                            currency: 'EUR',
+                            value: price ?? 0,
+                            items: [{ item_name: plan.name }],
+                          });
+                        }}
+                      >
+                        {plan.cta}
+                        {plan.ctaVariant === "default" && <ArrowRight className="w-3.5 h-3.5 ml-1.5" />}
+                      </Link>
+                    )}
                   </Button>
 
                   <div className="border-t border-border pt-6 flex-1">
