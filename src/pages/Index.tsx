@@ -63,6 +63,16 @@ const Index = () => {
               loading="lazy"
             />
           </a>
+          <a href="https://alternativeto.net/software/privaro-ai/about/?utm_source=badge&utm_medium=referral" target="_blank" rel="noopener noreferrer">
+            <img
+              src="/alternativeto-badge.svg"
+              alt="Privaro.ai | AlternativeTo"
+              width="171"
+              height="58"
+              className="inline-block max-w-full h-auto"
+              loading="lazy"
+            />
+          </a>
         </section>
         <Footer />
       </Suspense>
