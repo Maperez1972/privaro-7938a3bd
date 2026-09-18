@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Minus, ChevronDown, ChevronUp, Zap, Shield, Building2, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
