@@ -65,7 +65,7 @@ const Index = () => {
           </a>
           <a href="https://alternativeto.net/software/privaro-ai/about/?utm_source=badge&utm_medium=referral" target="_blank" rel="noopener noreferrer">
             <img
-              src="https://alternativeto.net/static/badges/badge-compact-dark.svg"
+              src="/alternativeto-badge.svg"
               alt="Privaro.ai | AlternativeTo"
               width="171"
               height="58"
