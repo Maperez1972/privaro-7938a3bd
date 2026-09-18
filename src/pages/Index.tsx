@@ -4,6 +4,8 @@ import Navbar from "@/components/Navbar";
 import Seo from "@/components/Seo";
 import HeroSection from "@/components/HeroSection";
 
+import LiveDemoTeaser from "@/components/LiveDemoTeaser";
+
 const ProblemSection = lazy(() => import("@/components/ProblemSection"));
 // Hidden until the demo video is recorded. Re-add to restore the 16:9 slot:
 // const DemoVideoSection = lazy(() => import("@/components/DemoVideoSection"));
@@ -37,6 +39,7 @@ const Index = () => {
       <Seo title="AI Governance Platform for LLM Privacy | Privaro" description="Privaro is the AI governance platform that detects PII, masks prompts and responses, and audits every LLM interaction. GDPR & EU AI Act ready." path="/" />
       <Navbar />
       <HeroSection />
+      <LiveDemoTeaser />
       <Suspense fallback={null}>
         <ProblemSection />
         <SolutionSection />
