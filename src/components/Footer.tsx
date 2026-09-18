@@ -35,7 +35,7 @@ const Footer = () => {
             AI Agents
           </a>
         </div>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-4 sm:gap-8">
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Compare
           </span>
