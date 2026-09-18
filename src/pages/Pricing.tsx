@@ -60,15 +60,15 @@ const COPY = {
     ctaBadge: "Prueba gratuita 14 días",
     ctaTitle: "¿Dudas sobre qué plan encaja?",
     ctaBody: "Si estás en fase de evaluación o buscas validar el producto en un entorno real antes de comprometerte, hablamos directamente. Sin decks, sin demos enlatadas.",
-    ctaPrimary: "Empezar con Pro gratis",
+    ctaPrimary: "Probar Business gratis 14 días",
     ctaSecondary: "Hacer el AI Risk Assessment",
-    ctaFoot: "Sin tarjeta de crédito · Sin compromiso · Cancela cuando quieras",
+    ctaFoot: "Sin tarjeta de crédito durante el trial · Pago solo si decides continuar · Cancela cuando quieras",
     plans: [
       {
         key: "starter" as PlanKey, icon: Zap, name: "Tier 1 — Starter",
         monthlyPrice: 150, annualPrice: 120,
-        desc: "Para equipos pequeños que empiezan a usar LLMs con datos de clientes.",
-        cta: "Empezar gratis 14 días", ctaVariant: "outline" as const, ctaHref: "/auth", highlight: false,
+        desc: "Para equipos pequeños que empiezan a usar LLMs con datos de clientes. Sin tarjeta de crédito.",
+        cta: "Probar gratis 14 días", ctaVariant: "outline" as const, ctaHref: "/auth", highlight: false,
         features: [
           "100.000 requests / mes",
           "Detección PII: email, teléfono, nombre, NIF/NIE",
@@ -89,8 +89,8 @@ const COPY = {
       {
         key: "pro" as PlanKey, icon: Shield, name: "Tier 3 — Business", badge: "Plan de partida",
         monthlyPrice: 400, annualPrice: 320,
-        desc: "Plan de partida recomendado para SaaS y equipos con obligaciones GDPR activas.",
-        cta: "Empezar gratis 14 días", ctaVariant: "default" as const, ctaHref: "/auth", highlight: true,
+        desc: "Plan de partida recomendado para SaaS y equipos con obligaciones GDPR activas. Sin tarjeta de crédito.",
+        cta: "Probar gratis 14 días", ctaVariant: "default" as const, ctaHref: "/auth", highlight: true,
         features: [
           "500.000 requests / mes",
           "PII customizable — entidades propias",
@@ -109,7 +109,7 @@ const COPY = {
         key: "enterprise" as PlanKey, icon: Building2, name: "Enterprise / ISV",
         monthlyPrice: null, annualPrice: null,
         desc: "Para volúmenes >5M req/mo, ISVs que embeben Privaro y compliance avanzado.",
-        cta: "Hablar con nosotros", ctaVariant: "outline" as const, ctaHref: "/partners", highlight: false,
+        cta: "Hablar con nosotros", ctaVariant: "outline" as const, ctaHref: "mailto:sales@privaro.ai", highlight: false,
         features: [
           "Volumen a medida (>5M requests/mes)",
           "White-label / embedded en tu producto",
@@ -192,15 +192,15 @@ const COPY = {
     ctaBadge: "14-day free trial",
     ctaTitle: "Not sure which plan fits?",
     ctaBody: "If you're evaluating or want to validate the product in a real environment before committing, let's talk directly. No decks, no canned demos.",
-    ctaPrimary: "Start with Pro for free",
+    ctaPrimary: "Try Business free for 14 days",
     ctaSecondary: "Run the AI Risk Assessment",
-    ctaFoot: "No credit card · No commitment · Cancel anytime",
+    ctaFoot: "No credit card during trial · Pay only if you decide to continue · Cancel anytime",
     plans: [
       {
         key: "starter" as PlanKey, icon: Zap, name: "Tier 1 — Starter",
         monthlyPrice: 150, annualPrice: 120,
-        desc: "For small teams starting to use LLMs with customer data.",
-        cta: "Start 14-day free trial", ctaVariant: "outline" as const, ctaHref: "/auth", highlight: false,
+        desc: "For small teams starting to use LLMs with customer data. No credit card required.",
+        cta: "Try free for 14 days", ctaVariant: "outline" as const, ctaHref: "/auth", highlight: false,
         features: [
           "100,000 requests / month",
           "PII detection: email, phone, name, national ID",
@@ -221,8 +221,8 @@ const COPY = {
       {
         key: "pro" as PlanKey, icon: Shield, name: "Tier 3 — Business", badge: "Recommended start",
         monthlyPrice: 400, annualPrice: 320,
-        desc: "Recommended starting plan for SaaS and teams with active GDPR obligations.",
-        cta: "Start 14-day free trial", ctaVariant: "default" as const, ctaHref: "/auth", highlight: true,
+        desc: "Recommended starting plan for SaaS and teams with active GDPR obligations. No credit card required.",
+        cta: "Try free for 14 days", ctaVariant: "default" as const, ctaHref: "/auth", highlight: true,
         features: [
           "500,000 requests / month",
           "Customizable PII — your own entities",
@@ -241,7 +241,7 @@ const COPY = {
         key: "enterprise" as PlanKey, icon: Building2, name: "Enterprise / ISV",
         monthlyPrice: null, annualPrice: null,
         desc: "For volumes >5M req/mo, ISVs embedding Privaro and advanced compliance.",
-        cta: "Talk to us", ctaVariant: "outline" as const, ctaHref: "/partners", highlight: false,
+        cta: "Talk to us", ctaVariant: "outline" as const, ctaHref: "mailto:sales@privaro.ai", highlight: false,
         features: [
           "Custom volume (>5M requests/month)",
           "White-label / embedded in your product",
@@ -465,27 +465,51 @@ export default function Pricing() {
                     className={`w-full mb-7 ${plan.highlight ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""}`}
                     asChild
                   >
-                    <Link
-                      to={plan.ctaHref}
-                      onClick={() => {
-                        trackEvent("select_plan", {
-                          plan: plan.key,
-                          billing_period: annual ? "annual" : "monthly",
-                          value: price ?? 0,
-                          currency: "EUR",
-                        });
-                        // GA4 conversion event
-                        window.gtag?.('event', 'begin_checkout', {
-                          event_category: 'ecommerce',
-                          currency: 'EUR',
-                          value: price ?? 0,
-                          items: [{ item_name: plan.name }],
-                        });
-                      }}
-                    >
-                      {plan.cta}
-                      {plan.ctaVariant === "default" && <ArrowRight className="w-3.5 h-3.5 ml-1.5" />}
-                    </Link>
+                    {plan.ctaHref.startsWith("mailto:") ? (
+                      <a
+                        href={plan.ctaHref}
+                        onClick={() => {
+                          trackEvent("select_plan", {
+                            plan: plan.key,
+                            billing_period: annual ? "annual" : "monthly",
+                            value: price ?? 0,
+                            currency: "EUR",
+                          });
+                          // GA4 conversion event
+                          window.gtag?.('event', 'begin_checkout', {
+                            event_category: 'ecommerce',
+                            currency: 'EUR',
+                            value: price ?? 0,
+                            items: [{ item_name: plan.name }],
+                          });
+                        }}
+                      >
+                        {plan.cta}
+                        {plan.ctaVariant === "default" && <ArrowRight className="w-3.5 h-3.5 ml-1.5" />}
+                      </a>
+                    ) : (
+                      <Link
+                        to={plan.ctaHref}
+                        onClick={() => {
+                          trackEvent("select_plan", {
+                            plan: plan.key,
+                            billing_period: annual ? "annual" : "monthly",
+                            value: price ?? 0,
+                            currency: "EUR",
+                          });
+                          // GA4 conversion event
+                          window.gtag?.('event', 'begin_checkout', {
+                            event_category: 'ecommerce',
+                            currency: 'EUR',
+                            value: price ?? 0,
+                            items: [{ item_name: plan.name }],
+                          });
+                        }}
+                      >
+                        {plan.cta}
+                        {plan.ctaVariant === "default" && <ArrowRight className="w-3.5 h-3.5 ml-1.5" />}
+                      </Link>
+                    )}
                   </Button>
 
                   <div className="border-t border-border pt-6 flex-1">
