@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ShieldCheck, Lock, FileCheck, Quote } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
+import octupusLogoAsset from "@/assets/octupus-logo.png.asset.json";
 
 const TestimonialSection = () => {
   const { t } = useLanguage();
@@ -10,8 +11,6 @@ const TestimonialSection = () => {
     { icon: ShieldCheck, key: "proof.badge2" },
     { icon: FileCheck, key: "proof.badge3" },
   ];
-  const initials = "SG";
-
   return (
     <section className="py-24 px-6 relative overflow-hidden">
       {/* Ambient glows */}
@@ -53,10 +52,12 @@ const TestimonialSection = () => {
 
             {/* Author meta */}
             <div className="flex flex-col items-center mb-12">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary/40 p-[2px] mb-4 shadow-lg shadow-primary/20">
-                <div className="w-full h-full rounded-full bg-card flex items-center justify-center">
-                  <span className="text-xl font-bold text-foreground">{initials}</span>
-                </div>
+              <div className="w-36 h-16 rounded-lg bg-background/80 border border-border px-4 mb-4 shadow-lg shadow-primary/10 flex items-center justify-center">
+                <img
+                  src={octupusLogoAsset.url}
+                  alt="Octupus"
+                  className="w-full h-auto max-h-10 object-contain"
+                />
               </div>
               <cite className="not-italic">
                 <span className="block text-lg font-bold text-foreground tracking-wide">
