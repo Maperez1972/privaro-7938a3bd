@@ -39,6 +39,7 @@ const Index = () => {
       <Seo title="AI Governance Platform for LLM Privacy | Privaro" description="Privaro is the AI governance platform that detects PII, masks prompts and responses, and audits every LLM interaction. GDPR & EU AI Act ready." path="/" />
       <Navbar />
       <HeroSection />
+      <LiveDemoTeaser />
       <Suspense fallback={null}>
         <ProblemSection />
         <SolutionSection />
