@@ -31,7 +31,7 @@ const LiveDemoTeaser = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             to="/demo"
-            onClick={() => trackEvent("demo_teaser_click", "engagement", "home_live_demo")}
+            onClick={() => trackEvent("demo_teaser_click", { event_category: "engagement", event_label: "home_live_demo" })}
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-md bg-primary text-primary-foreground font-semibold text-base hover:opacity-90 transition-opacity glow-border"
           >
             <PlayCircle className="w-5 h-5" />
