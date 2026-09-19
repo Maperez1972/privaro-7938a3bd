@@ -57,6 +57,8 @@ const TestimonialSection = () => {
                   src={octupusLogoAsset.url}
                   alt="Octupus"
                   className="w-full h-auto max-h-10 object-contain"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <cite className="not-italic">
