@@ -54,7 +54,7 @@ const Index = () => {
         <BetaSection />
         <section className="flex flex-col sm:flex-row items-center justify-center gap-4 py-4">
           <a href="https://theresanaiforthat.com/ai/privaro/?ref=featured&v=12784591" target="_blank" rel="nofollow">
-            <img width="150" src="https://media.theresanaiforthat.com/featured-on-taaft.png?width=600" alt="Featured on There's An AI For That" className="inline-block max-w-full h-auto" loading="lazy" />
+            <img width="150" src="https://media.theresanaiforthat.com/featured-on-taaft.png?width=600" alt="Featured on There's An AI For That" className="inline-block max-w-full h-auto" loading="lazy" decoding="async" />
           </a>
           <a href="https://www.producthunt.com/products/privaro?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-privaro-2" target="_blank" rel="noopener noreferrer">
             <img
@@ -64,6 +64,7 @@ const Index = () => {
               src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1252180&theme=dark&t=1789636604895"
               className="inline-block max-w-full h-auto"
               loading="lazy"
+              decoding="async"
             />
           </a>
           <a href="https://alternativeto.net/software/privaro-ai/about/?utm_source=badge&utm_medium=referral" target="_blank" rel="noopener noreferrer">
@@ -74,6 +75,7 @@ const Index = () => {
               height="58"
               className="inline-block max-w-full h-auto"
               loading="lazy"
+              decoding="async"
             />
           </a>
         </section>

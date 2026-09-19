@@ -12,7 +12,7 @@ const Footer = () => {
       <div className="max-w-6xl mx-auto flex flex-col gap-6">
         <div className="flex justify-center">
           <Link to="/" className="inline-block">
-            <img src={logoPrivaroAsset.url} alt="Privaro AI" className="h-7 w-auto" width={1983} height={231} />
+            <img src={logoPrivaroAsset.url} alt="Privaro AI" className="h-7 w-auto" loading="lazy" decoding="async" width={1983} height={231} />
           </Link>
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
