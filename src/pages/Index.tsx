@@ -67,6 +67,16 @@ const Index = () => {
               decoding="async"
             />
           </a>
+          <a href="https://launchnest.io/p/privaro" target="_blank" rel="noopener noreferrer" title="privaro.ai — Domain Rating by LaunchNest">
+            <img
+              alt="privaro.ai Domain Rating"
+              width="160"
+              src="https://launchnest.io/api/badge/dr?domain=privaro.ai&style=normal&shape=round&color=dark"
+              className="inline-block max-w-full h-auto"
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
           <a href="https://alternativeto.net/software/privaro-ai/about/?utm_source=badge&utm_medium=referral" target="_blank" rel="noopener noreferrer">
             <img
               src="/alternativeto-badge.svg"
