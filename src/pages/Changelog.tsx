@@ -202,79 +202,79 @@ const ENTRIES: Entry[] = [
   },
   {
     date: "2026-05-01",
-    versionKey: "changelog.v08.version",
-    titleKey: "changelog.v08.title",
-    descKey: "changelog.v08.desc",
+    version: "changelog.v08.version",
+    title: "changelog.v08.title",
+    desc: "changelog.v08.desc",
     tags: ["sdk", "feature"],
-    itemKeys: [
+    items: [
       "changelog.v08.i1",
       "changelog.v08.i2",
       "changelog.v08.i3",
       "changelog.v08.i4",
     ],
-  } as unknown as Entry,
+  }
   {
     date: "2026-04-15",
-    versionKey: "changelog.v07.version",
-    titleKey: "changelog.v07.title",
-    descKey: "changelog.v07.desc",
+    version: "changelog.v07.version",
+    title: "changelog.v07.title",
+    desc: "changelog.v07.desc",
     tags: ["feature", "security"],
-    itemKeys: [
+    items: [
       "changelog.v07.i1",
       "changelog.v07.i2",
       "changelog.v07.i3",
       "changelog.v07.i4",
     ],
-  } as unknown as Entry,
+  }
   {
     date: "2026-03-28",
-    versionKey: "changelog.v06.version",
-    titleKey: "changelog.v06.title",
-    descKey: "changelog.v06.desc",
+    version: "changelog.v06.version",
+    title: "changelog.v06.title",
+    desc: "changelog.v06.desc",
     tags: ["feature", "infra"],
-    itemKeys: [
+    items: [
       "changelog.v06.i1",
       "changelog.v06.i2",
       "changelog.v06.i3",
     ],
-  } as unknown as Entry,
+  }
   {
     date: "2026-03-10",
-    versionKey: "changelog.v05.version",
-    titleKey: "changelog.v05.title",
-    descKey: "changelog.v05.desc",
+    version: "changelog.v05.version",
+    title: "changelog.v05.title",
+    desc: "changelog.v05.desc",
     tags: ["feature", "security"],
-    itemKeys: [
+    items: [
       "changelog.v05.i1",
       "changelog.v05.i2",
       "changelog.v05.i3",
       "changelog.v05.i4",
     ],
-  } as unknown as Entry,
+  }
   {
     date: "2026-02-20",
-    versionKey: "changelog.v04.version",
-    titleKey: "changelog.v04.title",
-    descKey: "changelog.v04.desc",
+    version: "changelog.v04.version",
+    title: "changelog.v04.title",
+    desc: "changelog.v04.desc",
     tags: ["feature"],
-    itemKeys: [
+    items: [
       "changelog.v04.i1",
       "changelog.v04.i2",
       "changelog.v04.i3",
     ],
-  } as unknown as Entry,
+  }
   {
     date: "2026-02-01",
-    versionKey: "changelog.v03.version",
-    titleKey: "changelog.v03.title",
-    descKey: "changelog.v03.desc",
+    version: "changelog.v03.version",
+    title: "changelog.v03.title",
+    desc: "changelog.v03.desc",
     tags: ["infra", "security"],
-    itemKeys: [
+    items: [
       "changelog.v03.i1",
       "changelog.v03.i2",
       "changelog.v03.i3",
     ],
-  } as unknown as Entry,
+  }
 ];
 
 const TAG_STYLES: Record<Tag, string> = {
