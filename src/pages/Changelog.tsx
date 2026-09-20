@@ -212,7 +212,7 @@ const ENTRIES: Entry[] = [
       "changelog.v08.i3",
       "changelog.v08.i4",
     ],
-  }
+  },
   {
     date: "2026-04-15",
     version: "changelog.v07.version",
@@ -225,7 +225,7 @@ const ENTRIES: Entry[] = [
       "changelog.v07.i3",
       "changelog.v07.i4",
     ],
-  }
+  },
   {
     date: "2026-03-28",
     version: "changelog.v06.version",
@@ -237,7 +237,7 @@ const ENTRIES: Entry[] = [
       "changelog.v06.i2",
       "changelog.v06.i3",
     ],
-  }
+  },
   {
     date: "2026-03-10",
     version: "changelog.v05.version",
@@ -250,7 +250,7 @@ const ENTRIES: Entry[] = [
       "changelog.v05.i3",
       "changelog.v05.i4",
     ],
-  }
+  },
   {
     date: "2026-02-20",
     version: "changelog.v04.version",
@@ -262,7 +262,7 @@ const ENTRIES: Entry[] = [
       "changelog.v04.i2",
       "changelog.v04.i3",
     ],
-  }
+  },
   {
     date: "2026-02-01",
     version: "changelog.v03.version",
