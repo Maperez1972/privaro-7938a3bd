@@ -23,6 +23,7 @@ const Footer = () => {
           <a href="/ai-compliance-software" className={linkClass}>AI Compliance Software</a>
           <a href="/enterprise-ai-security" className={linkClass}>Enterprise AI Security</a>
           <a href="/pii-detection-api" className={linkClass}>PII Detection API</a>
+          <a href="/rag-pii-protection" className={linkClass}>RAG Protection</a>
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">

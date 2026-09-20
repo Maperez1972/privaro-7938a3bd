@@ -23,6 +23,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.howItWorks": "How It Works",
     "nav.security": "Security",
     "nav.ragProtection": "RAG Protection",
+    "nav.partners": "Partners",
     "nav.pricing": "Pricing",
     "nav.usecases": "Use Cases",
     "nav.usecases.legal": "Legal",
