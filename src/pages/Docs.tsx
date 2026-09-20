@@ -252,6 +252,20 @@ const response = await openai.chat.completions.create({
               />
             </div>
           </motion.div>
+
+          {/* RAG note */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
+            className="flex gap-4 pt-2">
+            <div className="flex-1 rounded-xl border border-primary/20 bg-primary/5 p-4">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {t("docs.rag.note.text1")}{" "}
+                <Link to="/rag-pii-protection" className="text-primary underline underline-offset-2 font-medium">
+                  {t("docs.rag.note.linkText")}
+                </Link>{" "}
+                {t("docs.rag.note.text2")}
+              </p>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -298,6 +312,9 @@ const response = await openai.chat.completions.create({
                 { method: "POST", path: "/relay/stream", descKey: "docs.ep6.desc" },
                 { method: "POST", path: "/proxy/protect-output", descKey: "docs.ep7.desc" },
                 { method: "POST", path: "/proxy/protect-document", descKey: "docs.ep8.desc" },
+                { method: "POST", path: "/proxy/protect-document/upload", descKey: "docs.ep8b.desc" },
+                { method: "GET",  path: "/proxy/protect-document/{job_id}", descKey: "docs.ep8c.desc" },
+                { method: "POST", path: "/proxy/protect-retrieval", descKey: "docs.ep10.desc" },
                 { method: "POST", path: "/proxy/protect-image-document", descKey: "docs.ep9.desc" },
                 { method: "GET",  path: "/health", descKey: "docs.ep5.desc" },
               ].map(({ method, path, descKey }) => (
