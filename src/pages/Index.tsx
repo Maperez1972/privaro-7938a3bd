@@ -10,6 +10,7 @@ const ProblemSection = lazy(() => import("@/components/ProblemSection"));
 // Hidden until the demo video is recorded. Re-add to restore the 16:9 slot:
 // const DemoVideoSection = lazy(() => import("@/components/DemoVideoSection"));
 const SolutionSection = lazy(() => import("@/components/SolutionSection"));
+const RagTeaserStrip = lazy(() => import("@/components/RagTeaserStrip"));
 const DashboardMockupSection = lazy(() => import("@/components/DashboardMockupSection"));
 const CostOptimizationSection = lazy(() => import("@/components/CostOptimizationSection"));
 const UseCasesSection = lazy(() => import("@/components/UseCasesSection"));
@@ -43,6 +44,7 @@ const Index = () => {
       <Suspense fallback={null}>
         <ProblemSection />
         <SolutionSection />
+        <RagTeaserStrip />
         <DashboardMockupSection />
         <CostOptimizationSection />
         <UseCasesSection />

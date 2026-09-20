@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Globe, ChevronDown, Scale, HeartPulse, BarChart3, Bot, Menu, AlertTriangle, ShieldCheck, Layers, Lock, BookOpen, FileText, Sparkles } from "lucide-react";
+import { Globe, ChevronDown, Scale, HeartPulse, BarChart3, Bot, Menu, AlertTriangle, ShieldCheck, Layers, Lock, BookOpen, FileText, Sparkles, FileStack } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -17,6 +17,7 @@ const productItems: MenuItem[] = [
   { icon: AlertTriangle, labelKey: "nav.problem", href: "/#problem", iconColor: "text-rose-400" },
   { icon: ShieldCheck, labelKey: "nav.solution", href: "/#solution", iconColor: "text-primary" },
   { icon: Layers, labelKey: "nav.howItWorks", href: "/#how-it-works", iconColor: "text-sky-400" },
+  { icon: FileStack, labelKey: "nav.ragProtection", href: "/rag-pii-protection", iconColor: "text-amber-400" },
   { icon: Lock, labelKey: "nav.security", href: "/security", iconColor: "text-emerald-400" },
 ];
 
@@ -140,7 +141,7 @@ const Navbar = () => {
         </Link>
 
         <div ref={menuRef} className="hidden md:flex items-center gap-5 lg:gap-6">
-          {renderDropdown("product", t("nav.product"), productItems, location.pathname === "/security")}
+          {renderDropdown("product", t("nav.product"), productItems, ["/security", "/rag-pii-protection"].includes(location.pathname))}
           {renderDropdown("usecases", t("nav.usecases"), useCases, isUseCasePage)}
           {renderDropdown("resources", t("nav.resources"), resourcesItems, isResourcePage)}
 
