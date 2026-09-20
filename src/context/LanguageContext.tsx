@@ -4226,7 +4226,15 @@ const translations: Record<Language, Record<string, string>> = {
   },
 };
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+// Keep a single context instance even if this module is duplicated by HMR,
+// otherwise consumers read a different context than the provider writes to.
+const globalScope = globalThis as unknown as {
+  __privaroLanguageContext?: React.Context<LanguageContextType | undefined>;
+};
+const LanguageContext =
+  globalScope.__privaroLanguageContext ??
+  createContext<LanguageContextType | undefined>(undefined);
+globalScope.__privaroLanguageContext = LanguageContext;
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [lang, setLangState] = useState<Language>(detectInitialLang);
