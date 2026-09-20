@@ -4229,7 +4229,7 @@ const translations: Record<Language, Record<string, string>> = {
 // Keep a single context instance even if this module is duplicated by HMR,
 // otherwise consumers read a different context than the provider writes to.
 const globalScope = globalThis as unknown as {
-  __privaroLanguageContext?: React.Context<LanguageContextType | undefined>;
+  __privaroLanguageContext?: Context<LanguageContextType | undefined>;
 };
 const LanguageContext =
   globalScope.__privaroLanguageContext ??
