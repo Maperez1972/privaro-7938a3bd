@@ -101,6 +101,17 @@ const Index = () => {
               decoding="async"
             />
           </a>
+          <a href="https://www.uneed.best/tool/privaro-ai" target="_blank" rel="noopener noreferrer">
+            <img
+              src="https://www.uneed.best/EMBED3.png"
+              alt="Launching Soon on Uneed"
+              width="250"
+              height="60"
+              className="inline-block max-w-full h-auto"
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
         </section>
         <Footer />
       </Suspense>
