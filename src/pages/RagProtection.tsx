@@ -6,28 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
 
-const faqs = [
-  {
-    q: "What happens with documents larger than 20,000 characters?",
-    a: "Privaro Ingest processes them asynchronously: the request returns immediately with a job_id and an estimated time, and a separate worker process handles detection and tokenization in the background — deliberately isolated from the API that serves live traffic. Poll GET /v1/proxy/protect-document/{job_id} for the result.",
-  },
-  {
-    q: "Why does Retrieval Guard fail closed instead of failing open?",
-    a: "protect-document (ingesting one document you already trust as a whole) fails open on a detection error, returning the original text unmodified. protect-retrieval is different: it processes a batch of unrelated chunks in one call, so a detection failure on one chunk must never let that chunk's raw, unprotected text quietly reach the LLM just because its neighbours in the same batch succeeded. That chunk is returned in blocked_chunks instead.",
-  },
-  {
-    q: "Does access control require setting up roles for every chunk?",
-    a: "No — it's opt-in per chunk. If a chunk has no allowed_roles set, it's treated as visible to any requester, matching how most vector stores behave today. Tag only the chunks that actually need restricting.",
-  },
-  {
-    q: "Does this replace my vector store?",
-    a: "No. Privaro doesn't index, embed or search anything — you keep using Pinecone, Weaviate, pgvector or whatever you already run. Privaro sits before indexing (Ingest) and before the retrieved chunks reach your prompt (Retrieval Guard).",
-  },
-  {
-    q: "Is the file upload limited to certain languages?",
-    a: "No — text extraction is format-based, not language-based. PII detection itself runs the same hybrid regex + NLP engine used across Privaro, covering English, Spanish, French, German, Italian and Portuguese out of the box.",
-  },
-];
+const faqKeys = [1, 2, 3, 4, 5] as const;
 
 const RagProtection = () => {
   const { t } = useLanguage();
