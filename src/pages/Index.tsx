@@ -90,6 +90,17 @@ const Index = () => {
               decoding="async"
             />
           </a>
+          <a href="https://www.toolify.ai/tool/privaro-ai/?ref=embed" target="_blank" rel="noopener noreferrer" title="Privaro.ai: Protect sensitive data and govern how your organization uses AI.">
+            <img
+              src="https://cdn.toolify.ai/featured_dark.svg"
+              alt="Privaro.ai: Protect sensitive data and govern how your organization uses AI."
+              width="250"
+              height="60"
+              className="inline-block max-w-full h-auto"
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
         </section>
         <Footer />
       </Suspense>
