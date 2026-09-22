@@ -25,10 +25,10 @@ const RagProtection = () => {
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      mainEntity: faqs.map(({ q, a }) => ({
+      mainEntity: faqKeys.map((i) => ({
         "@type": "Question",
-        name: q,
-        acceptedAnswer: { "@type": "Answer", text: a },
+        name: t(`ragProtection.faq.q${i}`),
+        acceptedAnswer: { "@type": "Answer", text: t(`ragProtection.faq.a${i}`) },
       })),
     },
   ];

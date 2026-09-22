@@ -171,8 +171,8 @@ const ENTRIES: Entry[] = [
     tags: ["feature", "fix", "security"],
     items: [
       {
-        en: "✨ AI Risk Assessment page — /ai-risk-assessment. New conversion landing. Lead capture with role, company size and AI tools fields. Leads stored in demo_requests and notified to info@icommunity.io.",
-        es: "✨ Página AI Risk Assessment — /ai-risk-assessment. Nueva landing de conversión. Captura de leads con campos de rol, tamaño de empresa y herramientas de IA. Leads almacenados en demo_requests y notificados a info@icommunity.io.",
+        en: "✨ AI Risk Assessment page — /ai-risk-assessment. New conversion landing. Lead capture with role, company size and AI tools fields. Leads stored in demo_requests and notified to contact@privaro.ai.",
+        es: "✨ Página AI Risk Assessment — /ai-risk-assessment. Nueva landing de conversión. Captura de leads con campos de rol, tamaño de empresa y herramientas de IA. Leads almacenados en demo_requests y notificados a contact@privaro.ai.",
       },
       {
         en: "✨ Admin Leads dashboard — /app/admin/leads. View, filter and act on leads from AI Risk Assessment and Beta forms. Detail drawer with mailto actions. Accessible to admin and DPO roles.",
