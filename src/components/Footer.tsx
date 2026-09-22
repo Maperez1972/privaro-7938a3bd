@@ -63,6 +63,9 @@ const Footer = () => {
           <a href="/security" className={linkClass}>Security</a>
           <a href="/status" className={linkClass}>{t("footer.status")}</a>
           <a href="mailto:contact@privaro.ai" className={linkClass}>{t("footer.contact")}</a>
+          <button type="button" onClick={openConsentSettings} className={linkClass}>
+            Cookies
+          </button>
         </div>
         <div className="flex items-center justify-center gap-4">
           <a
