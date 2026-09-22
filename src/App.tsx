@@ -112,6 +112,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <AnalyticsPageTracker />
+            <CookieConsent />
             <Suspense fallback={<div className="min-h-screen bg-background" />}>
             <Routes>
               {/* Landing pages */}
