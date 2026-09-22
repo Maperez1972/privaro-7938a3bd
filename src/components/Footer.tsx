@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import logoPrivaroAsset from "@/assets/privaro-ai-logo.png.asset.json";
 import { COMPARISONS } from "@/content/comparisons";
+import { openConsentSettings } from "@/lib/consent";
 
 const Footer = () => {
   const { t } = useLanguage();
