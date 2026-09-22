@@ -242,18 +242,21 @@ Content-Type: application/json
       {/* FAQ */}
       <section className="py-20 bg-surface/30 border-y border-border">
         <div className="max-w-3xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">Frequently asked questions</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">{t("ragProtection.faq.title")}</h2>
           <Accordion type="single" collapsible className="w-full">
-            {faqs.map(({ q, a }) => (
-              <AccordionItem key={q} value={q}>
-                <AccordionTrigger className="text-left text-base font-semibold hover:no-underline">
-                  {q}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground leading-relaxed">
-                  {a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
+            {faqKeys.map((i) => {
+              const q = t(`ragProtection.faq.q${i}`);
+              return (
+                <AccordionItem key={q} value={q}>
+                  <AccordionTrigger className="text-left text-base font-semibold hover:no-underline">
+                    {q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground leading-relaxed">
+                    {t(`ragProtection.faq.a${i}`)}
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
           </Accordion>
         </div>
       </section>
