@@ -1,4 +1,4 @@
-import { getReferralSourceName } from "@/lib/referral-sources";
+import { getReferralSourceName, resolveAttribution } from "@/lib/referral-sources";
 
 declare global {
   interface Window {
