@@ -40,7 +40,7 @@
       // Directory attribution: map ?via=<slug> to a GA4 campaign source.
       var PRIVARO_VIA_SOURCES = {
         topaitools: 'TopAI.tools',
-        taaft: 'TAAFT',
+        taaft: "There's An AI For That",
         alternativeto: 'AlternativeTo',
         toolify: 'Toolify',
         futuretools: 'FutureTools',
@@ -64,16 +64,25 @@
           privaroConfig.campaign_medium = 'referral';
           privaroConfig.campaign_name = 'directory_listing';
           privaroConfig.campaign_content = viaSlug;
+          // Custom dimensions: attach to the initial page_view and to every
+          // subsequent event in the session via gtag('set').
+          privaroConfig.via_source = viaSlug;
+          privaroConfig.directory_platform = viaName;
           window.privaroVia = { slug: viaSlug, name: viaName };
         }
       } catch (e) {}
       gtag('config', 'G-5ELLFF522G', privaroConfig);
       if (window.privaroVia) {
+        gtag('set', {
+          via_source: window.privaroVia.slug,
+          directory_platform: window.privaroVia.name
+        });
         gtag('event', 'directory_referral', {
           via_source: window.privaroVia.slug,
           directory_platform: window.privaroVia.name
         });
       }
+
     </script>
 
     <meta charset="UTF-8" />

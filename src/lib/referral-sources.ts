@@ -5,7 +5,7 @@
  */
 export const REFERRAL_SOURCES: Record<string, string> = {
   topaitools: "TopAI.tools",
-  taaft: "TAAFT",
+  taaft: "There's An AI For That",
   alternativeto: "AlternativeTo",
   toolify: "Toolify",
   futuretools: "FutureTools",
