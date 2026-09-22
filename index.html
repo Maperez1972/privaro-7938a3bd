@@ -8,8 +8,46 @@
       function gtag(){dataLayer.push(arguments);}
       window.gtag = gtag;
       gtag('js', new Date());
-      gtag('config', 'G-5ELLFF522G');
+
+      // Directory attribution: map ?via=<slug> to a GA4 campaign source.
+      var PRIVARO_VIA_SOURCES = {
+        topaitools: 'TopAI.tools',
+        taaft: 'TAAFT',
+        alternativeto: 'AlternativeTo',
+        toolify: 'Toolify',
+        futuretools: 'FutureTools',
+        producthunt: 'Product Hunt',
+        g2: 'G2',
+        bestai: 'Best-AI.org',
+        launchnest: 'LaunchNest'
+      };
+      var privaroConfig = { send_page_view: true };
+      try {
+        var viaParam = new URLSearchParams(window.location.search).get('via');
+        var viaSlug = viaParam ? viaParam.toLowerCase().trim() : null;
+        if (viaSlug) {
+          sessionStorage.setItem('privaro_via', viaSlug);
+        } else {
+          viaSlug = sessionStorage.getItem('privaro_via');
+        }
+        if (viaSlug) {
+          var viaName = PRIVARO_VIA_SOURCES[viaSlug] || viaSlug;
+          privaroConfig.campaign_source = viaName;
+          privaroConfig.campaign_medium = 'referral';
+          privaroConfig.campaign_name = 'directory_listing';
+          privaroConfig.campaign_content = viaSlug;
+          window.privaroVia = { slug: viaSlug, name: viaName };
+        }
+      } catch (e) {}
+      gtag('config', 'G-5ELLFF522G', privaroConfig);
+      if (window.privaroVia) {
+        gtag('event', 'directory_referral', {
+          via_slug: window.privaroVia.slug,
+          platform: window.privaroVia.name
+        });
+      }
     </script>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.png" type="image/png" />
