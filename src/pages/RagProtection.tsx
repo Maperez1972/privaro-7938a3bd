@@ -206,7 +206,7 @@ Content-Type: application/json
       {/* Integrations */}
       <section className="py-20 bg-surface/30 border-y border-border">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-8">Works with the RAG stack you already have</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-8">{t("ragProtection.integrations.title")}</h2>
           <div className="flex flex-wrap items-center justify-center gap-3">
             {["LangChain", "CrewAI", "OpenAI Agents SDK", "n8n", "Python SDK", "JS / TS SDK"].map((tool) => (
               <div key={tool} className="px-4 py-2 rounded-md border border-border bg-background text-sm font-medium">
@@ -215,7 +215,7 @@ Content-Type: application/json
             ))}
           </div>
           <p className="text-muted-foreground text-sm mt-6">
-            Privaro doesn't index, embed or search anything — it protects the text going in and coming out of whichever vector store you already run.
+            {t("ragProtection.integrations.desc")}
           </p>
         </div>
       </section>
