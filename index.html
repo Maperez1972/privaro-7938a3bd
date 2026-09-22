@@ -42,8 +42,8 @@
       gtag('config', 'G-5ELLFF522G', privaroConfig);
       if (window.privaroVia) {
         gtag('event', 'directory_referral', {
-          via_slug: window.privaroVia.slug,
-          platform: window.privaroVia.name
+          via_source: window.privaroVia.slug,
+          directory_platform: window.privaroVia.name
         });
       }
     </script>
