@@ -37,7 +37,8 @@
 
       gtag('js', new Date());
 
-      // Directory attribution: map ?via=<slug> to a GA4 campaign source.
+      // Directory attribution: map ?via=<slug> (or a registered alternative
+      // parameter) to a GA4 campaign source.
       var PRIVARO_VIA_SOURCES = {
         topaitools: 'TopAI.tools',
         taaft: "There's An AI For That",
@@ -47,28 +48,53 @@
         producthunt: 'Product Hunt',
         g2: 'G2',
         bestai: 'Best-AI.org',
-        launchnest: 'LaunchNest'
+        launchnest: 'LaunchNest',
+        'uneed.best': 'Uneed'
       };
+      // Directories with their own referral format instead of ?via=<slug>.
+      // Add a new entry here (and in ALT_ATTRIBUTION_PARAMS in
+      // src/lib/referral-sources.ts) to support another directory.
+      var PRIVARO_ALT_PARAMS = [
+        { param: 'ref', contentParam: 'ref_type' } // Uneed: ?ref=uneed.best&ref_type=adv
+      ];
       var privaroConfig = { send_page_view: true };
       try {
-        var viaParam = new URLSearchParams(window.location.search).get('via');
-        var viaSlug = viaParam ? viaParam.toLowerCase().trim() : null;
+        var privaroQs = new URLSearchParams(window.location.search);
+        var viaSlug = null;
+        var viaContent = null;
+        var viaParam = privaroQs.get('via');
+        if (viaParam) {
+          viaSlug = viaParam.toLowerCase().trim();
+          viaContent = viaSlug;
+        } else {
+          for (var altIdx = 0; altIdx < PRIVARO_ALT_PARAMS.length; altIdx++) {
+            var altParam = PRIVARO_ALT_PARAMS[altIdx];
+            var altValue = privaroQs.get(altParam.param);
+            if (altValue) {
+              viaSlug = altValue.toLowerCase().trim();
+              viaContent = (altParam.contentParam && privaroQs.get(altParam.contentParam)) || viaSlug;
+              break;
+            }
+          }
+        }
         if (viaSlug) {
           sessionStorage.setItem('privaro_via', viaSlug);
+          sessionStorage.setItem('privaro_via_content', viaContent);
         } else {
           viaSlug = sessionStorage.getItem('privaro_via');
+          viaContent = sessionStorage.getItem('privaro_via_content') || viaSlug;
         }
         if (viaSlug) {
           var viaName = PRIVARO_VIA_SOURCES[viaSlug] || viaSlug;
           privaroConfig.campaign_source = viaName;
           privaroConfig.campaign_medium = 'referral';
           privaroConfig.campaign_name = 'directory_listing';
-          privaroConfig.campaign_content = viaSlug;
+          privaroConfig.campaign_content = viaContent;
           // Custom dimensions: attach to the initial page_view and to every
           // subsequent event in the session via gtag('set').
           privaroConfig.via_source = viaSlug;
           privaroConfig.directory_platform = viaName;
-          window.privaroVia = { slug: viaSlug, name: viaName };
+          window.privaroVia = { slug: viaSlug, name: viaName, content: viaContent };
         }
       } catch (e) {}
       gtag('config', 'G-5ELLFF522G', privaroConfig);
