@@ -1,4 +1,4 @@
-import { getReferralSourceName } from "@/lib/referral-sources";
+import { getReferralSourceName, resolveAttribution } from "@/lib/referral-sources";
 
 declare global {
   interface Window {
@@ -8,19 +8,24 @@ declare global {
 }
 
 const VIA_STORAGE_KEY = "privaro_via";
+const VIA_CONTENT_STORAGE_KEY = "privaro_via_content";
 
 /**
- * Reads the `?via=<slug>` attribution for the current session. The slug is
- * captured on the landing hit (inline script in index.html) and persisted in
+ * Reads the directory attribution for the current session (`?via=<slug>` or any
+ * registered alternative parameter such as Uneed's `?ref=...&ref_type=...`).
+ * Captured on the landing hit (inline script in index.html) and persisted in
  * sessionStorage so every later SPA navigation keeps reporting it.
  */
 export function getViaParams(): Record<string, string> {
   if (typeof window === "undefined") return {};
   try {
-    const fromUrl = new URLSearchParams(window.location.search).get("via");
-    const slug = (fromUrl ?? sessionStorage.getItem(VIA_STORAGE_KEY) ?? "").toLowerCase().trim();
+    const resolved = resolveAttribution(window.location.search);
+    if (resolved) {
+      sessionStorage.setItem(VIA_STORAGE_KEY, resolved.slug);
+      sessionStorage.setItem(VIA_CONTENT_STORAGE_KEY, resolved.content);
+    }
+    const slug = resolved?.slug ?? sessionStorage.getItem(VIA_STORAGE_KEY) ?? "";
     if (!slug) return {};
-    if (fromUrl) sessionStorage.setItem(VIA_STORAGE_KEY, slug);
     return {
       via_source: slug,
       directory_platform: getReferralSourceName(slug) ?? slug,
