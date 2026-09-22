@@ -7,6 +7,27 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       window.gtag = gtag;
+
+      // Google Consent Mode v2 — denied by default until the visitor decides.
+      var PRIVARO_CONSENT_KEY = 'privaro-consent-v1';
+      var privaroStoredConsent = null;
+      try {
+        var rawConsent = localStorage.getItem(PRIVARO_CONSENT_KEY);
+        if (rawConsent) privaroStoredConsent = JSON.parse(rawConsent);
+      } catch (e) {}
+      var privaroGranted = privaroStoredConsent && privaroStoredConsent.analytics_storage === 'granted';
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: privaroGranted ? 'granted' : 'denied',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+        wait_for_update: 500
+      });
+      gtag('set', 'url_passthrough', true);
+      gtag('set', 'ads_data_redaction', true);
+
       gtag('js', new Date());
 
       // Directory attribution: map ?via=<slug> to a GA4 campaign source.

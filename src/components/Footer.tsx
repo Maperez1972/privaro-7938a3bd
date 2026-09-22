@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import logoPrivaroAsset from "@/assets/privaro-ai-logo.png.asset.json";
 import { COMPARISONS } from "@/content/comparisons";
+import { openConsentSettings } from "@/lib/consent";
 
 const Footer = () => {
   const { t } = useLanguage();
@@ -63,6 +64,9 @@ const Footer = () => {
           <a href="/security" className={linkClass}>Security</a>
           <a href="/status" className={linkClass}>{t("footer.status")}</a>
           <a href="mailto:contact@privaro.ai" className={linkClass}>{t("footer.contact")}</a>
+          <button type="button" onClick={openConsentSettings} className={linkClass}>
+            Cookies
+          </button>
         </div>
         <div className="flex items-center justify-center gap-4">
           <a

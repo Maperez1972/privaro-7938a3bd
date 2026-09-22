@@ -9,6 +9,7 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import LangSync from "@/components/LangSync";
 import { pageview } from "@/lib/analytics";
+import CookieConsent from "@/components/CookieConsent";
 
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Privacy = lazy(() => import("./pages/Privacy"));
@@ -112,6 +113,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <AnalyticsPageTracker />
+            <CookieConsent />
             <Suspense fallback={<div className="min-h-screen bg-background" />}>
             <Routes>
               {/* Landing pages */}
