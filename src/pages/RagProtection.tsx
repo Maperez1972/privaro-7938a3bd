@@ -6,28 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
 
-const faqs = [
-  {
-    q: "What happens with documents larger than 20,000 characters?",
-    a: "Privaro Ingest processes them asynchronously: the request returns immediately with a job_id and an estimated time, and a separate worker process handles detection and tokenization in the background — deliberately isolated from the API that serves live traffic. Poll GET /v1/proxy/protect-document/{job_id} for the result.",
-  },
-  {
-    q: "Why does Retrieval Guard fail closed instead of failing open?",
-    a: "protect-document (ingesting one document you already trust as a whole) fails open on a detection error, returning the original text unmodified. protect-retrieval is different: it processes a batch of unrelated chunks in one call, so a detection failure on one chunk must never let that chunk's raw, unprotected text quietly reach the LLM just because its neighbours in the same batch succeeded. That chunk is returned in blocked_chunks instead.",
-  },
-  {
-    q: "Does access control require setting up roles for every chunk?",
-    a: "No — it's opt-in per chunk. If a chunk has no allowed_roles set, it's treated as visible to any requester, matching how most vector stores behave today. Tag only the chunks that actually need restricting.",
-  },
-  {
-    q: "Does this replace my vector store?",
-    a: "No. Privaro doesn't index, embed or search anything — you keep using Pinecone, Weaviate, pgvector or whatever you already run. Privaro sits before indexing (Ingest) and before the retrieved chunks reach your prompt (Retrieval Guard).",
-  },
-  {
-    q: "Is the file upload limited to certain languages?",
-    a: "No — text extraction is format-based, not language-based. PII detection itself runs the same hybrid regex + NLP engine used across Privaro, covering English, Spanish, French, German, Italian and Portuguese out of the box.",
-  },
-];
+const faqKeys = [1, 2, 3, 4, 5] as const;
 
 const RagProtection = () => {
   const { t } = useLanguage();
@@ -46,10 +25,10 @@ const RagProtection = () => {
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      mainEntity: faqs.map(({ q, a }) => ({
+      mainEntity: faqKeys.map((i) => ({
         "@type": "Question",
-        name: q,
-        acceptedAnswer: { "@type": "Answer", text: a },
+        name: t(`ragProtection.faq.q${i}`),
+        acceptedAnswer: { "@type": "Answer", text: t(`ragProtection.faq.a${i}`) },
       })),
     },
   ];
@@ -227,7 +206,7 @@ Content-Type: application/json
       {/* Integrations */}
       <section className="py-20 bg-surface/30 border-y border-border">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-8">Works with the RAG stack you already have</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-8">{t("ragProtection.integrations.title")}</h2>
           <div className="flex flex-wrap items-center justify-center gap-3">
             {["LangChain", "CrewAI", "OpenAI Agents SDK", "n8n", "Python SDK", "JS / TS SDK"].map((tool) => (
               <div key={tool} className="px-4 py-2 rounded-md border border-border bg-background text-sm font-medium">
@@ -236,7 +215,7 @@ Content-Type: application/json
             ))}
           </div>
           <p className="text-muted-foreground text-sm mt-6">
-            Privaro doesn't index, embed or search anything — it protects the text going in and coming out of whichever vector store you already run.
+            {t("ragProtection.integrations.desc")}
           </p>
         </div>
       </section>
@@ -263,18 +242,21 @@ Content-Type: application/json
       {/* FAQ */}
       <section className="py-20 bg-surface/30 border-y border-border">
         <div className="max-w-3xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">Frequently asked questions</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">{t("ragProtection.faq.title")}</h2>
           <Accordion type="single" collapsible className="w-full">
-            {faqs.map(({ q, a }) => (
-              <AccordionItem key={q} value={q}>
-                <AccordionTrigger className="text-left text-base font-semibold hover:no-underline">
-                  {q}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground leading-relaxed">
-                  {a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
+            {faqKeys.map((i) => {
+              const q = t(`ragProtection.faq.q${i}`);
+              return (
+                <AccordionItem key={q} value={q}>
+                  <AccordionTrigger className="text-left text-base font-semibold hover:no-underline">
+                    {q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground leading-relaxed">
+                    {t(`ragProtection.faq.a${i}`)}
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
           </Accordion>
         </div>
       </section>
