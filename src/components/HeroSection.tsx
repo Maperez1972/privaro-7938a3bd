@@ -24,19 +24,19 @@ const HeroSection = () => {
             </Link>
           </div>
         </div>
-        <h1 className="hero-fade-in text-5xl md:text-7xl font-extrabold leading-[1.05] mb-6" style={{ animationDelay: '0.2s' }}>
+        <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.05] mb-6">
           {t("hero.title1")}<br /><span className="text-gradient">{t("hero.title2")}</span>
         </h1>
-          <p className="hero-fade-in text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-6 leading-relaxed" style={{ animationDelay: '0.35s' }}>
+          <p className="hero-fade-in text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-6 leading-relaxed" style={{ animationDelay: '0.15s' }}>
           {t("hero.subtitle")}
         </p>
-        <div className="hero-fade-in flex justify-center mb-10" style={{ animationDelay: '0.42s' }}>
+        <div className="hero-fade-in flex justify-center mb-10" style={{ animationDelay: '0.2s' }}>
           <p className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-amber-400/30 bg-amber-400/5 text-sm text-amber-300">
             <AlertTriangle className="w-4 h-4 flex-shrink-0" />
             {t("hero.regUrgency")}
           </p>
         </div>
-        <div className="hero-fade-in flex flex-col items-center justify-center gap-2" style={{ animationDelay: '0.5s' }}>
+        <div className="hero-fade-in flex flex-col items-center justify-center gap-2" style={{ animationDelay: '0.25s' }}>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/ai-risk-assessment" className="px-8 py-3.5 rounded-md bg-primary text-primary-foreground font-semibold text-base hover:opacity-90 transition-opacity glow-border">{t("hero.cta1")}</Link>
             <a href="#how-it-works" className="px-8 py-3.5 rounded-md border border-border text-foreground font-medium text-base hover:bg-secondary transition-colors">{t("hero.cta2")}</a>

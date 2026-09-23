@@ -31,7 +31,7 @@
     </script>
 
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5ELLFF522G"></script>
+    <!-- gtag.js is injected after load (see below) to keep the main thread free -->
     <script>
 
 
@@ -110,6 +110,31 @@
         });
       }
 
+      // Load gtag.js lazily: all gtag() calls above are queued in dataLayer and
+      // processed once the library arrives, so no hit is lost.
+      (function () {
+        var loaded = false;
+        function loadGtag() {
+          if (loaded) return;
+          loaded = true;
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-5ELLFF522G';
+          document.head.appendChild(s);
+        }
+        var schedule = function () {
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(loadGtag, { timeout: 4000 });
+          } else {
+            setTimeout(loadGtag, 2000);
+          }
+        };
+        if (document.readyState === 'complete') schedule();
+        else window.addEventListener('load', schedule, { once: true });
+        ['pointerdown', 'keydown', 'touchstart'].forEach(function (evt) {
+          window.addEventListener(evt, loadGtag, { once: true, passive: true });
+        });
+      })();
     </script>
 
     <meta charset="UTF-8" />
