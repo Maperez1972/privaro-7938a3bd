@@ -35,6 +35,7 @@ const staticEntries: Entry[] = [
   { path: "/Privaro_Guia_EU_AI_Act_ES.pdf", changefreq: "monthly", priority: "0.6" },
   { path: "/Privaro_EU_AI_Act_Guide_EN.pdf", changefreq: "monthly", priority: "0.6" },
   { path: "/docs", changefreq: "weekly", priority: "0.8" },
+  { path: "/docs/api", changefreq: "weekly", priority: "0.8" },
   { path: "/changelog", changefreq: "weekly", priority: "0.6" },
   { path: "/partners", changefreq: "monthly", priority: "0.6" },
   { path: "/ai-risk-assessment", changefreq: "monthly", priority: "0.7" },

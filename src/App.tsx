@@ -28,6 +28,7 @@ const PricingPage = lazy(() => import("./pages/Pricing"));
 const DemoPage = lazy(() => import("./pages/Demo"));
 const ChangelogPage = lazy(() => import("./pages/Changelog"));
 const DocsPage = lazy(() => import("./pages/Docs"));
+const ApiDocsPage = lazy(() => import("./pages/ApiDocs"));
 const StatusPage = lazy(() => import("./pages/Status"));
 const AIGovernancePlatform = lazy(() => import("./pages/AIGovernancePlatform"));
 const AIComplianceSoftware = lazy(() => import("./pages/AIComplianceSoftware"));
@@ -131,6 +132,7 @@ const App = () => (
               <Route path="/demo" element={<DemoPage />} />
               <Route path="/changelog" element={<ChangelogPage />} />
               <Route path="/docs" element={<DocsPage />} />
+              <Route path="/docs/api" element={<ApiDocsPage />} />
               <Route path="/status" element={<StatusPage />} />
               <Route path="/ai-governance-platform" element={<AIGovernancePlatform />} />
               <Route path="/ai-compliance-software" element={<AIComplianceSoftware />} />

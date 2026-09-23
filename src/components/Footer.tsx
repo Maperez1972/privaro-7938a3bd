@@ -55,6 +55,7 @@ const Footer = () => {
           </span>
           <a href="/blog" className={linkClass}>Blog</a>
           <a href="/docs" className={linkClass}>Docs</a>
+          <a href="/docs/api" className={linkClass}>API Reference</a>
           <a href="/eu-ai-act-compliance" className={linkClass}>EU AI Act Guide</a>
           <a href="/changelog" className={linkClass}>Changelog</a>
         </div>
