@@ -102,15 +102,15 @@ const Index = () => {
             />
           </a>
           <a href="https://www.uneed.best/tool/privaro-ai" target="_blank" rel="noopener noreferrer">
-            <img
-              src="https://www.uneed.best/EMBED3.png"
-              alt="Launching Soon on Uneed"
-              width="250"
-              height="60"
-              className="inline-block max-w-full h-auto"
-              loading="lazy"
-              decoding="async"
-            />
+          <img
+            src="https://www.uneed.best/EMBED1B.png"
+            alt="Published on Uneed"
+            width="200"
+            height="66"
+            className="inline-block max-w-full h-auto"
+            loading="lazy"
+            decoding="async"
+          />
           </a>
           <a href="https://aitools.fyi/privaro?utm_source=privaro_embed" target="_blank" rel="noopener noreferrer">
             <img
