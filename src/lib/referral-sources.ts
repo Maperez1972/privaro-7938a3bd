@@ -14,6 +14,7 @@ export const REFERRAL_SOURCES: Record<string, string> = {
   bestai: "Best-AI.org",
   launchnest: "LaunchNest",
   "uneed.best": "Uneed",
+  dangai: "Dang.ai",
 };
 
 export const REFERRAL_CAMPAIGN = "directory_listing";
