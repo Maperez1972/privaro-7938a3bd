@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Globe, ChevronDown, Scale, HeartPulse, BarChart3, Bot, Menu, AlertTriangle, ShieldCheck, Layers, Lock, BookOpen, FileText, Sparkles, FileStack } from "lucide-react";
+import { Globe, ChevronDown, Scale, HeartPulse, BarChart3, Bot, Menu, AlertTriangle, ShieldCheck, Layers, Lock, BookOpen, FileText, Sparkles, FileStack, Terminal } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -30,6 +30,7 @@ const useCases: MenuItem[] = [
 
 const resourcesItems: MenuItem[] = [
   { icon: BookOpen, labelKey: "nav.docs", href: "/docs", iconColor: "text-primary" },
+  { icon: Terminal, labelKey: "nav.apiReference", href: "/docs/api", iconColor: "text-violet-400" },
   { icon: FileText, labelKey: "nav.blog", href: "/blog", iconColor: "text-sky-400" },
   { icon: Scale, labelKey: "nav.euAiAct", href: "/eu-ai-act-compliance", iconColor: "text-emerald-400" },
   { icon: Sparkles, labelKey: "nav.changelog", href: "/changelog", iconColor: "text-amber-400" },
@@ -84,7 +85,7 @@ const Navbar = () => {
   }, [location.pathname]);
 
   const isUseCasePage = location.pathname.startsWith("/use-cases");
-  const isResourcePage = ["/docs", "/blog", "/changelog"].some((p) => location.pathname.startsWith(p));
+  const isResourcePage = ["/docs", "/blog", "/changelog", "/eu-ai-act-compliance"].some((p) => location.pathname.startsWith(p));
 
   const renderDropdownItem = (item: MenuItem) => {
     const Icon = item.icon;
