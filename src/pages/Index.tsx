@@ -103,8 +103,8 @@ const Index = () => {
           </a>
           <a href="https://www.uneed.best/tool/privaro-ai" target="_blank" rel="noopener noreferrer">
           <img
-            src="https://www.uneed.best/EMBED1B.png"
-            alt="Published on Uneed"
+            src="https://www.uneed.best/EMBED2B.png"
+            alt="Leave us a review on Uneed"
             width="200"
             height="66"
             className="inline-block max-w-full h-auto"
