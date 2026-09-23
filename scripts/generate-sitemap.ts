@@ -28,6 +28,7 @@ const staticEntries: Entry[] = [
   { path: "/ai-compliance-software", changefreq: "monthly", priority: "0.9" },
   { path: "/enterprise-ai-security", changefreq: "monthly", priority: "0.7" },
   { path: "/pii-detection-api", changefreq: "monthly", priority: "0.8" },
+  { path: "/rag-pii-protection", changefreq: "monthly", priority: "0.8" },
   { path: "/security", changefreq: "monthly", priority: "0.8" },
   { path: "/demo", changefreq: "monthly", priority: "0.8" },
   { path: "/eu-ai-act-compliance", changefreq: "monthly", priority: "0.9" },
