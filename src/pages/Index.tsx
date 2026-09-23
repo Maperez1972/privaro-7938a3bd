@@ -112,6 +112,17 @@ const Index = () => {
               decoding="async"
             />
           </a>
+          <a href="https://aitools.fyi/privaro?utm_source=privaro_embed" target="_blank" rel="noopener noreferrer">
+            <img
+              src="https://aitools.fyi/api/tool-embed/16150"
+              alt="Privaro | aitools.fyi"
+              width="200"
+              height="54"
+              className="inline-block max-w-full h-auto"
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
         </section>
         <Footer />
       </Suspense>
