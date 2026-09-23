@@ -24,7 +24,7 @@ const HeroSection = () => {
             </Link>
           </div>
         </div>
-        <h1 className="hero-fade-in text-5xl md:text-7xl font-extrabold leading-[1.05] mb-6" style={{ animationDelay: '0.2s' }}>
+        <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.05] mb-6">
           {t("hero.title1")}<br /><span className="text-gradient">{t("hero.title2")}</span>
         </h1>
           <p className="hero-fade-in text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-6 leading-relaxed" style={{ animationDelay: '0.35s' }}>
