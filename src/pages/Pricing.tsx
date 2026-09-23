@@ -141,10 +141,10 @@ const COPY = {
       { id: "Tier 6", name: "Enterprise+", price: "€2.500", requests: "5.000.000", target: "Alto volumen / multi-tenant", highlight: false },
     ],
     featureComparison: [
-      { label: "Requests mensuales", starter: "100.000", pro: "500.000", enterprise: ">5M / a medida" },
+      { label: "Requests mensuales", starter: "100.000", pro: "500.000", enterprise: "A medida (desde 5M)" },
       { label: "Detección PII básica", starter: true, pro: true, enterprise: true },
       { label: "Entidades PII customizables", starter: false, pro: true, enterprise: true },
-      { label: "Dashboard de auditoría", starter: true, pro: true, enterprise: true },
+      { label: "Dashboard de auditoría", starter: "Tiempo real (7 días)", pro: "Timeseries + períodos", enterprise: "A medida" },
       { label: "Multi-provider routing", starter: false, pro: true, enterprise: true },
       { label: "BYOK — API keys propias", starter: false, pro: true, enterprise: true },
       { label: "DPO Report PDF exportable", starter: false, pro: true, enterprise: true },
