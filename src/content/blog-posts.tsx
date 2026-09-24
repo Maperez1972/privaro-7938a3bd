@@ -1268,11 +1268,261 @@ return text;`}</code></pre>
       ),
     },
   },
+  {
+    slug: "rag-pii-protection-ingest-retrieval-guard",
+    date: "2026-09-21",
+    readingTime: "7 min",
+    readingTime_es: "7 min",
+    tags: ["RAG", "PII", "Retrieval Guard"],
+    keyword: "rag pii protection",
+    en: {
+      title: "PII in RAG Pipelines: Protect at Ingest and at Retrieval",
+      description:
+        "A vector store is a copy of your documents. How Privaro Ingest and Retrieval Guard keep personal data out of embeddings and out of the model's context window.",
+      content: (
+        <>
+          <P>
+            Retrieval-augmented generation moves your documents into two new places: a
+            vector index and, on every query, the model's context window. If personal data
+            is in the source documents, it ends up in both — and most prompt filters never
+            see it, because the sensitive text is injected by the retriever, not typed by
+            the user.
+          </P>
+
+          <H2>Two control points, not one</H2>
+          <UL>
+            <li><Strong>Ingest</Strong>: before a document is chunked and embedded, detect and tokenize personal data so the index never stores raw values</li>
+            <li><Strong>Retrieval</Strong>: before chunks are added to the prompt, scan them again and enforce who is allowed to see what</li>
+          </UL>
+          <P>
+            Ingest protection shrinks the blast radius of the index itself. Retrieval
+            protection handles everything ingest cannot: legacy indexes, documents that
+            changed after indexing, and users who should not read every chunk the retriever
+            finds relevant.
+          </P>
+
+          <H2>Privaro Ingest</H2>
+          <P>
+            <Strong>POST /v1/proxy/protect-document</Strong> accepts text, and the
+            <Strong> /upload</Strong> variant accepts PDF, DOCX, XLSX, CSV and EML files.
+            It returns the protected text plus the entity map, so you embed the sanitized
+            version and keep originals in the encrypted token vault, reversible only
+            through audited reveal.
+          </P>
+
+          <H2>Privaro Retrieval Guard</H2>
+          <P>
+            <Strong>POST /v1/proxy/protect-retrieval</Strong> receives the chunks your
+            retriever selected and applies the pipeline policy to each one, with per-chunk
+            access control. Chunks the caller should not see are dropped or masked before
+            they reach the LLM, and every decision is logged against the request.
+          </P>
+
+          <H2>Why embeddings of tokens still work</H2>
+          <P>
+            Semantic search depends on meaning, not on the exact name or IBAN. Consistent
+            tokens preserve structure ("[PERSON_1] signed the contract with [ORG_2]"), so
+            retrieval quality stays close to the raw baseline while the index stops being a
+            second copy of your customer database.
+          </P>
+
+          <H2>Next step</H2>
+          <P>
+            Full request examples are on the{" "}
+            <a href="/rag-pii-protection" className="text-primary underline">RAG PII protection</a> page
+            and in the{" "}
+            <a href="/docs/api" className="text-primary underline">API reference</a>.
+          </P>
+        </>
+      ),
+    },
+    es: {
+      title: "PII en pipelines RAG: proteger en la ingesta y en la recuperación",
+      description:
+        "Un vector store es una copia de tus documentos. Cómo Privaro Ingest y Retrieval Guard mantienen los datos personales fuera de los embeddings y del contexto del modelo.",
+      content: (
+        <>
+          <P>
+            La generación aumentada por recuperación lleva tus documentos a dos sitios
+            nuevos: un índice vectorial y, en cada consulta, la ventana de contexto del
+            modelo. Si hay datos personales en los documentos, acaban en ambos, y la mayoría
+            de filtros de prompts no los ven porque el texto sensible lo inyecta el
+            recuperador, no lo escribe el usuario.
+          </P>
+
+          <H2>Dos puntos de control, no uno</H2>
+          <UL>
+            <li><Strong>Ingesta</Strong>: antes de trocear e indexar un documento, detectar y tokenizar los datos personales para que el índice nunca guarde valores en claro</li>
+            <li><Strong>Recuperación</Strong>: antes de añadir fragmentos al prompt, volver a escanearlos y aplicar quién puede ver qué</li>
+          </UL>
+          <P>
+            Proteger la ingesta reduce el impacto del propio índice. Proteger la
+            recuperación cubre lo que la ingesta no puede: índices antiguos, documentos que
+            cambiaron tras indexarse y usuarios que no deberían leer todo lo que el
+            recuperador considera relevante.
+          </P>
+
+          <H2>Privaro Ingest</H2>
+          <P>
+            <Strong>POST /v1/proxy/protect-document</Strong> acepta texto, y la variante
+            <Strong> /upload</Strong> acepta archivos PDF, DOCX, XLSX, CSV y EML. Devuelve
+            el texto protegido y el mapa de entidades: indexas la versión saneada y los
+            originales quedan en la bóveda cifrada, reversibles solo mediante un reveal
+            auditado.
+          </P>
+
+          <H2>Privaro Retrieval Guard</H2>
+          <P>
+            <Strong>POST /v1/proxy/protect-retrieval</Strong> recibe los fragmentos que ha
+            elegido tu recuperador y aplica la política del pipeline a cada uno, con control
+            de acceso por fragmento. Lo que el usuario no debe ver se descarta o enmascara
+            antes de llegar al LLM, y cada decisión queda registrada.
+          </P>
+
+          <H2>Por qué los embeddings con tokens siguen funcionando</H2>
+          <P>
+            La búsqueda semántica depende del significado, no del nombre exacto o del IBAN.
+            Los tokens consistentes conservan la estructura ("[PERSON_1] firmó el contrato
+            con [ORG_2]"), así que la calidad de recuperación se mantiene cerca de la
+            original y el índice deja de ser una segunda copia de tu base de clientes.
+          </P>
+
+          <H2>Siguiente paso</H2>
+          <P>
+            Tienes ejemplos completos en la página de{" "}
+            <a href="/rag-pii-protection" className="text-primary underline">protección de PII en RAG</a> y
+            en la{" "}
+            <a href="/docs/api" className="text-primary underline">referencia de la API</a>.
+          </P>
+        </>
+      ),
+    },
+  },
+  {
+    slug: "case-study-octupus-robin-ai-erp-copilot",
+    date: "2026-09-23",
+    readingTime: "6 min",
+    readingTime_es: "6 min",
+    tags: ["Case study", "AI Agents", "ERP"],
+    keyword: "ai agent erp data protection",
+    en: {
+      title: "Case Study: Governing Robin AI, Octupus's ERP Copilot for Odoo",
+      description:
+        "How Octupus Technologies put Privaro between Robin AI and the model so ERP agents can read customer, invoice and margin data without exposing it to the LLM.",
+      content: (
+        <>
+          <P>
+            Octupus Technologies builds Robin AI, a copilot that works inside its clients'
+            Odoo ERP: it answers questions about customers, drafts quotes, reads invoices
+            and summarises sales performance. Every one of those tasks means sending
+            business records to a language model.
+          </P>
+
+          <H2>The problem: ERP data is not just personal data</H2>
+          <P>
+            The first analysis of Robin AI traffic showed the classic identifiers — names,
+            emails, tax IDs, IBANs — but also something most PII filters ignore:
+            <Strong> commercially sensitive figures</Strong>. Revenue, margins, contract
+            values and price lists appear in almost every ERP prompt, and for a client they
+            are as confidential as a customer's address.
+          </P>
+
+          <H2>What changed in Privaro</H2>
+          <UL>
+            <li><Strong>Money detection</Strong>: amounts with symbols (€, $, £) and currency codes (EUR, USD, GBP) are now detected and handled by policy, in the proxy and in the public demo</li>
+            <li><Strong>Agent pipelines</Strong>: each Robin AI deployment runs on its own pipeline with policies per client, so one ERP tenant never shares configuration or tokens with another</li>
+            <li><Strong>Output scanning</Strong>: answers are checked before they return to Odoo, catching data the agent pulled via tools rather than from the prompt</li>
+          </UL>
+
+          <H2>How the flow works</H2>
+          <P>
+            Robin AI sends the request to Privaro instead of the provider. Privaro detects
+            entities, tokenizes them against the client's vault, forwards the sanitized
+            prompt, and restores tokens in the response only for the authorised user. Every
+            step is written to the audit log with the agent run it belongs to.
+          </P>
+
+          <H2>The result</H2>
+          <P>
+            "Governing what those agents send to a model is not optional — it is the first
+            requirement of any deployment," says Octupus's CEO. Instead of rebuilding
+            masking, key management and audit in every client project, Octupus consumes it
+            as infrastructure, and each deployment ships with the evidence its client's DPO
+            will ask for.
+          </P>
+
+          <H2>Next step</H2>
+          <P>
+            Building agents on top of business systems? See{" "}
+            <a href="/use-cases/agents" className="text-primary underline">Privaro for AI agents</a>{" "}
+            or try detection yourself in the{" "}
+            <a href="/demo" className="text-primary underline">live demo</a>.
+          </P>
+        </>
+      ),
+    },
+    es: {
+      title: "Caso de éxito: cómo Octupus gobierna Robin AI, su copiloto ERP para Odoo",
+      description:
+        "Cómo Octupus Technologies situó Privaro entre Robin AI y el modelo para que sus agentes ERP lean clientes, facturas y márgenes sin exponerlos al LLM.",
+      content: (
+        <>
+          <P>
+            Octupus Technologies desarrolla Robin AI, un copiloto que trabaja dentro del ERP
+            Odoo de sus clientes: responde preguntas sobre clientes, prepara presupuestos,
+            lee facturas y resume las ventas. Cada una de esas tareas implica enviar
+            registros de negocio a un modelo de lenguaje.
+          </P>
+
+          <H2>El problema: los datos de un ERP no son solo datos personales</H2>
+          <P>
+            El primer análisis del tráfico de Robin AI mostró los identificadores clásicos
+            (nombres, emails, NIF, IBAN) pero también algo que la mayoría de filtros de PII
+            ignoran: <Strong>cifras comercialmente sensibles</Strong>. Facturación,
+            márgenes, importes de contratos y tarifas aparecen en casi cada prompt, y para
+            un cliente son tan confidenciales como la dirección de sus clientes.
+          </P>
+
+          <H2>Qué cambió en Privaro</H2>
+          <UL>
+            <li><Strong>Detección de importes</Strong>: cantidades con símbolo (€, $, £) y código de divisa (EUR, USD, GBP) se detectan y se tratan según política, en el proxy y en la demo pública</li>
+            <li><Strong>Pipelines por agente</Strong>: cada despliegue de Robin AI tiene su propio pipeline con políticas por cliente, de modo que ningún ERP comparte configuración ni tokens con otro</li>
+            <li><Strong>Escaneo de salida</Strong>: las respuestas se revisan antes de volver a Odoo, detectando datos que el agente obtuvo con herramientas y no del prompt</li>
+          </UL>
+
+          <H2>Cómo funciona el flujo</H2>
+          <P>
+            Robin AI envía la petición a Privaro en lugar de al proveedor. Privaro detecta
+            las entidades, las tokeniza en la bóveda del cliente, reenvía el prompt saneado
+            y restaura los tokens en la respuesta solo para el usuario autorizado. Cada paso
+            queda en el registro de auditoría, vinculado a la ejecución del agente.
+          </P>
+
+          <H2>El resultado</H2>
+          <P>
+            "Gobernar lo que esos agentes envían a un modelo no es opcional: es el primer
+            requisito de cualquier despliegue", resume el CEO de Octupus. En lugar de
+            reconstruir enmascarado, gestión de claves y auditoría en cada proyecto, Octupus
+            lo consume como infraestructura, y cada despliegue sale con las evidencias que
+            pedirá el DPO del cliente.
+          </P>
+
+          <H2>Siguiente paso</H2>
+          <P>
+            ¿Construyes agentes sobre sistemas de negocio? Mira{" "}
+            <a href="/use-cases/agents" className="text-primary underline">Privaro para agentes de IA</a>{" "}
+            o prueba la detección en la{" "}
+            <a href="/demo" className="text-primary underline">demo en vivo</a>.
+          </P>
+        </>
+      ),
+    },
+  },
 ];
 
 
 export const getLocalizedPosts = (lang: Language): LocalizedBlogPost[] =>
-  BLOG_POSTS.map((p) => ({
+  [...BLOG_POSTS].sort((a, b) => b.date.localeCompare(a.date)).map((p) => ({
     slug: p.slug,
     date: p.date,
     readingTime: lang === "es" ? (p.readingTime_es ?? p.readingTime) : p.readingTime,
