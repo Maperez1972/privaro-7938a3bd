@@ -13,6 +13,7 @@
   <url><loc>https://privaro.ai/Privaro_Guia_EU_AI_Act_ES.pdf</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://privaro.ai/Privaro_EU_AI_Act_Guide_EN.pdf</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://privaro.ai/docs</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://privaro.ai/docs/api</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://privaro.ai/changelog</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://privaro.ai/partners</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://privaro.ai/ai-risk-assessment</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
