@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import { Download, ExternalLink, FileJson, Loader2 } from "lucide-react";
+import { Check, Copy, Download, FileJson, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Seo from "@/components/Seo";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const OPENAPI_URL =
   "https://raw.githubusercontent.com/Maperez1972/privaro-proxy/main/privaro-openapi.yaml";
 const POSTMAN_URL =
   "https://raw.githubusercontent.com/Maperez1972/privaro-proxy/main/Privaro.postman_collection.json";
-const POSTMAN_RUN_URL = `https://app.getpostman.com/run-collection/${encodeURIComponent(POSTMAN_URL)}`;
 const REDOC_CDN = "https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js";
 
 declare global {
@@ -25,6 +25,18 @@ declare global {
 const ApiDocs = () => {
   const [redocReady, setRedocReady] = useState(false);
   const [redocError, setRedocError] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const copyPostmanUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(POSTMAN_URL);
+      setCopied(true);
+      toast.success("Postman collection URL copied");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Could not copy. URL: " + POSTMAN_URL);
+    }
+  };
 
   useEffect(() => {
     if (document.querySelector(`script[src="${REDOC_CDN}"]`)) {
@@ -68,11 +80,9 @@ const ApiDocs = () => {
             </p>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <Button asChild>
-                <a href={POSTMAN_RUN_URL} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Run in Postman
-                </a>
+              <Button onClick={copyPostmanUrl}>
+                {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                {copied ? "URL copied" : "Import into Postman"}
               </Button>
               <Button asChild variant="outline">
                 <a href={OPENAPI_URL} target="_blank" rel="noopener noreferrer" download>
@@ -87,6 +97,9 @@ const ApiDocs = () => {
                 </a>
               </Button>
             </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Open Postman → File → Import → Link → paste this URL
+            </p>
           </header>
 
           <div className="rounded-xl border border-border bg-card overflow-hidden">
