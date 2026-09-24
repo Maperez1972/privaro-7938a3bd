@@ -66,18 +66,6 @@ const ApiDocs = () => {
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
               API <span className="text-gradient">Reference</span>
             </h1>
-            <p className="mt-3 text-sm text-muted-foreground max-w-2xl">
-              Source of truth:{" "}
-              <a
-                href="https://github.com/Maperez1972/privaro-proxy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline underline-offset-2 hover:text-foreground transition-colors"
-              >
-                github.com/Maperez1972/privaro-proxy
-              </a>{" "}
-              — verify against your dashboard before production use.
-            </p>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <Button onClick={copyPostmanUrl}>
