@@ -1518,6 +1518,31 @@ return text;`}</code></pre>
       ),
     },
   },
+  {
+    slug: "governing-ai-agents-monitoring-is-not-enough",
+    date: "2026-09-25",
+    readingTime: "8 min",
+    readingTime_es: "8 min",
+    tags: ["AI Agents", "AI Governance", "Data Security"],
+    keyword: "AI agent governance",
+    en: {
+      title: "Governing AI Agents: Why Monitoring Is No Longer Enough",
+      description:
+        "Agent inventories and performance dashboards provide visibility, but not data control. Learn how to govern sensitive data at runtime across every AI agent interaction.",
+      content: (
+        <>
+          <P>
+            Enterprise AI has moved beyond isolated copilots. Agents now search internal
+            knowledge, call business applications and hand information to other agents. As
+            that footprint grows, organisations are discovering a basic problem: knowing
+            that an agent exists does not tell you what data it can see, what it sends to a
+            model or what it reveals in its answer.
+          </P>
+          <P>
+            A 2026 Dataiku study conducted by Harris Poll among 685 CIOs found that 81% lack
+            complete oversight of agents created outside approved systems. Seventy-two per
+            cent cannot consistently measure whether all their agents deliver business
+            outcomes, while 47% have already decommissioned more than 20 agents this year.{
 ];
 
 
