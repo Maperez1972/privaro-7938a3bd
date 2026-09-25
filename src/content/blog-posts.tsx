@@ -1518,9 +1518,232 @@ return text;`}</code></pre>
       ),
     },
   },
+  {
+    slug: "governing-ai-agents-monitoring-is-not-enough",
+    date: "2026-09-25",
+    readingTime: "8 min",
+    readingTime_es: "8 min",
+    tags: ["AI Agents", "AI Governance", "Data Security"],
+    keyword: "AI agent governance",
+    en: {
+      title: "Governing AI Agents: Why Monitoring Is No Longer Enough",
+      description:
+        "Agent inventories and performance dashboards provide visibility, but not data control. Learn how to govern sensitive data at runtime across every AI agent interaction.",
+      content: (
+        <>
+          <P>
+            Enterprise AI has moved beyond isolated copilots. Agents now search internal
+            knowledge, call business applications and pass information to other agents. As
+            that footprint grows, organisations are discovering a basic problem: knowing
+            that an agent exists does not tell you what data it can see, what it sends to a
+            model or what it reveals in its answer.
+          </P>
+          <P>
+            A 2026 Dataiku study conducted by Harris Poll among 685 CIOs found that 81% lack
+            complete oversight of agents created outside approved systems. Seventy-two per
+            cent cannot consistently measure whether all their agents deliver business
+            outcomes, while 47% have already decommissioned more than 20 agents this year.
+            These figures describe a visibility and accountability gap. They do not prove
+            that every retired agent failed because of a security incident.
+            {" "}<a href="https://www.dataiku.com/company/news/global-ai-confessions-report-cio-edition-2026" target="_blank" rel="noopener noreferrer" className="text-primary underline">Read the source study</a>.
+          </P>
+
+          <H2>The market is building a control layer</H2>
+          <P>
+            Recent launches from governance, identity and security vendors show a common
+            direction: enterprises need a control layer above fragmented agent platforms.
+            Inventory, ownership, lifecycle status, cost and performance all belong in that
+            layer. They answer important questions: which agents are running, who owns them
+            and whether they are producing value.
+          </P>
+          <P>
+            But visibility is not enforcement. A dashboard can show that an agent called a
+            customer database. It cannot, by itself, prevent that agent from including an
+            email address, an IBAN, a patient identifier or a contract value in a request to
+            an external model.
+          </P>
+
+          <H2>The missing question: what data crosses the boundary?</H2>
+          <P>
+            Every agent sits at the intersection of identity, tools and data. Authentication
+            answers who the agent is. Authorisation determines which system it may call.
+            Runtime data governance determines what information may cross from that system
+            into the model, and what may return to the user or the next agent.
+          </P>
+          <UL>
+            <li><Strong>Before the model call:</Strong> detect sensitive entities in prompts, retrieved documents and tool results</li>
+            <li><Strong>At policy time:</Strong> tokenize, anonymise or block according to data type, role, organisation and model provider</li>
+            <li><Strong>After the model call:</Strong> inspect the response before it reaches a person, application or downstream agent</li>
+            <li><Strong>For audit:</Strong> record the detection, policy decision, action, actor and timestamp for every interaction</li>
+          </UL>
+
+          <H2>Why monitoring alone leaves a blind spot</H2>
+          <H3>Tool access is not data permission</H3>
+          <P>
+            An agent may be correctly authorised to query an ERP and still send more data
+            than the task requires. Least-privilege access to a tool does not automatically
+            create least-data disclosure inside each request.
+          </P>
+          <H3>Prompt controls do not cover retrieval and output</H3>
+          <P>
+            Sensitive content can enter through a RAG chunk or a tool response rather than
+            the user's prompt. It can also appear in the model output. Controls therefore
+            need to cover the full path, not only the initial message.
+          </P>
+          <H3>An incident record is not preventive control</H3>
+          <P>
+            Logs are essential evidence, but discovering an exposure after transmission is
+            different from stopping it. Regulated workflows need both: inline enforcement
+            to reduce risk and a traceable record to demonstrate what happened.
+          </P>
+
+          <H2>A practical governance architecture</H2>
+          <P>
+            Place a provider-neutral policy layer between enterprise applications or agents
+            and the models they use. Route every interaction through the same sequence:
+            detect, decide, protect, send, inspect and log. Reversible values belong in an
+            encrypted token vault and should only be revealed through controlled, audited
+            access. Organisation boundaries must remain strict throughout the flow.
+          </P>
+          <P>
+            This complements agent inventory and performance management rather than
+            replacing them. Together they answer both sides of governance: whether an agent
+            should keep running, and whether each interaction respects the organisation's
+            data policy while it runs.
+          </P>
+
+          <H2>What security teams should ask next</H2>
+          <UL>
+            <li>Can we identify the sensitive data used in every agent interaction?</li>
+            <li>Are policies enforced before data reaches any model provider?</li>
+            <li>Do the same controls cover prompts, RAG context, tool results and outputs?</li>
+            <li>Can tokenized values be revealed only by authorised users with an audit trail?</li>
+            <li>Can we export evidence by agent, organisation, policy and provider?</li>
+          </UL>
+          <P>
+            See how Privaro applies these controls in the{" "}
+            <a href="/use-cases/agents" className="text-primary underline">AI agents use case</a>,
+            review the{" "}
+            <a href="/enterprise-ai-security" className="text-primary underline">enterprise AI security architecture</a>{" "}
+            or explore the{" "}
+            <a href="/docs/api" className="text-primary underline">API reference</a>.
+          </P>
+        </>
+      ),
+    },
+    es: {
+      title: "Gobernar agentes de IA: por qué monitorizar ya no es suficiente",
+      description:
+        "Los inventarios y cuadros de mando aportan visibilidad, pero no control del dato. Aprende a gobernar datos sensibles en tiempo de ejecución en cada interacción de un agente de IA.",
+      content: (
+        <>
+          <P>
+            La IA empresarial ha superado la fase de los copilotos aislados. Los agentes ya
+            consultan conocimiento interno, llaman a aplicaciones de negocio y pasan
+            información a otros agentes. A medida que crece esa huella aparece un problema
+            básico: saber que un agente existe no indica qué datos puede ver, qué envía a un
+            modelo ni qué revela en su respuesta.
+          </P>
+          <P>
+            Un estudio de Dataiku realizado en 2026 por Harris Poll entre 685 CIOs concluyó
+            que el 81% no tiene una supervisión completa de los agentes creados fuera de los
+            sistemas aprobados. El 72% no puede medir de forma consistente si todos sus
+            agentes generan resultados de negocio y el 47% ya ha retirado más de 20 agentes
+            este año. Estas cifras describen un déficit de visibilidad y responsabilidad; no
+            demuestran que cada retirada se debiera a un incidente de seguridad.
+            {" "}<a href="https://www.dataiku.com/company/news/global-ai-confessions-report-cio-edition-2026" target="_blank" rel="noopener noreferrer" className="text-primary underline">Consultar el estudio original</a>.
+          </P>
+
+          <H2>El mercado está construyendo una capa de control</H2>
+          <P>
+            Los últimos lanzamientos de proveedores de gobierno, identidad y seguridad
+            apuntan en una misma dirección: las empresas necesitan una capa de control por
+            encima de plataformas de agentes fragmentadas. Inventario, propiedad, ciclo de
+            vida, coste y rendimiento forman parte de ella. Responden preguntas importantes:
+            qué agentes están activos, quién responde por ellos y si aportan valor.
+          </P>
+          <P>
+            Pero visibilidad no significa aplicación de políticas. Un cuadro de mando puede
+            mostrar que un agente consultó una base de clientes. Por sí solo no puede impedir
+            que incluya un email, un IBAN, un identificador sanitario o el importe de un
+            contrato en una petición a un modelo externo.
+          </P>
+
+          <H2>La pregunta pendiente: ¿qué datos cruzan el límite?</H2>
+          <P>
+            Cada agente se encuentra en la intersección entre identidad, herramientas y
+            datos. La autenticación responde quién es. La autorización determina a qué
+            sistema puede llamar. El gobierno del dato en tiempo de ejecución determina qué
+            información puede salir de ese sistema hacia el modelo y cuál puede volver al
+            usuario o al siguiente agente.
+          </P>
+          <UL>
+            <li><Strong>Antes del modelo:</Strong> detectar entidades sensibles en prompts, documentos recuperados y resultados de herramientas</li>
+            <li><Strong>Al aplicar la política:</Strong> tokenizar, anonimizar o bloquear según el tipo de dato, el rol, la organización y el proveedor</li>
+            <li><Strong>Después del modelo:</Strong> inspeccionar la respuesta antes de que llegue a una persona, aplicación u otro agente</li>
+            <li><Strong>Para auditoría:</Strong> registrar detección, decisión, acción, actor y fecha de cada interacción</li>
+          </UL>
+
+          <H2>Por qué monitorizar deja un punto ciego</H2>
+          <H3>Acceder a una herramienta no equivale a tener permiso sobre cada dato</H3>
+          <P>
+            Un agente puede estar correctamente autorizado para consultar un ERP y aun así
+            enviar más información de la necesaria. El mínimo privilegio sobre una
+            herramienta no crea automáticamente una divulgación mínima de datos en cada
+            petición.
+          </P>
+          <H3>Controlar el prompt no cubre la recuperación ni la salida</H3>
+          <P>
+            El contenido sensible puede entrar por un fragmento RAG o por la respuesta de
+            una herramienta, no por el prompt del usuario. También puede aparecer en la
+            salida del modelo. Los controles deben cubrir todo el recorrido, no solo el
+            mensaje inicial.
+          </P>
+          <H3>Un registro de incidentes no es un control preventivo</H3>
+          <P>
+            Los logs son evidencias esenciales, pero descubrir una exposición después de la
+            transmisión no equivale a detenerla. Los flujos regulados necesitan ambas cosas:
+            aplicación de políticas en línea para reducir el riesgo y trazabilidad para
+            demostrar qué ocurrió.
+          </P>
+
+          <H2>Una arquitectura práctica de gobierno</H2>
+          <P>
+            Sitúa una capa de políticas independiente del proveedor entre las aplicaciones o
+            agentes empresariales y los modelos que utilizan. Haz pasar cada interacción por
+            la misma secuencia: detectar, decidir, proteger, enviar, inspeccionar y registrar.
+            Los valores reversibles deben quedar en una bóveda cifrada y revelarse solo
+            mediante acceso controlado y auditado. La separación entre organizaciones debe
+            mantenerse estricta durante todo el recorrido.
+          </P>
+          <P>
+            Esta arquitectura complementa el inventario y la gestión del rendimiento de los
+            agentes; no los sustituye. Juntos responden las dos caras del gobierno: si un
+            agente debe seguir funcionando y si cada interacción respeta la política de
+            datos de la organización mientras funciona.
+          </P>
+
+          <H2>Qué debería preguntar ahora el equipo de seguridad</H2>
+          <UL>
+            <li>¿Podemos identificar los datos sensibles utilizados en cada interacción?</li>
+            <li>¿Se aplican las políticas antes de que los datos lleguen a cualquier proveedor?</li>
+            <li>¿Cubren los controles prompts, contexto RAG, herramientas y respuestas?</li>
+            <li>¿Solo los usuarios autorizados pueden revelar valores tokenizados y queda constancia?</li>
+            <li>¿Podemos exportar evidencias por agente, organización, política y proveedor?</li>
+          </UL>
+          <P>
+            Descubre cómo aplica Privaro estos controles en el{" "}
+            <a href="/use-cases/agents" className="text-primary underline">caso de uso para agentes de IA</a>,
+            revisa la{" "}
+            <a href="/enterprise-ai-security" className="text-primary underline">arquitectura de seguridad de IA empresarial</a>{" "}
+            o consulta la{" "}
+            <a href="/docs/api" className="text-primary underline">referencia de la API</a>.
+          </P>
+        </>
+      ),
+    },
+  },
 ];
-
-
 export const getLocalizedPosts = (lang: Language): LocalizedBlogPost[] =>
   [...BLOG_POSTS].sort((a, b) => b.date.localeCompare(a.date)).map((p) => ({
     slug: p.slug,
