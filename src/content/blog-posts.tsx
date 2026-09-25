@@ -1533,7 +1533,7 @@ return text;`}</code></pre>
         <>
           <P>
             Enterprise AI has moved beyond isolated copilots. Agents now search internal
-            knowledge, call business applications and hand information to other agents. As
+            knowledge, call business applications and pass information to other agents. As
             that footprint grows, organisations are discovering a basic problem: knowing
             that an agent exists does not tell you what data it can see, what it sends to a
             model or what it reveals in its answer.
