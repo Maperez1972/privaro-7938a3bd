@@ -1542,8 +1542,85 @@ return text;`}</code></pre>
             A 2026 Dataiku study conducted by Harris Poll among 685 CIOs found that 81% lack
             complete oversight of agents created outside approved systems. Seventy-two per
             cent cannot consistently measure whether all their agents deliver business
-            outcomes, while 47% have already decommissioned more than 20 agents this year.{
-];
+            outcomes, while 47% have already decommissioned more than 20 agents this year.
+            These figures describe a visibility and accountability gap. They do not prove
+            that every retired agent failed because of a security incident.
+          </P>
+
+          <H2>The market is building a control layer</H2>
+          <P>
+            Recent launches from governance, identity and security vendors show a common
+            direction: enterprises need a control layer above fragmented agent platforms.
+            Inventory, ownership, lifecycle status, cost and performance all belong in that
+            layer. They answer important questions: which agents are running, who owns them
+            and whether they are producing value.
+          </P>
+          <P>
+            But visibility is not enforcement. A dashboard can show that an agent called a
+            customer database. It cannot, by itself, prevent that agent from including an
+            email address, an IBAN, a patient identifier or a contract value in a request to
+            an external model.
+          </P>
+
+          <H2>The missing question: what data crosses the boundary?</H2>
+          <P>
+            Every agent sits at the intersection of identity, tools and data. Authentication
+            answers who the agent is. Authorisation determines which system it may call.
+            Runtime data governance determines what information may cross from that system
+            into the model, and what may return to the user or the next agent.
+          </P>
+          <UL>
+            <li><Strong>Before the model call:</Strong> detect sensitive entities in prompts, retrieved documents and tool results</li>
+            <li><Strong>At policy time:</Strong> tokenize, anonymise or block according to data type, role, organisation and model provider</li>
+            <li><Strong>After the model call:</Strong> inspect the response before it reaches a person, application or downstream agent</li>
+            <li><Strong>For audit:</Strong> record the detection, policy decision, action, actor and timestamp for every interaction</li>
+          </UL>
+
+          <H2>Why monitoring alone leaves a blind spot</H2>
+          <H3>Tool access is not data permission</H3>
+          <P>
+            An agent may be correctly authorised to query an ERP and still send more data
+            than the task requires. Least-privilege access to a tool does not automatically
+            create least-data disclosure inside each request.
+          </P>
+          <H3>Prompt controls do not cover retrieval and output</H3>
+          <P>
+            Sensitive content can enter through a RAG chunk or a tool response rather than
+            the user's prompt. It can also appear in the model output. Controls therefore
+            need to cover the full path, not only the initial message.
+          </P>
+          <H3>An incident record is not preventive control</H3>
+          <P>
+            Logs are essential evidence, but discovering an exposure after transmission is
+            different from stopping it. Regulated workflows need both: inline enforcement
+            to reduce risk and a traceable record to demonstrate what happened.
+          </P>
+
+          <H2>A practical governance architecture</H2>
+          <P>
+            Place a provider-neutral policy layer between enterprise applications or agents
+            and the models they use. Route every interaction through the same sequence:
+            detect, decide, protect, send, inspect and log. Reversible values belong in an
+            encrypted token vault and should only be revealed through controlled, audited
+            access. Organisation boundaries must remain strict throughout the flow.
+          </P>
+          <P>
+            This complements agent inventory and performance management rather than
+            replacing them. Together they answer both sides of governance: whether an agent
+            should keep running, and whether each interaction respects the organisation's
+            data policy while it runs.
+          </P>
+
+          <H2>What security teams should ask next</H2>
+          <UL>
+            <li>Can we identify the sensitive data used in every agent interaction?</li>
+            <li>Are policies enforced before data reaches any model provider?</li>
+            <li>Do the same controls cover prompts, RAG context, tool results and outputs?</li>
+            <li>Can tokenized values be revealed only by authorised users with an audit trail?</li>
+            <li>Can we export evidence by agent, organisation, policy and provider?</li>
+          </UL>
+          <P>
+            See how Privaro applies these controls in{
 
 
 export const getLocalizedPosts = (lang: Language): LocalizedBlogPost[] =>
