@@ -1620,8 +1620,7 @@ return text;`}</code></pre>
             <li>Can we export evidence by agent, organisation, policy and provider?</li>
           </UL>
           <P>
-            See how Privaro applies these controls in{
-
+            See how Privaro applies these controls in the{
 
 export const getLocalizedPosts = (lang: Language): LocalizedBlogPost[] =>
   [...BLOG_POSTS].sort((a, b) => b.date.localeCompare(a.date)).map((p) => ({
