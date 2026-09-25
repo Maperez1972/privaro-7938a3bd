@@ -1545,6 +1545,7 @@ return text;`}</code></pre>
             outcomes, while 47% have already decommissioned more than 20 agents this year.
             These figures describe a visibility and accountability gap. They do not prove
             that every retired agent failed because of a security incident.
+            {" "}<a href="https://www.dataiku.com/company/news/global-ai-confessions-report-cio-edition-2026" target="_blank" rel="noopener noreferrer" className="text-primary underline">Read the source study</a>.
           </P>
 
           <H2>The market is building a control layer</H2>
@@ -1650,6 +1651,7 @@ return text;`}</code></pre>
             agentes generan resultados de negocio y el 47% ya ha retirado más de 20 agentes
             este año. Estas cifras describen un déficit de visibilidad y responsabilidad; no
             demuestran que cada retirada se debiera a un incidente de seguridad.
+            {" "}<a href="https://www.dataiku.com/company/news/global-ai-confessions-report-cio-edition-2026" target="_blank" rel="noopener noreferrer" className="text-primary underline">Consultar el estudio original</a>.
           </P>
 
           <H2>El mercado está construyendo una capa de control</H2>
