@@ -4,6 +4,7 @@
 import type { Plugin } from "vite";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { dirname, resolve } from "path";
+import { fetchSpecHtml } from "./openapi-static";
 
 interface Snapshot {
   title: string;
@@ -87,7 +88,7 @@ export function prerenderPlugin(): Plugin {
     configResolved(cfg) {
       outDir = resolve(cfg.root, cfg.build.outDir);
     },
-    closeBundle() {
+    async closeBundle() {
       const snapPath = resolve("src/prerender/snapshots.json");
       const indexPath = resolve(outDir, "index.html");
       if (!existsSync(snapPath) || !existsSync(indexPath)) return;
@@ -97,6 +98,13 @@ export function prerenderPlugin(): Plugin {
         return;
       }
       const snaps = JSON.parse(readFileSync(snapPath, "utf8")) as Record<string, Snapshot>;
+      // /docs/api: fetch the live OpenAPI spec now and embed it as static HTML.
+      if (snaps["/docs/api"]) {
+        const specHtml = await fetchSpecHtml();
+        if (specHtml) {
+          snaps["/docs/api"].html = snaps["/docs/api"].html.replace(/<redoc[^>]*><\/redoc>/, specHtml);
+        }
+      }
       // Map dev asset URLs (/src/assets/name.ext) captured in snapshots to hashed build files.
       const built = existsSync(resolve(outDir, "assets")) ? readdirSync(resolve(outDir, "assets")) : [];
       const fixAssets = (html: string): string =>
