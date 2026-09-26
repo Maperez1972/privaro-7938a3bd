@@ -123,6 +123,18 @@ const Index = () => {
               decoding="async"
             />
           </a>
+          <a href="https://scoutforge.net/apps/privaro?ref=badge" target="_blank" rel="noopener noreferrer">
+            <img
+              src="https://scoutforge.net/badge/privaro/image?theme=dark&size=compact"
+              alt="Privaro on Scout Forge"
+              width="240"
+              height="56"
+              style={{ border: 0, maxWidth: "100%" }}
+              className="inline-block h-auto"
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
         </section>
         <Footer />
       </Suspense>
