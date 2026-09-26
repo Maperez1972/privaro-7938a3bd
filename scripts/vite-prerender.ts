@@ -54,7 +54,21 @@ function renderRoute(template: string, route: string, snap: Snapshot): string {
     `document.querySelectorAll('[data-prerender]').forEach(function(n){n.remove()});}})();</script>`;
 
   html = deferAppScript(html);
-  return html.replace(ROOT_RE, `<div id="root" data-prerendered="true">${snap.html}</div>${guard}`);
+  return html.replace(ROOT_RE, `<div id="root">${snap.html}</div>${guard}`);
+}
+
+// The generated stylesheet is the only render-blocking request before the LCP
+// heading. Inline it into every static page so mobile can paint from the first
+// HTML response instead of waiting for another network round trip.
+function inlineStyles(html: string, outDir: string): string {
+  return html.replace(
+    /<link rel="stylesheet"(?: crossorigin)? href="(\/assets\/[^"]+\.css)">/g,
+    (tag, href: string) => {
+      const cssPath = resolve(outDir, `.${href}`);
+      if (!existsSync(cssPath)) return tag;
+      return `<style data-inlined-app-css>${readFileSync(cssPath, "utf8")}</style>`;
+    },
+  );
 }
 
 // Mobile LCP: the prerendered HTML is already visible, so the app JS must not compete
@@ -104,7 +118,7 @@ export function prerenderPlugin(): Plugin {
       const snapPath = resolve("src/prerender/snapshots.json");
       const indexPath = resolve(outDir, "index.html");
       if (!existsSync(snapPath) || !existsSync(indexPath)) return;
-      const template = readFileSync(indexPath, "utf8");
+      const template = inlineStyles(readFileSync(indexPath, "utf8"), outDir);
       if (!ROOT_RE.test(template)) {
         console.warn("[prerender] #root marker not found; skipping");
         return;
