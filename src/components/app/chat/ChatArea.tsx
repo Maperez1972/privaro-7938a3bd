@@ -171,7 +171,7 @@ export function ChatArea({ messages, sending, loading, activeConversationId, act
                     {msg.attachment_name && <FileChip name={msg.attachment_name} size={msg.attachment_size} />}
                     {editingId === msg.id ? (
                       <div className="space-y-2">
-                        <textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="w-full resize-none bg-background/50 border border-border rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary" rows={3} autoFocus />
+                        <textarea aria-label="Editar mensaje" value={editText} onChange={(e) => setEditText(e.target.value)} className="w-full resize-none bg-background/50 border border-border rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary" rows={3} autoFocus />
                         <div className="flex gap-1.5 justify-end">
                           <Button variant="ghost" size="sm" className="h-6 text-[11px] px-2" onClick={handleCancelEdit}>{t("app.chat.area.cancel")}</Button>
                           <Button size="sm" className="h-6 text-[11px] px-2" onClick={() => handleSaveEdit(msg.id)} disabled={!editText.trim()}>{t("app.chat.area.save")}</Button>
@@ -219,7 +219,7 @@ export function ChatArea({ messages, sending, loading, activeConversationId, act
           <div className="flex items-end gap-2">
             <input ref={fileInputRef} type="file" accept=".txt,.csv,.pdf,.json,.md,.docx,.xlsx,.xls,.pptx,.ppt,.png,.jpg,.jpeg,.webp,.gif" className="hidden" onChange={handleFileChange} />
             <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-primary" onClick={() => fileInputRef.current?.click()} disabled={sending}><Paperclip className="w-4 h-4" /></Button></TooltipTrigger><TooltipContent>{t("app.chat.area.attachFile")}</TooltipContent></Tooltip>
-            <textarea ref={textareaRef} value={input} onChange={(e) => { setInput(e.target.value); e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px"; }} onKeyDown={onKeyDown} placeholder={t("app.chat.area.inputPlaceholder")} disabled={sending} rows={1} className="flex-1 resize-none bg-secondary border border-border rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50" />
+            <textarea aria-label={t("app.chat.area.inputPlaceholder")} ref={textareaRef} value={input} onChange={(e) => { setInput(e.target.value); e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px"; }} onKeyDown={onKeyDown} placeholder={t("app.chat.area.inputPlaceholder")} disabled={sending} rows={1} className="flex-1 resize-none bg-secondary border border-border rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50" />
             <Button size="icon" className="h-9 w-9" onClick={onSend} disabled={sending || !!attachment?.scanning || (!input.trim() && !attachment && !pastedText)}><Send className="w-4 h-4" /></Button>
           </div>
         </div>
