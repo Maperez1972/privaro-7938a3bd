@@ -53,7 +53,19 @@ function renderRoute(template: string, route: string, snap: Snapshot): string {
     `if(p!==${JSON.stringify(route)}){var r=document.getElementById('root');if(r)r.innerHTML='';` +
     `document.querySelectorAll('[data-prerender]').forEach(function(n){n.remove()});}})();</script>`;
 
+  html = deferAppScript(html);
   return html.replace(ROOT_RE, `<div id="root">${snap.html}</div>${guard}`);
+}
+
+// Mobile LCP: the prerendered HTML is already visible, so the app JS must not compete
+// with the render-blocking CSS for bandwidth. Drop modulepreloads and inject the entry
+// script only after the first frame has painted.
+function deferAppScript(html: string): string {
+  html = html.replace(/\s*<link rel="modulepreload"[^>]*>/g, "");
+  return html.replace(/<script type="module" crossorigin src="([^"]+)"><\/script>/, (_m, src: string) =>
+    `<script>requestAnimationFrame(function(){setTimeout(function(){var s=document.createElement('script');` +
+    `s.type='module';s.crossOrigin='anonymous';s.src=${JSON.stringify(src)};document.head.appendChild(s)},0)});</script>`,
+  );
 }
 
 // Build-only security meta (hosting does not allow custom HTTP headers).
