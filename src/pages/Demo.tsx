@@ -359,6 +359,7 @@ export default function Demo() {
               </div>
               <div className="relative rounded-xl border border-border bg-card overflow-hidden">
                 <textarea
+                  aria-label={t("demo.panel.input.title")}
                   value={inputText}
                   onChange={e => { setInputText(e.target.value); setResult(null); setIbsRunning(false); }}
                   className="w-full h-64 bg-transparent text-sm font-mono text-foreground p-4 resize-none focus:outline-none placeholder:text-muted-foreground leading-relaxed"
