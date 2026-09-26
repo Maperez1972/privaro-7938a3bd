@@ -29,7 +29,9 @@ EXTRACT = """() => {
     const s = n.getAttribute('style') || '';
     if (/opacity|transform|filter/.test(s)) n.removeAttribute('style');
   });
-  root.querySelectorAll('img').forEach(n => { n.setAttribute('loading','lazy'); n.removeAttribute('fetchpriority'); });
+  // Keep img attributes exactly as authored in the components (e.g. the
+  // above-the-fold hero-adjacent diagram is eager + fetchpriority=high, the
+  // rest keep loading="lazy") — forcing lazy here overrode the LCP image.
   const q = (sel, attr) => { const el = document.head.querySelector(sel); return el ? el.getAttribute(attr) : null; };
   const ld = [...document.head.querySelectorAll('script[type="application/ld+json"][data-rh]')].map(s => s.textContent);
   return {
