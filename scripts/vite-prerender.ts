@@ -54,7 +54,7 @@ function renderRoute(template: string, route: string, snap: Snapshot): string {
     `document.querySelectorAll('[data-prerender]').forEach(function(n){n.remove()});}})();</script>`;
 
   html = deferAppScript(html);
-  return html.replace(ROOT_RE, `<div id="root">${snap.html}</div>${guard}`);
+  return html.replace(ROOT_RE, `<div id="root" data-prerendered="true">${snap.html}</div>${guard}`);
 }
 
 // Mobile LCP: the prerendered HTML is already visible, so the app JS must not compete

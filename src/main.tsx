@@ -1,4 +1,4 @@
-import { createRoot } from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
@@ -24,9 +24,21 @@ window.addEventListener("unhandledrejection", (e) =>
 );
 window.addEventListener("load", () => sessionStorage.removeItem(RELOAD_FLAG));
 
-const root = document.getElementById("root")!;
-createRoot(root).render(
+const root = document.getElementById("root");
+if (!root) {
+  throw new Error("Root element not found");
+}
+
+const app = (
   <HelmetProvider>
     <App />
   </HelmetProvider>
 );
+
+// Public pages ship with a prerendered React tree. Hydrate it in place so the
+// early H1 is not discarded and painted a second time when the bundle loads.
+if (root.dataset.prerendered === "true" && root.hasChildNodes()) {
+  hydrateRoot(root, app);
+} else {
+  createRoot(root).render(app);
+}
