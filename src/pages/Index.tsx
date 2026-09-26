@@ -135,6 +135,22 @@ const Index = () => {
               decoding="async"
             />
           </a>
+          <a
+            href="https://www.saashub.com/privaro?utm_source=badge&utm_campaign=badge&utm_content=privaro&badge_variant=dark&badge_kind=approved"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="https://cdn-b.saashub.com/img/badges/approved-dark.png?v=1"
+              alt="Privaro approved on SaaShub"
+              width="150"
+              height="60"
+              style={{ border: 0, maxWidth: "100%" }}
+              className="inline-block h-auto"
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
         </section>
         <Footer />
       </Suspense>
