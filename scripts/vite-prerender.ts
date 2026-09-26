@@ -2,7 +2,7 @@
 // head tags and the real page content inside #root, so non-JS crawlers see content.
 // Snapshots come from src/prerender/snapshots.json (refresh: python3 scripts/snapshot-pages.py).
 import type { Plugin } from "vite";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { dirname, resolve } from "path";
 
 interface Snapshot {
@@ -97,9 +97,16 @@ export function prerenderPlugin(): Plugin {
         return;
       }
       const snaps = JSON.parse(readFileSync(snapPath, "utf8")) as Record<string, Snapshot>;
+      // Map dev asset URLs (/src/assets/name.ext) captured in snapshots to hashed build files.
+      const built = existsSync(resolve(outDir, "assets")) ? readdirSync(resolve(outDir, "assets")) : [];
+      const fixAssets = (html: string): string =>
+        html.replace(/\/src\/assets\/([\w.-]+?)\.(\w+)(\?[^"'\s,]*)?/g, (m, name: string, ext: string) => {
+          const hit = built.find((f) => f.startsWith(`${name}-`) && f.endsWith(`.${ext}`));
+          return hit ? `/assets/${hit}` : m;
+        });
       let count = 0;
       for (const [route, snap] of Object.entries(snaps)) {
-        const out = renderRoute(template, route, snap);
+        const out = renderRoute(template, route, { ...snap, html: fixAssets(snap.html) });
         const targets =
           route === "/" ? [indexPath] : [resolve(outDir, `.${route}`, "index.html"), resolve(outDir, `.${route}.html`)];
         for (const t of targets) {
