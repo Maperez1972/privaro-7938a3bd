@@ -55,11 +55,35 @@ function renderRoute(template: string, route: string, snap: Snapshot): string {
   return html.replace(ROOT_RE, `<div id="root">${snap.html}</div>${guard}`);
 }
 
+// Build-only security meta (hosting does not allow custom HTTP headers).
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://cdn.redoc.ly https://*.lovable.app https://*.lovable.dev",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "img-src 'self' data: blob: https:",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.privaro.ai https://privaro-proxy-production.up.railway.app https://raw.githubusercontent.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://checker.icommunitylabs.com https://*.lovable.app https://*.lovable.dev",
+  "worker-src 'self' blob:",
+  "frame-src 'self' https://checker.icommunitylabs.com",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "upgrade-insecure-requests",
+].join("; ");
+
+const SECURITY_HEAD =
+  `<meta http-equiv="Content-Security-Policy" content="${CSP}">\n` +
+  `    <meta name="referrer" content="strict-origin-when-cross-origin">\n` +
+  `    <script>if(window.top!==window.self){try{window.top.location=window.self.location}catch(e){document.documentElement.style.display='none'}}</script>\n`;
+
 export function prerenderPlugin(): Plugin {
   let outDir = "dist";
   return {
     name: "privaro-prerender",
     apply: "build",
+    transformIndexHtml(html) {
+      return html.replace("<head>", `<head>\n    ${SECURITY_HEAD}`);
+    },
     configResolved(cfg) {
       outDir = resolve(cfg.root, cfg.build.outDir);
     },
