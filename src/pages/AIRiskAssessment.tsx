@@ -209,12 +209,12 @@ const AIRiskAssessmentPage = () => {
           ) : (
             <form onSubmit={handleSubmit} className="p-8 rounded-lg border border-border bg-card space-y-5">
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.name")}</label>
-                <input name="name" type="text" required className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                <label htmlFor="risk-name" className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.name")}</label>
+                <input id="risk-name" name="name" type="text" required className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
               </div>
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.company")}</label>
-                <input name="company" type="text" required className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                <label htmlFor="risk-company" className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.company")}</label>
+                <input id="risk-company" name="company" type="text" required className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
               </div>
               <div>
                 <label className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.role")}</label>
@@ -224,8 +224,8 @@ const AIRiskAssessmentPage = () => {
                 </Select>
               </div>
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.email")}</label>
-                <input name="email" type="email" required className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                <label htmlFor="risk-email" className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.email")}</label>
+                <input id="risk-email" name="email" type="email" required className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
               </div>
               <div>
                 <label className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.size")} <span className="text-muted-foreground/60">({t("assessment.form.optional")})</span></label>
@@ -235,8 +235,8 @@ const AIRiskAssessmentPage = () => {
                 </Select>
               </div>
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.tools")} <span className="text-muted-foreground/60">({t("assessment.form.optional")})</span></label>
-                <textarea name="aiTools" rows={3} className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none" />
+                <label htmlFor="risk-aiTools" className="block text-sm text-muted-foreground mb-1.5">{t("assessment.form.tools")} <span className="text-muted-foreground/60">({t("assessment.form.optional")})</span></label>
+                <textarea id="risk-aiTools" name="aiTools" rows={3} className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none" />
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
               <button type="submit" disabled={sending} className="w-full py-3 rounded-md bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity disabled:opacity-50">

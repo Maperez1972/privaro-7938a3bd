@@ -286,12 +286,12 @@ const Partners = () => {
           ) : (
             <form onSubmit={handleSubmit} className="p-8 rounded-lg border border-border bg-card space-y-5">
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">{t("partners.form.name")}</label>
-                <input name="name" type="text" required maxLength={100} className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                <label htmlFor="partner-name" className="block text-sm text-muted-foreground mb-1.5">{t("partners.form.name")}</label>
+                <input id="partner-name" name="name" type="text" required maxLength={100} className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
               </div>
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">{t("partners.form.company")}</label>
-                <input name="company" type="text" required maxLength={100} className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                <label htmlFor="partner-company" className="block text-sm text-muted-foreground mb-1.5">{t("partners.form.company")}</label>
+                <input id="partner-company" name="company" type="text" required maxLength={100} className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
               </div>
               <div>
                 <label className="block text-sm text-muted-foreground mb-1.5">{t("partners.form.role")}</label>
@@ -306,12 +306,12 @@ const Partners = () => {
                 </Select>
               </div>
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">{t("partners.form.email")}</label>
-                <input name="email" type="email" required maxLength={255} className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                <label htmlFor="partner-email" className="block text-sm text-muted-foreground mb-1.5">{t("partners.form.email")}</label>
+                <input id="partner-email" name="email" type="email" required maxLength={255} className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
               </div>
               <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">{t("partners.form.workflows")}</label>
-                <textarea name="workflows" rows={3} maxLength={1000} className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none" />
+                <label htmlFor="partner-workflows" className="block text-sm text-muted-foreground mb-1.5">{t("partners.form.workflows")}</label>
+                <textarea id="partner-workflows" name="workflows" rows={3} maxLength={1000} className="w-full px-4 py-2.5 rounded-md bg-surface border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none" />
               </div>
               <div>
                 <label className="block text-sm text-muted-foreground mb-1.5">{t("partners.form.clients")}</label>

@@ -109,16 +109,16 @@ const BetaSection = () => {
                 <h3 className="text-xl font-semibold text-foreground">{t("beta.path.sales.title")}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{t("beta.path.sales.desc")}</p>
                 <div>
-                  <label className="block text-sm text-muted-foreground mb-1.5">{t("beta.form.name")}</label>
-                  <input name="name" type="text" required className={inputClass} />
+                  <label htmlFor="beta-name" className="block text-sm text-muted-foreground mb-1.5">{t("beta.form.name")}</label>
+                  <input id="beta-name" name="name" type="text" required className={inputClass} />
                 </div>
                 <div>
-                  <label className="block text-sm text-muted-foreground mb-1.5">{t("beta.form.email")}</label>
-                  <input name="email" type="email" required className={inputClass} />
+                  <label htmlFor="beta-email" className="block text-sm text-muted-foreground mb-1.5">{t("beta.form.email")}</label>
+                  <input id="beta-email" name="email" type="email" required className={inputClass} />
                 </div>
                 <div>
-                  <label className="block text-sm text-muted-foreground mb-1.5">{t("beta.form.company")}</label>
-                  <input name="company" type="text" required className={inputClass} />
+                  <label htmlFor="beta-company" className="block text-sm text-muted-foreground mb-1.5">{t("beta.form.company")}</label>
+                  <input id="beta-company" name="company" type="text" required className={inputClass} />
                 </div>
                 {error && <p className="text-sm text-destructive">{error}</p>}
                 <button
