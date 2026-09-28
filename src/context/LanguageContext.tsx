@@ -205,7 +205,7 @@ const translations: Record<Language, Record<string, string>> = {
     "blockchain.f3.title": "Legally Admissible Evidence",
     "blockchain.f3.desc": "Blockchain-certified records serve as digital evidence for regulatory audits, litigation, and compliance investigations.",
     "blockchain.f4.title": "Independent Verification",
-    "blockchain.f4.desc": "Any auditor can independently verify the integrity of audit records on the public Polygon network — no trust in Privaro required.",
+    "blockchain.f4.desc": "Any auditor can independently verify the integrity of audit records on the public Fantom Opera Mainnet network — no trust in Privaro required.",
     "cta.title1": "Adopt AI With",
     "cta.title2": "Confidence.",
     "cta.subtitle": "30-minute strategic walkthrough. No obligation.",
