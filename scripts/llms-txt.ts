@@ -32,7 +32,7 @@ export function buildLlmsTxt(snaps: Record<string, SnapLike>, spec: Spec | null)
   out.push(
     "# Privaro",
     "",
-    "> Privaro is a runtime AI governance proxy for enterprise applications and AI agents. It intercepts every LLM call, detects and tokenizes sensitive data (PII, financial identifiers, health records, contract data) before it reaches any AI model, scans model outputs, and records a blockchain-certified audit trail per interaction via iCommunity Blockchain Services (iBS). Built for GDPR and EU AI Act compliance.",
+    "> Privaro is a runtime AI governance proxy for enterprise applications and AI agents. It intercepts every LLM call, detects and tokenizes sensitive data (PII, financial identifiers, health records, contract data) before it reaches any AI model, scans model outputs, and records a blockchain-certified audit trail per interaction via iCommunity Blockchain Services (iBS) on Fantom Opera Mainnet. Built for GDPR and EU AI Act compliance.",
     "",
     "## What Privaro Does",
     "",
