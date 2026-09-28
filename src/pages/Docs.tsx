@@ -150,6 +150,17 @@ export default function Docs() {
             <motion.p variants={fadeUp} className="text-lg text-muted-foreground max-w-2xl mx-auto">
               {t("docs.subtitle")}
             </motion.p>
+            <motion.p variants={fadeUp} className="text-sm text-muted-foreground mt-6">
+              {t("docs.llmsNote")}{" "}
+              <a
+                href="/llms.txt"
+                target="_blank"
+                rel="noopener"
+                className="text-primary underline underline-offset-2 hover:text-primary/80 transition-colors font-mono"
+              >
+                llms.txt
+              </a>
+            </motion.p>
           </motion.div>
         </div>
       </section>
