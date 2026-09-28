@@ -41,6 +41,7 @@ export interface LocalizedBlogPost {
   /** Optional explicit internal links (site paths); otherwise derived from tags. */
   relatedPages?: string[];
   content: ReactNode;
+  faq?: BlogFaq[];
 }
 
 const H2 = ({ children }: { children: ReactNode }) => (
