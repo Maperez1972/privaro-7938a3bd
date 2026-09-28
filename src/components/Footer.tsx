@@ -58,6 +58,7 @@ const Footer = () => {
           <a href="/docs/api" className={linkClass}>API Reference</a>
           <a href="/eu-ai-act-compliance" className={linkClass}>EU AI Act Guide</a>
           <a href="/changelog" className={linkClass}>Changelog</a>
+          <a href="/llms.txt" target="_blank" rel="noopener" className={linkClass}>llms.txt</a>
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
           <a href="/privacy" className={linkClass}>{t("footer.privacy")}</a>
