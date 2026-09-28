@@ -74,6 +74,8 @@ export function buildLlmsTxt(snaps: Record<string, SnapLike>, spec: Spec | null)
   out.push("", `Full reference (live OpenAPI spec): ${BASE}/docs/api`, "");
 
   const routes = Object.keys(snaps).sort();
+  // Pages whose snapshot kept the generic site description add no information.
+  const generic = snaps["/"]?.description ?? null;
   const used = new Set<string>();
   for (const sec of SECTIONS) {
     const list = routes.filter((r) => !used.has(r) && sec.test(r));
@@ -82,7 +84,7 @@ export function buildLlmsTxt(snaps: Record<string, SnapLike>, spec: Spec | null)
     for (const r of list) {
       used.add(r);
       const s = snaps[r];
-      out.push(`- [${clean(s.title)}](${BASE}${r === "/" ? "/" : r})${s.description ? `: ${s.description}` : ""}`);
+      out.push(`- [${clean(s.title)}](${BASE}${r === "/" ? "/" : r})${s.description && (r === "/" || s.description !== generic) ? `: ${s.description}` : ""}`);
     }
     out.push("");
   }
