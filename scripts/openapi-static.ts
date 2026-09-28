@@ -15,7 +15,7 @@ interface Operation {
   parameters?: Param[];
   responses?: Record<string, { description?: string }>;
 }
-interface Spec {
+export interface Spec {
   info?: { title?: string; version?: string; description?: string };
   servers?: { url?: string; description?: string }[];
   paths?: Record<string, Partial<Record<(typeof METHODS)[number], Operation>>>;
@@ -65,13 +65,20 @@ export function renderSpec(spec: Spec): string {
   );
 }
 
-export async function fetchSpecHtml(): Promise<string | null> {
+export async function fetchSpec(): Promise<Spec | null> {
   try {
     const res = await fetch(OPENAPI_URL, { signal: AbortSignal.timeout(15000) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return renderSpec(load(await res.text()) as Spec);
+    return load(await res.text()) as Spec;
   } catch (e) {
-    console.warn("[prerender] OpenAPI fetch failed, /docs/api keeps Redoc placeholder:", e);
+    console.warn("[prerender] OpenAPI fetch failed:", e);
     return null;
   }
 }
+
+export async function fetchSpecHtml(spec?: Spec | null): Promise<string | null> {
+  const s = spec === undefined ? await fetchSpec() : spec;
+  return s ? renderSpec(s) : null;
+}
+
+export const SPEC_METHODS = METHODS;

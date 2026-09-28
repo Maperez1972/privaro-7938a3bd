@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { trackEvent } from "@/lib/analytics";
+import { PRICED_PLANS, PRICING_CURRENCY, planPrice } from "@/content/pricing-data";
+
+const STARTER = planPrice("starter");
+const BUSINESS = planPrice("pro");
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -66,7 +70,7 @@ const COPY = {
     plans: [
       {
         key: "starter" as PlanKey, icon: Zap, name: "Tier 1 — Starter",
-        monthlyPrice: 150, annualPrice: 120,
+        monthlyPrice: STARTER.monthlyPrice, annualPrice: STARTER.annualPrice,
         desc: "Para equipos pequeños que empiezan a usar LLMs con datos de clientes. Sin tarjeta de crédito.",
         cta: "Probar gratis 14 días", ctaVariant: "outline" as const, ctaHref: "/auth", highlight: false,
         features: [
@@ -88,7 +92,7 @@ const COPY = {
       },
       {
         key: "pro" as PlanKey, icon: Shield, name: "Tier 3 — Business", badge: "Plan de partida",
-        monthlyPrice: 400, annualPrice: 320,
+        monthlyPrice: BUSINESS.monthlyPrice, annualPrice: BUSINESS.annualPrice,
         desc: "Plan de partida recomendado para SaaS y equipos con obligaciones GDPR activas. Sin tarjeta de crédito.",
         cta: "Probar gratis 14 días", ctaVariant: "default" as const, ctaHref: "/auth", highlight: true,
         features: [
@@ -203,7 +207,7 @@ const COPY = {
     plans: [
       {
         key: "starter" as PlanKey, icon: Zap, name: "Tier 1 — Starter",
-        monthlyPrice: 150, annualPrice: 120,
+        monthlyPrice: STARTER.monthlyPrice, annualPrice: STARTER.annualPrice,
         desc: "For small teams starting to use LLMs with customer data. No credit card required.",
         cta: "Try free for 14 days", ctaVariant: "outline" as const, ctaHref: "/auth", highlight: false,
         features: [
@@ -225,7 +229,7 @@ const COPY = {
       },
       {
         key: "pro" as PlanKey, icon: Shield, name: "Tier 3 — Business", badge: "Recommended start",
-        monthlyPrice: 400, annualPrice: 320,
+        monthlyPrice: BUSINESS.monthlyPrice, annualPrice: BUSINESS.annualPrice,
         desc: "Recommended starting plan for SaaS and teams with active GDPR obligations. No credit card required.",
         cta: "Try free for 14 days", ctaVariant: "default" as const, ctaHref: "/auth", highlight: true,
         features: [
@@ -346,15 +350,58 @@ export default function Pricing() {
         title={t("pricing.seo.title")}
         description={t("pricing.seo.description")}
         path="/pricing"
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: c.faqs.map((f) => ({
-            "@type": "Question",
-            name: f.q,
-            acceptedAnswer: { "@type": "Answer", text: f.a },
-          })),
-        }}
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: "Privaro",
+            description: t("pricing.seo.description"),
+            brand: { "@type": "Brand", name: "Privaro" },
+            url: "https://privaro.ai/pricing",
+            image: "https://privaro.ai/privaro-social-preview.jpg",
+            offers: PRICED_PLANS.flatMap((p) => [
+              {
+                "@type": "Offer",
+                name: `${p.name} — monthly billing`,
+                price: p.monthlyPrice,
+                priceCurrency: PRICING_CURRENCY,
+                availability: "https://schema.org/InStock",
+                url: "https://privaro.ai/pricing",
+                priceSpecification: {
+                  "@type": "UnitPriceSpecification",
+                  price: p.monthlyPrice,
+                  priceCurrency: PRICING_CURRENCY,
+                  unitCode: "MON",
+                  valueAddedTaxIncluded: false,
+                },
+              },
+              {
+                "@type": "Offer",
+                name: `${p.name} — annual billing (per month)`,
+                price: p.annualPrice,
+                priceCurrency: PRICING_CURRENCY,
+                availability: "https://schema.org/InStock",
+                url: "https://privaro.ai/pricing",
+                priceSpecification: {
+                  "@type": "UnitPriceSpecification",
+                  price: p.annualPrice,
+                  priceCurrency: PRICING_CURRENCY,
+                  unitCode: "MON",
+                  valueAddedTaxIncluded: false,
+                },
+              },
+            ]),
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: c.faqs.map((f) => ({
+              "@type": "Question",
+              name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a },
+            })),
+          },
+        ]}
       />
       <Navbar />
 

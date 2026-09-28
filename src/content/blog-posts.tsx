@@ -5,6 +5,13 @@ interface BlogPostContent {
   title: string;
   description: string;
   content: ReactNode;
+  /** Optional FAQ: rendered at the end of the post and emitted as FAQPage JSON-LD. */
+  faq?: BlogFaq[];
+}
+
+export interface BlogFaq {
+  q: string;
+  a: string;
 }
 
 export interface BlogPost {
@@ -15,6 +22,8 @@ export interface BlogPost {
   readingTime_es?: string;
   tags: string[];
   keyword: string;
+  /** Optional explicit internal links (site paths); otherwise derived from tags. */
+  relatedPages?: string[];
   en: BlogPostContent;
   es: BlogPostContent;
 }
@@ -29,7 +38,10 @@ export interface LocalizedBlogPost {
   readingTime: string;
   tags: string[];
   keyword: string;
+  /** Optional explicit internal links (site paths); otherwise derived from tags. */
+  relatedPages?: string[];
   content: ReactNode;
+  faq?: BlogFaq[];
 }
 
 const H2 = ({ children }: { children: ReactNode }) => (
@@ -1789,6 +1801,7 @@ export const getLocalizedPosts = (lang: Language): LocalizedBlogPost[] =>
     readingTime: lang === "es" ? (p.readingTime_es ?? p.readingTime) : p.readingTime,
     tags: p.tags,
     keyword: p.keyword,
+    relatedPages: p.relatedPages,
     ...p[lang],
   }));
 
@@ -1805,6 +1818,7 @@ export const getLocalizedPostBySlug = (
     readingTime: lang === "es" ? (p.readingTime_es ?? p.readingTime) : p.readingTime,
     tags: p.tags,
     keyword: p.keyword,
+    relatedPages: p.relatedPages,
     ...p[lang],
   };
 };

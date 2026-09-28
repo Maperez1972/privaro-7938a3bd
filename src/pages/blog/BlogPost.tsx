@@ -3,6 +3,8 @@ import { ArrowLeft, ArrowRight, Calendar, Clock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
+import BlogRelatedPages from "@/components/BlogRelatedPages";
+import BlogFaqSection from "@/components/BlogFaqSection";
 import { getLocalizedPosts, getLocalizedPostBySlug } from "@/content/blog-posts";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -17,12 +19,13 @@ const BlogPost = () => {
   const jsonLd = [
     {
       "@context": "https://schema.org",
-      "@type": "BlogPosting",
+      "@type": "Article",
       headline: post.title,
       description: post.description,
       datePublished: post.date,
       dateModified: post.date,
-      author: { "@type": "Organization", name: "Privaro" },
+      author: { "@type": "Organization", name: "Privaro", url: "https://privaro.ai" },
+      inLanguage: lang === "es" ? "es-ES" : "en-US",
       publisher: {
         "@type": "Organization",
         name: "Privaro",
@@ -44,6 +47,19 @@ const BlogPost = () => {
         { "@type": "ListItem", position: 3, name: post.title, item: url },
       ],
     },
+    ...(post.faq?.length
+      ? [
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: post.faq.map((f) => ({
+              "@type": "Question",
+              name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a },
+            })),
+          },
+        ]
+      : []),
   ];
 
   const related = getLocalizedPosts(lang).filter((p) => p.slug !== post.slug).slice(0, 3);
@@ -104,7 +120,11 @@ const BlogPost = () => {
             </span>
           </div>
 
-          <div className="text-muted-foreground">{post.content}</div>
+          <div className="text-muted-foreground">
+            {post.content}
+            {post.faq?.length ? <BlogFaqSection faq={post.faq} /> : null}
+          </div>
+          <BlogRelatedPages post={post} />
         </div>
       </article>
 
