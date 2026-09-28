@@ -25,6 +25,7 @@
   <url><loc>https://privaro.ai/blog</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://privaro.ai/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://privaro.ai/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://privaro.ai/blog/gobernanza-por-clases-de-agentes</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://privaro.ai/blog/ai-governance-platform-buyers-guide</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://privaro.ai/blog/ai-compliance-software-requirements</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://privaro.ai/blog/gdpr-checklist-llm-apps</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>

@@ -77,6 +77,9 @@ const BlogIndex = () => {
                     ))}
                   </div>
                 </div>
+                {post.image && (
+                  <img src={post.image} alt="" width="1200" height="630" loading="lazy" className="w-full h-auto mb-4" />
+                )}
                 <h2 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
                   {post.title}
                 </h2>

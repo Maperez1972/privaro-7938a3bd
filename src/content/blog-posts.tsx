@@ -10,6 +10,7 @@ interface BlogPostContent {
 export interface BlogPost {
   slug: string;
   date: string; // ISO
+  image?: string;
   readingTime: string;
   readingTime_es?: string;
   tags: string[];
@@ -24,6 +25,7 @@ export interface LocalizedBlogPost {
   title: string;
   description: string;
   date: string;
+  image?: string;
   readingTime: string;
   tags: string[];
   keyword: string;
@@ -47,6 +49,41 @@ const Strong = ({ children }: { children: ReactNode }) => (
 );
 
 export const BLOG_POSTS: BlogPost[] = [
+  {
+    slug: "gobernanza-por-clases-de-agentes",
+    date: "2026-09-28",
+    image: "https://raw.githubusercontent.com/Maperez1972/privaro-proxy/main/blog-assets/gobernanza-por-clases-cover.png",
+    readingTime: "2 min",
+    readingTime_es: "2 min",
+    tags: ["Gobernanza de IA", "Agentes de IA"],
+    keyword: "gobernanza por clases de agentes",
+    en: {
+      title: "Cuando 4.200 agentes de IA toman decisiones a la vez, la gobernanza por agente individual deja de funcionar",
+      description: "AWS entrevistó a 154 ejecutivos en 27 países para su informe \"Reimagine\". Uno de los hallazgos: gobernar agentes de IA uno a uno no escala — hay que gobernar por clases de agentes.",
+      content: (
+        <>
+          <P>AWS acaba de publicar <em>Reimagine: Turning AI into Value</em>, basado en entrevistas a 154 ejecutivos en 27 países sobre qué separa a las organizaciones que sacan valor real de la IA de las que se quedan atascadas en fase piloto.</P>
+          <P>Uno de los hallazgos más concretos viene de OLX: ¿qué pasa con la gobernanza cuando 4.200 agentes de IA toman decisiones simultáneamente? Su respuesta fue clara — gobernanza que opera por <Strong>clases de agentes</Strong>, no agente por agente. Con ese volumen, revisar permisos y comportamiento uno a uno deja de ser viable.</P>
+          <P>Es el mismo patrón que estamos viendo en el mercado: Broadcom lanzó AgentMinder en agosto, una capa que verifica la identidad de cada agente y autoriza cada acción antes de que toque un recurso corporativo — control en el momento pre-ejecución, no auditoría después del hecho.</P>
+          <P>El reto para la mayoría de empresas no es solo "cuántos agentes tenemos", es si pueden aplicar una política consistente a todos ellos sin que cada integración nueva sea una excepción manual. Y si esos agentes tocan datos personales de clientes, la pregunta se vuelve doblemente urgente con las obligaciones del EU AI Act ya en vigor desde agosto de 2026.</P>
+          <P><a href="https://privaro.ai" className="text-primary underline">Mira cómo Privaro aplica gobernanza consistente, agnóstica de proveedor, en cada llamada a un modelo →</a></P>
+        </>
+      ),
+    },
+    es: {
+      title: "Cuando 4.200 agentes de IA toman decisiones a la vez, la gobernanza por agente individual deja de funcionar",
+      description: "AWS entrevistó a 154 ejecutivos en 27 países para su informe \"Reimagine\". Uno de los hallazgos: gobernar agentes de IA uno a uno no escala — hay que gobernar por clases de agentes.",
+      content: (
+        <>
+          <P>AWS acaba de publicar <em>Reimagine: Turning AI into Value</em>, basado en entrevistas a 154 ejecutivos en 27 países sobre qué separa a las organizaciones que sacan valor real de la IA de las que se quedan atascadas en fase piloto.</P>
+          <P>Uno de los hallazgos más concretos viene de OLX: ¿qué pasa con la gobernanza cuando 4.200 agentes de IA toman decisiones simultáneamente? Su respuesta fue clara — gobernanza que opera por <Strong>clases de agentes</Strong>, no agente por agente. Con ese volumen, revisar permisos y comportamiento uno a uno deja de ser viable.</P>
+          <P>Es el mismo patrón que estamos viendo en el mercado: Broadcom lanzó AgentMinder en agosto, una capa que verifica la identidad de cada agente y autoriza cada acción antes de que toque un recurso corporativo — control en el momento pre-ejecución, no auditoría después del hecho.</P>
+          <P>El reto para la mayoría de empresas no es solo "cuántos agentes tenemos", es si pueden aplicar una política consistente a todos ellos sin que cada integración nueva sea una excepción manual. Y si esos agentes tocan datos personales de clientes, la pregunta se vuelve doblemente urgente con las obligaciones del EU AI Act ya en vigor desde agosto de 2026.</P>
+          <P><a href="https://privaro.ai" className="text-primary underline">Mira cómo Privaro aplica gobernanza consistente, agnóstica de proveedor, en cada llamada a un modelo →</a></P>
+        </>
+      ),
+    },
+  },
   {
     slug: "ai-governance-platform-buyers-guide",
     date: "2026-09-02",
@@ -1748,6 +1785,7 @@ export const getLocalizedPosts = (lang: Language): LocalizedBlogPost[] =>
   [...BLOG_POSTS].sort((a, b) => b.date.localeCompare(a.date)).map((p) => ({
     slug: p.slug,
     date: p.date,
+    image: p.image,
     readingTime: lang === "es" ? (p.readingTime_es ?? p.readingTime) : p.readingTime,
     tags: p.tags,
     keyword: p.keyword,
@@ -1763,6 +1801,7 @@ export const getLocalizedPostBySlug = (
   return {
     slug: p.slug,
     date: p.date,
+    image: p.image,
     readingTime: lang === "es" ? (p.readingTime_es ?? p.readingTime) : p.readingTime,
     tags: p.tags,
     keyword: p.keyword,
