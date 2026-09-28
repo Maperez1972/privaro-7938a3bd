@@ -4,7 +4,8 @@
 import type { Plugin } from "vite";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { dirname, resolve } from "path";
-import { fetchSpecHtml } from "./openapi-static";
+import { fetchSpec, fetchSpecHtml } from "./openapi-static";
+import { buildLlmsTxt } from "./llms-txt";
 
 interface Snapshot {
   title: string;
@@ -125,8 +126,11 @@ export function prerenderPlugin(): Plugin {
       }
       const snaps = JSON.parse(readFileSync(snapPath, "utf8")) as Record<string, Snapshot>;
       // /docs/api: fetch the live OpenAPI spec now and embed it as static HTML.
+      const spec = await fetchSpec();
+      writeFileSync(resolve(outDir, "llms.txt"), buildLlmsTxt(snaps, spec));
+      console.log("[prerender] llms.txt regenerated");
       if (snaps["/docs/api"]) {
-        const specHtml = await fetchSpecHtml();
+        const specHtml = await fetchSpecHtml(spec);
         if (specHtml) {
           snaps["/docs/api"].html = snaps["/docs/api"].html.replace(/<redoc[^>]*><\/redoc>/, specHtml);
         }
