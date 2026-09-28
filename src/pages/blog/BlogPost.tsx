@@ -32,6 +32,7 @@ const BlogPost = () => {
         },
       },
       mainEntityOfPage: url,
+      ...(post.image ? { image: post.image } : {}),
       keywords: post.tags.join(", "),
     },
     {
@@ -54,6 +55,7 @@ const BlogPost = () => {
         description={post.description}
         path={`/blog/${post.slug}`}
         ogType="article"
+        image={post.image}
         jsonLd={jsonLd}
       />
       <Navbar />
@@ -81,6 +83,10 @@ const BlogPost = () => {
           <h1 className="text-4xl md:text-5xl font-extrabold leading-[1.1] mb-6">
             {post.title}
           </h1>
+
+          {post.image && (
+            <img src={post.image} alt={post.title} width="1200" height="630" fetchPriority="high" className="w-full h-auto mb-8" />
+          )}
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-10 pb-8 border-b border-border">
             <span className="inline-flex items-center gap-1">
