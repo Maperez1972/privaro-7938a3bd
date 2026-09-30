@@ -70,15 +70,15 @@ export const BLOG_POSTS: BlogPost[] = [
     tags: ["Gobernanza de IA", "Agentes de IA"],
     keyword: "gobernanza por clases de agentes",
     en: {
-      title: "Cuando 4.200 agentes de IA toman decisiones a la vez, la gobernanza por agente individual deja de funcionar",
-      description: "AWS entrevistó a 154 ejecutivos en 27 países para su informe \"Reimagine\". Uno de los hallazgos: gobernar agentes de IA uno a uno no escala — hay que gobernar por clases de agentes.",
+      title: "When 4,200 AI agents make decisions at once, governing them one by one stops working",
+      description: "AWS interviewed 154 executives across 27 countries for its Reimagine report. One finding: governing AI agents individually does not scale — governance needs to work by agent class.",
       content: (
         <>
-          <P>AWS acaba de publicar <em>Reimagine: Turning AI into Value</em>, basado en entrevistas a 154 ejecutivos en 27 países sobre qué separa a las organizaciones que sacan valor real de la IA de las que se quedan atascadas en fase piloto.</P>
-          <P>Uno de los hallazgos más concretos viene de OLX: ¿qué pasa con la gobernanza cuando 4.200 agentes de IA toman decisiones simultáneamente? Su respuesta fue clara — gobernanza que opera por <Strong>clases de agentes</Strong>, no agente por agente. Con ese volumen, revisar permisos y comportamiento uno a uno deja de ser viable.</P>
-          <P>Es el mismo patrón que estamos viendo en el mercado: Broadcom lanzó AgentMinder en agosto, una capa que verifica la identidad de cada agente y autoriza cada acción antes de que toque un recurso corporativo — control en el momento pre-ejecución, no auditoría después del hecho.</P>
-          <P>El reto para la mayoría de empresas no es solo "cuántos agentes tenemos", es si pueden aplicar una política consistente a todos ellos sin que cada integración nueva sea una excepción manual. Y si esos agentes tocan datos personales de clientes, la pregunta se vuelve doblemente urgente con las obligaciones del EU AI Act ya en vigor desde agosto de 2026.</P>
-          <P><a href="https://privaro.ai" className="text-primary underline">Mira cómo Privaro aplica gobernanza consistente, agnóstica de proveedor, en cada llamada a un modelo →</a></P>
+          <P>AWS has just published <em>Reimagine: Turning AI into Value</em>, based on interviews with 154 executives in 27 countries about what separates organizations that get real value from AI from those stuck in the pilot stage.</P>
+          <P>One of the most concrete findings comes from OLX: what happens to governance when 4,200 AI agents make decisions simultaneously? Its answer was clear — governance that operates by <Strong>classes of agents</Strong>, not agent by agent. At that scale, reviewing permissions and behavior one by one is no longer viable.</P>
+          <P>It is the same pattern we are seeing in the market: Broadcom launched AgentMinder in August, a layer that verifies each agent's identity and authorizes each action before it touches a corporate resource — control before execution, not an audit after the fact.</P>
+          <P>The challenge for most companies is not just "how many agents do we have?" but whether they can apply a consistent policy to all of them without making every new integration a manual exception. And if those agents handle customers' personal data, the question becomes twice as urgent with EU AI Act obligations already in force since August 2026.</P>
+          <P><a href="https://privaro.ai" className="text-primary underline">See how Privaro applies consistent, provider-agnostic governance to every model call →</a></P>
         </>
       ),
     },
